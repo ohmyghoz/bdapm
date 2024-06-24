@@ -1,0 +1,521 @@
+﻿@using DevExtreme.AspNet.Mvc
+@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+    var maxItems = db.GetSetting("LimitFilterLJK");
+    bool isExport = ViewBag.Export;
+    string reportId = ViewBag.id;
+    bool isHive = ViewBag.Hive;
+    var p = (string[])TempData.Peek("periode");
+    string addinfo=null;
+    var cekKet=(from q in db.Master_Keterangan
+                where q.Stsrc=="A" && q.mk_kode==reportId
+                select q.mk_keterangan);
+    if (cekKet.Count() != 0)
+    {
+        addinfo = cekKet.FirstOrDefault();
+    }
+}
+
+@inject BDA.DataModel.DataEntities db
+
+
+<script>
+    window.jsPDF = window.jspdf.jsPDF;
+    applyPlugin(window.jsPDF);
+</script>
+
+<script type="text/javascript">
+    function ExportToExcel() {
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("LogExportIndex", "DA", new {reportId = reportId})",
+            success: function (response) {
+                if (response.result == "Success") {
+                    var grid = $("#grid1").dxDataGrid("instance");
+                    grid.option("onExporting", function (e) {
+                        e.fileName = "DA_@(reportId)_" + new Date().toISOString().slice(0, 10);
+                    });
+                    grid.option("onFileSaving", function (e) { });
+                    grid.exportToExcel();
+                }
+            }
+        });
+    }
+
+    function CFE(filterValue, selectedFilterOperation) {
+        if (selectedFilterOperation === "=") {
+            var filterExpression = [
+                [this.dataField, ">=", filterValue - 0.5],
+                "and", [this.dataField, "<=", filterValue + 0.5]
+            ];
+            return filterExpression;
+        }
+        return [this.dataField, selectedFilterOperation || '=', filterValue];
+    }
+
+    function ExportToPdf() {
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("LogExportIndex", "DA", new {reportId = reportId})",
+            success: function (response) {
+                if (response.result == "Success") {
+                    const doc = new jsPDF({
+                        orientation: "landscape",
+                        unit: "cm",
+                        format: [21, 60]
+                    });
+                    var dataGrid = $("#grid1").dxDataGrid("instance");
+                    var fileName = "DA_@(reportId)_" + new Date().toISOString().slice(0, 10) + ".pdf";
+                    doc.setFontSize("6")
+                    //var keys = $("#grid1").dxDataGrid("getSelectedRowsData")
+                    //console.log(keys)
+                    DevExpress.pdfExporter.exportDataGrid({
+                        jsPDFDocument: doc,
+                        component: dataGrid,
+                        keepColumnWidths: true
+                        //selectedRowsOnly: true
+                    }).then(function () {
+                        doc.save(fileName);
+                    });
+                }
+            }
+        });
+    }
+
+    function ExportToPdf2() {
+        var dataGrid = $("#grid1").dxDataGrid("instance");
+        dataGrid.option("onExporting", function (e) { });
+        dataGrid.option("onFileSaving", function (e) {
+            var fd = new FormData();
+            fd.append("file", e.data);
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("ExportPDF", "DA", new {reportId = reportId})",
+                data: fd,
+                processData: false,
+                contentType: false
+            }).done(function (data) {
+                window.location = "@Url.Action("File", "DA", new {reportId = reportId})"
+            });
+            e.cancel = true;
+        });
+
+        dataGrid.exportToExcel();
+    }
+    function Antrian() {
+        $("#grid1").dxDataGrid("instance").refresh().then(function () {
+            $.ajax({
+			type: "POST",
+			url: "@Url.Action("Antrian", "DA", new { reportId = reportId })",
+			contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+            dataType: "json",
+            success: function (response) {
+                swal({ type: 'success', title: 'Success', text: response });
+            },
+            error: function (response) {
+                swal({ type: 'error', title: 'Failed', text: response });
+            }
+		    });
+        });
+    }
+    var resetLJK;
+
+    $(function () {
+        $("#Periode").dxValidator({
+            validationGroup: "Filter",
+            validationRules: [{ type: "required", message: "[Periode] harus dipilih" }]
+        })
+
+    });
+
+    function onSelectionChanged(e) {
+        if (e.addedItems.length > 0) {
+            e.component.field().val("");
+        }
+    }
+
+    function onJenisLJKChanged(e) {
+        resetLJK = true;
+        $("#Members").dxTagBox("instance").getDataSource().reload();
+        $("#Members").dxTagBox("reset");
+        resetLJK = false;
+    }
+
+    function onButtonFilterClicked(e) {
+        const res = e.validationGroup.validate();
+        if (res.status === "valid") {
+            $("#grid1").dxDataGrid("instance").refresh();
+            $("#pie-chart").dxPieChart("instance").refresh();
+            $("#bar-chart").dxChart("instance").refresh();
+        }
+    }
+
+    function ChangeNodata() {
+        let periode = $("#Periode").dxTagBox("instance").option("value");
+        if (periode == null) {
+            $("#grid1").dxDataGrid("instance").option("noDataText", 'No Data');
+        } else {
+            $.ajax({
+			    type: "POST",
+			    url: "@Url.Action("CekNoData", "DA", new { reportId = reportId })",
+			    contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+                dataType: "json",
+                data: {
+                    periodes: JSON.stringify(periode)
+                },
+                success: function (response) {
+                    $("#grid1").dxDataGrid("instance").option("noDataText", response.result);
+                },
+                error: function (response) {
+                    swal({ type: 'error', title: 'Failed', text: response });
+                }
+		    });
+        }
+    }
+
+    function onGridBeforeSend(method, ajaxOptions) {
+        let memberTypes = $("#MemberTypes").dxTagBox("instance").option("value");
+        let members = $("#Members").dxTagBox("instance").option("value");
+        let jenisAgunans = $("#JenisAgunans").dxTagBox("instance").option("value");
+        let similarityScores = $("#SimilarityScores").dxRangeSlider("instance").option("value");
+        let periode = $("#Periode").dxTagBox("instance").option("value");
+        ajaxOptions.data.memberTypes = JSON.stringify(memberTypes);
+        ajaxOptions.data.members = JSON.stringify(members);
+        ajaxOptions.data.jenisAgunans = JSON.stringify(jenisAgunans);
+        ajaxOptions.data.similarityScores = JSON.stringify(similarityScores);
+        ajaxOptions.data.periode = JSON.stringify(periode);
+        ajaxOptions.data.reportId = '@reportId';
+    }
+
+    function onLJKOpened(e) {
+        e.component.content().find('.dx-list-select-all').hide();
+    }
+
+    const maxItems = @maxItems;
+
+    function onLJKChanged(e) {
+        if (e.value.length > maxItems) {
+            const newValue = e.value.slice(0, maxItems);
+            e.component.option("value", newValue);
+            //tooltip.show();
+        }
+    }
+
+</script>
+
+<style type="text/css">
+    .mandatory {
+        color: red;
+    }
+</style>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="card card-default">
+        @*filter*@
+        <div class="row filter-panel" style="padding-top:0px;">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-4 form-group">
+                        <label>Periode Pelaporan<span class="mandatory">*</span></label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("Periode")
+                            .DataSource(d => d.Mvc()
+                                .Controller("Ref")
+                                .LoadAction("GetPeriode")
+                                .Key("value"))
+                            .ValueExpr("value")
+                            .DisplayExpr("text")
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .ShowClearButton(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .Width("100%")
+                            //.Value(p)
+                            )
+                    </div>
+                    <div class="col-lg-4 form-group">
+                        <label>Jenis LJK</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("MemberTypes")
+                            .DataSource(d => d.Mvc()
+                                .Controller("Ref")
+                                .LoadAction("GetMemberTypes")
+                                .Key("kode_jenis_ljk"))
+                            //.DataSourceOptions(d => d.Paginate(true).PageSize(10))
+                            .ValueExpr("kode_jenis_ljk")
+                            .DisplayExpr("Display")
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .ShowClearButton(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .OnValueChanged("onJenisLJKChanged")
+                            .Width("100%"))
+                    </div>
+                    <div class="col-lg-4 form-group">
+                        <label>Kode LJK</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("Members")
+                            .DataSource(d => d.Mvc()
+                                .Controller("Ref")
+                                .LoadAction("GetMembers")
+                                .LoadParams(new { memberTypes = new JS("function() { return $(\"#MemberTypes\").dxTagBox(\"instance\").option(\"value\"); }"), reset = new JS("function() { return resetLJK; }") })
+                                //.Key("kode_ljk")
+                                .Key("CompositeKey")
+                            )
+                            .DataSourceOptions(d => d.Paginate(true).PageSize(10))
+                            //.ValueExpr("kode_ljk")
+                            .ValueExpr("CompositeKey")
+                            .DisplayExpr("Display")
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .ShowClearButton(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .OnOpened("onLJKOpened")
+                            .OnValueChanged("onLJKChanged")
+                            .Width("100%"))
+                    </div>
+                    <div class="col-lg-4 form-group">
+                        <label>Jenis Agunan</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("JenisAgunans")
+                            .DataSource(d => d.Mvc()
+                                .Controller("Ref")
+                                .LoadAction("GetJenisAgunanDAIDs")
+                                .Key("kode")
+                            )
+                            .DataSourceOptions(d => d.Paginate(true).PageSize(10))
+                            .ValueExpr("kode")
+                            .DisplayExpr("text")
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .ShowClearButton(true)
+                            .Width("100%"))
+                    </div>
+                    <div class="col-lg-4 form-group">
+                        <label>Similarity Score</label>
+                        @(Html.DevExtreme().RangeSlider()
+                            .ID("SimilarityScores")
+                            .Min(0)
+                            .Max(1)
+                            .Start(0)
+                            .End(1)
+                            .Step(1)
+                            .Tooltip(t => t
+                                .Enabled(true))
+                            .Label(l => l
+                                .Visible(true))
+                        )
+                    </div>
+                    @if (addinfo != null && addinfo.Trim() != "")
+                    {
+                        <div class="col-lg-12" id="divSkenario" style="display:block">
+                            <div style="font-weight:bold">Additional Information</div>
+                            <div>@Html.Raw(addinfo)</div>
+                        </div>
+                    }
+                </div>
+
+                <div class="float-left">
+                    @(Html.DevExtreme().Button()
+                        .ID("Filter")
+                        .Type(ButtonType.Default)
+                        .Text("Tampilkan")
+                        .OnClick("onButtonFilterClicked")
+                        .ValidationGroup("Filter"))
+                </div>
+
+                <div class="float-right">
+                    @if (ViewBag.Export)
+                    {
+                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:Antrian();"><span class="image fa fa-file-invoice"></span> Antrian (CSV)</a>
+                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                    }
+                </div>
+            </div>
+        </div>
+
+        @*grid*@
+        <div class="gridview-div">
+            @BDA.Helper.BDADXExt.DADataGrid((Html.DevExtreme().DataGrid()
+                .ID("grid1")
+                .DataSource(d => d.Mvc()
+                    .Controller("DA")
+                    .LoadAction("GetGridDataDA_AnomaliIDAgunan")
+                    .OnBeforeSend("onGridBeforeSend"))
+                .RemoteOperations(true)
+                .Width("100%")
+                .ColumnChooser(c => c.Enabled(true))
+                .AllowColumnResizing(true)
+                .OnContentReady("ChangeNodata")
+                .Scrolling(s => s.ShowScrollbar(ShowScrollbarMode.Always))
+                .FilterRow(f => f.Visible(true))                
+                .ShowBorders(false)
+                .Selection(c => c.Mode(SelectionMode.Single))
+                .Paging(p =>
+                {
+                    p.PageSize(15);
+                    p.Enabled(true);
+                })
+                .Pager(p =>
+                {
+                    p.Visible(true);
+                    p.ShowInfo(true);
+                })                
+            ),db,reportId,isHive)
+        </div>    
+        
+          @*chart*@
+        <div class="row">
+            
+
+            <div class="col-lg-12">
+                @(Html.DevExtreme().Chart()
+                    .ID("bar-chart")
+                    .DataSource(d => d.Mvc()
+                        .Controller("DA")
+                        .LoadAction("GetGridDataDA_AnomaliIDAgunan")
+                        .LoadParams(new {isChart = true})
+                        .OnBeforeSend("onGridBeforeSend"))
+                    .Palette(VizPalette.Bright)
+                    .Margin(m => m.Top(20).Bottom(20).Right(20).Left(20))
+                    .Title("Berdasarkan Jenis Agunan")
+                    .LoadingIndicator(l => l.Enabled(true))
+                    .Legend(l => l.Visible(false))
+                    .Legend(l => l
+                        .VerticalAlignment(VerticalEdge.Top)
+                        .HorizontalAlignment(HorizontalAlignment.Right)
+                    )
+                    .CommonSeriesSettings(s => s
+                        .ArgumentField("nama_ljk")
+                        .ValueField("dm_count")
+                        .IgnoreEmptyPoints(true)
+                        .Type(SeriesType.Bar))
+                    .SeriesTemplate(t => t.NameField("dm_jenis_agunan"))
+                    .Tooltip(t => t
+                        .Enabled(true)
+                        .CustomizeTooltip(@<text>
+                                                    function(arg) {
+                                                            return {
+                                                                text: arg.valueText.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                                            }
+                                                        }
+                                                </text>)
+                    )
+                    .ValueAxis(a => a
+                        .Add()
+                        .Label(l => l.CustomizeText(@<text>
+                                                    function() {
+                                                            return this.valueText.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                                                        }
+                                                </text>))
+                    )
+                    .ArgumentAxis(a => a
+                        .Label(l => l
+                            .RotationAngle(30)
+                            .OverlappingBehavior(OverlappingBehavior.Rotate)
+                            .CustomizeText(@<text>
+                                                         function() {
+                                                                     if (this.valueText.toString().length > 20) {
+                                                                         return  this.valueText.toString().substring(0, 19) + "...";
+                                                                    }
+                                                                    else {
+                                                                         return this.valueText.toString();
+                                                                    }
+                                                               }
+                                                    </text>)
+                            )
+                    )
+                    .Export(e => e.Enabled(isExport))
+                    .OnExporting(@<text>
+                                                function(e) {
+                                                    e.fileName = "BarChart_DA_04_" + new Date().toISOString().slice(0, 10);
+                                                    $.ajax({
+                                                        type: "POST",
+                                                        url: "@Url.Action("LogExportIndex", "DA", new { reportId = reportId })",
+                                                        success: function (response) {
+                                                            if (response.result == "Success") {
+
+                                                            }
+                                                        }
+                                                    });
+                                                }
+                                            </text>))
+            </div>
+            <div class="col-lg-12">
+                @(Html.DevExtreme().PieChart()
+                    .ID("pie-chart")
+                    .DataSource(d => d.Mvc()
+                        .Controller("DA")
+                        .LoadAction("GetGridDataDA_AnomaliIDAgunan")
+                        .LoadParams(new {isPieChart = true})
+                        .OnBeforeSend("onGridBeforeSend"))
+                    .ResolveLabelOverlapping(PieChartResolveLabelOverlapping.Shift)
+                    .Margin(m => m.Top(20).Bottom(20).Right(20).Left(20))
+                    //.Size(s => s.Height(400).Width(400))
+                    .Title("Berdasarkan Jenis Agunan")
+                    .LoadingIndicator(l => l.Enabled(true))
+                    .Legend(l => l.Visible(false))
+                    .Series(s => s
+                        .Add()
+                        .ArgumentField("dm_base")
+                        .ValueField("dm_count")
+                        .Label(l => l
+                            .Visible(true)
+                            .Connector(c => c.Visible(true))
+                            .CustomizeText(@<text>
+                                                        function(arg) {
+                                                            return arg.argumentText + " (" + arg.percentText + ")";
+                                                        }
+                                                    </text>)
+                        )
+                    )
+                    .CustomizePoint(@<text>
+                        function(arg) {
+                            if (arg.argument === "Tidak Anomali") {
+                                return {
+                                    color: "#1DB2F5"
+                                };
+                            } else if (arg.argument === "Anomali") {
+                                return {
+                                    color: "red"
+                                };
+                            }
+                        }
+                    </text>)
+                    .Tooltip(t => t
+                        .Enabled(true)
+                        .CustomizeTooltip(@<text>
+                                                    function(arg) {
+                                                        return {
+                                                            text: arg.value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " (" + arg.percentText + ")"
+                                                        }
+                                                    }
+                                                </text>)
+                    )
+                    .Export(e => e.Enabled(isExport))
+                    .OnExporting(@<text>
+                                                function(e) {
+                                                    e.fileName = "PieChart_DA_04_" + new Date().toISOString().slice(0, 10);
+                                                    $.ajax({
+                                                        type: "POST",
+                                                        url: "@Url.Action("LogExportIndex", "DA", new { reportId = reportId })",
+                                                        success: function (response) {
+                                                            if (response.result == "Success") {
+
+                                                            }
+                                                        }
+                                                    });
+                                                }
+                                            </text>))
+            </div>
+        </div>
+    </div>
+}

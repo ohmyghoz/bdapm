@@ -1,0 +1,536 @@
+﻿@inject BDA.DataModel.DataEntities db
+@inject BDA.DataModel.AppSettings appSet
+
+@{
+    ViewBag.Title = "_LayoutMain";
+}
+@{
+    //var mdl = new BDA.Models.MenuModels(db);
+    var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+    var map = mdl.GetSiteDbMap();
+    var currentNode = mdl.GetCurrentNode();
+    var currentNodeBreadcrumb = mdl.GetCurrentNodeBreadcrumb();
+
+    string title = null;
+    if (currentNode != null) { title = currentNode.Title; }
+    if (ViewBag.HeaderTitle != null) { title = ViewBag.HeaderTitle; }
+
+    BDA.Helper.CheckCookies.CheckValidCookiesLogin(db, appSet);
+}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+    <meta charset="utf-8" />
+    @if (title != null)
+    {
+
+        <title>@title - @RSC.AppTitle</title>
+    }
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link rel="apple-touch-icon" href="~/pages/ico/60.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="~/pages/ico/76.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="~/pages/ico/120.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="~/pages/ico/152.png">
+    <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-touch-fullscreen" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta content="" name="description" />
+    <meta content="" name="author" />
+
+    <link rel="stylesheet" href="~/assets/fonts/fonts.css" />
+    <link rel="stylesheet" href="~/assets/plugins/pace/pace-theme-flash.css" />
+    <link rel="stylesheet" href="~/assets/plugins/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/assets/plugins/font-awesome/css/font-awesome.css" />
+    <link rel="stylesheet" href="~/assets/plugins/jquery-scrollbar/jquery.scrollbar.css" />
+    <link rel="stylesheet" href="~/assets/plugins/select2/css/select2.min.css" />
+    <link rel="stylesheet" href="~/assets/plugins/switchery/css/switchery.min.css" />
+    <link rel="stylesheet" href="~/pages/css/pages-icons.css" />
+    <link rel="stylesheet" href="~/pages/css/pages.css" />
+    <link rel="stylesheet" href="~/assets/css/custom.css" />
+
+    @RenderSection("Scripts", required: false)
+
+    @if (this.ViewContext.RouteData.Values["controller"].ToString() != "DXReport" && ViewBag.IsReport == null)
+    {
+
+        <link href="~/css/devextreme/dx.common.css" rel="stylesheet" />
+        <link href="~/css/devextreme/dx.light.css" rel="stylesheet" />
+        <script src="~/js/devextreme/jquery.js"></script>
+        <script src="~/js/devextreme/cldr.js"></script>
+        <script src="~/js/devextreme/cldr/event.js"></script>
+        <script src="~/js/devextreme/cldr/supplemental.js"></script>
+        <script src="~/js/devextreme/cldr/unresolved.js"></script>
+
+        <script src="~/js/devextreme/globalize.js"></script>
+        <script src="~/js/devextreme/globalize/message.js"></script>
+        <script src="~/js/devextreme/globalize/number.js"></script>
+        <script src="~/js/devextreme/globalize/currency.js"></script>
+        <script src="~/js/devextreme/globalize/date.js"></script>
+        <script src="~/js/devextreme/jszip.js"></script>
+        @*<script src="~/js/devextreme/dx-quill.min.js"></script>*@
+        <script src="~/js/dx-quill.min.js"></script>
+        <script src="~/js/devextreme/dx.all.js"></script>
+        <script src="~/js/devextreme/vectormap-data/world.js"></script>
+        <script src="~/js/devextreme/aspnet/dx.aspnet.data.js"></script>
+        <script src="~/js/devextreme/aspnet/dx.aspnet.mvc.js"></script>
+
+
+        <script src="~/js/devextreme/dx.messages.id.js"></script>
+        <script>
+            DevExpress.localization.locale("en");
+        </script>
+    }
+
+    
+
+</head>
+
+<body class="fixed-header">
+    <!-- style utk collapse/uncollapse card -->
+    <style>
+        .card-header .fa {
+            transition: .3s transform ease-in-out;
+        }
+
+        .card-header .collapsed .fa {
+            transform: rotate(90deg);
+        }
+    </style>
+    <script>
+        var pageTitle = "@(currentNode != null ? currentNode.Title : "")";
+    </script>
+    
+    <div style="height: 100%; width: 100%;">
+        <!-- BEGIN SIDEBAR -->
+        <!-- BEGIN SIDEBPANEL-->
+        <nav class="page-sidebar" data-pages="sidebar">
+            <!-- BEGIN SIDEBAR MENU TOP TRAY CONTENT-->
+            <div class="sidebar-overlay-slide from-top" id="appMenu">
+            </div>
+            <!-- END SIDEBAR MENU TOP TRAY CONTENT-->
+            <!-- BEGIN SIDEBAR MENU HEADER-->
+            <div class="sidebar-header">
+                <img class="overlay-brand" src="@Url.Content("~/assets/img/pages_icon_2x.png")" alt="logo" data-src="@Url.Content("~/assets/img/pages_icon_2x.png")" data-src-retina="@Url.Content("~/assets/img/pages_icon_2x.png")" width="36" height="22">
+                <div class="sidebar-header-controls">
+                    <button type="button" class="btn btn-xs sidebar-slide-toggle btn-link m-l-20" data-pages-toggle="#appMenu">
+                        <i class="fa fa-angle-down fs-16"></i>
+                    </button>
+                    <button type="button" class="btn btn-link hidden-sm-down" data-toggle-pin="sidebar">
+                        <i class="fa fs-12"></i>
+                    </button>
+                </div>
+            </div>
+            <!-- END SIDEBAR MENU HEADER-->
+            <!-- START SIDEBAR MENU -->
+            <div class="sidebar-menu">
+                <!-- BEGIN SIDEBAR MENU ITEMS-->
+                <ul class="menu-items">
+                    @*<partial name="_LayoutMenuPartial" model="map" />*@
+                    <partial name="_LayoutMenuDBPartial" model="map" />
+                </ul>
+                <div class="clearfix"></div>
+            </div>
+            <!-- END SIDEBAR MENU -->
+        </nav>
+        <!-- END SIDEBAR -->
+        <!-- START PAGE-CONTAINER -->
+        <div class="page-container">
+            <!-- START PAGE HEADER WRAPPER -->
+            <!-- START HEADER -->
+            <div class="header">
+                <!-- START MOBILE SIDEBAR TOGGLE -->
+                <a href="#" class="btn-link toggle-sidebar hidden-lg-up pg pg-menu" data-toggle="sidebar"></a>
+                <!-- END MOBILE SIDEBAR TOGGLE -->
+                <div class="">
+                    <div class="brand inline wslogo">
+                        <img class="overlay-brand" src="@Url.Content("~/assets/img/pages_icon_2x.png")" alt="logo" data-src="@Url.Content("~/assets/img/pages_icon_2x.png")" data-src-retina="@Url.Content("~/assets/img/pages_icon_2x.png")" width="50" height="30">
+                    </div>
+                    <div class="hidden-md-down notification-list no-margin hidden-sm-down b-grey b-l no-style p-l-30 p-r-20">@RSC.AppTitle</div>
+                    <!-- START NOTIFICATION LIST -->
+                    @{
+
+                        var nottList = db.getNotification(User.Identity.Name).ToList();
+                        var notice_bubble_class = " hidden";
+                        var lastRead = new DateTime(1990, 1, 1);
+                        var usr = db.UserMaster.Find(User.Identity.Name);
+                        if (usr != null)
+                        {
+                            if (usr.UserNoticeLastRead != null) { lastRead = usr.UserNoticeLastRead.Value; }
+                        }
+                        if (nottList.Any() && nottList[0].CreatedDatetime > lastRead)
+                        {
+                            notice_bubble_class = "";
+                        }
+                    }
+
+                    <ul class="d-lg-inline-block d-none notification-list no-margin d-lg-inline-block b-grey b-l b-r no-style p-l-20 p-r-20">
+                        <li class="p-r-5 inline">
+                            <div class="dropdown">
+                                <a href="javascript:;" id="notification-center" class="header-icon  btn-icon-link" data-toggle="dropdown">
+                                    <i class="fa fa-comment-o"></i>
+                                    <span class="bubble @notice_bubble_class" id="notice_bubble"></span>
+                                </a>
+                                <!-- START Notification Dropdown -->
+                                <div class="dropdown-menu notification-toggle" role="menu" aria-labelledby="notification-center">
+                                    <!-- START Notification -->
+                                    <div class="notification-panel">
+                                        <!-- START Notification Body-->
+                                        <div class="notification-body scrollable">
+                                            <!-- START Notification Item-->
+                                            @foreach (var nott in nottList)
+                                            {
+                                                <div class="notification-item unread clearfix">
+                                                    <!-- START Notification Item-->
+                                                    <div class="heading open">
+                                                        <div class="pull-right">
+                                                            @if (nott.CreatedDatetime != null)
+                                                            {
+                                                                <span class="time p-l-10">@BDA.DataModel.LibFunction.GetTimeSince(nott.CreatedDatetime.Value) </span>
+                                                            }
+                                                        </div>
+                                                        <p class="small hint-text p-t-10 @(nott.CreatedDatetime > lastRead ? "bold": "") ">
+                                                            @(String.IsNullOrWhiteSpace(nott.noticesmallcontent) ? nott.noticetitle : nott.noticesmallcontent)
+
+                                                            <a href="@Url.Action("Pertanyaan","Layanan", new { area = "Ticket", id = nott.noticerefid })" style="color:red" target="_blank">| Link Alert</a>
+
+                                                        </p>
+                                                    </div>
+                                                    <!-- END Notification Item-->
+
+                                                </div>
+                                            }
+
+                                        </div>
+                                        <!-- END Notification Body-->
+                                        <!-- START Notification Footer-->
+                                        <div class="notification-footer text-center">
+                                            <a href="#" class="" onclick="MarkNoticeRead()">Read all notifications</a>
+                                            <a data-toggle="refresh" class="portlet-refresh text-black pull-right" href="#">
+                                                <i class="pg-refresh_new"></i>
+                                            </a>
+                                        </div>
+                                        <!-- START Notification Footer-->
+                                    </div>
+                                    <!-- END Notification -->
+                                </div>
+                                <!-- END Notification Dropdown -->
+                            </div>
+                        </li>
+
+                    </ul>
+                    <!-- END NOTIFICATIONS LIST -->
+                    @*@if (currentNode != null)
+                        {
+                        <a href="#" class="search-link hidden-md-down">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="bold" style="font-size:150%;color:#2c2c2c;">@currentNode.Title</span></a>
+                        }*@
+
+                </div>
+                <div class="d-flex align-items-center">
+                    <span class="b-grey b-l p-l-20 fa fa-clock-o hidden-md-down"></span><span id="lblTime" style="font-family:monospace;" class="hidden-md-down b-grey b-r p-l-10 p-r-20"></span>
+                    <!-- START User Info-->
+                    @if (db.httpContext.User != null && db.httpContext.User.Identity.Name != null)
+                    {
+                        <span class="semi-bold p-l-20 hidden-md-down">
+                            @db.httpContext.User.Identity.Name.ToString()
+                        </span>
+                    }
+                    <div class="dropdown pull-right hidden-md-down">
+                        <button class="profile-dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="thumbnail-wrapper d32 circular inline">
+                                <img src="@Url.Content("~/assets/img/profiles/avatar.jpg")" alt="" data-src="@Url.Content("~/assets/img/profiles/avatar.jpg")" data-src-retina="@Url.Content("~/assets/img/profiles/avatar_small2x.jpg")" width="32" height="32">
+                            </span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right profile-dropdown" role="menu">
+                            <a href="~/assets/nd732ms530.pdf" class="dropdown-item"><i class="pg-signals"></i>Help</a>
+                            <a onclick="window.location = '@Url.Action("Logout", "Home", new { area = "Website" })'" style="cursor:pointer;" class="dropdown-item"><i class="pg-power"></i>Logout</a>
+                        </div>
+                    </div>
+                    <!-- END User Info-->
+                </div>
+            </div>
+            <!-- END HEADER -->
+            <!-- END PAGE HEADER WRAPPER -->
+            <!-- START PAGE CONTENT WRAPPER -->
+            <div class="page-content-wrapper">
+                <!-- START PAGE CONTENT -->
+                <div class="content">
+                    <div class="container-fluid">
+                        <!-- START BREADCRUMB -->
+                        <ul class="breadcrumb p-l-0">
+                            @*males rekursive, sementara panggil sampe 4 level saja*@
+                            @{string breadcrumb = ""; }
+
+                            @if (currentNode != null)
+                            {
+
+                                breadcrumb += "<li class=\"breadcrumb-item active\">" + currentNode.Title + "</li>";
+                                if (currentNode.MyParent != null && currentNode.MyParent.MyParent != null) //lv2
+                                {
+                                    breadcrumb = "<li class=\"breadcrumb-item active\"><a href=\"" + Url.Content(String.IsNullOrWhiteSpace(currentNode.MyParent.Url) ? "~" : currentNode.MyParent.Url) + "\">" + currentNode.MyParent.Title + "</a></li>" + breadcrumb;
+                                    if (currentNode.MyParent.MyParent != null && currentNode.MyParent.MyParent.MyParent != null) //lv3
+                                    {
+                                        breadcrumb = "<li class=\"breadcrumb-item active\"><a href=\"" + Url.Content(String.IsNullOrWhiteSpace(currentNode.MyParent.MyParent.Url) ? "~" : currentNode.MyParent.MyParent.Url) + "\">" + currentNode.MyParent.MyParent.Title + "</a></li>" + breadcrumb;
+                                        if (currentNode.MyParent.MyParent.MyParent != null && currentNode.MyParent.MyParent.MyParent.MyParent != null) //lv5
+                                        {
+                                            breadcrumb = "<li class=\"breadcrumb-item active\"><a href=\"" + Url.Content(String.IsNullOrWhiteSpace(currentNode.MyParent.MyParent.MyParent.Url) ? "~" : currentNode.MyParent.MyParent.MyParent.Url) + "\">" + currentNode.MyParent.MyParent.MyParent.Title + "</a></li>" + breadcrumb;
+                                        }
+                                    }
+
+                                }
+
+                            }
+                            @Html.Raw(breadcrumb)
+                        </ul>
+                        <!-- END BREADCRUMB -->
+                        @RenderBody()
+                    </div>
+                </div>
+
+                <!-- END PAGE CONTENT -->
+                <!-- START FOOTER -->
+                <div class="container-fluid footer">
+                    <div class="copyright sm-text-center">
+                        <p class="small no-margin pull-left sm-pull-reset">
+                            <span class="hint-text">Copyright © 2021</span>
+                            <span class="font-montserrat">Otoritas Jasa Keuangan</span>.
+
+                            <span class="hint-text">All rights reserved.</span>
+                            <span class="sm-block">
+                                <a href="#" class="m-l-10 m-r-10">Terms of use</a> | <a href="#" class="m-l-10">Privacy Policy</a>
+                            </span>
+                        </p>
+                        <p class="small no-margin pull-right sm-pull-reset">
+                            <span class="hint-text">Best Viewed using IE11+, Firefox or Chrome</span>
+                        </p>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+                <!-- END FOOTER -->
+            </div>
+            <!-- END PAGE CONTENT WRAPPER -->
+        </div>
+
+        <!-- END PAGE CONTAINER -->
+
+        <script src="~/assets/plugins/jquery-ui/jquery-ui.min.js"></script>
+        <script src="~/assets/plugins/pace/pace.min.js"></script>
+        <script src="~/assets/plugins/modernizr.custom.js"></script>
+        <script src="~/assets/plugins/tether/js/tether.min.js"></script>
+        <script src="~/assets/plugins/bootstrap/js/bootstrap.min.js"></script>
+        <script src="~/assets/plugins/jquery/jquery-easy.js"></script>
+        <script src="~/assets/plugins/jquery-unveil/jquery.unveil.min.js"></script>
+        <script src="~/assets/plugins/jquery-bez/jquery.bez.min.js"></script>
+        <script src="~/assets/plugins/jquery-ios-list/jquery.ioslist.min.js"></script>
+        <script src="~/assets/plugins/imagesloaded/imagesloaded.pkgd.min.js"></script>
+        <script src="~/assets/plugins/pace/pace.min.js"></script>
+        <script src="~/assets/plugins/jquery-actual/jquery.actual.min.js"></script>
+        <script src="~/assets/plugins/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+        <script src="~/assets/plugins/classie/classie.js"></script>
+        <script src="~/pages/js/pages.js"></script>
+        <script src="~/assets/js/scripts.js"></script>
+        <script src="~/assets/js/sweetalert2.all.js"></script>
+        <script src="~/assets/js/polyfill.min.js"></script>
+        <script src="~/assets/js/wsscripts.js"></script>
+        @{
+            var scriptText = "";
+            if (db.GetSessionString("errtext") != null)
+            {
+                scriptText += "<script>jQuery(document).ready(function () {swal({type: 'error', title: 'Oops...',  html: '" + (db.GetSessionString("errtext").Replace("'", "\\'").Replace(Environment.NewLine, "<br />")) + "',})});</script>";
+                db.RemoveSession("errtext");
+            }
+            else if (db.GetSessionString("sctext") != null)
+            {
+                scriptText += "<script>jQuery(document).ready(function () {swal({type: 'success', title: 'Success',  html: '" + (db.GetSessionString("sctext").Replace("'", "\\'")) + "',})});</script>";
+                db.RemoveSession("sctext");
+            }
+            else if (db.GetSessionString("warntext") != null)
+            {
+                scriptText += "<script>jQuery(document).ready(function () {swal({type: 'warning', title: 'Warning',  html: '" + (db.GetSessionString("warntext").Replace("'", "\\'")) + "',})});</script>";
+                db.RemoveSession("warntext");
+            }
+        }
+        @Html.Raw(scriptText)
+
+
+        @(Html.DevExtreme().Popup()
+                .ID("popupMain")
+                .ElementAttr("class", "popup")
+                .ShowTitle(true)
+                .Visible(false)
+                .DragEnabled(true)
+                .ResizeEnabled(true)
+                .CloseOnOutsideClick(true)
+                .ContentTemplate(@<text>
+                            <iframe src="" id="popupContainer" frameborder="0" style="overflow:hidden;height:100%;width:100%" height="100%" width="100%"></iframe>
+                </text>)
+         .OnHiding("PopupOnHiding")
+        )
+        @(Html.DevExtreme().Popup()
+                .ID("popupMain2")
+                .ElementAttr("class", "popup")
+                .ShowTitle(true)
+                .Visible(false)
+                .DragEnabled(true)
+                .ResizeEnabled(true)
+                .CloseOnOutsideClick(true)
+                .ContentTemplate(@<text>
+                            <iframe src="" id="popupContainer2" frameborder="0" style="overflow:hidden;height:100%;width:100%" height="100%" width="100%"></iframe>
+                </text>)
+         .OnHiding("PopupOnHiding2")
+        )
+        @(Html.DevExtreme().Popup()
+                .ID("popupMain3")
+                .ElementAttr("class", "popup")
+                .ShowTitle(true)
+                .Visible(false)
+                .DragEnabled(true)
+                .ResizeEnabled(true)
+                .CloseOnOutsideClick(true)
+                .ContentTemplate(@<text>
+                            <iframe src="" id="popupContainer3" frameborder="0" style="overflow:hidden;height:100%;width:100%" height="100%" width="100%"></iframe>
+                </text>)
+         .OnHiding("PopupOnHiding3")
+        )
+        <script>
+            function ShowPopupMain(url, title, width, height, closingFunction) {
+                var popup = $("#popupMain").dxPopup("instance");
+                popup.option("width", width);
+                popup.option("height", height);
+                popup.option("title", title);
+                if (typeof (closingFunction) != 'undefined') {
+                    myClosingFunction = closingFunction;
+                } else {
+                    myClosingFunction = null
+                }
+
+                popup.show();
+                document.getElementById('popupContainer').src = url;
+            }
+
+            var myClosingFunction;
+            function ClosePopup(msg) {
+                var popup1 = $("#popupMain").dxPopup("instance");
+                var popup2 = $("#popupMain2").dxPopup("instance");
+                var popup3 = $("#popupMain3").dxPopup("instance");
+                if (popup3.option('visible') == true) {
+                    popup3.hide();
+                    setTimeout(function () {
+                        alert(msg);
+                        if (myClosingFunction3 != null) {
+                            myClosingFunction3();
+                        }
+                    }, 200);
+                }else if (popup2.option('visible') == true) {
+                    popup2.hide();
+                    setTimeout(function () {
+                        alert(msg);
+                        if (myClosingFunction2 != null) {
+                            myClosingFunction2();
+                        }
+                    }, 200);
+                }else {
+                    popup1.hide();
+                    setTimeout(function () {
+                        alert(msg);
+                        if (myClosingFunction != null) {
+                            myClosingFunction();
+                        }
+                    }, 200);
+                }
+            }
+
+            function ShowPopupMain2(url, title, width, height, closingFunction) {
+                var popup = $("#popupMain2").dxPopup("instance");
+                if (popup.option('visible') == true) {
+                    //popup2 sudah open, artinya waktunya popup3
+                    ShowPopupMain3(url, title, width, height, closingFunction);
+                } else {
+                    popup.option("width", width);
+                    popup.option("height", height);
+                    popup.option("title", title);
+                    if (typeof (closingFunction) != 'undefined') {
+                        myClosingFunction2 = closingFunction;
+                    } else {
+                        myClosingFunction2 = null
+                    }
+
+                    popup.show();
+                    document.getElementById('popupContainer2').src = url;
+                }
+            }
+
+            function ShowPopupMain3(url, title, width, height, closingFunction) {
+                var popup = $("#popupMain3").dxPopup("instance");
+                popup.option("width", width);
+                popup.option("height", height);
+                popup.option("title", title);
+                if (typeof (closingFunction) != 'undefined') {
+                    myClosingFunction3 = closingFunction;
+                } else {
+                    myClosingFunction3 = null
+                }
+
+                popup.show();
+                document.getElementById('popupContainer3').src = url;
+            }
+
+            function PopupOnHiding(e) {
+                document.getElementById('popupContainer').src = "";
+            }
+            function PopupOnHiding2(e) {
+                document.getElementById('popupContainer2').src = "";
+            }
+            function PopupOnHiding3(e) {
+                document.getElementById('popupContainer3').src = "";
+            }
+        //important! to complement AutoValidateAntiforgeryTokenAttribute
+        if ($('input:hidden[name="__RequestVerificationToken"]').length) {
+            $.ajaxSetup({
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("XSRF-TOKEN", $('input:hidden[name="__RequestVerificationToken"]').val());
+                }
+            });
+
+
+        }
+        $(document).ready(function () {
+            //Disable autocomplete throughout the site
+            $("input:text,form").attr("autocomplete", "off");
+
+            //set time
+            var myTime;
+            myTime = new Date('@DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss", System.Globalization.CultureInfo.InvariantCulture)');
+            SetCurrentTime(myTime);
+            ShowTime();
+
+        });
+
+        function MarkNoticeRead() {
+            var ask = confirm('Apakah Anda yakin akan mengubah status read ?');
+            if (ask) {
+                $.ajax({
+					type: "POST",
+					url: "@Url.Action("MarkNoticeRead","Email",new {area = "FW" })",
+					contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+                    dataType: "json",
+                    data: "param1=1",
+                    success: function (response) {
+                        alert(response);
+                        $("#notice_bubble").hide();
+                    },
+                    error: function (response) {
+                        alert(response.responseJSON.error);
+                    }
+				});
+            }
+        }
+        </script>
+    </div>
+</body>
+
+</html>

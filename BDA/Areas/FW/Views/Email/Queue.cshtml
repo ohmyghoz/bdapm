@@ -1,0 +1,112 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+}
+
+<style>
+    .dx-datagrid .dx-row > td {
+        font-size: 80%;
+    }
+</style>
+
+@section RightToolbar{
+    <div class="d-flex align-items-center">
+        <!--begin::Actions-->
+        @{
+            if (ViewBag.Edit)
+            {
+                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:Resend();"><span class="image fa fa-send"></span> Resend</a>
+            }
+        }
+        <!--end::Actions-->
+    </div>
+}
+
+<div class="card card-default">
+    <script>
+        function OpenBody(id) {
+            ShowPopupMain("@Url.Action("PopupBody","Email")?id=" + id, "Badan Email", "900px", "500px");
+        }
+    </script>
+
+    <div>
+        @Html.AntiForgeryToken()
+
+        @(Html.DevExtreme().DataGrid()
+            .ID("grid1")
+            .DataSource(d => d.Mvc()
+                .Controller("Email")
+                .LoadAction("GetGridQueueData")
+                .Key("EmailqId")
+            )
+            .Width("100%")
+            .RemoteOperations(true)
+            .Columns(columns =>
+            {
+                columns.Add().DataField("EmailqQueueDate").Width("300px").Caption("Tanggal Antrian").DataType(GridColumnDataType.DateTime).Format("dd-MM-yyyy HH:mm").SortIndex(0).SortOrder(SortOrder.Desc);
+                columns.Add().DataField("EmailqTo").Width("200px").Caption("Kepada");
+                columns.Add().DataField("EmailqSubject").Width("200px").Caption("Judul").CellTemplate(@<text><a style="cursor:pointer;" href="#" onclick="OpenBody('<%= data.EmailqId%>')" title='<%= data.EmailqSubject%>'><%= data.EmailqSubject%></a></text>);
+                columns.Add().DataField("EmailqStatus").Width("50px").Caption("Status");
+                columns.Add().DataField("EmailqCc").Width("200px").Caption("Cc");
+                //columns.Add().DataField("EmailqBcc").Width("200px").Caption("Bcc");
+                columns.Add().DataField("EmailqErrorText").Caption("Error Text");
+                columns.Add().DataField("EmailqId").Visible(false);
+
+            })
+            .FilterRow(f => f.Visible(true))
+            .ShowBorders(false)
+            .Selection(c => c.Mode(SelectionMode.Single))
+            .RowAlternationEnabled(false)
+            .Paging(p =>
+            {
+                p.PageSize(20);
+                p.Enabled(true);
+            })
+        )
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    function Resend(e) {
+        var keys = $("#grid1").dxDataGrid("getSelectedRowKeys");
+        if (keys.length >= 1) {
+            var ask = confirm('Apakah Anda yakin akan mengirim ulang email ini ?');
+            if (ask) {
+                $.ajax({
+					type: "POST",
+					url: "@Url.Action("Resend","Email")",
+					contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+                    dataType: "json",
+                    data: {
+                        key: keys[0]
+                    },
+                    success: function (response) {
+                        if (response.includes("Sukses")) {
+                            swal({
+                                type: "success",
+                                title: "Sukses",
+                                text: response
+                            });
+                            $("#grid1").dxDataGrid("instance").refresh();
+                        } else {
+                            swal({
+                                type: "error",
+                                title: "Oops...",
+                                text: response
+                            });
+                        }
+                    },
+                    error: function (response) {
+                        swal({
+                            type: "error",
+                            title: "Oops...",
+                            text: response.responseJSON.error
+                        });
+                    }
+				});
+            }
+        } else {
+            alert('Silahkan Pilih Baris Telebih Dahulu');
+        }
+    }
+</script>

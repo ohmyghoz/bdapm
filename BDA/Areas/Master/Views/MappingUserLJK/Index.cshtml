@@ -1,0 +1,76 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+}
+
+<script type="text/javascript">
+    function Export() {
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("LogExport", "MappingUserLJK")",
+            success: function (response) {
+                if (response.result == "Success") {
+                    var grid = $("#grid1").dxDataGrid("instance");
+                    grid.option("onFileSaving", function (e) { });
+                    grid.exportToExcel();
+                }
+            }
+        });
+    }
+</script>
+
+@section RightToolbar{
+    <div class="d-flex align-items-center">
+        <!--begin::Actions-->
+        @if (ViewBag.Export)
+        {
+            <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:Export();"><span class="image fa fa-file-excel"></span> Export Excel</a>
+        }
+        <!--end::Actions-->
+    </div>
+}
+
+<div class="card card-default">
+    <div>
+        @Html.AntiForgeryToken()
+
+        @(Html.DevExtreme().DataGrid()
+            .ID("grid1")
+            .DataSource(d => d.Mvc()
+                .Controller("MappingUserLJK")
+                .LoadAction("GetGridData")
+                .Key("rownum"))
+            .Width("100%")
+            .RemoteOperations(true)
+            .Columns(columns =>
+            {
+                columns.Add().DataField("user_login_id").Caption("User ID").Width("100%");
+                columns.Add().DataField("orgn_name").Caption("Origin Name").Width("100%");
+                //columns.Add().DataField("employee_id").Caption("Employee ID").Width("100%");
+                columns.Add().DataField("phone_number").Caption("Phone Number").Width("100%");
+                columns.Add().DataField("group_name").Caption("Group Name").Width("100%");
+                //columns.Add().DataField("member_type_code").Caption("Kode LJK Tipe").Width("100%");
+                columns.Add().DataField("membertypecode").Caption("LJK Tipe").Width("100%");
+                //columns.Add().DataField("member_code").Caption("Kode LJK").Width("100%");
+                columns.Add().DataField("membercode").Caption("LJK").Width("100%");
+                //columns.Add().DataField("p_date").Caption("Periode Date").Width("100%");
+            })
+            .FilterRow(f => f.Visible(true))
+            .ShowBorders(false)
+            .Selection(c => c.Mode(SelectionMode.Single))
+            .RowAlternationEnabled(false)
+            .OnExporting(@<text>
+                function(e) {
+                    e.fileName = "PengawasLJK_" + new Date().toISOString().slice(0, 10);
+                }
+            </text>)
+            .Paging(p =>
+            {
+                p.PageSize(20);
+                p.Enabled(true);
+            }))
+    </div>
+</div>
+
+<div class=" pull-left" style="font-weight:bold">
+    Last Sync : @ViewBag.lastsync
+</div>

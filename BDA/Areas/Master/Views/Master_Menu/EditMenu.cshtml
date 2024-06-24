@@ -1,0 +1,108 @@
+﻿@model BDA.DataModel.FWRefModulMenu
+
+@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+}
+
+@section RightToolbar{
+    <div class="d-flex align-items-center">
+        <a class="nav-link btn btn-light-warning font-weight-bolder btn-sm mr-2" href="@Url.Action("Index")"><i class="fa fa-arrow-left"></i> Kembali Ke Daftar</a>
+    </div>
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="card card-default">
+        <div class="card-body">
+            <div class="row">
+                <securehidden asp-for="ModMenuId"></securehidden>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="ModMenuId"></label>
+                    @(Html.DevExtreme().DropDownBoxFor(m => m.ModId)
+                        .DataSource(d => d.Mvc()
+                            .Controller("Master_Menu")
+                            .LoadAction("GetRefModul")
+                            .Key("ModId"))
+                        .ValueExpr("ModId")
+                        .DisplayExpr("ModKode")
+                        .OnValueChanged("treeBox_valueChanged")
+                        .ContentTemplate(new TemplateName("EmbeddedTreeViewSingle")))
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="ModMenuAksi"></label>
+                    @(Html.DevExtreme().SelectBoxFor(m => m.ModMenuAksi)
+                        .DataSource(new JS("MenuAksi"))
+                        .ValueExpr("value")
+                        .DisplayExpr("display")
+                        .Width("100%"))
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="ModMenuUrl"></label>
+                    @Html.DevExtreme().TextBoxFor(m => m.ModMenuUrl).Width("100%").MaxLength(500)
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="ModMenuIsHidden"></label>
+                    @Html.DevExtreme().CheckBoxFor(m => m.ModMenuIsHidden).Width("100%")
+                </div>
+            </div>
+            @Html.DevExtreme().Button().ID("btnSave").Text("Simpan").UseSubmitBehavior(true)
+        </div>
+    </div>
+}
+
+@using (Html.DevExtreme().NamedTemplate("EmbeddedTreeViewSingle"))
+{
+    @(Html.DevExtreme().TreeView()
+        .DataSource(new JS(@"component.getDataSource()"))
+        .KeyExpr("ModId")
+        .ParentIdExpr("ParentModId")
+        .DisplayExpr("ModKode")
+        .DataStructure(TreeViewDataStructure.Plain)
+        .SelectionMode(NavSelectionMode.Single)
+        .SelectByClick(true)
+        .Height(235)
+        .OnItemClick(@<text>
+            function(args) {
+                component.close();
+            }
+        </text>)
+        .OnItemSelectionChanged(@<text>
+            function(args) {
+                component.option("value", args.component.getSelectedNodeKeys());
+            }
+        </text>)
+        @*.OnContentReady(@<text>
+            function(args) {
+                syncTreeViewSelection(args.component, component.option("value"));
+            }
+        </text>)*@
+    )
+}
+
+<script type="text/javascript">
+    var MenuAksi = [
+        { display: "Lihat", value: "View" },
+        { display: "Tambah", value: "Add" },
+        { display: "Ubah", value: "Edit" },
+        { display: "Hapus", value: "Delete" }
+        //{ display: "Review", value: "Review" },
+        //{ display: "Cetak", value: "Print" }
+    ]
+
+    function syncTreeViewSelection(treeView, value) {
+        if (!value) {
+            treeView.unselectAll();
+        } else {
+            treeView.selectItem(value);
+        }
+    }
+
+    function treeBox_valueChanged(e) {
+        var $treeView = e.component.content().find(".dx-treeview");
+        if ($treeView.length) {
+            syncTreeViewSelection($treeView.dxTreeView("instance"), e.value);
+        }
+    }
+</script>

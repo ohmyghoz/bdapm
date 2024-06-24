@@ -1,0 +1,188 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+}
+
+@*<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.14/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/3.3.1/exceljs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/7.4.0/polyfill.min.js"></script>*@
+
+<script>
+    window.jsPDF = window.jspdf.jsPDF;
+    applyPlugin(window.jsPDF);
+</script>
+
+<script type="text/javascript">
+    function exportToPDF() {
+        $.ajax({
+                type: "POST",
+                url: "@Url.Action("LogExport", "Log_Monitoring_Data")",
+                success: function (response) {
+                    if (response.result == "Success") {
+                        const doc = new jsPDF({
+                            orientation: "landscape",
+                            unit: "cm",
+                            format: [21, 60]
+                        });
+                        var dataGrid = $("#grid1").dxDataGrid("instance");
+                        var fileName = "Log_Monitoring_Data_" + new Date().toISOString().slice(0, 10) + ".pdf";
+                        doc.setFontSize("6")
+                        //var keys = $("#grid1").dxDataGrid("getSelectedRowsData")
+                        //console.log(keys)
+                        DevExpress.pdfExporter.exportDataGrid({
+                            jsPDFDocument: doc,
+                            component: dataGrid,
+                            keepColumnWidths: true,
+                            //selectedRowsOnly: true
+                        }).then(function () {
+                            doc.save(fileName);
+                        });
+                    }
+                }
+            });
+    }
+
+    function exportToEx() {
+        $.ajax({
+                type: "POST",
+                url: "@Url.Action("LogExport", "Log_Monitoring_Data")",
+                success: function (response) {
+                    if (response.result == "Success") {
+                        var dataGrid = $("#grid1").dxDataGrid("instance");
+                        var fileName = "Log_Monitoring_Data_" + new Date().toISOString().slice(0, 10) + ".xlsx";
+
+                        var workbook = new ExcelJS.Workbook();
+                        var worksheet = workbook.addWorksheet('Main Sheet');
+
+                        DevExpress.excelExporter.exportDataGrid({
+                            component: dataGrid,
+                            worksheet: worksheet,
+                            autoFilterEnabled: true,
+                            //selectedRowsOnly: true
+                        }).then(function () {
+                            workbook.xlsx.writeBuffer().then(function (buffer) {
+                                saveAs(new Blob([buffer], { type: 'application/octet-stream' }), fileName);
+                            });
+                        });
+                        dataGrid.cancel = true;
+                    }
+                }
+            });
+    }
+
+    function gridOnBeforeSend(method, ajaxOptions) {
+        var tempstartDate = $("#startDate").dxDateBox("instance").option('value');
+        var tempendDate = $("#endDate").dxDateBox("instance").option('value');
+        var startDate = null;
+        var endDate = null;
+
+        if (tempstartDate > tempendDate) {
+            swal({ type: 'error', title: 'Validasi', text: 'Periksa Kembali Tanggal Inputan' });
+        }
+
+        if (tempstartDate != null) {
+            startDate = tempstartDate.getFullYear() + '-' + (tempstartDate.getMonth() + 1) + '-' + tempstartDate.getDate();
+        }
+        if (tempendDate != null) {
+            endDate = tempendDate.getFullYear() + '-' + (tempendDate.getMonth() + 1) + '-' + tempendDate.getDate();
+        }
+
+        ajaxOptions.data.paramStartDate = startDate;
+        ajaxOptions.data.paramEndDate = endDate;
+
+    }
+</script>
+
+
+<div class="card card-default">
+    <div class="row filter-panel" style="padding-top:0px;">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-lg-6 form-group">
+                    <label>Tanggal Mulai</label>
+                    @(Html.DevExtreme().DateBox()
+                            .ID("startDate")
+                            .Name("startDate")
+                            .Width("100%").Value(DateTime.Now).DisplayFormat("dd MMM yyyy"))
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label>Tanggal Selesai</label>
+                    @(Html.DevExtreme().DateBox()
+                            .ID("endDate")
+                            .Name("endDate")
+                            .Width("100%").Value(DateTime.Now).DisplayFormat("dd MMM yyyy"))
+                </div>
+            </div>
+
+            <div class="float-left">
+                @(Html.DevExtreme().Button().Type(ButtonType.Default).Text("Cari").OnClick(@<text>
+                    function () {
+                        $("#grid1").dxDataGrid("instance").getDataSource().reload();
+                    }</text>))
+            </div>
+
+            <div class="float-right">
+                @if (ViewBag.Export)
+                {
+                    <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:exportToEx();"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                    <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:exportToPDF();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="gridview-div">
+
+        @Html.AntiForgeryToken()
+
+        @(Html.DevExtreme().DataGrid()
+            .ID("grid1")
+            .DataSource(d => d.Mvc()
+                .Controller("Log_Monitoring_Data")
+                .LoadAction("GetGridData")
+                .OnBeforeSend("gridOnBeforeSend")
+                .Key("log_id")
+            )
+            .RemoteOperations(true)
+            .Export(e => e.AllowExportSelectedData(true).Texts(q => q.ExportTo("Ekspor")))
+            .Width("100%")
+            .Columns(columns =>
+            {
+
+                columns.Add().DataField("log_date").Caption("Tanggal Log").Width("10%").DataType(GridColumnDataType.DateTime).Format("dd MMM yyyy HH:mm:ss").SortOrder(SortOrder.Desc);
+                columns.Add().DataField("log_tipe").Caption("Tipe").Width("20%");
+                columns.Add().DataField("log_periode").Caption("Periode").Width("10%");
+                columns.Add().DataField("log_delete_cnt").Caption("Jumlah Penghapusan").Width("10%");
+                columns.Add().DataField("log_insert_cnt").Caption("Jumlah Penambahan").Width("10%");
+                columns.Add().DataField("log_start").Caption("Mulai").Width("10%").DataType(GridColumnDataType.DateTime).Format("dd MMM yyyy HH:mm:ss");
+                columns.Add().DataField("log_end").Caption("Selesai").Width("10%").DataType(GridColumnDataType.DateTime).Format("dd MMM yyyy HH:mm:ss");
+                columns.Add().DataField("log_status").Caption("Status").Width("10%");
+                columns.Add().DataField("log_errmessage").Caption("Pesan Error").Width("10%");
+                columns.Add().DataField("log_id").Visible(false);
+
+            })
+            .FilterRow(f => f.Visible(true))
+            //.AllowColumnResizing(true)
+            .WordWrapEnabled(true)
+            .ShowBorders(false)
+            //.Selection(c => c.Mode(SelectionMode.Multiple))
+            .RowAlternationEnabled(false)
+            .Paging(p =>
+            {
+                p.PageSize(20);
+                p.Enabled(true);
+            }
+            )
+             .Pager(p =>
+             {
+                 p.ShowInfo(true);
+             }
+             )
+        )
+
+    </div>
+</div>
+
+

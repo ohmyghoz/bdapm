@@ -1,0 +1,65 @@
+﻿@model BDA.DataModel.FWKodeDetail
+@{
+    Layout = "~/Views/Shared/_LayoutMain.cshtml";
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="card card-default">
+        <div class="card-header separator">
+            <div class="card-title">
+                <script>document.write(pageTitle);</script>
+            </div>
+            <div class="card-controls">
+                <a href="@Url.Action("Index")"><i class="fa fa-arrow-left"></i> Return To List</a>
+            </div>
+        </div>
+
+        <div class="card-block m-t-10">
+            <div class="row">
+                <securehidden asp-for="KodId"></securehidden>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="KofId"></label>
+                    @(Html.DevExtreme().SelectBoxFor(m => m.KofId)
+                        .DataSource(d => d.Mvc().Controller("FW_Kode_Detail").LoadAction("GetRefkof_id").Key("KofId"))
+                        .DisplayExpr("KofNama")
+                        .ValueExpr("KofId")
+                        .Width("100%")
+                    )
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="KodTipe"></label>
+                    @Html.DevExtreme().TextBoxFor(m => m.KodTipe).Width("100%")
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="KodUrut"></label>
+                    @Html.DevExtreme().NumberBoxFor(m => m.KodUrut).Width("100%").Step(0).Format("#,##0.##")
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="KodLength"></label>
+                    @Html.DevExtreme().NumberBoxFor(m => m.KodLength).Width("100%").Step(0).Format("#,##0.##")
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="KodCatatan"></label>
+                    @Html.DevExtreme().TextAreaFor(m => m.KodCatatan).Width("100%")
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="KodChar"></label>
+                    @Html.DevExtreme().TextBoxFor(m => m.KodChar).Width("100%")
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="KodParamKode"></label>
+                    @Html.DevExtreme().TextBoxFor(m => m.KodParamKode).Width("100%")
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="KodParamAsCounter"></label>
+                    @Html.DevExtreme().TextBoxFor(m => m.KodParamAsCounter).Width("100%")
+                </div>
+
+            </div>
+            @Html.DevExtreme().Button().ID("btnSave").Text("Simpan").UseSubmitBehavior(true)
+        </div>
+    </div>
+}

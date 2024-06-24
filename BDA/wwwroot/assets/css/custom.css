@@ -1,0 +1,296 @@
+﻿
+table.wsform {
+    border: 1px solid #b4cef8;
+    border-collapse: collapse;
+}
+
+    table.wsform tr td.wsformleft {
+        border-bottom: 1px solid #efefef;
+        border-left: 1px solid #b4cef8;
+        vertical-align: middle;
+        text-align: right;
+        padding-left: 5px;
+        padding-right: 5px;
+        border-right: 1px solid #efefef;
+    }
+
+    table.wsform tr td.wsformright {
+        border-bottom: 1px solid #efefef;
+        vertical-align: middle;
+        padding: 5px;
+    }
+
+    table.wsform tr td.wsformfirst {
+        border-bottom: none;
+        background-color: #f5f5f5;
+        padding: 5px 10px 5px 10px;
+        font-weight: bold;
+    }
+
+    table.wsform tr td.wsformlast {
+        border-bottom: none;
+        background-color: #f5f5f5;
+        padding: 7px 10px 7px 10px;
+        text-align: center;
+    }
+
+
+table.nopad {
+    border: 0;
+    border-collapse: collapse;
+    padding: 0;
+    margin: 0;
+}
+
+td.nopad {
+    margin: 0;
+    padding-left: 0;
+    padding-right: 2px;
+}
+
+
+
+
+.ws_null_text {
+    color: #cfcfcf !important;
+}
+
+.invalid-feedback {
+    color: #dc3545 !important;
+}
+
+.dxbs-gridview .dxbs-pager {
+    padding: 5px !important;
+}
+
+.dxbs-gridview .card {
+    margin-bottom: 0px;
+}
+
+.dxbs-menu .nav .nav-item .nav-link {
+    padding: 0rem 0.5rem;
+}
+
+.dxbs-menu {
+    margin-top: -5px;
+}
+
+@media only screen and (max-width: 1600px) {
+    .gridview-div {
+        width: 100%;
+        overflow-x: auto;
+        overflow-y: visible;
+    }
+
+    .gridview-div-popup {
+        width: 100%;
+        overflow-x: auto;
+        overflow-y: visible;
+    }
+}
+
+@media only screen and (max-width: 1400px) {
+    .gridview-div {
+        width: 97%;
+        margin-left: 20px;
+        overflow-x: auto;
+        overflow-y: visible;
+    }
+
+    .gridview-div-popup {
+        width: 100%;
+        overflow-x: auto;
+        overflow-y: visible;
+    }
+}
+
+.gridview-nopadding tbody tr td {
+    background: #fff;
+    border-bottom: 1px solid rgba(230, 230, 230, 0.7);
+    border-top: 0px;
+    padding: 0px 5px;
+    font-size: 13.5px;
+}
+
+    .gridview-nopadding tbody tr td.gridcell-nopadding {
+        padding: 0px;
+    }
+
+.dxbs-cmd-cell {
+    padding: 14px 5px 14px 5px !important;
+}
+
+.dropdown-toggle {
+    height: 35px;
+    border: 1px solid #ccc;
+}
+
+.dxbs-gridview .card {
+    border: 0;
+}
+
+@media (max-width: 480px) {
+    .dxbs-gridview .card .card-body {
+        padding: 0;
+    }
+}
+
+
+.tab-content {
+    padding: 0px !important;
+    margin: 0px !important;
+}
+
+    .tab-content .tab-pane .card-block {
+        padding: 5px;
+    }
+
+
+.nav-tabs > li.returntolist > a {
+    color: #007bff;
+}
+
+@media only screen and (min-width: 768px) {
+    div.container-fluid .row {
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+        div.container-fluid .row [class*='col-']:not(:first-child),
+        div.container-fluid .row [class*='col-']:not(:last-child) {
+            padding-right: 7px;
+            padding-left: 0px;
+        }
+
+        div.container-fluid .row [class*='col-']:first-child {
+            padding-left: 0px;
+        }
+
+        div.container-fluid .row [class*='col-']:last-child {
+            padding-right: 7px;
+        }
+}
+
+.dxbs-fl .form-group label em.text-muted {
+    color: #d9534f !important;
+}
+
+.dxbs-search-panel .form-control {
+    padding: 9px 18px;
+    border: 1px solid rgba(230, 230, 230, 0.7);
+    border-bottom: none;
+}
+
+
+/*untuk focused di grid*/
+
+.table-active, .table-active > td, .table-active > th {
+    background-color: #6d5cae !important;
+    color: #fff;
+}
+
+/* hide judul menu di mobile*/
+@media (max-width: 767px) {
+    .nav-link span:nth-child(2) {
+        display: none;
+    }
+}
+
+
+
+
+.btn-tipis {
+    padding: 1px 17px;
+}
+
+.required {
+    color: red;
+}
+
+.widget-ws {
+    height: 120px;
+}
+
+.widget-ws-anggaran {
+    height: 130px;
+}
+
+a.bg-white:focus, a.bg-white:hover {
+    background-color: #cfcfcf !important;
+}
+
+
+ul.ui-autocomplete {
+    border: solid 1px #000000;
+    list-style-type: none;
+    margin: 0px;
+    overflow: auto;
+    padding: 0px;
+    width: 168px;
+    background-color: white;
+}
+
+    ul.ui-autocomplete a.ui-corner-all {
+        background-color: #EEEEEE;
+        display: block;
+        font-weight: bold;
+    }
+
+    ul.ui-autocomplete a.ui-state-hover {
+        background-color: #0A246A;
+        color: #ffffff;
+        cursor: pointer;
+        display: block;
+    }
+
+    ul.ui-autocomplete .ui-menu-item {
+        border-bottom: 1px solid #ccc;
+    }
+
+.ui-helper-hidden-accessible {
+    display: none;
+}
+
+.p-t-28 {
+    padding-top: 28px;
+}
+
+
+.dx-datagrid-filter-row {
+    background-color: #fff7ff;
+}
+
+    .dx-datagrid-filter-row .dx-editor-cell .dx-editor-with-menu .dx-texteditor-input, .dx-datagrid-filter-row .dx-editor-cell .dx-editor-with-menu .dx-placeholder:before {
+        background-color: #fff7ff;
+    }
+
+
+@media only screen and (min-width: 768px) {
+    .wslogo {
+        margin-right: -80px;
+    }
+}
+
+.m-t-2 {
+    margin-top: 2px;
+}
+
+
+.control-label {
+    padding-top: 5px;
+}
+
+.filter-panel {
+    padding-left: 20px;
+    padding-right: 20px;
+    margin-top: 10px;
+}
+
+.dx-htmleditor {
+    border: 1px solid #ddd !important;
+}
+
+
+.dx-row td label {
+    margin-bottom: 0px;
+}

@@ -1,0 +1,69 @@
+﻿@model BDA.DataModel.UserMaster
+@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+}
+
+<script type="text/javascript">
+        function onRedChanged(e) {
+           // let redCheck = $("#rc").dxCheckBox("instance").option("value");
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("RedChange")",
+                contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+                dataType: "json",
+                data: {
+                    'redCheck': e.value
+                },
+                success: function (response) {
+                    swal({ type: 'success', title: 'success', text: response }).then(function (result) {
+                        window.location = "@Url.Action("Index")" ;
+                    });
+                }
+            });
+        }
+        function onYellowChanged(e) {
+            //let yellowCheck = $("#yc").dxCheckBox("instance").option("value");
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("YellowChange")",
+                contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+                dataType: "json",
+                data: {
+                    'yellowCheck': e.value
+                },
+                success: function (response) {
+                    swal({ type: 'success', title: 'success', text: response }).then(function (result) {
+                        window.location = "@Url.Action("Index")" ;
+                    });
+                }
+            });
+    }
+</script>
+
+<div class="card card-custom gutter-b example example-compact">
+    <div class="card-header">
+        <h3 class="card-title">Big Data Dashboard dan Reporting</h3>
+    </div>
+</div>
+
+@if (ViewBag.Edit)
+{
+    <div class="card card-default">
+        <div class="card-header">
+            <h3 class="card-title"> Setting</h3>
+        </div>
+
+        <div class="card-body">
+            <div class="row">
+                <div class="col-lg-6 form-group">
+                    <label>Menerima Notifikasi Red Alert ?</label>
+                    @Html.DevExtreme().CheckBoxFor(model => model.user_is_notifredalert).Width("100%").Text("Ya").OnValueChanged("onRedChanged").Name("rc")
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label>Menerima Notifikasi Yellow Alert ?</label>
+                    @Html.DevExtreme().CheckBoxFor(model => model.user_is_notifyellowalert).Width("100%").Text("Ya").OnValueChanged("onYellowChanged").Name("yc")
+                </div>
+            </div>
+        </div>
+    </div>
+}

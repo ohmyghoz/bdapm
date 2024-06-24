@@ -1,0 +1,93 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+}
+
+<script type="text/javascript">
+    function Edit() {
+        var keys = $("#grid1").dxDataGrid("getSelectedRowKeys");
+        if (keys.length >= 1) {
+            window.location = "@Url.Action("Template","Email")/" + keys[0].toString();
+        } else {
+           swal({type: 'error', title: 'Oops...', text: 'Silahkan Pilih Baris Telebih Dahulu'});
+        }
+    }
+    function Delete() {
+        var keys = $("#grid1").dxDataGrid("getSelectedRowKeys");
+        if (keys.length >= 1) {
+            var ask = confirm('Apakah Anda yakin akan menghapus data ini ?');
+            if (ask) {
+                $.ajax({
+					type: "POST",
+					url: "@Url.Action("Delete","Email")",
+                    contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+                    dataType: "json",
+                    data: "param1=" + keys[0].toString(),
+                    success: function (response) {
+                        alert(response);
+                        $("#grid1").dxDataGrid("refresh");
+                    },
+                    error: function (response) {
+                        swal({type: 'error', title: 'Oops...', text: response.responseJSON.error});
+                    }
+				});
+            }
+        } else {
+            swal({type: 'error', title: 'Oops...', text: 'Silahkan Pilih Baris Telebih Dahulu'});
+        }
+    }
+</script>
+
+@section RightToolbar{
+    <div class="d-flex align-items-center">
+        <!--begin::Actions-->
+        @{
+            if (ViewBag.Edit)
+            {
+                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:Edit();"><span class="image fa fa-edit"></span> Edit</a>
+            }
+        }
+        <!--end::Actions-->
+    </div>
+}
+
+<div class="card card-default">
+    <div>
+        @Html.AntiForgeryToken()
+
+        @(Html.DevExtreme().DataGrid<BDA.DataModel.FWNoticeTemplate>()
+            .ID("grid1")
+            .DataSource(d => d.Mvc()
+                .Controller("Email")
+                .LoadAction("GetGridData")
+                //.InsertAction("InsertObject")
+                //.UpdateAction("UpdateObject")
+                //.DeleteAction("DeleteObject")
+                .Key("NottId")
+            )
+            .RemoteOperations(true)
+            .Width("100%")
+            .Columns(columns =>
+            {
+                columns.AddFor(m => m.NottId).Caption("Template").Width("20%");
+                columns.AddFor(m => m.NottTitle).Caption("Judul").Width("80%");
+            })
+            .FilterRow(f => f.Visible(true))
+            .ShowBorders(false)
+            .Selection(c => c.Mode(SelectionMode.Single))
+            .RowAlternationEnabled(false)
+            .Paging(p =>
+            {
+                p.PageSize(20);
+                p.Enabled(true);
+            }
+            )
+        )
+
+    </div>
+    <div class="float-left" hidden="hidden">
+        @Html.DevExtreme().Button().ID("Save").UseSubmitBehavior(true).Text("Simpan")
+    </div>
+</div>
+
+

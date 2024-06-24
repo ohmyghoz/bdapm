@@ -1,0 +1,146 @@
+﻿@model BDA.Models.SiteDbMap
+@foreach (var group in Model.SiteDbMapNode.SiteDbMapNodes)
+{
+    if (Convert.ToBoolean(group.HasAccess) && group.IsHidden != "true")
+    {
+        <li class="@(group.LiClass != null ? @group.LiClass : " ")">
+            <a href="@(!String.IsNullOrWhiteSpace(group.Url) ? Url.Content(@group.Url) : " javascript:;")">
+                <span class="title">@group.Title</span>
+                @if (group.SiteDbMapNodes.Where(x => x.HasAccess == true && x.IsHidden != "true").Any())
+                {
+                <span class="arrow @(group.LiClass != null ? @group.LiClass : " ")"></span>
+                }
+            </a>
+            @if (!string.IsNullOrWhiteSpace(group.IconClass))
+            {
+            <span class="icon-thumbnail"><i class="@(group.IconClass)"></i></span>
+            }
+            else if (!string.IsNullOrWhiteSpace(group.IconText))
+            {
+            <span class="icon-thumbnail">@(group.IconText)</span>
+            }
+
+            @if (group.SiteDbMapNodes.Where(x => x.HasAccess == true && x.IsHidden != "true").Any())
+            {
+            <ul class="sub-menu" @(group.LiClass !=null ? "style=display:block;font-size:150%;" : "" )>
+                @foreach (var lvl2 in group.SiteDbMapNodes.Where(x => x.HasAccess == true && x.IsHidden != "true"))
+                {
+                <li class="@(lvl2.LiClass != null ? @lvl2.LiClass : " ")">
+                    <a href="@(!String.IsNullOrWhiteSpace(lvl2.Url) ? Url.Content(@lvl2.Url) : " javascript:;")">
+                        <span class="title">@lvl2.Title</span>
+                        @if (lvl2.SiteDbMapNodes.Where(x => x.HasAccess == true && x.IsHidden != "true").Any())
+                        {
+                        <span class="arrow @(lvl2.LiClass != null ? @lvl2.LiClass : " ")"></span>
+                        }
+                    </a>
+                    @if (!string.IsNullOrWhiteSpace(lvl2.IconClass))
+                    {
+                    <span class="icon-thumbnail"><i class="@(lvl2.IconClass)"></i></span>
+                    }
+                    else if (!string.IsNullOrWhiteSpace(lvl2.IconText))
+                    {
+                    <span class="icon-thumbnail">@(lvl2.IconText)</span>
+                    }
+
+                    @if (lvl2.SiteDbMapNodes.Where(x => x.HasAccess == true && x.IsHidden != "true").Any())
+                    {
+                    <ul class="sub-menu" @(lvl2.LiClass !=null ? "style=display:block;font-size:150%;" : "" )>
+                        @foreach (var lvl3 in lvl2.SiteDbMapNodes.Where(x => x.HasAccess == true && x.IsHidden != "true"))
+                        {
+                        //start level 3
+                        <li class="@(lvl3.LiClass != null ? lvl3.LiClass : " ")">
+                            <a href="@(!String.IsNullOrWhiteSpace(lvl3.Url) ? Url.Content(lvl3.Url) : " javascript:;")">
+                                <span class="title">@lvl3.Title</span>
+                                @if (lvl3.SiteDbMapNodes.Where(x => x.HasAccess == true && x.IsHidden != "true").Any())
+                                {
+                                <span class="arrow @(lvl3.LiClass != null ? lvl3.LiClass : " ")"></span>
+                                }
+                            </a>
+                            @if (!string.IsNullOrWhiteSpace(lvl3.IconClass))
+                            {
+                            <span class="icon-thumbnail"><i class="@(lvl3.IconClass)"></i></span>
+                            }
+                            else if (!string.IsNullOrWhiteSpace(lvl3.IconText))
+                            {
+                            <span class="icon-thumbnail">@(lvl3.IconText)</span>
+                            }
+
+                            @if (lvl3.SiteDbMapNodes.Where(x => x.HasAccess == true && x.IsHidden != "true").Any())
+                            {
+                            <ul class="sub-menu" @(lvl3.LiClass !=null ? "style=display:block;font-size:150%;" : "" )>
+                                @foreach (var lvl4 in lvl3.SiteDbMapNodes.Where(x => x.HasAccess == true && x.IsHidden != "true"))
+                                {
+                                //start level 4
+                                <li class="@(lvl4.LiClass != null ? lvl4.LiClass : " ")">
+                                    <a href="@(!String.IsNullOrWhiteSpace(lvl4.Url) ? Url.Content(lvl4.Url) : " javascript:;")">
+                                        <span class="title">@lvl4.Title</span>
+                                        @if (lvl4.SiteDbMapNodes.Where(x => x.HasAccess == true && x.IsHidden != "true").Any())
+                                        {
+                                        <span class="arrow @(lvl4.LiClass != null ? lvl4.LiClass : " ")"></span>
+                                        }
+                                    </a>
+                                    @if (!string.IsNullOrWhiteSpace(lvl4.IconClass))
+                                    {
+                                    <span class="icon-thumbnail"><i class="@(lvl4.IconClass)"></i></span>
+                                    }
+                                    else if (!string.IsNullOrWhiteSpace(lvl4.IconText))
+                                    {
+                                    <span class="icon-thumbnail">@(lvl4.IconText)</span>
+                                    }
+
+                                    @if (lvl4.SiteDbMapNodes.Where(x => x.HasAccess == true && x.IsHidden != "true").Any())
+                                    {
+                                    <ul class="sub-menu" @(lvl4.LiClass !=null ? "style=display:block;font-size:150%;" : "" )>
+                                        @foreach (var lvl5 in lvl4.SiteDbMapNodes.Where(x => x.HasAccess == true && x.IsHidden != "true"))
+                                        {
+                                        //start level 5
+                                        <li class="@(lvl5.LiClass != null ? lvl5.LiClass : " ")">
+                                            <a href="@(!String.IsNullOrWhiteSpace(lvl5.Url) ? Url.Content(lvl5.Url) : " javascript:;")">
+                                                <span class="title">@lvl5.Title</span>
+                                                @if (lvl5.SiteDbMapNodes.Where(x => x.HasAccess == true && x.IsHidden != "true").Any())
+                                                {
+                                                <span class="arrow @(lvl5.LiClass != null ? lvl5.LiClass : " ")"></span>
+                                                }
+                                            </a>
+                                            @if (!string.IsNullOrWhiteSpace(lvl5.IconClass))
+                                            {
+                                            <span class="icon-thumbnail"><i class="@(lvl5.IconClass)"></i></span>
+                                            }
+                                            else if (!string.IsNullOrWhiteSpace(lvl5.IconText))
+                                            {
+                                            <span class="icon-thumbnail">@(lvl5.IconText)</span>
+                                            }
+
+                                            @if (lvl5.SiteDbMapNodes.Where(x => x.HasAccess == true && x.IsHidden != "true").Any())
+                                            {
+                                            <ul class="sub-menu" @(lvl5.LiClass !=null ? "style=display:block;font-size:150%;" : "" )>
+                                                @foreach (var lvl6 in lvl5.SiteDbMapNodes.Where(x => x.HasAccess == true && x.IsHidden != "true"))
+                                                {
+
+                                                }
+                                            </ul>
+                                            }
+                                        </li>
+                                        //end level 5
+                                        }
+                                    </ul>
+                                    }
+                                </li>
+                                //end level 4
+                                }
+                            </ul>
+                            }
+                        </li>
+                        //end level 3
+                        }
+                    </ul>
+                    }
+                </li>
+                }
+            </ul>
+            }
+        </li>
+    }
+
+}
+

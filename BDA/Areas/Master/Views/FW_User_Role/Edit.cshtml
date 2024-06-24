@@ -1,0 +1,51 @@
+﻿@model BDA.DataModel.FWUserRole
+@{
+    Layout = "~/Views/Shared/_LayoutMain.cshtml";
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="card card-default">
+        <div class="card-header separator">
+            <div class="card-title">
+                <script>document.write(pageTitle);</script>
+            </div>
+            <div class="card-controls">                
+                <a href="@Url.Action("Index")"><i class="fa fa-arrow-left"></i> Return To List</a>
+            </div>
+        </div>
+
+        <div class="card-block m-t-10">
+            <div class="row">
+                <securehidden asp-for="UroleId"></securehidden>               
+                <div class="col-lg-6 form-group">
+                    <label asp-for="UserId"></label>
+                    @(Html.DevExtreme().SelectBoxFor(m => m.UserId)
+                        .DataSource(d => d.Mvc().Controller("FW_User_Role").LoadAction("GetRefuser_id").Key("UserId"))
+                        .DisplayExpr("UserNama")
+                        .ValueExpr("UserId")
+                        .Width("100%")
+                    )
+                    
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="RoleId"></label>
+                    @(Html.DevExtreme().SelectBoxFor(m => m.RoleId)
+                        .DataSource(d => d.Mvc().Controller("FW_User_Role").LoadAction("GetRefrole_id").Key("RoleId"))
+                        .DisplayExpr("RoleNama")
+                        .ValueExpr("RoleId")
+                        .Width("100%")
+                    )
+                </div>
+                @*<div class="col-lg-6 form-group">
+                    <label asp-for="SatkerId"></label>
+                    @Html.DevExtreme().NumberBoxFor(m => m.SatkerId).Width("100%").Step(0).Format("#,##0.##")
+                </div>*@
+
+            </div>
+            @Html.DevExtreme().Button().ID("btnSave").Text("Simpan").UseSubmitBehavior(true)
+        </div>
+    </div>
+}

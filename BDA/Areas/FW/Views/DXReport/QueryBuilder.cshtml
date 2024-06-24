@@ -1,0 +1,76 @@
+@model DevExpress.XtraReports.Web.QueryBuilder.QueryBuilderModel
+
+@{
+    Layout = "~/Views/Shared/_LayoutPopup.cshtml";
+}
+
+<link href="~/node_modules/jquery-ui-dist/jquery-ui.min.css" rel="stylesheet" />
+<link href="~/node_modules/devextreme/dist/css/dx.common.css" rel="stylesheet" />
+<link href="~/node_modules/devextreme/dist/css/dx.light.css" rel="stylesheet" />
+<link href="~/node_modules/@@devexpress/analytics-core/dist/css/dx-analytics.common.css" rel="stylesheet" />
+<link href="~/node_modules/@@devexpress/analytics-core/dist/css/dx-analytics.light.css" rel="stylesheet" />
+<link href="~/node_modules/@@devexpress/analytics-core/dist/css/dx-querybuilder.css" rel="stylesheet" />
+
+<!-- 3rd-party dependencies -->
+<script src="~/node_modules/jquery/dist/jquery.js"></script>
+<script src="~/node_modules/jquery-ui-dist/jquery-ui.js"></script>
+<script src="~/node_modules/knockout/build/output/knockout-latest.js"></script>
+<script src="~/node_modules/ace-builds/src-min-noconflict/ace.js"></script>
+<script src="~/node_modules/ace-builds/src-min-noconflict/ext-language_tools.js"></script>
+<script src="~/node_modules/ace-builds/src-min-noconflict/theme-dreamweaver.js"></script>
+<script src="~/node_modules/ace-builds/src-min-noconflict/theme-ambiance.js"></script>
+<script src="~/node_modules/ace-builds/src-min-noconflict/snippets/text.js"></script>
+<script src="~/node_modules/cldrjs/dist/cldr.js"></script>
+<script src="~/node_modules/cldrjs/dist/cldr/event.js"></script>
+<script src="~/node_modules/cldrjs/dist/cldr/supplemental.js"></script>
+<script src="~/node_modules/cldrjs/dist/cldr/unresolved.js"></script>
+<script src="~/node_modules/globalize/dist/globalize.js"></script>
+<script src="~/node_modules/globalize/dist/globalize/message.js"></script>
+<script src="~/node_modules/globalize/dist/globalize/number.js"></script>
+<script src="~/node_modules/globalize/dist/globalize/currency.js"></script>
+<script src="~/node_modules/globalize/dist/globalize/date.js"></script>
+
+<script src="~/node_modules/devextreme/dist/js/dx.all.js"></script>
+<script src="~/js/devextreme/aspnet/dx.aspnet.data.js"></script>
+<script src="~/js/devextreme/aspnet/dx.aspnet.mvc.js"></script>
+<script src="~/node_modules/@@devexpress/analytics-core/dist/js/dx-analytics-core.min.js"></script>
+<script src="~/node_modules/@@devexpress/analytics-core/dist/js/dx-querybuilder.min.js"></script>
+
+
+@Html.AntiForgeryToken()
+<script>
+    $.ajaxSetup({
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader("XSRF-TOKEN", $('input:hidden[name="__RequestVerificationToken"]').val());
+        }
+    });
+</script>
+<script>
+    function SaveQueryRequested(sender) {
+        var saveQueryModel = sender.GetSaveQueryModel();
+
+
+        $.ajax({
+			type: "POST",
+			url: "@Url.Action("SaveQuery","DXReport")",
+            contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+            data: saveQueryModel,
+            success: function (response) {
+                parent.RefreshQuery(response);
+                parent.ClosePopup("success");
+            },
+            error: function (response) {
+                swal({type: 'error', title: 'Oops...', text: response.responseJSON.error});
+            }
+		});
+    }
+</script>
+@(Html.DevExpress()
+.QueryBuilder("webQueryBuilder")
+.Height("500px")
+.ClientSideEvents(x =>
+{
+    x.SaveQueryRequested("SaveQueryRequested");
+})
+.Bind(Model))
+

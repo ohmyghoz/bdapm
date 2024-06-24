@@ -1,0 +1,55 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutPopup.cshtml";
+}
+
+@using (Html.BeginForm())
+{
+    var roleId = ViewBag.roleId;
+
+    @Html.AntiForgeryToken()
+
+
+    @(Html.DevExtreme().DataGrid()
+        .ID("grid")
+        .DataSource(d => d.Mvc()
+            .Controller("ChangeRole")
+            .LoadAction("GetRoleUser")
+            .Key("role_id")
+            )
+        .RemoteOperations(true)
+        .Selection(s => s.Mode(SelectionMode.Single))
+        .ShowColumnLines(false)
+        .ShowRowLines(true)
+        .RowAlternationEnabled(true)
+        .ShowBorders(true)
+        .FocusedRowEnabled(true)
+        .Columns(columns =>
+        {
+            columns.Add().DataField("role_id").Caption("Role Name");
+        })
+        .AllowColumnResizing(true)
+        .FocusedRowKey(roleId)
+        .WordWrapEnabled(true)
+        .OnFocusedRowChanged("onFocusedRowChanged")
+    )
+    @Html.DevExtreme().TextBox().ID("role_id").Name("role_id").Visible(false)
+    <br />
+    @Html.DevExtreme().Button().ID("btnSave").Text("select").StylingMode(ButtonStylingMode.Contained).Type(ButtonType.Success).UseSubmitBehavior(true)
+
+    <script type="text/javascript">
+        function onFocusedRowChanged(e) {
+            $("#role_id").dxTextBox("instance").option('value', e.row.data.role_id);
+        }
+    </script>
+
+    <style type="text/css">
+        .dx-datagrid-rowsview .dx-row-focused.dx-data-row:not(.dx-edit-row) > td:not(.dx-focused),
+        .dx-datagrid-rowsview .dx-row-focused.dx-data-row:not(.dx-edit-row) > tr > td:not(.dx-focused),
+        .dx-datagrid-rowsview .dx-row-focused.dx-data-row:not(.dx-edit-row) .dx-command-edit .dx-link {
+            background-color: red !important;
+            color: #fff;
+        }
+    </style>
+
+}
+

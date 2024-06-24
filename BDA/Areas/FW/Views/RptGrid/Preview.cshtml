@@ -1,0 +1,65 @@
+﻿@model BDA.DataModel.RptGrid_Queue
+@{
+    Layout = "~/Views/Shared/_LayoutMain.cshtml";
+}
+
+
+
+<div class="card card-default">
+    <div class="card-header">
+        <script>document.write(pageTitle);</script>
+        <div class="pull-right">
+            <nav class="dxbs-menu clearfix">
+                <ul class="nav nav-pills">
+
+                    <li class="nav-item"><a class="nav-link" href="javascript:Export();"><span class="image fa fa-file-excel-o"></span> Export Excel</a></li>
+                    <li class="nav-item"><a class="nav-link" href="@Url.Action("Queue")"><span class="image fa fa-file-excel-o"></span> Return To Queue</a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+    @if (ViewBag.NoPreview)
+    {
+        <b>No Preview</b>
+    }
+    else
+    {
+        <script>
+            function Export() {
+                $("#gridPreview").dxDataGrid("instance").exportToExcel(false);
+            }
+        </script>
+        <div class="gridview-div">
+            @Html.AntiForgeryToken()
+
+            @(Html.DevExtreme().DataGrid()
+                .ID("gridPreview")
+                .DataSource(d => d.Mvc()
+                    .Controller("RptGrid")
+                    .LoadAction("GetGridPreviewData")
+                    .LoadParams(new { id = Model.rgq_id })
+                )
+                .ColumnAutoWidth(true)
+                .ShowRowLines(true)                
+                .WordWrapEnabled(false)
+                .RemoteOperations(true)
+                .AllowColumnResizing(true)
+                .ColumnResizingMode(ColumnResizingMode.Widget)
+                .FilterRow(f => f.Visible(true))
+                .ShowBorders(false)
+                .RowAlternationEnabled(false)
+                .Paging(p =>
+                {
+                    p.PageSize(50);
+                    p.Enabled(true);
+                })
+                .Pager(p =>
+                {
+                    p.ShowInfo(true);
+                }
+                )
+            )
+            <i>Preview Max 100 baris data. Timeout : 1 menit.</i>
+        </div>
+    }
+</div>

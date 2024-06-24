@@ -1,0 +1,110 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_LayoutMain.cshtml";
+}
+
+<script type="text/javascript">
+    function Edit() {
+        var keys = $("#grid1").dxDataGrid("getSelectedRowKeys");
+        if (keys.length >= 1) {
+            window.location = "@Url.Action("Edit","Setting")/" + keys[0].toString();
+        } else {
+            alert('Silahkan Pilih Baris Telebih Dahulu');
+        }
+    }
+    function Delete() {
+        var keys = $("#grid1").dxDataGrid("getSelectedRowKeys");
+        if (keys.length >= 1) {
+            var ask = confirm('Apakah Anda yakin akan menghapus data ini ?');
+            if (ask) {
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("Delete","Setting")",
+                    contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+                    dataType: "json",
+                    data: "param1=" + keys[0].toString(),
+                    success: function (response) {
+                        alert(response);
+                        $("#grid1").dxDataGrid("refresh");
+                    },
+                    error: function (response) {
+                        alert(response.responseJSON.error);
+                    }
+                });
+            }
+        } else {
+            alert('Silahkan Pilih Baris Telebih Dahulu');
+        }
+    }   
+</script>
+
+
+<div class="card card-default">
+    <div class="card-header">
+        <script>document.write(pageTitle);</script>
+        <div class="pull-right">
+            <nav class="dxbs-menu clearfix">
+                <ul class="nav nav-pills">
+                    <li class="nav-item"><a class="nav-link" href="@Url.Action("Create","Setting")"><span class="image fa fa-plus"></span> Add</a></li>
+                    <li class="nav-item"><a class="nav-link" href="javascript:Edit();"><span class="image fa fa-edit"></span> Edit</a></li>
+                    <li class="nav-item"><a class="nav-link" href="javascript:Delete();"><span class="image fa fa-times"></span> Delete</a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+    <div class="gridview-div">
+        @Html.AntiForgeryToken()
+       
+        @(Html.DevExtreme().DataGrid<BDA.DataModel.FWRefSetting>()
+            .ID("grid1")
+            .DataSource(d => d.Mvc()
+                .Controller("Setting")
+                .LoadAction("GetGridData")
+                .InsertAction("InsertObject")
+                .UpdateAction("UpdateObject")
+                .DeleteAction("DeleteObject")
+                .Key("set_name")
+            )
+            .RemoteOperations(true)
+            .Columns(columns =>
+            {
+                columns.AddFor(m => m.SetType)
+                    .Lookup(lookup => lookup
+                        .DataSource(new[] { "System.Int64", "System.String", "System.Int32" })
+                        );
+
+                columns.AddFor(m => m.SetName).Width("400px");
+                columns.AddFor(m => m.SetValue);
+                columns.AddFor(m => m.SetGroup);
+                columns.AddFor(m => m.SetCatatan);
+                columns.AddFor(m => m.SetForuser);
+
+
+            })
+            .FilterRow(f => f.Visible(true))
+            //.FilterBuilder(f => f.Visible(true))
+            //.HeaderFilter(f => f.Visible(true))
+            //.GroupPanel(p => p.Visible(true))
+            .ShowBorders(false)
+            .Selection(c => c.Mode(SelectionMode.Single))
+            .RowAlternationEnabled(false)
+            .Paging(p=> {
+                p.PageSize(20);
+                p.Enabled(true);
+                }
+            )
+            
+        //.Editing(e => e.AllowAdding(true).AllowDeleting(true).AllowUpdating(true))
+        //.Grouping(g => g.AutoExpandAll(false))
+        //.Summary(s => s
+        //.TotalItems(totalItems =>
+        //{
+        //    totalItems.AddFor(m => m.set_name).SummaryType(SummaryType.Count);
+        //})
+
+        //)
+        )
+
+    </div>
+</div>

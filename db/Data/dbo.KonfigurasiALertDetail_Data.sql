@@ -1,0 +1,7 @@
+SET IDENTITY_INSERT [dbo].[KonfigurasiALertDetail] ON
+INSERT INTO [dbo].[KonfigurasiALertDetail] ([KadId], [KaId], [UserId], [Stsrc], [CreatedBy], [CreatedDatetime], [UpdatedBy], [UpdatedDatetime], [KadIsRed], [KadIsYellow]) VALUES (3, 1, 'admin', 'D', 'admin', '2021-08-27 13:44:09.673', 'admin', '2021-08-27 13:51:16.857', 0, 0)
+INSERT INTO [dbo].[KonfigurasiALertDetail] ([KadId], [KaId], [UserId], [Stsrc], [CreatedBy], [CreatedDatetime], [UpdatedBy], [UpdatedDatetime], [KadIsRed], [KadIsYellow]) VALUES (4, 1, 'admin2', 'D', 'admin', '2021-08-27 13:44:09.680', 'admin', '2021-08-27 13:51:20.807', 0, 0)
+INSERT INTO [dbo].[KonfigurasiALertDetail] ([KadId], [KaId], [UserId], [Stsrc], [CreatedBy], [CreatedDatetime], [UpdatedBy], [UpdatedDatetime], [KadIsRed], [KadIsYellow]) VALUES (5, 1, 'admin', 'A', 'admin', '2021-08-27 13:51:29.143', NULL, NULL, 0, 0)
+INSERT INTO [dbo].[KonfigurasiALertDetail] ([KadId], [KaId], [UserId], [Stsrc], [CreatedBy], [CreatedDatetime], [UpdatedBy], [UpdatedDatetime], [KadIsRed], [KadIsYellow]) VALUES (6, 2, 'admin', 'A', 'admin', '2021-08-31 13:39:34.107', NULL, NULL, 0, 0)
+INSERT INTO [dbo].[KonfigurasiALertDetail] ([KadId], [KaId], [UserId], [Stsrc], [CreatedBy], [CreatedDatetime], [UpdatedBy], [UpdatedDatetime], [KadIsRed], [KadIsYellow]) VALUES (7, 3, 'admin', 'A', 'admin', '2021-08-31 14:57:57.073', NULL, NULL, 0, 0)
+SET IDENTITY_INSERT [dbo].[KonfigurasiALertDetail] OFF

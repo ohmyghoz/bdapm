@@ -1,0 +1,104 @@
+﻿@model BDA.DataModel.RptGrid
+@{
+    Layout = "~/Views/Shared/_LayoutMain.cshtml";
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="card card-default">
+        <div class="card-header separator">
+            <div class="card-title">
+                <script>document.write(pageTitle);</script>
+            </div>
+            <div class="card-controls">
+                <a href="@Url.Action("Index")"><i class="fa fa-arrow-left"></i> Kembali Ke Daftar</a>
+            </div>
+        </div>
+        <script>
+            function RefreshGrid() {
+                $("#grid1").dxDataGrid("refresh");
+            }
+            function AddParam() {
+                ShowPopupMain("@Url.Action("CreateParam","RptGrid")?rg_id=@Model.rg_id", "Create Param", "1150px", "500px",RefreshGrid);
+            }
+            function EditParam(rgprId) {
+                ShowPopupMain("@Url.Action("EditParam","RptGrid")?id=" + rgprId, "Edit Param", "1150px", "500px",RefreshGrid);
+            }
+            function DeleteParam(rgprId) {
+
+                var ask = confirm('Are you sure that you want to delete?');
+                if (ask) {
+                    $.ajax({
+					    type: "POST",
+					    url: "@Url.Action("DeleteParam","RptGrid")?handler=Delete",
+					    contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+                        dataType: "json",
+                        data: "param1=" + rgprId.toString(),
+                        success: function (response) {
+                            alert(response);
+                            $("#grid1").dxDataGrid("refresh");
+                        },
+                        error: function (response) {
+                            alert(response.responseJSON.error);
+                        }
+				    });
+                }
+
+            }
+        </script>
+        <div class="card-block m-t-10">
+            <div class="row">
+                <securehidden asp-for="rg_id"></securehidden>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="rg_kode"></label>
+                    @Html.DevExtreme().TextBoxFor(m => m.rg_kode).Width("100%").ReadOnly(true)
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="rg_nama"></label>
+                    @Html.DevExtreme().TextBoxFor(m => m.rg_nama).Width("100%").ReadOnly(true)
+                </div>
+            </div>
+            @(Html.DevExtreme().DataGrid()
+            .ID("grid1")
+            .DataSource(d => d.Mvc()
+                .Controller("RptGrid")
+                .LoadAction("GetGridParamData")
+                .LoadParams(new {rg_id = Model.rg_id })
+                .Key("rgpr_id")
+            )
+            .Width("100%")
+            .RemoteOperations(true)
+            .Columns(columns =>
+            {
+                columns.Add().Width("80px").Caption("#")
+                .CellTemplate(@<text><a style="cursor:pointer;" href="#" onclick="EditParam('<%= data.rgpr_id%>')">Edit</a></text>);
+                columns.Add().DataField("rgpr_kode").Width("100px").Caption("Kode");
+                columns.Add().DataField("rgpr_nama").Width("150px").Caption("Nama");
+                
+                columns.Add().DataField("rgpr_datatype").Width("100px").Caption("DataType");
+                columns.Add().DataField("rgpr_controltype").Width("100px").Caption("ControlType");
+                columns.Add().DataField("rgpr_allow_null").Width("50px").Caption("Allow Null");
+                columns.Add().DataField("rgpr_null_text").Width("100px").Caption("Null Text");
+                columns.Add().DataField("rgpr_value_default").Width("100px").Caption("Value Default");
+                columns.Add().DataField("rgpr_value_csv").Width("200px").Caption("Value Csv").Visible(false);
+                columns.Add().DataField("rgpr_value_query").Width("200px").Caption("Value Query").Visible(false);
+                columns.Add().DataField("rgpr_catatan").Width("200px").Caption("Catatan");
+                columns.Add().DataField("rgpr_id").Visible(false);
+
+            })
+            .FilterRow(f => f.Visible(true))
+            .ShowBorders(false)
+            .Selection(c => c.Mode(SelectionMode.Single))
+            .RowAlternationEnabled(false)
+            .Paging(p =>
+            {
+                p.PageSize(20);
+                p.Enabled(true);
+            }
+            )
+            )            
+        </div>
+    </div>
+}

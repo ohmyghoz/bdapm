@@ -1,0 +1,3 @@
+﻿@using APPK
+@using APPK.Models
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers

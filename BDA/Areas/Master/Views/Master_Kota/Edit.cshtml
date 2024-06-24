@@ -1,0 +1,52 @@
+﻿@model BDA.DataModel.MasterKota
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_LayoutMain.cshtml";
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="card card-default">
+        <div class="card-header separator">
+            <div class="card-title">
+                <script>document.write(pageTitle);</script>
+            </div>
+            <div class="card-controls">
+                <a href="@Url.Action("Index")"><i class="fa fa-arrow-left"></i> Kembali Ke Daftar</a>
+            </div>
+        </div>
+
+        <div class="card-block m-t-10">
+            <div class="row">
+                <securehidden asp-for="RefKotaId"></securehidden>
+                <div class="col-lg-4 form-group">
+                    <label asp-for="RefKotaNama"></label>
+                    @Html.DevExtreme().TextBoxFor(m => m.RefKotaNama).Width("100%").MaxLength(500)
+                </div>
+                <div class="col-lg-4 form-group">
+                    <label asp-for="RefPropinsiId"></label>
+                    @(Html.DevExtreme().SelectBoxFor(m => m.RefPropinsiId)
+                        .DataSource(d => d.Mvc().Controller("Master_Kota").LoadAction("GetRefpropinsi_id").Key("RefPropinsiId"))
+                        .DisplayExpr("RefPropinsiNama")
+                        .ValueExpr("RefPropinsiId")
+                        .Width("100%")
+                        .SearchEnabled(true)
+                        .ShowClearButton(true)
+                    )
+                </div>
+                <div class="col-lg-4 form-group">
+                    <label asp-for="RefKotaDomisili"></label>
+                    @Html.DevExtreme().TextBoxFor(m => m.RefKotaDomisili).Width("100%").MaxLength(500)
+                </div>
+
+            </div>
+            @Html.DevExtreme().Button().ID("btnSave").Text("Simpan").OnClick("function ClikBtnSave() {if (DevExpress.validationEngine.validateGroup().isValid) { $('#btnSave').dxButton('instance').option('visible', false); } }").UseSubmitBehavior(true)
+
+
+        </div>
+    </div>
+}
+

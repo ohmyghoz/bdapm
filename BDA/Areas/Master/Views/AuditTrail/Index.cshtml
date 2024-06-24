@@ -1,0 +1,200 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutMain.cshtml";
+}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.14/jspdf.plugin.autotable.min.js"></script>
+<script>
+    window.jsPDF = window.jspdf.jsPDF;
+    applyPlugin(window.jsPDF);
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/3.3.1/exceljs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/7.4.0/polyfill.min.js"></script>
+
+<script type="text/javascript">
+    function exportToPDF() {
+        const doc = new jsPDF({
+            orientation: "landscape",
+            unit: "cm",
+            format: [21, 60]
+        });
+        var dataGrid = $("#grid1").dxDataGrid("instance");
+        doc.setFontSize("6")
+        //var keys = $("#grid1").dxDataGrid("getSelectedRowsData")
+        //console.log(keys)
+        DevExpress.pdfExporter.exportDataGrid({
+            jsPDFDocument: doc,
+            component: dataGrid,
+            keepColumnWidths: true,
+            selectedRowsOnly: true
+        }).then(function () {
+            doc.save("DataGrid.pdf");
+        });
+    }
+    function exportToEx() {
+        var dataGrid = $("#grid1").dxDataGrid("instance");
+
+
+        var workbook = new ExcelJS.Workbook();
+        var worksheet = workbook.addWorksheet('Main Sheet');
+
+        DevExpress.excelExporter.exportDataGrid({
+            component: dataGrid,
+            worksheet: worksheet,
+            autoFilterEnabled: true,
+            selectedRowsOnly: true
+        }).then(function () {
+            workbook.xlsx.writeBuffer().then(function (buffer) {
+                saveAs(new Blob([buffer], { type: 'application/octet-stream' }), 'DataGrid.xlsx');
+            });
+        });
+        dataGrid.cancel = true;
+    }
+
+</script>
+
+<div class="card card-default">
+    <div class="card-header">
+        <script>document.write(pageTitle);</script>
+        <div class="pull-right">
+            <nav class="dxbs-menu clearfix" style="display: block" ;>
+
+                <ul class="nav nav-pills">
+                    @(Html.DevExtreme().Button()
+                        .ID("exportButton")
+                        .Icon("exportpdf")
+                        .Text("Export to PDF")
+                        .OnClick("exportToPDF")
+                    )
+                    &nbsp;&nbsp;&nbsp;
+                    @(Html.DevExtreme().Button()
+                        .ID("exportButton1")
+                        .Icon("export")
+                        .Text("Export to Excel")
+                        .OnClick("exportToEx")
+                    )
+                </ul>
+            </nav>
+        </div>
+
+        <div class="row filter-panel" style="padding-top:0px;">
+            <div class="card-block m-t-10">
+                <div class="row">
+                    <div class="col-lg-4 form-group">
+                        <label>Periode Awal</label>
+                        @(Html.DevExtreme().DateBox()
+                            .ID("PeriodeAwal")
+                            .DisplayFormat("dd MMM yyyy")
+                            //.ShowClearButton(true)
+                            .Width("100%"))
+                    </div>
+
+                    <div class="col-lg-4 form-group">
+                        <label>Periode Akhir</label>
+                        @(Html.DevExtreme().DateBox()
+                            .ID("PeriodeAkhir")
+                            .DisplayFormat("dd MMM yyyy")
+                            //.ShowClearButton(true)
+                            .Width("100%"))
+                    </div>
+                    <div class="col-lg-4 form-group">
+                        <label style="width: 100%;">&nbsp;</label>
+                        @(Html.DevExtreme().Button()
+                            .ID("Filter")
+                            .Type(ButtonType.Default)
+                            .Text("Filter")
+                            .OnClick("onButtonFilterClicked"))
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="gridview-div">
+        @Html.AntiForgeryToken()
+
+        @(Html.DevExtreme().DataGrid()
+            .ID("grid1")
+            .DataSource(d => d.Mvc()
+                .Controller("AuditTrail")
+                .LoadAction("GetGridData")
+                .Key("AuditId")
+                .OnBeforeSend("onGridBeforeSend"))
+            .RemoteOperations(true)
+            .Export(e => e.AllowExportSelectedData(true).Texts(q => q.ExportTo("Ekspor")))
+            .Width("100%")
+            .Columns(columns =>
+            {
+                columns.Add().DataField("AuditId").Visible(false);
+                columns.Add().DataField("AuditDate").Caption("Tanggal").Width("10%").DataType(GridColumnDataType.DateTime).SortOrder(SortOrder.Desc);
+                columns.Add().DataField("AuditTipe").Caption("Tipe").Width("20%");
+                columns.Add().DataField("AuditCause").Caption("Cause").Width("10%");
+                columns.Add().DataField("AuditIpAddress").Caption("IP Address").Width("20%");
+                columns.Add().DataField("AuditUser").Caption("User").Width("10%");
+                columns.Add().DataField("AuditUrl").Caption("Url").Width("20%");
+            })
+            .FilterRow(f => f.Visible(true))
+            //.AllowColumnResizing(true)
+            .WordWrapEnabled(true)
+            .ShowBorders(false)
+            .Selection(c => c.Mode(SelectionMode.Multiple))
+            .RowAlternationEnabled(false)
+            .Paging(p =>
+            {
+                p.PageSize(20);
+                p.Enabled(true);
+            })
+            .Pager(p =>
+            {
+                p.ShowInfo(true);
+            }))
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        const startDate = $("#PeriodeAwal").dxDateBox({
+            onValueChanged: function (e) {
+                endDate.option("min", e.value);
+            }
+        }).dxDateBox("instance");
+        const endDate = $("#PeriodeAkhir").dxDateBox({
+            onValueChanged: function (e) {
+                startDate.option("max", e.value);
+            }
+        }).dxDateBox("instance");
+    });
+
+    function onButtonFilterClicked(e) {
+        //const res = e.validationGroup.validate();
+        //if (res.status === "valid") {
+        //    $("#grid1").dxDataGrid("instance").refresh();
+        //}
+
+        $("#grid1").dxDataGrid("instance").refresh();
+    }
+
+    function onGridBeforeSend(method, ajaxOptions) {
+        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
+        let periodeAwal = null;
+        if (tempPeriodeAwal != null) {
+            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + (tempPeriodeAwal.getMonth() + 1) + '-' + tempPeriodeAwal.getDate();
+        }
+
+        let tempPeriodeAkhir = $("#PeriodeAkhir").dxDateBox("instance").option("value");
+        let periodeAkhir = null;
+        if (tempPeriodeAkhir != null) {
+            periodeAkhir = tempPeriodeAkhir.getFullYear() + '-' + (tempPeriodeAkhir.getMonth() + 1) + '-' + tempPeriodeAkhir.getDate();
+        }
+
+        ajaxOptions.data.periodeAwal = periodeAwal;
+        ajaxOptions.data.periodeAkhir = periodeAkhir;
+    }
+</script>
+
+<style type="text/css">
+    .mandatory {
+        color: red;
+    }
+</style>

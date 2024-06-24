@@ -1,0 +1,184 @@
+﻿@model BDA.Models.SiteDbMap
+@*TODO: Section Menu
+ <li class="menu-section">
+	<h4 class="menu-text">Custom</h4>
+	<i class="menu-icon ki ki-bold-more-hor icon-md"></i>
+</li>*@
+@foreach (var lvl1 in Model.SiteDbMapNode.SiteDbMapNodes)
+{
+    if (Convert.ToBoolean(lvl1.HasAccess) && lvl1.IsHidden != "true")
+    {
+        <li class="menu-item @(lvl1.LiClass != null ? lvl1.LiClass : "") @(lvl1.SiteDbMapNodes.Where(x => x.HasAccess == true && x.IsHidden != "true").Any() ? " menu-item-submenu" : "")" aria-haspopup="true">
+			<a href="@(!String.IsNullOrWhiteSpace(lvl1.Url) ? Url.Content(lvl1.Url) : " javascript:;")" class="menu-link menu-toggle">				
+                @if (!string.IsNullOrWhiteSpace(lvl1.IconClass))
+                {
+                    <span class="menu-icon">
+						<span class="@(lvl1.IconClass)"></span>
+					</span>                    
+                }
+                else if (!string.IsNullOrWhiteSpace(lvl1.IconText))
+                {
+                    <span class="menu-icon">
+						<span>@(lvl1.IconText)</span>
+					</span>
+                }
+                else{
+                    <i class="menu-bullet menu-bullet-dot">
+						<span></span>
+					</i>
+                }
+                <span title="@(lvl1.tooltip)" class="menu-text">@lvl1.Title</span>
+                @if (lvl1.SiteDbMapNodes.Where(x => x.HasAccess == true && x.IsHidden != "true").Any())
+                {
+                    <i class="menu-arrow"></i>
+                }
+			</a>
+            @if (lvl1.SiteDbMapNodes.Where(x => x.HasAccess == true && x.IsHidden != "true").Any())
+            {
+            <div class="menu-submenu">
+				<i class="menu-arrow"></i>
+				<ul class="menu-subnav">
+					<li class="menu-item menu-item-parent" aria-haspopup="true">
+						<span class="menu-link">
+							<span class="menu-text">@lvl1.Title</span>
+						</span>
+					</li>
+                    @foreach (var lvl2 in lvl1.SiteDbMapNodes.Where(x => x.HasAccess == true && x.IsHidden != "true"))
+                    {
+                        <li class="menu-item @(lvl2.LiClass != null ? lvl2.LiClass : "") @(lvl2.SiteDbMapNodes.Where(x => x.HasAccess == true && x.IsHidden != "true").Any() ? " menu-item-submenu" : "")" aria-haspopup="true">
+			            <a href="@(!String.IsNullOrWhiteSpace(lvl2.Url) ? Url.Content(lvl2.Url) : " javascript:;")" class="menu-link menu-toggle">				
+                            @if (!string.IsNullOrWhiteSpace(lvl2.IconClass))
+                            {
+                                <span class="menu-icon">
+						            <span class="@(lvl2.IconClass)"></span>
+					            </span>                    
+                            }
+                            else if (!string.IsNullOrWhiteSpace(lvl2.IconText))
+                            {
+                                <span class="menu-icon">
+						            <span>@(lvl2.IconText)</span>
+					            </span>
+                            }
+                            else{
+                                <i class="menu-bullet menu-bullet-dot">
+						            <span></span>
+					            </i>
+                            }
+                            <span title="@(lvl2.tooltip)" class="menu-text">@lvl2.Title</span>
+                            @if (lvl2.SiteDbMapNodes.Where(x => x.HasAccess == true && x.IsHidden != "true").Any())
+                            {
+                                <i class="menu-arrow"></i>
+                            }
+			            </a>
+                        @if (lvl2.SiteDbMapNodes.Where(x => x.HasAccess == true && x.IsHidden != "true").Any())
+                        {
+                        <div class="menu-submenu">
+				            <i class="menu-arrow"></i>
+				            <ul class="menu-subnav">
+					            <li class="menu-item menu-item-parent" aria-haspopup="true">
+						            <span class="menu-link">
+							            <span class="menu-text">@lvl2.Title</span>
+						            </span>
+					            </li>
+                                @foreach (var lvl3 in lvl2.SiteDbMapNodes.Where(x => x.HasAccess == true && x.IsHidden != "true"))
+                                {
+                                    <li class="menu-item @(lvl3.LiClass != null ? lvl3.LiClass : "") @(lvl3.SiteDbMapNodes.Where(x => x.HasAccess == true && x.IsHidden != "true").Any() ? " menu-item-submenu" : "")" aria-haspopup="true">
+			                        <a href="@(!String.IsNullOrWhiteSpace(lvl3.Url) ? Url.Content(lvl3.Url) : " javascript:;")" class="menu-link menu-toggle">				
+                                        @if (!string.IsNullOrWhiteSpace(lvl3.IconClass))
+                                        {
+                                            <span class="menu-icon">
+						                        <span class="@(lvl3.IconClass)"></span>
+					                        </span>                    
+                                        }
+                                        else if (!string.IsNullOrWhiteSpace(lvl3.IconText))
+                                        {
+                                            <span class="menu-icon">
+						                        <span>@(lvl3.IconText)</span>
+					                        </span>
+                                        }
+                                        else{
+                                            <i class="menu-bullet menu-bullet-dot">
+						                        <span></span>
+					                        </i>
+                                        }
+                                        <span title="@(lvl3.tooltip)" class="menu-text">@lvl3.Title</span>
+                                        @if (lvl3.SiteDbMapNodes.Where(x => x.HasAccess == true && x.IsHidden != "true").Any())
+                                        {
+                                            <i class="menu-arrow"></i>
+                                        }
+			                        </a>
+                                    @if (lvl3.SiteDbMapNodes.Where(x => x.HasAccess == true && x.IsHidden != "true").Any())
+                                    {
+                                    <div class="menu-submenu">
+				                        <i class="menu-arrow"></i>
+				                        <ul class="menu-subnav">
+					                        <li class="menu-item menu-item-parent" aria-haspopup="true">
+						                        <span class="menu-link">
+							                        <span class="menu-text">@lvl3.Title</span>
+						                        </span>
+					                        </li>
+                                            @foreach (var lvl4 in lvl3.SiteDbMapNodes.Where(x => x.HasAccess == true && x.IsHidden != "true"))
+                                            {
+                                                <li class="menu-item @(lvl4.LiClass != null ? lvl4.LiClass : "") @(lvl4.SiteDbMapNodes.Where(x => x.HasAccess == true && x.IsHidden != "true").Any() ? " menu-item-submenu" : "")" aria-haspopup="true">
+			                                    <a href="@(!String.IsNullOrWhiteSpace(lvl4.Url) ? Url.Content(lvl4.Url) : " javascript:;")" class="menu-link menu-toggle">				
+                                                    @if (!string.IsNullOrWhiteSpace(lvl4.IconClass))
+                                                    {
+                                                        <span class="menu-icon">
+						                                    <span class="@(lvl4.IconClass)"></span>
+					                                    </span>                    
+                                                    }
+                                                    else if (!string.IsNullOrWhiteSpace(lvl4.IconText))
+                                                    {
+                                                        <span class="menu-icon">
+						                                    <span>@(lvl4.IconText)</span>
+					                                    </span>
+                                                    }
+                                                    else{
+                                                        <i class="menu-bullet menu-bullet-dot">
+						                                    <span></span>
+					                                    </i>
+                                                    }
+                                                    <span title="@(lvl4.tooltip)" class="menu-text">@lvl4.Title</span>
+                                                    @if (lvl4.SiteDbMapNodes.Where(x => x.HasAccess == true && x.IsHidden != "true").Any())
+                                                    {
+                                                        <i class="menu-arrow"></i>
+                                                    }
+			                                    </a>
+                                                @if (lvl4.SiteDbMapNodes.Where(x => x.HasAccess == true && x.IsHidden != "true").Any())
+                                                {
+                                                <div class="menu-submenu">
+				                                    <i class="menu-arrow"></i>
+				                                    <ul class="menu-subnav">
+					                                    <li class="menu-item menu-item-parent" aria-haspopup="true">
+						                                    <span class="menu-link">
+							                                    <span class="menu-text">@lvl4.Title</span>
+						                                    </span>
+					                                    </li>
+                                                        @foreach (var lvl5 in lvl4.SiteDbMapNodes.Where(x => x.HasAccess == true && x.IsHidden != "true"))
+                                                        {
+
+                                                        }
+                                                    </ul>
+                                                </div>
+                                                }
+		                                    </li>
+                                            }
+                                        </ul>
+                                    </div>
+                                    }
+		                        </li>
+                                }
+                            </ul>
+                        </div>
+                        }
+		            </li>
+
+                    }
+                </ul>
+            </div>
+            }
+		</li>
+    }
+
+}
+

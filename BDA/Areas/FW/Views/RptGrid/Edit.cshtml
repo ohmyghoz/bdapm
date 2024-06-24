@@ -1,0 +1,72 @@
+﻿@model BDA.DataModel.RptGrid
+@{
+    Layout = "~/Views/Shared/_LayoutMain.cshtml";
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <script>
+        function OpenQueryBuilder() {
+            ShowPopupMain("@Url.Action("QueryBuilder","DXReport", new {area="FW"})", "Query Builder", "95%", "95%");
+        }
+
+        function RefreshQuery(query) {
+            $("#dxrg_query").dxTextArea("instance").option("value", query);
+        }
+    </script>
+    <div class="card card-default">
+        <div class="card-header separator">
+            <div class="card-title">
+                <script>document.write(pageTitle);</script>
+            </div>
+            <div class="card-controls">
+                <a href="@Url.Action("Index")"><i class="fa fa-arrow-left"></i> Kembali Ke Daftar</a>
+            </div>
+        </div>
+
+        <div class="card-block m-t-10">
+            <div class="row">
+                <securehidden asp-for="rg_id"></securehidden>
+
+                <div class="col-lg-3 form-group">
+                    <label asp-for="rg_kode"></label>
+                    @Html.DevExtreme().TextBoxFor(m => m.rg_kode).Width("100%").ReadOnly(true)
+                </div>
+                <div class="col-lg-3 form-group">
+                    <label asp-for="rg_db_name"></label>
+                    @Html.DevExtreme().SelectBoxFor(m => m.rg_db_name).Width("100%").Items(new string[] { "EDWOJKWEB", "EDW_STAGING", "EDW_LOG", "EDW_DATA", "EDW_SOURCE" }).Value("EDWOJKWEB")
+                </div>
+                @*<div class="col-lg-6 form-group">
+                    <label asp-for="parent_id"></label>
+                    @(Html.DevExtreme().SelectBoxFor(m => m.parent_id)
+                        .DataSource(d => d.Mvc().LoadAction("GetRefparent_id").Key("rg_id"))
+                        .DisplayExpr("rg_id")
+                        .ValueExpr("rg_id")
+                        .SearchEnabled(true)
+                        .Width("100%")
+                    )
+                </div>*@
+                <div class="col-lg-6 form-group">
+                    <label asp-for="rg_nama"></label>
+                    @Html.DevExtreme().TextBoxFor(m => m.rg_nama).Width("100%")
+                </div>
+
+                <div class="col-lg-12 form-group">
+                    <label asp-for="rg_query"></label> <a style="cursor:pointer; color:blue;" onclick="OpenQueryBuilder()">Query Builder</a>
+                    @Html.DevExtreme().TextAreaFor(m => m.rg_query).Width("100%").Height(300).ID("dxrg_query").Visible(false)
+                </div>
+
+                <div class="col-lg-6 form-group hidden">
+                    <label asp-for="rg_rolesetting_inherited"></label>
+                    @Html.DevExtreme().CheckBoxFor(m => m.rg_rolesetting_inherited).Width("100%")
+                </div>
+                <div class="col-lg-12 form-group">
+                    <label asp-for="rg_catatan"></label>
+                    @Html.DevExtreme().TextAreaFor(m => m.rg_catatan).Width("100%")
+                </div>
+            </div>
+            @Html.DevExtreme().Button().ID("btnSave").Text("Save").UseSubmitBehavior(true)
+        </div>
+    </div>
+}

@@ -1,0 +1,61 @@
+﻿@model BDA.DataModel.FWRefSetting
+
+@{
+    Layout = "~/Views/Shared/_LayoutMain.cshtml";
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="card card-default">
+        <div class="card-header separator">
+            <div class="card-title">
+                <script>document.write(pageTitle);</script>
+            </div>
+            <div class="card-controls">
+                <a href="@Url.Action("Index")"><i class="fa fa-arrow-left"></i> Return To List</a>
+            </div>
+        </div>
+
+        <div class="card-block m-t-10">
+            <div class="row">
+                @*@Html.SecureHiddenFor(model => model.ref_kota_id)*@
+
+                <div class="col-lg-6 form-group">
+                    <label asp-for="SetName"></label>
+                    @*@Html.HiddenFor(model => model.set_name)*@
+                    @*<securehidden asp-for="set_name"></securehidden>*@
+                    @Html.DevExtreme().TextBoxFor(model => model.SetName).Width("100%")
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="SetType"></label>
+                    @(Html.DevExtreme().SelectBoxFor(model => model.SetType)
+                        .DataSource(d => d.Mvc().Controller("Setting").LoadAction("GetRefset_type").Key("RefKotaId"))
+                        .DisplayExpr("RefKotaNama")                        
+                        .ValueExpr("RefKotaId")                        
+                        .Width("100%")
+                    )
+                </div>
+
+                <div class="col-lg-6 form-group">
+                    <label asp-for="SetValue"></label>
+                    @Html.DevExtreme().TextBoxFor(model => model.SetValue).Width("100%")
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="SetCatatan"></label>
+                    @Html.DevExtreme().TextAreaFor(model => model.SetCatatan).Width("100%")
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="SetForuser"></label>
+                    @Html.DevExtreme().CheckBoxFor(model => model.SetForuser)
+                </div>
+                
+            </div>
+            @Html.DevExtreme().Button().ID("btnSave").Text("Simpan").UseSubmitBehavior(true)
+            
+
+        </div>
+    </div>
+}
+

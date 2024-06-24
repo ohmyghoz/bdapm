@@ -1,0 +1,57 @@
+﻿@model BDA.DataModel.MasterPropinsi
+
+@{
+    Layout = "~/Views/Shared/_LayoutMain.cshtml";
+}
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="card card-default">
+        <div class="card-header separator">
+            <div class="card-title">
+                <script>document.write(pageTitle);</script>
+            </div>
+            <div class="card-controls">
+                <a href="@Url.Action("Index")"><i class="fa fa-arrow-left"></i> Kembali Ke Daftar</a>
+            </div>
+        </div>
+
+        <div class="card-block m-t-10">
+            @if (ViewBag.Tambah == "Tambah")
+            {
+                <div class="row">
+                    <securehidden asp-for="RefPropinsiId"></securehidden>
+                    <div class="col-lg-6 form-group">
+                        <label asp-for="RefPropinsiNama"></label>
+                        @Html.DevExtreme().TextBoxFor(m => m.RefPropinsiNama).Width("100%").MaxLength(50)
+                    </div>
+                    <div class="col-lg-6 form-group">
+                        <label asp-for="RefPropinsiKode"></label>
+                        @Html.DevExtreme().TextBoxFor(m => m.RefPropinsiKode).Width("100%").MaxLength(2)
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="row">
+                    <securehidden asp-for="RefPropinsiId"></securehidden>
+                    <div class="col-lg-6 form-group">
+                        <label>Ubah Provisni <span class="required">*</span></label>
+                        @Html.DevExtreme().TextBoxFor(m => m.RefPropinsiNama).Width("100%").MaxLength(50)
+                    </div>
+                    <div class="col-lg-6 form-group">
+                        <label asp-for="RefPropinsiKode"></label>
+                        @Html.DevExtreme().TextBoxFor(m => m.RefPropinsiKode).Width("100%").MaxLength(2)
+                    </div>
+                </div>
+            }
+
+            @Html.DevExtreme().Button().ID("btnSave").Text("Simpan").OnClick("function ClikBtnSave() {if (DevExpress.validationEngine.validateGroup().isValid) { $('#btnSave').dxButton('instance').option('visible', false); } }").UseSubmitBehavior(true)
+
+
+        </div>
+    </div>
+}

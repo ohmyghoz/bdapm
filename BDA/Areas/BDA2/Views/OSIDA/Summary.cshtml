@@ -1,0 +1,243 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+    bool isExport = ViewBag.Export;
+    var maxItems = db.GetSetting("LimitFilterLJK");
+}
+@inject BDA.DataModel.DataEntities db
+
+
+
+<script>
+    window.jsPDF = window.jspdf.jsPDF;
+    applyPlugin(window.jsPDF);
+</script>
+
+<script type="text/javascript">
+    function ExportToExcel() {
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("LogExportIndex", "OSIDA", new {reportId = "osida_summary"})",
+            success: function (response) {
+                if (response.result == "Success") {
+                    var grid = $("#grid1").dxDataGrid("instance");
+                    grid.option("onExporting", function (e) {
+                        e.fileName = "OSIDA_osida_summary_" + new Date().toISOString().slice(0, 10);
+                    });
+                    grid.option("onFileSaving", function (e) { });
+                    grid.exportToExcel();
+                }
+            }
+        });
+    }
+
+    function ExportToPdf2() {
+        var dataGrid = $("#grid1").dxDataGrid("instance");
+        dataGrid.option("onExporting", function (e) { });
+        dataGrid.option("onFileSaving", function (e) {
+            var fd = new FormData();
+            fd.append("file", e.data);
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("ExportPDF", "OSIDA", new {reportId = "osida_summary" })",
+                data: fd,
+                processData: false,
+                contentType: false
+            }).done(function (data) {
+                window.location = "@Url.Action("File", "OSIDA", new {reportId = "osida_summary" })"
+            });
+            e.cancel = true;
+        });
+
+        dataGrid.exportToExcel();
+    }
+
+    var resetLJK;
+
+    $(function () {
+        $("#Periode").dxValidator({
+            validationGroup: "Filter",
+            validationRules: [{ type: "required", message: "[Periode] harus dipilih" }]
+        })
+
+    });
+
+    function onSelectionChanged(e) {
+        if (e.addedItems.length > 0) {
+            e.component.field().val("");
+        }
+    }
+
+    function onJenisLJKChanged(e) {
+        resetLJK = true;
+        $("#Members").dxSelectBox("instance").getDataSource().reload();
+        $("#Members").dxSelectBox("reset");
+        resetLJK = false;
+    }
+
+    function onButtonFilterClicked(e) {
+        const res = e.validationGroup.validate();
+        if (res.status === "valid") {
+            $("#grid1").dxDataGrid("instance").refresh();
+        }
+    }
+
+    function onGridBeforeSend(method, ajaxOptions) {
+        let periode = $("#Periode").dxSelectBox("instance").option("value");
+        let memberTypes = $("#MemberTypes").dxSelectBox("instance").option("value");
+        let members = $("#Members").dxSelectBox("instance").option("value");
+        ajaxOptions.data.periode = periode;
+        ajaxOptions.data.memberTypes = memberTypes;
+        ajaxOptions.data.members = members;
+    }
+    function onLJKOpened(e) {
+        e.component.content().find('.dx-list-select-all').hide();
+    }
+
+    const maxItems = @maxItems;
+
+    function onLJKChanged(e) {
+        if (e.value.length > maxItems) {
+            const newValue = e.value.slice(0, maxItems);
+            e.component.option("value", newValue);
+            //tooltip.show();
+        }
+    }
+    function OpenReport(kode) {
+        window.location = "@Url.Action("Index", "OSIDA")/" + kode.toString();
+    }
+</script>
+
+<style type="text/css">
+    .mandatory {
+        color: red;
+    }
+</style>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="card card-default">
+        @*filter*@
+        <div class="row filter-panel" style="padding-top:0px;">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-4 form-group">
+                        <label>Periode Pelaporan<span class="mandatory">*</span></label>
+                        @(Html.DevExtreme().SelectBox()
+                            .ID("Periode")
+                            .DataSource(d => d.Mvc()
+                                .Controller("Ref")
+                                .LoadAction("GetPeriode")
+                                .Key("value"))
+                            .ValueExpr("value")
+                            .DisplayExpr("text")
+                            .SearchEnabled(true)
+                            .Width("100%")
+                            .Value(string.Format("{0:yyyy-MM-01}",DateTime.Now.AddMonths(-1)))
+                            )
+
+                    </div>
+                    <div class="col-lg-4 form-group">
+                        <label>Jenis LJK</label>
+                        @(Html.DevExtreme().SelectBox()
+                            .ID("MemberTypes")
+                            .DataSource(d => d.Mvc()
+                                .Controller("Ref")
+                                .LoadAction("GetMemberTypes")
+                                .Key("kode_jenis_ljk"))
+                            //.DataSourceOptions(d => d.Paginate(true).PageSize(10))
+                            .ValueExpr("kode_jenis_ljk")
+                            .DisplayExpr("Display")
+                            //.ShowSelectionControls(true)
+                            //.MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .ShowClearButton(true)
+                            //.OnSelectionChanged("onSelectionChanged")
+                            .OnValueChanged("onJenisLJKChanged")
+                            .Width("100%"))
+                    </div>
+
+                    <div class="col-lg-4 form-group">
+                        <label>LJK</label>
+                        @(Html.DevExtreme().SelectBox()
+                            .ID("Members")
+                            .DataSource(d => d.Mvc()
+                                .Controller("Ref")
+                                .LoadAction("GetMembers")
+                                .LoadParams(new { memberTypes = new JS("function() { return $(\"#MemberTypes\").dxSelectBox(\"instance\").option(\"value\"); }"), reset = new JS("function() { return resetLJK; }") })
+                                //.Key("kode_ljk")
+                                .Key("CompositeKey")
+                            )
+                            .DataSourceOptions(d => d.Paginate(true).PageSize(10))
+                            //.ValueExpr("kode_ljk")
+                            .ValueExpr("CompositeKey")
+                            .DisplayExpr("Display")
+                            //.ShowSelectionControls(true)
+                            //.MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .ShowClearButton(true)
+                            //.OnSelectionChanged("onSelectionChanged")
+                            //.OnOpened("onLJKOpened")
+                            //.OnValueChanged("onLJKChanged")
+                            .Width("100%"))
+                    </div>
+                </div>
+
+                <div class="float-left">
+                    @(Html.DevExtreme().Button()
+                        .ID("Filter")
+                        .Type(ButtonType.Default)
+                        .Text("Tampilkan")
+                        .OnClick("onButtonFilterClicked")
+                        .ValidationGroup("Filter"))
+                </div>
+
+                <div class="float-right">
+                    @if (ViewBag.Export)
+                    {
+                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                    }
+                </div>
+            </div>
+        </div>
+
+        @*grid*@
+    <div class="gridview-div">
+        @(Html.DevExtreme().DataGrid()
+                .ID("grid1")
+                .DataSource(d => d.Mvc()
+                    .Controller("OSIDA")
+                    .LoadAction("GetGridDataSummary")
+                    .OnBeforeSend("onGridBeforeSend"))
+                .RemoteOperations(true)
+                .Width("100%")
+                .AllowColumnResizing(true)
+                .ColumnFixing(c => c.Enabled(true))
+                .Scrolling(s => s.ShowScrollbar(ShowScrollbarMode.Always))
+                .FilterRow(f => f.Visible(true))
+                .ShowBorders(false)
+                .Columns(columns =>
+                {
+                    columns.Add().DataField("judul").Caption("Nama Menu").Width("70%").CellTemplate(@<text>
+                        <a rel="noopener noreferrer" target="_blank" href="<%= data.link %>" ><%=data.judul %></a>
+                    </text>);
+                    columns.Add().DataField("Period").Caption("Periode").Width("10%");
+                    columns.Add().DataField("Rows").Caption("Jumlah Data").Width("20%").Format(",##0");
+                })
+                ///.Selection(c => c.Mode(SelectionMode.Single))
+                .Paging(p =>
+                {
+                    p.PageSize(15);
+                    p.Enabled(true);
+                })
+                .Pager(p =>
+                {
+                    p.ShowInfo(true);
+                })
+            )
+    </div>
+    </div>
+}

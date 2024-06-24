@@ -1,0 +1,90 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+}
+
+<script type="text/javascript">
+    function Edit() {
+        var keys = $("#grid1").dxDataGrid("getSelectedRowKeys");
+        if (keys.length >= 1) {
+            window.location = "@Url.Action("Edit","FW_Ref_Role")/" + keys[0].toString();
+        } else {
+            alert('Silahkan Pilih Baris Telebih Dahulu');
+        }
+    }
+
+    function Delete() {
+        var keys = $("#grid1").dxDataGrid("getSelectedRowKeys");
+        if (keys.length >= 1) {
+            var ask = confirm('Apakah Anda yakin akan menghapus data ini ?');
+            if (ask) {
+                $.ajax({
+					type: "POST",
+					url: "@Url.Action("Delete","FW_Ref_Role")",
+					contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+                    dataType: "json",
+                    data: "param1=" + keys[0].toString(),
+                    success: function (response) {
+                        alert(response);
+                        $("#grid1").dxDataGrid("refresh");
+                    },
+                    error: function (response) {
+                        alert(response.responseJSON.error);
+                    }
+				});
+            }
+        } else {
+            alert('Silahkan Pilih Baris Telebih Dahulu');
+        }
+    }
+</script>
+
+
+@section RightToolbar{
+    <div class="d-flex align-items-center">
+		 @{
+            if (ViewBag.Add)
+            {
+                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="@Url.Action("Create","FW_Ref_Role")"><span class="image fa fa-plus"></span> Add</a>
+            }
+            if (ViewBag.Edit)
+            {
+                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:Edit();"><span class="image fa fa-edit"></span> Edit</a>
+            }
+            if (ViewBag.Delete)
+            {
+                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:Delete();"><span class="image fa fa-times"></span> Delete</a>
+            }
+        }	
+	</div>
+}
+
+
+<div class="card card-default">    
+    <div>
+        @Html.AntiForgeryToken()
+
+        @(Html.DevExtreme().DataGrid()
+            .ID("grid1")
+            .DataSource(d => d.Mvc()
+                .Controller("FW_Ref_Role")
+                .LoadAction("GetGridData")
+                .Key("RoleId"))
+            .Width("100%")
+            .RemoteOperations(true)
+            .Columns(columns =>
+            {
+                columns.Add().DataField("RoleId").Visible(false);
+                columns.Add().DataField("RoleName").Caption("Role").Width("100%");
+                columns.Add().DataField("RoleCatatan").Caption("Catatan").Width("100%");
+            })
+            .FilterRow(f => f.Visible(true))
+            .ShowBorders(false)
+            .Selection(c => c.Mode(SelectionMode.Single))
+            .RowAlternationEnabled(false)
+            .Paging(p =>
+            {
+                p.PageSize(20);
+                p.Enabled(true);
+            }))
+    </div>
+</div>

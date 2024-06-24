@@ -1,0 +1,86 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+}
+
+<script type="text/javascript">
+    function Edit() {
+        var keys = $("#grid1").dxDataGrid("getSelectedRowKeys");
+        if (keys.length >= 1) {
+            window.location = "@Url.Action("Edit","FW_Role_Right")/" + keys[0].toString();
+        } else {
+            alert('Silahkan Pilih Baris Telebih Dahulu');
+        }
+    }
+</script>
+
+@section RightToolbar{
+    <div class="d-flex align-items-center">
+        <!--begin::Actions-->
+        @{
+            if (ViewBag.Edit)
+            {
+                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:Edit();"><span class="image fa fa-edit"></span> Edit</a>
+            }
+        }
+        <!--end::Actions-->
+    </div>
+}
+
+<div class="card card-default">
+    <div>
+        @Html.AntiForgeryToken()
+
+        @(Html.DevExtreme().DataGrid()
+            .ID("grid1")
+            .DataSource(d => d.Mvc()
+                .Controller("FW_Role_Right")
+                .LoadAction("GetGridDataRole")
+                .Key("RoleId"))
+            .Width("100%")
+            .RemoteOperations(true)
+            .Columns(columns =>
+            {
+                columns.Add().DataField("RoleId").Visible(false);
+                columns.Add().DataField("RoleName").Caption("Role").Width("100%");
+            })
+            .FilterRow(f => f.Visible(true))
+            .ShowBorders(false)
+            .Selection(c => c.Mode(SelectionMode.Single))
+            .RowAlternationEnabled(false)
+            .Paging(p =>
+            {
+                p.PageSize(20);
+                p.Enabled(true);
+            })
+            .MasterDetail(md =>
+            {
+                md.Enabled(true);
+                md.Template(@<text>
+                    @(Html.DevExtreme().DataGrid()
+                        .DataSource(d => d.Mvc()
+                            .Controller("FW_Role_Right")
+                            .LoadAction("GetGridDataDetailRole")
+                            .LoadParams(new { RoleId = new JS("data.RoleId") }))
+                        //.KeyExpr("ModId")
+                        //.ParentIdExpr("ParentModId")
+                        .Width("100%")
+                        .ShowBorders(false)
+                        .Columns(columns =>
+                        {
+                            columns.Add().DataField("RightId").Visible(false);
+                            columns.Add().DataField("ModNama").Caption("Modul").Width("100%");
+                            columns.Add().DataField("IsView").Caption("Lihat").DataType(GridColumnDataType.Boolean).Width("100%");
+                            columns.Add().DataField("IsAdd").Caption("Tambah").DataType(GridColumnDataType.Boolean).Width("100%");
+                            columns.Add().DataField("IsEdit").Caption("Ubah").DataType(GridColumnDataType.Boolean).Width("100%");
+                            columns.Add().DataField("IsDelete").Caption("Hapus").DataType(GridColumnDataType.Boolean).Width("100%");
+                            columns.Add().DataField("IsExport").Caption("Export").DataType(GridColumnDataType.Boolean).Width("100%");
+                            //columns.Add().DataField("IsReview").Caption("Review").DataType(GridColumnDataType.Boolean).Width("100%");
+                            //columns.Add().DataField("IsApprove").Caption("Setujui").DataType(GridColumnDataType.Boolean).Width("100%");
+                            //columns.Add().DataField("IsOpen").Caption("Buka").DataType(GridColumnDataType.Boolean).Width("100%");
+                            //columns.Add().DataField("IsPrint").Caption("Cetak").DataType(GridColumnDataType.Boolean).Width("100%");
+                        }))
+                </text>);
+            }))
+    </div>
+</div>
+

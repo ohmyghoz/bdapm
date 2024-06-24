@@ -1,0 +1,7 @@
+﻿.navigation, .footer, .header {
+    display: none;
+}
+
+#kt_subheader, #kt_brand, #kt_footer, #kt_us {
+    display: none !important;
+}

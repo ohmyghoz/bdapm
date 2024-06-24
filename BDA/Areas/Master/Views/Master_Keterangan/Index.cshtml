@@ -1,0 +1,56 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+}
+
+<script type="text/javascript">
+    function Edit() {
+        var keys = $("#grid1").dxDataGrid("getSelectedRowKeys");
+        if (keys.length >= 1) {
+            window.location = "@Url.Action("Edit","Master_Keterangan")/" + keys[0].toString();
+        } else {
+            alert('Please select row first.');
+        }
+    }
+</script>
+
+
+
+@section RightToolbar{
+    <div class="d-flex align-items-center">
+		 @{
+                    <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:Edit();"><span class="image fa fa-edit"></span> Edit</a>
+        }	
+	</div>
+}
+
+
+<div class="card card-default">    
+    <div>
+        @Html.AntiForgeryToken()
+
+        @(Html.DevExtreme().DataGrid()
+            .ID("grid1")
+            .DataSource(d => d.Mvc()
+                .Controller("Master_Keterangan")
+                .LoadAction("GetGridData")               
+                .Key("mk_id")
+            )
+			.Width("100%")
+            .RemoteOperations(true)
+            .Columns(columns =>
+            {
+                columns.Add().DataField("mk_kode").Caption("Kode Tabel");
+                columns.Add().DataField("mk_menu").Caption("Nama Menu");
+            })
+            .FilterRow(f => f.Visible(true))
+            .ShowBorders(true)
+            .Selection(c => c.Mode(SelectionMode.Single))
+            .RowAlternationEnabled(false)
+            .Paging(p=> {
+                p.PageSize(20);
+                p.Enabled(true);
+            }
+            )
+        )
+    </div>
+</div>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="7aec7da7e0c6498582fe0d8a733e8689" Name="Diagram1">
+        <EntityTypeShape EntityType="DataModel.Email_In" Width="1.5" PointX="15.75" PointY="2.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.FW_Attachment" Width="1.5" PointX="18" PointY="2.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.FW_Calendar" Width="1.5" PointX="5.75" PointY="8.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.FW_Email_Queue" Width="1.5" PointX="3" PointY="21" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.FW_Holiday" Width="1.5" PointX="7.75" PointY="9.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.FW_Kode_Counter" Width="1.5" PointX="13" PointY="9.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.FW_Kode_Detail" Width="1.5" PointX="13" PointY="12.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.FW_Kode_Format" Width="1.5" PointX="10.75" PointY="10.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.FW_LOG_Error" Width="1.5" PointX="12.75" PointY="2.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.FW_Notice" Width="1.5" PointX="0.75" PointY="21.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.FW_Notice_Queue" Width="1.5" PointX="5.25" PointY="13.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.FW_Notice_Template" Width="1.5" PointX="1.5" PointY="28.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.FW_Ref_Modul" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.FW_Ref_Role" Width="1.5" PointX="0.75" PointY="4" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.FW_Ref_Setting" Width="1.5" PointX="12.75" PointY="5.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.FW_Role_Right" Width="1.5" PointX="3" PointY="2.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.FW_Temp_Table" Width="1.5" PointX="10.75" PointY="17.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.FW_User_Lost_Password" Width="1.5" PointX="5.25" PointY="18.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.FW_User_Role" Width="1.5" PointX="8.25" PointY="13.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.FW_User_Role_Stag" Width="1.5" PointX="15.75" PointY="14.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.FW_Workday" Width="1.5" PointX="12.75" PointY="17.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.Help" Width="1.5" PointX="15.75" PointY="9.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.LOV" Width="1.5" PointX="7.75" PointY="18.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.RptGrid" Width="1.5" PointX="0.75" PointY="14" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.RptGrid_Param" Width="1.5" PointX="3" PointY="35.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.RptGrid_RoleSetting" Width="1.5" PointX="3" PointY="6.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.Rule_App" Width="1.5" PointX="5.75" PointY="4.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.Rule_Table" Width="1.5" PointX="8" PointY="3" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.Rule_Validasi" Width="1.5" PointX="10.25" PointY="2.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.Satker" Width="1.5" PointX="0.75" PointY="9.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.User_Master" Width="1.5" PointX="3" PointY="11.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.OUT_CROSSRKD" Width="1.5" PointX="14.75" PointY="18.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.OUT_RKD1" Width="1.5" PointX="16.75" PointY="18.125" IsExpanded="true" />
+        <AssociationConnector Association="DataModel.FK_FW_Attachment_Email_In" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_FW_Attachment_Help" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_FW_Email_Queue_FW_Notice" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_Notice_Queue_Email_Queue" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_New_Kode_Counter_New_Kode_Format" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_New_Kode_Detail_New_Kode_Format" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_FW_Notice_FW_Notice_Template" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_Notice_Queue_Notice_Template" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_Notice_Queue_User_Master" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_FW_Role_Right_FW_Ref_Modul" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_FW_Role_Right_FW_Ref_Role" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_FW_User_Role_FW_Ref_Role" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_RptGrid_RoleSetting_FW_Ref_Role" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_User_Lost_Password_User_Master" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_FW_User_Role_User_Master" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_RptGrid_Param_RptGrid" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_RptGrid_RoleSetting_RptGrid" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_RptGrid_RptGrid" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_RptGrid_RoleSetting_Satker" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_Rule_Table_Rule_App" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_Rule_Validasi_Rule_Table" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_User_Master_Satker" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

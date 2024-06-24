@@ -1,0 +1,245 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+}
+
+@*<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.14/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/3.3.1/exceljs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/7.4.0/polyfill.min.js"></script>*@
+
+<script>
+    window.jsPDF = window.jspdf.jsPDF;
+    applyPlugin(window.jsPDF);
+</script>
+
+<script type="text/javascript">
+
+    function syncTreeViewSelection(treeView, value) {
+      if (!value) {
+        treeView.unselectAll();
+      } else {
+        treeView.selectItem(value);
+      }
+    }
+
+    function treeBox_valueChanged(e) {
+      var $treeView = e.component.content().find(".dx-treeview");
+      if ($treeView.length) {
+        syncTreeViewSelection($treeView.dxTreeView("instance"), e.value);
+      }
+    }
+
+    function exportToPDF() {
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("LogExport", "Log_Akses")",
+            success: function (response) {
+                if (response.result == "Success") {
+                    const doc = new jsPDF({
+                        orientation: "landscape",
+                        unit: "cm",
+                        format: [21, 60]
+                    });
+                    var dataGrid = $("#grid1").dxDataGrid("instance");
+                    var fileName = "Log_Aktivitas_" + new Date().toISOString().slice(0, 10) + ".pdf";
+                    doc.setFontSize("6")
+                    //var keys = $("#grid1").dxDataGrid("getSelectedRowsData")
+                    //console.log(keys)
+                    DevExpress.pdfExporter.exportDataGrid({
+                        jsPDFDocument: doc,
+                        component: dataGrid,
+                        keepColumnWidths: true
+                        //selectedRowsOnly: true
+                    }).then(function () {
+                        doc.save(fileName);
+                    });
+                }
+            }
+        });
+    }
+
+    function exportToEx() {
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("LogExport", "Log_Akses")",
+            success: function (response) {
+                if (response.result == "Success") {
+                    var dataGrid = $("#grid1").dxDataGrid("instance");
+                    var fileName = "Log_Aktivitas_" + new Date().toISOString().slice(0, 10) + ".xlsx";
+
+                    var workbook = new ExcelJS.Workbook();
+                    var worksheet = workbook.addWorksheet('Main Sheet');
+
+                    DevExpress.excelExporter.exportDataGrid({
+                        component: dataGrid,
+                        worksheet: worksheet,
+                        autoFilterEnabled: true
+                        //selectedRowsOnly: true
+                    }).then(function () {
+                        workbook.xlsx.writeBuffer().then(function (buffer) {
+                            saveAs(new Blob([buffer], { type: 'application/octet-stream' }), fileName);
+                        });
+                    });
+                    dataGrid.cancel = true;
+                }
+            }
+        });
+        
+    }
+
+    function gridOnBeforeSend(method, ajaxOptions) {
+        var tempstartDate = $("#startDate").dxDateBox("instance").option('value');
+        var tempendDate = $("#endDate").dxDateBox("instance").option('value');
+        var menu = $("#menu").dxDropDownBox("instance").option('text');
+        var startDate = null;
+        var endDate = null;
+
+        if (tempstartDate > tempendDate) {
+            swal({ type: 'error', title: 'Validasi', text: 'Periksa Kembali Tanggal Inputan' });
+        }
+
+        if (tempstartDate != null) {
+            startDate = tempstartDate.getFullYear() + '-' + (tempstartDate.getMonth() + 1) + '-' + tempstartDate.getDate();
+        }
+        if (tempendDate != null) {
+            endDate = tempendDate.getFullYear() + '-' + (tempendDate.getMonth() + 1) + '-' + tempendDate.getDate();
+        }
+
+        ajaxOptions.data.paramMenu = menu?.toString();
+        ajaxOptions.data.paramStartDate = startDate;
+        ajaxOptions.data.paramEndDate = endDate;
+
+    }
+</script>
+
+
+<div class="card card-default">
+    <div class="row filter-panel" style="padding-top:0px;">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-lg-6 form-group">
+                    <label>Tanggal Mulai</label>
+                    @(Html.DevExtreme().DateBox()
+                            .ID("startDate")
+                            .Name("startDate")
+                            .Width("100%").Value(DateTime.Now).DisplayFormat("dd MMM yyyy"))
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label>Tanggal Selesai</label>
+                    @(Html.DevExtreme().DateBox()
+                            .ID("endDate")
+                            .Name("endDate")
+                            .Width("100%").Value(DateTime.Now).DisplayFormat("dd MMM yyyy"))
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label>Menu</label>
+                    @(Html.DevExtreme().DropDownBox()
+                        .ID("menu")
+                        .DataSource(d => d.Mvc()
+                            .Controller("Log_Akses")
+                            .LoadAction("GetRefModul")
+                            .Key("ModId"))
+                        .ValueExpr("ModId")
+                        .DisplayExpr("ModKode")
+                        .Placeholder("Select...")
+                        .ShowClearButton(true)
+                        .OnValueChanged("treeBox_valueChanged")
+                        .ContentTemplate(new TemplateName("EmbeddedTreeViewSingle")))
+                </div>
+                @using (Html.DevExtreme().NamedTemplate("EmbeddedTreeViewSingle"))
+                {
+                    @(Html.DevExtreme().TreeView()
+                        .ID("tree")
+                        .DataSource(new JS(@"component.getDataSource()"))
+                        .KeyExpr("ModId")
+                        .ParentIdExpr("ParentModId")
+                        .DisplayExpr("ModKode")
+                        .DataStructure(TreeViewDataStructure.Plain)
+                        .SelectionMode(NavSelectionMode.Multiple)
+                        .ShowCheckBoxesMode(TreeViewCheckBoxMode.Normal)
+                        .SelectNodesRecursive(true)
+                        .SelectByClick(true)
+                        .Height(235)
+                        .OnItemSelectionChanged(@<text>
+                            function(args) {
+                                component.option("value", args.component.getSelectedNodeKeys());
+                            }
+                        </text>)
+                        .OnContentReady(@<text>
+                            function(args) {
+                                syncTreeViewSelection(args.component, component.option("value"));
+                            }
+                        </text>)
+                    )
+                }
+            </div>
+
+            <div class="float-left">
+                @(Html.DevExtreme().Button().Type(ButtonType.Default).Text("Cari").OnClick(@<text>
+                function () {
+                    $("#grid1").dxDataGrid("instance").getDataSource().reload();
+                }</text>))
+            </div>
+
+            <div class="float-right">
+                @if (ViewBag.Export)
+                {
+                    <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:exportToEx();"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                    <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:exportToPDF();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="gridview-div">
+
+        @Html.AntiForgeryToken()
+
+        @(Html.DevExtreme().DataGrid()
+            .ID("grid1")
+            .DataSource(d => d.Mvc()
+                .Controller("Log_Akses")
+                .LoadAction("GetGridData")
+                .OnBeforeSend("gridOnBeforeSend")
+                .Key("AuditId")
+            )
+            .RemoteOperations(true)
+            .Export(e => e.AllowExportSelectedData(true).Texts(q => q.ExportTo("Ekspor")))
+            .Width("100%")
+            .Columns(columns =>
+            {
+
+                columns.Add().DataField("AuditDate").Width("150px").Caption("Tanggal").DataType(GridColumnDataType.DateTime).Format("dd MMM yyyy HH:mm:ss").SortIndex(0).SortOrder(SortOrder.Desc).Alignment(HorizontalAlignment.Left);
+                columns.Add().DataField("AuditCause").Width("250px").Caption("Aksi");
+                columns.Add().DataField("AuditTipe").Width("250px").Caption("Tipe");
+                columns.Add().DataField("AuditMenu").Width("250px").Caption("Menu");
+                columns.Add().DataField("AuditUser").Width("150px").Caption("User ID");
+                columns.Add().DataField("AuditIpAddress").Width("120px").Caption("IP Address");
+                //columns.Add().DataField("AuditPrevUrl").Width("200px").Caption("URL Halaman Sebelumnya");
+                columns.Add().DataField("AuditUrl").Width("200px").Caption("URL Halaman");
+
+            })
+            .FilterRow(f => f.Visible(true))
+            //.AllowColumnResizing(true)
+            .WordWrapEnabled(true)
+            .ShowBorders(false)
+            //.Selection(c => c.Mode(SelectionMode.Multiple))
+            .RowAlternationEnabled(false)
+            .Paging(p =>
+            {
+                p.PageSize(20);
+                p.Enabled(true);
+            }
+            )
+             .Pager(p =>
+             {
+                 p.ShowInfo(true);
+             }
+             )
+        )
+
+    </div>
+</div>
+
+

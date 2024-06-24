@@ -1,0 +1,22 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="card card-default">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-lg-12 form-group">
+                    <label>Periode</label>
+                    @Html.DevExtreme().DateBox().Width("100%").Name("dtPeriode").ID("dtPeriode")
+                </div>
+            </div>
+            @Html.DevExtreme().Button().ID("btnSave").Text("Testing Email Alert").UseSubmitBehavior(true)
+        </div>
+        
+    </div>
+}
+

@@ -1,0 +1,107 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutMain.cshtml";
+
+}
+
+<script type="text/javascript">
+    function Edit() {
+        var keys = $("#grid1").dxDataGrid("getSelectedRowKeys");
+        if (keys.length >= 1) {
+            window.location = "@Url.Action("Edit","RptGrid")/" + keys[0].toString();
+        } else {
+            alert('Please select row first.');
+        }
+    }
+    function EditParam() {
+        var keys = $("#grid1").dxDataGrid("getSelectedRowKeys");
+        if (keys.length >= 1) {
+            window.location = "@Url.Action("IndexEdit","RptGrid")/" + keys[0].toString();
+        } else {
+            alert('Please select row first.');
+        }
+    }
+    function Delete() {
+        var keys = $("#grid1").dxDataGrid("getSelectedRowKeys");
+        if (keys.length >= 1) {
+            var ask = confirm('Are you sure that you want to delete?');
+            if (ask) {
+                $.ajax({
+					type: "POST",
+					url: "@Url.Action("Delete","RptGrid")?handler=Delete",
+					contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+                    dataType: "json",
+                    data: "param1=" + keys[0].toString(),
+                    success: function (response) {
+                        alert(response);
+                        $("#grid1").dxDataGrid("refresh");
+                    },
+                    error: function (response) {
+                        alert(response.responseJSON.error);
+                    }
+				});
+            }
+        } else {
+            alert('Please select row first.');
+        }
+    }
+</script>
+
+
+<div class="card card-default">
+    <div class="card-header">
+        <script>document.write(pageTitle);</script>
+        <div class="pull-right">
+            <nav class="dxbs-menu clearfix">
+                <ul class="nav nav-pills">
+                   
+                        <li class="nav-item"><a class="nav-link" href="@Url.Action("Create","RptGrid")"><span class="image fa fa-plus"></span> Tambah</a></li>
+                        <li class="nav-item"><a class="nav-link" href="javascript:Edit();"><span class="image fa fa-edit"></span> Ubah</a></li>
+                        <li class="nav-item"><a class="nav-link" href="javascript:EditParam();"><span class="image fa fa-edit"></span> Parameter</a></li>
+                        <li class="nav-item"><a class="nav-link" href="javascript:Delete();"><span class="image fa fa-times"></span> Hapus</a></li>
+                        <li class="nav-item"><a class="nav-link" target="_blank" href="@Url.Action("Queue")"><span class="image fa fa-hourglass"></span> Antrian</a></li>
+                        <li class="nav-item"><a class="nav-link" target="_blank" href="@Url.Action("QueueAdd")"><span class="image fa fa-bolt"></span> Antrikan Baru</a></li>
+                    
+                 
+                </ul>
+            </nav>
+        </div>
+    </div>
+    <div class="gridview-div">
+        @Html.AntiForgeryToken()
+
+        @(Html.DevExtreme().DataGrid()
+            .ID("grid1")
+            .DataSource(d => d.Mvc()
+                .Controller("RptGrid")
+                .LoadAction("GetGridData")
+
+                .Key("rg_id")
+            )
+            .Width("100%")
+            .RemoteOperations(true)
+            .Columns(columns =>
+            {
+
+                columns.Add().DataField("rg_kode").Width("140px").Caption("Kode");
+                columns.Add().DataField("rg_nama").Caption("Nama");
+                columns.Add().DataField("rg_tipe").Width("100px").Caption("Tipe").Visible(false);
+                columns.Add().DataField("rg_entrier").Width("200px").Caption("Entrier");
+                columns.Add().DataField("rg_catatan").Width("300px").Caption("Catatan");
+                columns.Add().DataField("rg_rolesetting_inherited").Width("100px").Caption("Role Inherited").Visible(false);
+                columns.Add().DataField("rg_id").Visible(false);
+
+            })
+            .FilterRow(f => f.Visible(true))
+            .ShowBorders(false)
+            .Selection(c => c.Mode(SelectionMode.Single))
+            .RowAlternationEnabled(false)
+            .Paging(p =>
+                    {
+                p.PageSize(20);
+                p.Enabled(true);
+                }
+            )
+        )
+
+    </div>
+</div>

@@ -1,0 +1,102 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+}
+
+<script type="text/javascript">
+    function Delete() {
+        var keys = $("#grid1").dxTreeList("getSelectedRowKeys");
+        if (keys.length >= 1) {
+            swal({
+                title: "Anda ingin menghapus data?",
+                text: "Data yang dihapus tidak dapat dikembalikan.",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: '#f55753',
+                confirmButtonText: "Hapus",
+                cancelButtonText: "Batal"
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        type: "POST",
+					    url: "@Url.Action("Delete","Master_Menu")",
+                        contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+                        dataType: "json",
+                        data: "param1=" + keys[0].toString(),
+                        success: function (response) {
+                            swal({type: 'success', title: 'Sukses', text: response});
+                            $("#grid1").dxTreeList("refresh");
+                        },
+                        error: function (response) {
+                            swal({type: 'error', title: 'Oops...', text: response.responseJSON.error});
+                        }
+                    });
+                }
+            });
+        } else {
+            swal({type: 'error', title: 'Oops...', text: 'Silakan pilih data terlebih dahulu.'});
+        }
+    }
+
+    function Edit() {
+        var keys = $("#grid1").dxTreeList("getSelectedRowKeys");
+        if (keys.length >= 1) {
+            var id = keys[0];
+            if (id < 0) {
+                id = id * (-1);
+                window.location = "@Url.Action("EditMenu","Master_Menu")/" + id.toString();
+            } else {
+                window.location = "@Url.Action("EditModul","Master_Menu")/" + id.toString();
+            }
+
+        } else {
+            swal({type: 'error', title: 'Oops...', text: 'Silakan pilih data terlebih dahulu.'});
+        }
+    }
+</script>
+
+@section RightToolbar{
+    <div class="d-flex align-items-center">
+        <!--begin::Actions-->
+        @{
+            if (ViewBag.Add)
+            {
+                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="@Url.Action("CreateModul", "Master_Menu")"><span class="image fa fa-plus"></span> Tambah Menu</a>
+                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="@Url.Action("CreateMenu", "Master_Menu")"><span class="image fa fa-plus"></span> Tambah Fungsi Menu</a>
+            }
+            if (ViewBag.Edit)
+            {
+                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:Edit();"><span class="image fa fa-edit"></span> Ubah</a>
+            }
+            if (ViewBag.Delete)
+            {
+                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:Delete();"><span class="image fa fa-edit"></span> Hapus</a>
+            }
+        }
+        <!--end::Actions-->
+    </div>
+}
+
+@Html.AntiForgeryToken()
+
+<div class="card card-default">
+    <div>
+        @(Html.DevExtreme().TreeList<BDA.DataModel.vw_Modul>()
+            .ID("grid1")
+            .DataSource(d => d.Mvc()
+                .Controller("Master_Menu")
+                .LoadAction("GetGridData")
+                .Key("ModId"))
+            .KeyExpr("ModId")
+            .ParentIdExpr("ParentModId")
+            .Selection(c => c.Mode(SelectionMode.Single))
+            .Columns(columns =>
+            {
+                columns.AddFor(m => m.ModId).Visible(false);
+                columns.AddFor(m => m.ParentModId).Visible(false);
+                columns.AddFor(m => m.ModMenuId).Visible(false);
+                columns.AddFor(m => m.ModKode);
+                columns.Add().DataField("ModMenuAksi").Caption("Aksi");
+                columns.AddFor(m => m.ModMenuUrl);
+            }))
+    </div>
+</div>

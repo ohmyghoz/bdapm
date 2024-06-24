@@ -1,0 +1,41 @@
+﻿@model BDA.Helper.GlossaryDTO
+
+@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+}
+
+@section RightToolbar{
+    <div class="d-flex align-items-center">
+        <a class="nav-link btn btn-light-warning font-weight-bolder btn-sm mr-2" href="@Url.Action("Index")"><i class="fa fa-arrow-left"></i> Kembali Ke Daftar</a>
+    </div>
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="card card-default">
+        <div class="card-body">
+            <div class="row">
+                <securehidden asp-for="GloId"></securehidden>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="GloNamaAlert"></label>
+                    @Html.DevExtreme().TextBoxFor(m => m.GloNamaAlert).ID("GloNamaAlert").Width("100%").ReadOnly(true)
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="GloPIdeb"></label>
+                    @Html.DevExtreme().TextBoxFor(m => m.GloPIdeb).ID("GloPIdeb").Width("100%").ReadOnly(true)
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="GloKetNilai1"></label>
+                    @Html.DevExtreme().TextAreaFor(m => m.GloKetNilai1).ID("GloKetNilai1").Width("100%").MaxLength(500).Height(90)
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="GloKetNilaiRata2"></label>
+                    @Html.DevExtreme().TextAreaFor(m => m.GloKetNilaiRata2).ID("GloKetNilaiRata2").Width("100%").MaxLength(500).Height(90)
+                </div>
+            </div>
+            @Html.DevExtreme().Button().ID("btnSave").Text("Simpan").UseSubmitBehavior(true)
+        </div>
+    </div>
+}

@@ -1,0 +1,178 @@
+﻿@model BDA.DataModel.UserMaster
+
+@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+    bool isEdit = Convert.ToBoolean(ViewBag.IsEdit);
+}
+
+@section RightToolbar{
+    <div class="d-flex align-items-center">
+        <a class="nav-link btn btn-light-warning font-weight-bolder btn-sm mr-2" href="@Url.Action("Index")"><i class="fa fa-arrow-left"></i> Kembali Ke Daftar</a>
+    </div>
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="card card-default">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-lg-6 form-group">
+                    <label asp-for="UserId"></label>
+                    <div class="row">
+                        <div class="col-lg-9 form-group">
+                            @Html.DevExtreme().TextBoxFor(m => m.UserId).Width("100%").ID("UserID").ReadOnly(isEdit)
+                        </div>
+
+                        <div class="col-lg-3 form-group">
+                            @if (isEdit == false)
+                            {
+                                @(Html.DevExtreme().Button()
+                                    .Text("Filter")
+                                    .OnClick("onSearchClick"))
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                @if (isEdit == false)
+                {
+                    <div class="col-lg-12 form-group">
+                        @(Html.DevExtreme().DataGrid()
+                            .ID("grid1")
+                            .OnSelectionChanged("TarIdLDAP")
+                            .DataSource(d => d.Mvc()
+                                .Controller("User_Master")
+                                .LoadAction("GetUserIdLDAP")
+                                .LoadParams(new {user = new JS("function() { return $(\"#UserID\").dxTextBox(\"instance\").option(\"value\");}")})
+                                .Key("Userid")
+                            )
+                            .AllowColumnResizing(true)
+                            .RemoteOperations(true)
+                            .Width("100%")
+                            .Columns(columns =>
+                            {
+                                columns.Add().DataField("Userid").Caption("User ID");
+                                columns.Add().DataField("Displaynama").Caption("Nama");
+                                //columns.Add().DataField("mail").Caption("Email");
+                            })
+                            .FilterRow(f => f.Visible(true))
+                            .ShowBorders(false)
+                            .Selection(c => c.Mode(SelectionMode.Single))
+                            .RowAlternationEnabled(false)
+                            .Paging(p =>
+                            {
+                                p.PageSize(20);
+                                p.Enabled(true);
+                            }))
+                    </div>
+                }
+                else
+                {
+                    <div class="col-lg-6 form-group">
+                        <label asp-for="UserNama"></label>
+                        @Html.DevExtreme().TextBoxFor(m => m.UserNama).Width("100%").ReadOnly(true)
+                    </div>
+                }
+                <div class="col-lg-6 form-group">
+                    <label asp-for="UserEmail"></label>
+                    @Html.DevExtreme().TextBoxFor(m => m.UserEmail).Width("100%").MaxLength(250)
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="UserMainRole"></label>
+                    @*@(Html.DevExtreme().TagBoxFor(m => m.UserMainRole)
+                            .DataSource(d => d.Mvc()
+                                .Controller("User_Master")
+                                .LoadAction("GetRole")
+                                .Key("RoleName"))
+                            .DataSourceOptions(d => d.Paginate(true).PageSize(10))
+                            .ValueExpr("RoleName")
+                            .DisplayExpr("RoleName")
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .ShowClearButton(true)
+
+                            .Name("listRole")
+                            .ID("listRole")
+                            .OnSelectionChanged("onSelectionChanged")
+                            .Width("100%"))*@
+                    @(Html.DevExtreme().TagBox()
+                            .DataSource(s => s.Mvc().Controller("User_Master").LoadAction("GetRole").Key("RoleName"))
+                            .DisplayExpr("RoleName")
+                            .ValueExpr("RoleName")
+                            .Width("100%")
+                            .SearchEnabled(true)
+                            .ShowClearButton(true)
+                            .Placeholder("Pilih Role")
+                            .Name("listRole").ID("listRole")
+                            .HideSelectedItems(true)
+                            .OnInitialized("getRole")
+                            .Multiline(true)
+                            .Height("auto")
+                            .WrapItemText(true)
+                            .ShowDropDownButton(true)
+                            )
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="user_is_notifredalert"></label>
+                    @Html.DevExtreme().CheckBoxFor(m => m.user_is_notifredalert).Width("100%")
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="user_is_notifyellowalert"></label>
+                    @Html.DevExtreme().CheckBoxFor(m => m.user_is_notifyellowalert).Width("100%")
+                </div>
+            </div>
+            @Html.DevExtreme().Button().ID("btnSave").Text("Save").UseSubmitBehavior(true)
+        </div>
+    </div>
+}
+
+<script>
+    function TarIdLDAP() {
+        var keys = $("#grid1").dxDataGrid("getSelectedRowKeys");
+        var cek = $("#UserID").dxTextBox("instance").option("value");
+        $("#UserID").dxTextBox("instance").option("value", keys);
+        if (keys == "") {
+            $("#UserID").dxTextBox("instance").option("value", cek);
+        }
+    }
+
+    function onSearchClick() {
+        $("#grid1").dxDataGrid("instance").refresh()
+            .done(function () {
+                if ($("#grid1").dxDataGrid("instance").totalCount() <= 0) {
+                    alert("Data LDAP tidak ditemukan");
+                }
+        });
+    }
+    function getRole(data) {
+        var role = "@Model.UserMainRole";
+        var array = role.split(",").map(str => str.replace(/\s/g, ''));;
+    }
+    //function checkEnter(e) {
+    //    e = e || event;
+    //    var txtArea = /textarea/i.test((e.target || e.srcElement).tagName);
+    //    return txtArea || (e.keyCode || e.which || e.charCode || 0) !== 13;
+    //}
+
+    //document.querySelector('form').onkeypress = checkEnter;
+
+    $(function () {
+        var keyStop = {
+            8: ":not(input:text, textarea, input:file, input:password)", // stop backspace = back
+            13: "input:text, input:password", // stop enter = submit
+
+            end: null
+        };
+        $(document).bind("keydown", function (event) {
+            var selector = keyStop[event.which];
+
+            if (selector !== undefined && $(event.target).is(selector)) {
+                event.preventDefault(); //stop event
+            }
+            return true;
+        });
+    });
+</script>

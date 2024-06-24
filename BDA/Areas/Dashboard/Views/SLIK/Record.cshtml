@@ -1,0 +1,286 @@
+﻿@model BDA.DataModel.Alert_Summary
+
+@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+
+    var levelAlert = (string[])TempData.Peek("LevelAlert");
+    var jenisAlert = (string[])TempData.Peek("JenisAlert");
+    var memberTypes = (string[])TempData.Peek("MemberTypes");
+    var members = (string[])TempData.Peek("Members");
+    var periodeAwal = (DateTime?)TempData.Peek("PeriodeAwal");
+    var periodeAkhir = (DateTime?)TempData.Peek("PeriodeAkhir");
+    var dataMart = (string)TempData.Peek("DataMart");
+    var permintaanIDeb = (string)TempData.Peek("PermintaanIDeb");
+    var rc = (string)TempData.Peek("rc");
+}
+
+@*<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.14/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/3.3.1/exceljs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/7.4.0/polyfill.min.js"></script>*@
+
+<script>
+    window.jsPDF = window.jspdf.jsPDF;
+    applyPlugin(window.jsPDF);
+</script>
+
+<script type="text/javascript">
+    function ExportToExcel() {
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("LogExportInquiry", "SLIK")",
+            success: function (response) {
+                if (response.result == "Success") {
+                    var grid = $("#grdRecord").dxDataGrid("instance");
+                    grid.option("onFileSaving", function (e) { });
+                    grid.exportToExcel();
+                }
+            }
+        });
+    }
+
+    function ExportToTxt() {
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("LogExportDetail", "SLIK")",
+            success: function (response) {
+                if (response.result == "Success") {
+                    var grid = $("#grdRecord").dxDataGrid("instance");
+                    var fileName = "Inquiry_AlertSLIK_" + new Date().toISOString().slice(0, 10) + ".txt";
+
+                    var workbook = new ExcelJS.Workbook();
+                    var worksheet = workbook.addWorksheet('Main sheet');
+
+                    DevExpress.excelExporter.exportDataGrid({
+                        component: grid,
+                        worksheet: worksheet,
+                    }).then(function () {
+                        workbook.csv.writeBuffer({ delimiter: "|" }).then(function (buffer) {
+                            saveAs(new Blob([buffer], { type: "application/octet-stream" }), fileName);
+                        });
+                    });
+                    grid.cancel = true;
+                }
+            }
+        });
+    }
+</script>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="card card-default">
+        <div class="row filter-panel" style="padding-top:0px;">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-4 form-group">
+                        <label>Level Alert</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("LevelAlert")
+                            .DataSource(new[] {
+                                new { display = "Red", value = "3" },
+                                new { display = "Yellow", value = "2" },
+                                new { display = "Green", value = "1" },
+                                new { display = "Grey", value = "0" }
+                            })
+                            .ValueExpr("value")
+                            .DisplayExpr("display")
+                            .Value(levelAlert)
+                            .Width("100%")
+                            .ReadOnly(true))
+                    </div>
+
+                    <div class="col-lg-4 form-group">
+                        <label>Jenis Alert</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("JenisAlert")
+                            .DataSource(new[]
+                            {
+                                new { display = "Size Bisnis Pelapor", value = "UNI - Size Bisnis Pelapor" },
+                                new { display = "Rata-rata Jumlah Permintaan", value = "UNI - Rata-Rata Jumlah Permintaan" },
+                                new { display = "Rentang Waktu Permintaan", value = "UNI - Rentang Waktu" },
+                                new { display = "User Permintaan", value = "UNI - User Permintaan" },
+                                new { display = "Kantor Cabang", value = "UNI - Kantor Cabang" }
+                            })
+                            .ValueExpr("value")
+                            .DisplayExpr("display")
+                            .MaxDisplayedTags(3)
+                            .Value(jenisAlert)
+                            .Width("100%")
+                            .ReadOnly(true))
+                    </div>
+
+                    <div class="col-lg-4 form-group">
+                        <label>Jenis LJK</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("MemberTypes")
+                            .DataSource(d => d.Mvc()
+                                .Controller("SLIK")
+                                .LoadAction("GetMemberTypes")
+                                .Key("kode_jenis_ljk"))
+                            .ValueExpr("kode_jenis_ljk")
+                            .DisplayExpr("Display")
+                            .MaxDisplayedTags(3)
+                            .Value(memberTypes)
+                            .Width("100%")
+                            .ReadOnly(true))
+                    </div>
+
+                    <div class="col-lg-4 form-group">
+                        <label>LJK</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("Members")
+                            .DataSource(d => d.Mvc()
+                                .Controller("SLIK")
+                                .LoadAction("GetMembers")
+                                .LoadParams(new { memberTypes = new JS("function() { return $(\"#MemberTypes\").dxTagBox(\"instance\").option(\"value\"); }") })
+                                //.Key("kode_ljk")
+                                .Key("CompositeKey")
+                            )
+                            //.ValueExpr("kode_ljk")
+                            .Value("CompositeKey")
+                            .DisplayExpr("Display")
+                            .MaxDisplayedTags(3)
+                            .Value(members)
+                            .Width("100%")
+                            .ReadOnly(true))
+                    </div>
+
+                    <div class="col-lg-4 form-group">
+                        <label>Periode Awal</label>
+                        @(Html.DevExtreme().DateBox()
+                            .ID("PeriodeAwal")
+                            .DisplayFormat("dd MMM yyyy")
+                            .Value(periodeAwal)
+                            .Width("100%")
+                            .ReadOnly(true))
+                    </div>
+
+                    <div class="col-lg-4 form-group">
+                        <label>Periode Akhir</label>
+                        @(Html.DevExtreme().DateBox()
+                            .ID("PeriodeAkhir")
+                            .DisplayFormat("dd MMM yyyy")
+                            .Value(periodeAkhir)
+                            .Width("100%")
+                            .ReadOnly(true))
+                    </div>
+
+                    <div class="col-lg-4 form-group">
+                        <label>Data Mart</label>
+                        @(Html.DevExtreme().SelectBox()
+                            .ID("DataMart")
+                            .DataSource(new[] { "Bulanan", "Harian" })
+                            .Value(dataMart)
+                            .Width("100%")
+                            .ReadOnly(true))
+                    </div>
+
+                    <div class="col-lg-4 form-group">
+                        <label>Jumlah Permintaan IDeb</label>
+                        @(Html.DevExtreme().SelectBox()
+                            .ID("PermintaanIDeb")
+                            .DataSource(new[] {
+                                new { display = "Total Permintaan", value = "Total Permintaan" },
+                                new { display = "Interactive", value = "Interactive" },
+                                new { display = "Batch", value = "Batch" },
+                                new { display = "Individu", value = "Individu" },
+                                new { display = "Badan Usaha", value = "NonIndividu" }
+                            })
+                            .ValueExpr("value")
+                            .DisplayExpr("display")
+                            .Value(permintaanIDeb)
+                            .Width("100%")
+                            .ReadOnly(true))
+                    </div>
+                    <div class="col-lg-4 form-group">
+                        <label>Jumlah Record</label>
+                        @(Html.DevExtreme().TextBox()
+                            .ID("rec")
+                            .Value(rc)
+                            .Width("100%")
+                            .ReadOnly(true))
+                    </div>
+
+                    @*<div class="col-lg-4 form-group">
+                        <label>Jumlah Record</label>
+                        @(Html.DevExtreme().NumberBox()
+                            .ID("JumlahRecord")
+                            .Format("#.###")
+                            .Step(0)
+                            .Width("100%"))
+                    </div>*@
+
+                </div>
+
+                <div class="float-left">
+                    <div style="border-radius: 10px; background-color: orange; padding: 3px">
+                        <span style="color: white; font-weight: bold">Sumber Data dari HIVE</span>
+                    </div>
+                </div>
+
+                <div class="float-right">
+                    @if (ViewBag.Export)
+                    {
+                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToTxt();"><span class="image fa fa-file-archive"></span> Export TXT</a>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="gridview-div">
+            @(Html.DevExtreme().DataGrid()
+                    .ID("grdRecord")
+                    .DataSource(d => d.Mvc()
+                        .Controller("SLIK")
+                        .LoadAction("GetGridRecordData")
+                        .LoadParams(new { id = Model.rowid }))
+                      .ColumnAutoWidth(true)
+                    //.ShowRowLines(true)
+                    .WordWrapEnabled(false)
+                    .RemoteOperations(false)
+                    .Columns(columns =>
+                    {
+                        columns.Add().DataField("inquiry_id").Caption("Inquiry ID");
+                        columns.Add().DataField("user_login_id").Caption("User ID Permintaan");
+                        columns.Add().DataField("user_name1").Caption("Petugas");
+                        columns.Add().DataField("jenis_permintaan").Caption("Jenis Permintaan");
+                        columns.Add().DataField("Jenis_Debitur").Caption("Jenis Debitur");
+                        columns.Add().DataField("report_request_purpose_desc").Caption("Tujuan Permintaan");
+                        columns.Add().DataField("request_datetime").Caption("Tanggal Permintaan").DataType(GridColumnDataType.DateTime).Format("dd MMM yyyy HH:mm:ss");
+                        columns.Add().DataField("identity_number").Caption("No Identitas");
+                        columns.Add().DataField("fullname").Caption("Nama Debitur");
+                        columns.Add().DataField("gender_code").Caption("Jenis Kelamin");
+                        columns.Add().DataField("birth_date").Caption("Tanggal Lahir").DataType(GridColumnDataType.DateTime).Format("dd MMM yyyy");
+                        columns.Add().DataField("birth_place").Caption("Tempat Lahir");
+                        columns.Add().DataField("est_cert_date").Caption("Tanggal Akte").DataType(GridColumnDataType.DateTime).Format("dd MMM yyyy");
+                        columns.Add().DataField("est_location").Caption("Tempat Akte");
+                        columns.Add().DataField("user_reference_code").Caption("ID Batch");
+                        columns.Add().DataField("record_status_flag").Caption("Status Batch");
+                        columns.Add().DataField("inquiry_report_number").Caption("No IDeb");
+                    })
+                    .AllowColumnResizing(true)
+                    .ColumnResizingMode(ColumnResizingMode.Widget)
+                    .FilterRow(f => f.Visible(true))
+                    .ShowBorders(false)
+                    // .RowAlternationEnabled(false)
+                    .Paging(p =>
+                    {
+                        p.PageSize(20);
+                        p.Enabled(true);
+                    })
+                    .Pager(p =>
+                    {
+                        p.ShowInfo(true);
+                    })
+                    .OnExporting(@<text>
+                        function(e) {
+                            e.fileName = "Inquiry_AlertSLIK_" + new Date().toISOString().slice(0, 10);
+                        }
+                    </text>))
+        </div>
+    </div>
+}

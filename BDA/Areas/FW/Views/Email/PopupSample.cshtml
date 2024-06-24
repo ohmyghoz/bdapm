@@ -1,0 +1,17 @@
+﻿@model BDA.DataModel.FWNotice
+
+@{
+    Layout = "~/Views/Shared/_LayoutPopup.cshtml";
+}
+
+<table border='1' style='width:100%;'>
+    <tr><td style='width:120px;'>Title:</td><td>@Model.NoticeTitle</td></tr>
+    <tr><td>To:</td><td> @Model.NoticeTo</td></tr>
+    <tr><td>CC:</td><td> @Model.NoticeCc</td></tr>
+    <tr><td>BCC:</td><td> @Model.NoticeBcc</td></tr>
+    <tr><td>Sender:</td><td> @Model.NoticeSender</td></tr>
+    <tr><td>Small Content:</td><td> @Model.NoticeSmallContent</td></tr>
+    <tr><td>Content:</td><td></td></tr>
+    <tr><td colspan='2'> @Html.Raw(Model.NoticeContent)</td></tr>
+    <tr><td>RefID:</td><td> @Model.NoticeRefId</td></tr>
+</table>

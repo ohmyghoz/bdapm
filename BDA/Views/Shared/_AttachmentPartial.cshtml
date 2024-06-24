@@ -1,0 +1,126 @@
+﻿@model BDA.DataModel.AttachmentModel
+
+<script type="text/javascript">
+    function TriggerDownload_@(Model.ControlID)(id) {
+        $("#AttDownload_@Model.ControlID > #attToken").val(id);
+        $("#AttDownload_@Model.ControlID")[0].submit();
+    }
+    function RefreshGridAtt_@(Model.ControlID)(e) {
+        $("#gridAtt_@Model.ControlID").dxDataGrid("refresh");
+    }
+</script>
+@if (!Model.isReadOnly)
+{
+    <script>
+        function TriggerDelete_@(Model.ControlID)(id) {
+            var ask = confirm('Apakah Anda yakin akan menghapus data ini?');
+            if (ask) {
+                var token = $("#AttDelete_@Model.ControlID > securehidden2 > #token").val();
+                var sectoken = $("#AttDelete_@Model.ControlID > securehidden2 > #__tokenSecToken").val();
+
+                $.ajax({
+					type: "POST",
+					url: "@Url.Action("AttDelete", "Attachment", new { area = "FW" })",
+					contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+                    dataType: "json",
+                    data: "token=" + token.replace(/\+/g, "%2B") + "&__tokenSecToken="+ sectoken.replace(/\+/g, "%2B") +"&attDeleteToken=" + id.replace(/\+/g, "%2B"),
+                    success: function (response) {
+                        $("#gridAtt_@Model.ControlID").dxDataGrid("refresh");
+                        $("#attUpload_@Model.ControlID").dxFileUploader("instance").reset();
+
+                    },
+                    error: function (response) {
+                        alert(response.responseJSON.error);
+                    }
+				});
+            }
+        }
+    </script>
+}
+<div style="border:1px solid #DFDFDF">
+
+
+    @if (!Model.isReadOnly)
+    {
+
+        @using (Html.BeginForm("Upload", "Attachment", new { area = "FW" }, FormMethod.Post))
+        {
+            @(Html.DevExtreme().FileUploader()
+            .ID("attUpload_" + @Model.ControlID)
+            .Name("attUpload")
+            .Accept("*")
+            .LabelText("Maksimal 4MB : .jpg, .jpeg, .gif, .png, .pdf")
+            .Multiple(false)
+            .AllowedFileExtensions(new List<string>
+                { ".jpg", ".jpeg", ".gif", ".png", ".pdf" })
+                .MaxFileSize(4000000)
+                .Multiple(false)
+                .UploadMode(FileUploadMode.Instantly)
+                .UploadUrl(Url.Action("Upload", "Attachment", new { token = @Model.token, area = "FW" }))
+                .OnUploaded("RefreshGridAtt_" + Model.ControlID)
+            )
+        }
+        @using (Html.BeginForm("AttDelete", "Attachment", new { area = "FW" }, FormMethod.Post, false, new { id = "AttDelete_" + Model.ControlID }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.Hidden("attDeleteToken", "", new { id = "attDeleteToken" });
+            <securehidden2 name="token" value="@Model.token"></securehidden2>
+        }
+    }
+    @using (Html.BeginForm("AttDownload", "Attachment", new { area = "FW" }, FormMethod.Post, false, new { id = "AttDownload_" + Model.ControlID }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.Hidden("attToken", "", new { id = "attToken" });
+        <securehidden2 name="token" value="@Model.token"></securehidden2>
+    }
+
+    <script>
+        $(document).ready(function () {
+            var xsrf = $('input:hidden[name="__RequestVerificationToken"]').val();
+            $("#attUpload_@Model.ControlID").dxFileUploader({
+                uploadHeaders: { "XSRF-TOKEN": xsrf },
+                selectButtonText: "Pilih File"
+            });
+        });
+    </script>
+    @(Html.DevExtreme().DataGrid()
+    .ID("gridAtt_" + Model.ControlID)
+    .DataSource(d => d.Mvc()
+    .Controller("Attachment")
+    .Area("FW")
+    .LoadAction("GetGridData")
+    .LoadParams(new { token = Model.token })
+    .Key("attach_token")
+    )
+    .ShowColumnHeaders(false)
+    .Width("100%")
+    .RemoteOperations(true)
+    .Columns(columns =>
+    {
+
+
+    columns.Add().DataField("attach_file_nama").Caption("Nama File").CellTemplate(@<text>
+                    <a style="cursor:pointer;color:#8080FF;" onclick="TriggerDownload_@(Model.ControlID)('<%= data.attach_token%>')"><%=data.attach_file_nama%></a>
+    </text>);
+columns.Add().DataField("attach_file_size").Width("100px").Caption("Ukuran").Format("#,##0.## B");
+
+if (!Model.isReadOnly)
+{
+columns.Add().Width("100px").Caption("Hapus").CellTemplate(@<text>
+                            <a style="cursor:pointer;color:#8080FF;" onclick="TriggerDelete_@(Model.ControlID)('<%= data.attach_delete_token%>')">Hapus</a>
+</text>);
+}
+})
+.ShowBorders(false)
+.Sorting(x => x.Mode(GridSortingMode.None))
+.RowAlternationEnabled(false)
+.Paging(p =>
+{
+p.PageSize(50);
+p.Enabled(true);
+}
+)
+    )
+
+</div>
+

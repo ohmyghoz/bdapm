@@ -1,0 +1,52 @@
+﻿
+@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+}
+
+
+<div class="card card-default">
+    <div class="gridview-div">
+
+        @Html.AntiForgeryToken()
+
+        @(Html.DevExtreme().DataGrid()
+            .ID("grid1")
+            .DataSource(d => d.Mvc()
+                .Controller("BI")
+                .LoadAction("GetGridData")
+                //.OnBeforeSend("gridOnBeforeSend")
+                .Key("id")
+            )
+            .RemoteOperations(true)
+            //.Export(e => e.AllowExportSelectedData(true).Texts(q => q.ExportTo("Ekspor")))
+            .Width("100%")
+            .Columns(columns =>
+            {
+                columns.Add().DataField("name").Caption("Laporan").Width("20%");
+                columns.Add().DataField("date_update").Caption("Tanggal Update").DataType(GridColumnDataType.DateTime).Format("dd MMM yyyy hh:mm:ss").Width("20%");
+                columns.Add().DataField("link").Caption("Link").Width("10%").CellTemplate(@<text>
+                    <a target="_blank" rel="noopener noreferrer" href="<%= data.link %>">Link</a>
+                </text>);
+                columns.Add().DataField("id").Visible(false);
+
+            })
+            .FilterRow(f => f.Visible(true))
+            //.AllowColumnResizing(true)
+            .WordWrapEnabled(true)
+            .ShowBorders(false)
+            //.Selection(c => c.Mode(SelectionMode.Multiple))
+            .RowAlternationEnabled(false)
+            .Paging(p =>
+            {
+                p.PageSize(20);
+                p.Enabled(true);
+            })
+            .Pager(p =>
+            {
+                p.ShowInfo(true);
+            })
+        )
+    </div>
+</div>
+
+

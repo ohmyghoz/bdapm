@@ -1,0 +1,1 @@
+﻿Scaffold-DbContext "Server=localhost\SQL2019;Database=BDA; user id=sa; password=dodol132!" Microsoft.EntityFrameworkCore.SqlServer -force -ContextDir "DataModel" -OutputDir "DataModel" -Context "DataEntities" -UseDatabaseNames -t "HiveSync"

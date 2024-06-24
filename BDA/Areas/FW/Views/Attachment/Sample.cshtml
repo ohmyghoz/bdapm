@@ -1,0 +1,12 @@
+﻿@inject BDA.DataModel.DataEntities db
+@{
+    Layout = "~/Views/Shared/_LayoutMain.cshtml";
+    var mdl = db.GetAttachmentModel("D8424F2A-4550-4407-A9B2-16AF2B1B741C", false, "Att1"); 
+
+    var mdl2 = db.GetAttachmentModel("D8424F2A-4550-4407-A9B2-16AF2B1B741B", true, "Att2");
+    
+}
+
+<partial name="_AttachmentPartial" model="mdl" />
+
+<partial name="_AttachmentPartial" model="mdl2" />

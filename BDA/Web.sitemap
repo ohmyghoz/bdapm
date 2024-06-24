@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<siteMap xmlns="http://schemas.microsoft.com/AspNet/SiteMap-File-1.0" >
+  <siteMapNode url="#" title="Home" iconclass="pg-home" roles="*">
+    <siteMapNode url="~/Website/Default" title="Beranda" description="" roles="*" iconclass="pg-home">
+      <siteMapNode url="#" title="Master" description="" roles="*" iconclass="fa fa-link">
+        <siteMapNode url="~/Master/User_Master" title="Data User" roles="*" icontext="DU"></siteMapNode>
+        <siteMapNode url="~/Master/FW_Ref_Role" title="Master Role" roles="*" icontext="MR"></siteMapNode>
+        <!--<siteMapNode url="~/Master/Master_Menu" title="Master Menu" roles="*" icontext="MM"></siteMapNode>-->
+      </siteMapNode>
+      <siteMapNode url ="#" title="Email" description="" roles="*" iconclass="fa fa-envelope">
+        <siteMapNode url="~/FW/Email" title="Template" roles="*" icontext="TM"></siteMapNode>
+        <siteMapNode url="~/FW/Email/Queue" title="Queue" roles="*" icontext="QU"></siteMapNode>
+        <!--<siteMapNode url="~/Test/TestEmail" title="Test" roles="*" icontext="TS"></siteMapNode>-->
+      </siteMapNode>
+      <siteMapNode url="#" title="EWS" description="" roles="*" iconclass="fa fa-bar-chart">
+        <siteMapNode url ="~/Test/DREWSSLIK" title="Dashboard EWS SLIK" roles="*" icontext="DRS">
+        </siteMapNode>
+        <siteMapNode url ="~/Test/SB" title="Size Bisnis Pelapor" roles="*" icontext="SBP">
+        </siteMapNode>
+        <siteMapNode url ="~/Test/RJP" title="Rata-rata Jumlah Permintaan" roles="*" icontext="RJP">
+        </siteMapNode>
+        <siteMapNode url ="~/Test/RWP" title="Rentang Waktu Permintaan" roles="*" icontext="RWP">
+        </siteMapNode>
+        <siteMapNode url ="~/Test/UP" title="User Permintaan" roles="*" icontext="UP">
+        </siteMapNode>
+        <siteMapNode url ="~/Test/KC" title="Kantor Cabang" roles="*" icontext="KC">
+        </siteMapNode>
+
+        <siteMapNode url ="~/Test/COM" title="Kombinasi" roles="*" icontext="KOM">
+        </siteMapNode>
+      </siteMapNode>
+      <siteMapNode url="#" title="Segmentation Analysis" description="" roles="*" iconclass="fa fa-bar-chart">
+        <siteMapNode url ="~/Test/HMLPerorangan" title="HML Segmentation Debitur Perorangan" roles="*" icontext="HML"></siteMapNode>
+        <siteMapNode url ="~/Test/MCDFAPerorangan" title="MCDFA Segmentation Debitur Perorangan" roles="*" icontext="MCD"></siteMapNode>
+        <siteMapNode url ="~/Test/HMLMCDFAPerorangan" title="HML-MCDFA Segmentation Debitur Perorangan" roles="*" icontext="ALL"></siteMapNode>
+        <siteMapNode url ="~/Test/HMLBadanUsaha" title="HML Segmentation Debitur Badan Usaha" roles="*" icontext="HML"></siteMapNode>
+        <siteMapNode url ="~/Test/MCDFABadanUsaha" title="MCDFA Segmentation Debitur Badan Usaha" roles="*" icontext="MCD"></siteMapNode>
+        <siteMapNode url ="~/Test/HMLMCDFABadanUsaha" title="HML-MCDFA Segmentation Debitur Badan Usaha" roles="*" icontext="ALL"></siteMapNode>
+        <siteMapNode url ="~/Test/ClusteringPredictive" title="Clustering Predictive nilai Aguan" roles="*" icontext="CP"></siteMapNode>
+      </siteMapNode>
+      <siteMapNode url="#" title="Intelligent Analysis" description="" roles="*" iconclass="fa fa-brain">
+        <siteMapNode url="~/Test/MaxMinOverdue" title="Kesesuaian Max-Min Overdue per Collectability" roles="*" icontext="MMO"></siteMapNode>
+        <siteMapNode url="~/Test/ClassificationPredictive" title="Classification Predictive Actual Collectability" roles="*" icontext="CP"></siteMapNode>
+        <siteMapNode url="~/Test/CollateralValueDifference" title="Collateral Value Difference" roles="*" icontext="CVD"></siteMapNode>
+      </siteMapNode>
+      <siteMapNode url="#" title="Log Analysis" description="" roles="*" iconclass="fa fa-history">
+        <siteMapNode url="~/Test/OutliersFrekuensiAktivitas" title="Outliers Frekuensi Aktivitas harian per bulan" roles="*" icontext="OF"></siteMapNode>
+        <siteMapNode url="~/Test/DetailFrekuensiAktivitas" title="Detail Frekuensi Aktivitas harian per bulan" roles="*" icontext="DF"></siteMapNode>
+        <siteMapNode url="~/Test/JarakAntarAktivitas" title="Jarak Antar Aktivitas harian per user" roles="*" icontext="JA"></siteMapNode>
+        <siteMapNode url="~/Test/KomposisiJarakAntarAktivitas" title="Komposisi Jarak Antar Aktivitas harian per user" roles="*" icontext="KJ"></siteMapNode>
+        <siteMapNode url="~/Test/SummaryAktivitas" title="Summary Aktivitas harian per jam" roles="*" icontext="SA"></siteMapNode>
+        <siteMapNode url="~/Test/RasioDaily" title="Rasio Daily Max Activity to Average" roles="*" icontext="RD"></siteMapNode>
+      </siteMapNode>
+
+
+      <!--<siteMapNode url="#" title="Custom Query" description="" roles="AdminAplikasi,DataSteward,AdminBPRBPRS,AdminEWSAsuransi" iconclass="fa fa-bullseye">
+				
+				<siteMapNode url="~/FW/RptGrid" title="Script Query" roles="AdminAplikasi,DataSteward,AdminBPRBPRS,AdminEWSAsuransi" icontext="sc"></siteMapNode>
+				
+				<siteMapNode url="~/FW/RptGrid/Create" title="Tambah Query" roles="AdminAplikasi,DataSteward,AdminBPRBPRS,AdminEWSAsuransi" ishidden="true"></siteMapNode>
+				
+				<siteMapNode url="~/FW/RptGrid/CreateParam" title="Tambah Param" roles="AdminAplikasi,DataSteward,AdminBPRBPRS,AdminEWSAsuransi" ishidden="true"></siteMapNode>
+				
+				<siteMapNode url="~/FW/RptGrid/Edit" title="Ubah Query" roles="AdminAplikasi,DataSteward,AdminBPRBPRS,AdminEWSAsuransi" ishidden="true"></siteMapNode>
+				
+				<siteMapNode url="~/FW/RptGrid/EditParam" title="Ubah Param" roles="AdminAplikasi,DataSteward,AdminBPRBPRS,AdminEWSAsuransi" ishidden="true"></siteMapNode>
+				
+				<siteMapNode url="~/FW/RptGrid/Delete" title="Delete" roles="AdminAplikasi,DataSteward,AdminBPRBPRS,AdminEWSAsuransi" ishidden="true"></siteMapNode>
+				
+				<siteMapNode url="~/FW/RptGrid/DeleteParam" title="Delete Param" roles="AdminAplikasi,DataSteward,AdminBPRBPRS,AdminEWSAsuransi" ishidden="true"></siteMapNode>
+				
+				<siteMapNode url="~/FW/RptGrid/DeleteQueue" title="Delete Antrian" roles="AdminAplikasi,DataSteward,AdminBPRBPRS,AdminEWSAsuransi" ishidden="true"></siteMapNode>	
+				
+				<siteMapNode url="~/FW/RptGrid/QueueAdd" title="Tambah Antrian" roles="AdminAplikasi,DataSteward,AdminBPRBPRS,AdminEWSAsuransi" ishidden="true"></siteMapNode>
+				
+				<siteMapNode url="~/FW/RptGrid/Queue" title="Antrian Query" roles="AdminAplikasi,DataSteward,AdminBPRBPRS,AdminEWSAsuransi" icontext="aq"></siteMapNode>
+				
+				<siteMapNode url="~/FW/RptGrid/PreviewQueue" title="Preview Query" roles="AdminAplikasi,DataSteward,AdminBPRBPRS,AdminEWSAsuransi" icontext="pq"></siteMapNode>
+			</siteMapNode>-->
+      <siteMapNode url="#" title="Log" description="" roles="*" iconclass="fa fa-link">
+        <siteMapNode url="~/Master/Log_Akses" title="Log Akses" roles="*" icontext="LOG"></siteMapNode>
+      </siteMapNode>
+    </siteMapNode>
+
+    <siteMapNode url="~/Home/Error" title="Error Pages" description="" roles="*" iconclass="pg-home" ishidden="true"></siteMapNode>
+
+    <siteMapNode url="~/Website/Home/Logout" title="Logout" description="" roles="*" iconclass="pg-home" ishidden="true"></siteMapNode>
+
+    <siteMapNode url="~/FW/Email/MarkNoticeRead" title="NoticeRead" roles="*" icontext="eq" ishidden="true"></siteMapNode>
+
+    <!--<siteMapNode url="~/FAQ/DisplayFAQ" title="F A Q" roles="AdminAplikasi,DataSteward,UserEWSAsuransi,AdminBPRBPRS,AdminSatkerBPRBPRS,PengawasBPRBPRS,AdminEWSAsuransi"  iconclass="fa fa-question"></siteMapNode>-->
+
+    <!--<siteMapNode url="~/PetunjukManual/DisplayPetunjukManual" title="Petunjuk Manual" roles="AdminAplikasi,DataSteward,UserEWSAsuransi,AdminBPRBPRS,AdminSatkerBPRBPRS,PengawasBPRBPRS,AdminEWSAsuransi"  iconclass="fa fa-file-o"></siteMapNode>-->
+
+    <!--<siteMapNode url="https://b1pi-edwojkbi1.corp.ojk.go.id:9300/bi/" title="Business Intelligence" roles="AdminAplikasi,AdminBPRBPRS,AdminSatkerBPRBPRS"  iconclass="fa fa-question"></siteMapNode>-->
+
+    <!--<siteMapNode url="http://10.225.60.33:9300/bi/v1/disp" title="Business Intelligence" roles="*"  iconclass="fa fa-question"></siteMapNode>-->
+  </siteMapNode>
+</siteMap>

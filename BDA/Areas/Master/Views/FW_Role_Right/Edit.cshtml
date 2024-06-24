@@ -1,0 +1,109 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+}
+
+@section RightToolbar{
+    <div class="d-flex align-items-center">
+        <a class="nav-link btn btn-light-warning font-weight-bolder btn-sm mr-2" href="@Url.Action("Index")"><i class="fa fa-arrow-left"></i> Kembali Ke Daftar</a>
+    </div>
+}
+
+@*<script>
+
+    function onOptionChanged(e) {
+
+    //var key = e.value[0].key;
+    var values = e.value[0]?.key;
+    console.log(values);
+    var grid = $("#grid1").dxTreeList("instance");
+    var datas = grid.getNodeByKey(values);
+    var child = datas?.children;
+    console.log(child);
+
+    //looping
+    child?.forEach(updateChildren);
+        
+        $.ajax({
+            type: 'GET',
+            url: '/FW_Role_Right/GetModulChildren',
+            data: {
+                key: key,
+                values: JSON.stringify(values)
+            },
+            success: function (data) {
+                console.log('Success:', data);
+            },
+            error: function (error) {
+                console.error('Error:', error);
+            }
+        });
+    }
+
+    function updateChildren(f) {
+        //f?.data?.IsView = true;
+
+        //var grid = $("#grid1").dxTreeList("instance");
+        //var datachild = grid.getNodeByKey(f.key);
+
+        console.log(datachild);
+    }
+
+</script>*@
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="card card-default">
+        <div>
+            @Html.AntiForgeryToken()
+
+            @(Html.DevExtreme().TreeList()
+                .ID("grid1")
+                .DataSource(d => d.Mvc()
+                    .Controller("FW_Role_Right")
+                    .LoadAction("GetGridDataRight")
+                    .UpdateAction("Put")
+                    .Key("ModId"))
+                .Width("100%")
+                .AutoExpandAll(true)
+                .KeyExpr("ModId")
+                .ParentIdExpr("ParentModId")
+                .Height(500)
+                .Columns(columns =>
+                {
+                    columns.Add().DataField("tempKey").Visible(false).AllowEditing(false);
+                    columns.Add().DataField("ModNama").Caption("Nama Modul").AllowEditing(false);
+                    columns.Add().DataField("IsView").Caption("Lihat").DataType(GridColumnDataType.Boolean);
+                    columns.Add().DataField("IsAdd").Caption("Tambah").DataType(GridColumnDataType.Boolean);
+                    columns.Add().DataField("IsEdit").Caption("Ubah").DataType(GridColumnDataType.Boolean);
+                    columns.Add().DataField("IsDelete").Caption("Hapus").DataType(GridColumnDataType.Boolean);
+                    columns.Add().DataField("IsExport").Caption("Export").DataType(GridColumnDataType.Boolean);
+                    //columns.Add().DataField("IsReview").Caption("Review").DataType(GridColumnDataType.Boolean);
+                    //columns.Add().DataField("IsApprove").Caption("Setujui").DataType(GridColumnDataType.Boolean);
+                    //columns.Add().DataField("IsOpen").Caption("Buka").DataType(GridColumnDataType.Boolean);
+                    //columns.Add().DataField("IsPrint").Caption("Cetak").DataType(GridColumnDataType.Boolean);
+                })
+                //.FilterRow(f => f.Visible(true))
+                .ShowBorders(false)
+                //.Selection(c => c.Mode(SelectionMode.Single))
+                .Editing(editing =>
+                {
+                    editing.Mode(GridEditMode.Cell);
+                    editing.AllowUpdating(true);
+                })
+                .RowAlternationEnabled(false)
+                @*.OnOptionChanged("onOptionChanged")*@
+@*                .OnSaved(@<text>
+                                                                                                            function(e) {
+                                                                                                                swal({
+                                                                                                                    type: 'success',
+                                                                                                                    title: 'Sukses',
+                                                                                                                    text: 'Sukses menyimpan data'
+                                                                                                                });
+                                                                                                            }
+                                                                                                        </text>))*@
+                                                                                                        )
+        </div>
+    </div>
+}

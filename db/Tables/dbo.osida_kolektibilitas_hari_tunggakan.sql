@@ -1,0 +1,42 @@
+CREATE TABLE [dbo].[osida_kolektibilitas_hari_tunggakan]
+(
+[dm_periode] [date] NOT NULL,
+[rowid] [bigint] NOT NULL IDENTITY(1, 1),
+[dm_jenis_ljk] [varchar] (100) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[dm_kode_ljk] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[dm_no_rekening] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[dm_cif] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[dm_nama_debitur] [varchar] (1000) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[dm_jenis_kredit] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[dm_jenis_penggunaan] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[dm_sifat_kredit] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[dm_tanggal_awal_pinjaman] [date] NOT NULL,
+[dm_tanggal_mulai] [date] NOT NULL,
+[dm_tanggal_jatuh_tempo] [date] NOT NULL,
+[dm_baru_perpanjangan] [varchar] (10) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[dm_valuta] [varchar] (10) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[dm_plafon_awal] [decimal] (38, 6) NOT NULL,
+[dm_plafon] [decimal] (38, 6) NOT NULL,
+[dm_baki_debet] [decimal] (38, 6) NOT NULL,
+[dm_jumlah_hari_tunggakan] [int] NULL,
+[dm_kolektibilitas_dpd] [varchar] (10) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[dm_kolektibilitas] [varchar] (10) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[dm_tunggakan_pokok] [decimal] (38, 6) NULL,
+[dm_tunggakan_bunga] [decimal] (38, 6) NULL,
+[dm_denda] [decimal] (38, 6) NULL,
+[dm_kode_kantor_cabang] [varchar] (10) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+[dm_nama_kantor_cabang] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[dm_no_akad_akhir] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[dm_status_tidak_dicover_agunan] [int] NULL,
+[dm_banyak_agunan_dalam_satu_rek] [int] NULL,
+[dm_banyak_agunan_tunai_dalam_satu_rek] [int] NULL,
+[dm_banyak_agunan_paripasu_dalam_satu_rek] [int] NULL,
+[dm_nonmissing_persenparipasu_dalam_satu_rek] [int] NULL,
+[dm_subtotal_nilai_agunan_dalam_satu_rek] [decimal] (38, 6) NULL,
+[dm_subtotal_agunan_tunai_dalam_satu_rek] [decimal] (38, 6) NULL,
+[dm_nilai_agunan_dalam_satu_rek] [decimal] (38, 6) NULL,
+[etl_date] [datetime] NULL
+) ON [PartitionTable_ByYearMonthDateScheme_BDAP] ([dm_periode])
+GO
+ALTER TABLE [dbo].[osida_kolektibilitas_hari_tunggakan] ADD CONSTRAINT [PK_osida_kolektibilitas_hari_tunggakan] PRIMARY KEY CLUSTERED ([dm_periode], [rowid]) WITH (FILLFACTOR=80) ON [PartitionTable_ByYearMonthDateScheme_BDAP] ([dm_periode])
+GO

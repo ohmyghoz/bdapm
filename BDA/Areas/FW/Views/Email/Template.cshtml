@@ -1,0 +1,166 @@
+﻿@model BDA.DataModel.FWNoticeTemplate
+
+@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+    bool ro = false;
+    if (Model.NottId != null) { ro = true; };
+}
+
+<style>
+    .dx-htmleditor {
+        border: 1px solid #ddd;
+    }
+</style>
+@*<script src="~/js/quill.min.js"></script>*@
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <script>
+        function ChangeTemplate(s, e) {
+            var test = s.GetValue();
+            window.location = '@Url.Action("Template",new { id= ""})' + '/' + test;
+        }
+    </script>
+
+    @section RightToolbar{
+        <div class="d-flex align-items-center">
+            <a class="nav-link btn btn-light-warning font-weight-bolder btn-sm mr-2" href="@Url.Action("Index")"><i class="fa fa-arrow-left"></i> Kembali Ke Daftar</a>
+        </div>
+    }
+
+    <div class="card card-default">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-lg-6 form-group">
+                    <label asp-for="NottId"></label>
+                    @Html.DevExtreme().TextBoxFor(model => model.NottId).Width("100%").ReadOnly(ro)
+                </div>
+                <div class="col-lg-12 form-group">
+                    <label asp-for="NottTitle"></label>
+                    @Html.DevExtreme().TextBoxFor(model => model.NottTitle).Width("100%")
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="NottTo"></label> <span style="color: red">*</span>
+                    @Html.DevExtreme().TextBoxFor(model => model.NottTo).Width("100%")
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="NottCc"></label> <span style="color: red">*</span>
+                    @Html.DevExtreme().TextBoxFor(model => model.NottCc).Width("100%")
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="NottBcc"></label> <span style="color: red">*</span>
+                    @Html.DevExtreme().TextBoxFor(model => model.NottBcc).Width("100%")
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="NottSender"></label> <span style="color: red">*</span>
+                    @Html.DevExtreme().TextBoxFor(model => model.NottSender).Width("100%")
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label>Batch Emails</label>
+                    @Html.DevExtreme().TextAreaFor(model => model.NottBatch).Width("100%").Height("50px")
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label>Small Content</label>
+                    @Html.DevExtreme().TextAreaFor(model => model.NottSmallContent).Width("100%").Height("50px")
+                </div>
+                <div class="col-lg-12 form-group">
+                    <label asp-for="NottContent"></label>
+                    @(Html.DevExtreme().HtmlEditorFor(model => model.NottContent)
+                            .Height(300)
+                             .Toolbar(toolbar => toolbar.Items(
+                                 items =>
+                                            {
+                                     items.Add().FormatName("undo");
+                                     items.Add().FormatName("redo");
+                                     items.Add().FormatName("separator");
+                                     items.Add()
+                                         .FormatName("size")
+                                         .FormatValues(new string[] { "8pt", "10pt", "12pt", "14pt", "18pt", "24pt", "36pt" });
+                                     items.Add()
+                                         .FormatName("font")
+                                         .FormatValues(new string[] { "Arial", "Courier New", "Georgia", "Impact", "Lucida Console", "Tahoma", "Times New Roman", "Verdana" });
+                                     items.Add().FormatName("separator");
+                                     items.Add().FormatName("bold");
+                                     items.Add().FormatName("italic");
+                                     items.Add().FormatName("strike");
+                                     items.Add().FormatName("underline");
+                                     items.Add().FormatName("separator");
+                                     items.Add().FormatName("alignLeft");
+                                     items.Add().FormatName("alignCenter");
+                                     items.Add().FormatName("alignRight");
+                                     items.Add().FormatName("alignJustify");
+                                     items.Add().FormatName("separator");
+                                     items.Add()
+                                         .FormatName("header")
+                                         .FormatValues(new JS("[false, 1, 2, 3, 4, 5]"));
+                                     items.Add().FormatName("separator");
+                                     items.Add().FormatName("orderedList");
+                                     items.Add().FormatName("bulletList");
+                                     items.Add().FormatName("separator");
+                                     items.Add().FormatName("color");
+                                     items.Add().FormatName("background");
+                                     items.Add().FormatName("separator");
+                                     items.Add().FormatName("link");
+                                     items.Add().FormatName("image");
+                                     items.Add().FormatName("separator");
+                                     items.Add().FormatName("clear");
+                                     items.Add().FormatName("codeBlock");
+                                     items.Add().FormatName("blockquote");
+                                 })
+                             )
+                    )
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="NottRefId"></label>
+                    @Html.DevExtreme().TextBoxFor(model => model.NottRefId).Width("100%")
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="NottOneEmailPerUser"></label>
+                    @Html.DevExtreme().CheckBoxFor(model => model.NottOneEmailPerUser).Width("100%").Text("Ya")
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="NottModelType"></label>
+                    @Html.DevExtreme().TextBoxFor(model => model.NottModelType).Width("100%")
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="NottKeyType"></label>
+                    @Html.DevExtreme().TextBoxFor(model => model.NottKeyType).Width("100%")
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="NottCatatan"></label>
+                    @Html.DevExtreme().TextBoxFor(model => model.NottCatatan).Width("100%")
+                </div>
+
+
+            </div>
+            <div class="float-left">
+                @Html.DevExtreme().Button().ID("Save").UseSubmitBehavior(true).Text("Simpan")
+
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.NottId))
+            {
+
+                <script>
+                    function OpenPopupSample() {
+                        var testId = $("#testId").dxTextBox("instance").option("value");
+                        ShowPopupMain("@Url.Action("PopupSample","Email",new {nottId = Model.NottId })&testId=" + testId, "Sample", "900px", "500px");
+                    }
+                </script>
+                <div class="float-right">
+                    <input type="button" class="btn btn-primary" value="Show Sample" onclick="OpenPopupSample();" />
+
+                </div>
+                <div class="float-right">
+                    @Html.DevExtreme().TextBoxFor(model => model.NottLastTestId).Name("testId").ID("testId").Placeholder("TestID").Width("100px")
+                </div>
+            }
+
+        </div>
+    </div>
+
+}
+
+

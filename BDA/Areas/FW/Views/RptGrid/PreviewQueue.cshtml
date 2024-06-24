@@ -1,0 +1,148 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutMain.cshtml";
+}
+
+<script type="text/javascript">
+    function customStateLoad() {
+        var state = localStorage.getItem(this.storageKey);
+        if (state) {
+            state = JSON.parse(state);
+            state.selectedRowKeys = null;
+        }
+        return state;
+    }
+
+    function customStateSave(state) {
+        localStorage.setItem(this.storageKey, JSON.stringify(state));
+    }
+
+
+    function custT(e) {
+        //var edited =e.value.replace(/{/g, "").replace(/}/g, "").replace(/"/g, " ").replace(/,/g, "\n");
+        //console.log(edited);
+        //console.log(e);
+        return e.value.replace(/{/g, "").replace(/}/g, "").replace(/"/g, " ").replace(/,/g, "<br>");
+
+    }
+
+
+</script>
+
+<div class="card card-default">
+    <div class="card-header">
+        <script>document.write(pageTitle);</script>
+        <div class="pull-right">
+            <nav class="dxbs-menu clearfix">
+                <ul class="nav nav-pills">
+                    <li class="nav-item"><a class="nav-link" href="javascript:Preview();"><span class="image fa fa-file"></span> Preview</a></li>
+                    <li class="nav-item"><a class="nav-link" href="@Url.Action("QueueAdd","RptGrid")"><span class="image fa fa-plus"></span> Tambah Preview</a></li>
+                    <li class="nav-item"><a class="nav-link" href="javascript:Delete();"><span class="image fa fa-times"></span> Hapus</a></li>
+                    <li class="nav-item"><a class="nav-link" href="javascript:Export();"><span class="image fa fa-file-excel-o"></span> Export Excel</a></li>
+                    <li class="nav-item"><a class="nav-link" href="@Url.Action("Index")"><span class="image fa fa-arrow-left"></span> Kembali ke Custom Script</a></li>
+
+                </ul>
+            </nav>
+        </div>
+    </div>
+    <script>
+        function Download(id) {
+            window.open('@Url.Action("Download")?id=' + id);
+        }
+        function Preview(id) {
+             var keys = $("#grid1").dxDataGrid("getSelectedRowKeys");
+            if (keys.length >= 1) {
+                window.open('@Url.Action("Preview")?id=' + keys[0].toString());
+            }
+            else {
+                alert('Please select row first.');
+            }
+
+        }
+    </script>
+    <script>
+        function Export() {
+            $("#grid1").dxDataGrid("instance").exportToExcel(false);
+        }
+        function Delete() {
+        var keys = $("#grid1").dxDataGrid("getSelectedRowKeys");
+        if (keys.length >= 1) {
+            var ask = confirm('Are you sure that you want to delete?');
+            if (ask) {
+                $.ajax({
+					type: "POST",
+					url: "@Url.Action("DeleteQueue","RptGrid")?handler=Delete",
+					contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+                    dataType: "json",
+                    data: "id=" + keys[0].toString(),
+                    success: function (response) {
+                        alert(response);
+                        $("#grid1").dxDataGrid("refresh");
+                    },
+                    error: function (response) {
+                        alert(response.responseJSON.error);
+                    }
+				});
+            }
+        } else {
+            alert('Please select row first.');
+        }
+    }
+    </script>
+    <div class="gridview-div">
+        @Html.AntiForgeryToken()
+
+        @(Html.DevExtreme().DataGrid()
+        .ID("grid1")
+         .DataSource(d => d.Mvc()
+                .Controller("RptGrid")
+                .LoadAction("GetGridPreviewQueueData")
+                .Key("rgq_id")
+            )
+            .Width("100%")
+            .RemoteOperations(true)
+            .Columns(columns =>
+            {
+            columns.Add().DataField("rgq_nama").Width("150px").Caption("Nama Report");
+            columns.Add().DataField("rgq_params").Width("200px").Caption("Params").EncodeHtml(false).CustomizeText("custT");
+                @*.CellTemplate(@<text><a title='cellPrepared>'>(<%= data.rgq_params%>).replace(/,/g,"\n")</a></text>);*@
+                columns.Add().DataField("rgq_requestor").Width("100px").Caption("Requestor");
+                columns.Add().DataField("rgq_date").Width("100px").Caption("Date").SortIndex(0).SortOrder(SortOrder.Desc).DataType(GridColumnDataType.DateTime).Format("dd-MM-yyyy HH:mm");
+                columns.Add().DataField("rgq_status").Width("100px").Caption("Status");
+                @*columns.Add().DataField("rgq_result_filename").Width("200px").Caption("Filename")
+                .CellTemplate(@<text><a style="cursor:pointer;" href="#" onclick="Download('<%= data.rgq_id%>')" title='<%= data.rgq_result_filename%>'><%= data.rgq_result_filename%></a></text>);
+                columns.Add().DataField("rgq_result_rowcount").Width("100px").Caption("Rowcount");*@
+
+                columns.Add().DataField("rgq_priority").Width("100px").Caption("Priority");
+                //columns.Add().DataField("rgq_start").Width("100px").Caption("Start").DataType(GridColumnDataType.DateTime).Format("dd-MM-yyyy HH:mm");
+                //columns.Add().DataField("rgq_end").Width("100px").Caption("End").DataType(GridColumnDataType.DateTime).Format("dd-MM-yyyy HH:mm");
+                columns.Add().DataField("rgq_urut").Width("100px").Caption("Urut").Visible(false);
+                //columns.Add().DataField("rgq_error_message").Width("200px").Caption("ErrMsg");
+                //columns.Add().DataField("rgq_result_filesize").Width("100px").Caption("Filesize");
+                columns.Add().DataField("rgq_id").Visible(false);
+
+            })
+            .FilterRow(f => f.Visible(true))
+            .ShowBorders(false)
+            .Selection(c => c.Mode(SelectionMode.Single))
+            .RowAlternationEnabled(false)
+            .AllowColumnResizing(true)
+            .ColumnResizingMode(ColumnResizingMode.Widget)
+            .Sorting(x=> x.Mode(GridSortingMode.None))
+            .StateStoring(s => s
+                .Enabled(true)
+                .Type(StateStoringType.Custom)
+                .StorageKey("grid_RGQ")
+                .CustomLoad("customStateLoad")
+                .CustomSave("customStateSave")
+            )
+            .Paging(p =>
+            {
+                p.PageSize(20);
+                p.Enabled(true);
+            }
+            )
+        )
+
+    </div>
+</div>
+

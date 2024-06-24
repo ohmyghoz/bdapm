@@ -1,0 +1,3 @@
+CREATE SCHEMA [bus]
+AUTHORIZATION [dbo]
+GO

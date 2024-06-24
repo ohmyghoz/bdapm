@@ -1,0 +1,63 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+}
+
+<script type="text/javascript">
+    function Edit() {
+        var keys = $("#grid1").dxDataGrid("getSelectedRowKeys");
+        if (keys.length >= 1) {
+            window.location = "@Url.Action("Edit","Osida_Master")/" + keys[0].toString();
+        } else {
+            alert('Please select row first.');
+        }
+    }
+    function OpenReport(kode){
+        window.open('@Url.Action("Index","OSIDA",new {Area="BDA2"})/Index/' + kode);
+    }
+</script>
+
+
+
+@section RightToolbar{
+    <div class="d-flex align-items-center">
+		 @{
+                    <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:Edit();"><span class="image fa fa-edit"></span> Edit</a>
+        }	
+	</div>
+}
+
+
+<div class="card card-default">    
+    <div>
+        @Html.AntiForgeryToken()
+
+        @(Html.DevExtreme().DataGrid()
+            .ID("grid1")
+            .DataSource(d => d.Mvc()
+                .Controller("Osida_Master")
+                .LoadAction("GetGridData")               
+                .Key("kode")
+            )
+			.Width("100%")
+            .RemoteOperations(true)
+            .Columns(columns =>
+            {
+                @*columns.Add().DataField("kode").Width("350px").Caption("Kode Tabel").CellTemplate(@<text>
+                        <a rel="noopener noreferrer" href="#" onclick="OpenReport('<%= data.kode %>')"><%=data.kode %></a>
+                    </text>);*@
+                columns.Add().DataField("kode").Caption("Kode Tabel");
+                columns.Add().DataField("judul").Caption("Judul");
+
+            })
+            .FilterRow(f => f.Visible(true))
+            .ShowBorders(true)
+            .Selection(c => c.Mode(SelectionMode.Single))
+            .RowAlternationEnabled(false)
+            .Paging(p=> {
+                p.PageSize(20);
+                p.Enabled(true);
+            }
+            )
+        )
+    </div>
+</div>

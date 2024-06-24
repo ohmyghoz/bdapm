@@ -1,0 +1,57 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+    string id = "summary_da";
+    ViewBag.id = id;
+}
+
+
+<div class="card card-default">
+
+
+    <div class="gridview-div">
+
+        @Html.AntiForgeryToken()
+
+        @(Html.DevExtreme().DataGrid()
+            .ID("grid1")
+            .DataSource(d => d.Mvc()
+            .Controller("SummaryDA")
+            .LoadAction("GetGridDataSummary")
+            .Key("menu_id")
+            )
+            .RemoteOperations(true)
+            .Width("100%")
+            .Columns(columns =>
+            {
+                columns.Add().DataField("menu_nama").Caption("Nama Menu").Width("100%").CellTemplate(@<text>
+                    <a id="menu<%= data.menu_id %>" target="_blank" href="<%= data.menu_link %>"><%=data.menu_nama %></a>
+                </text>);
+            })
+            .FilterRow(f => f.Visible(true))
+            //.AllowColumnResizing(true)
+            .WordWrapEnabled(true)
+            .ShowBorders(false)
+            //.Selection(c => c.Mode(SelectionMode.Multiple))
+            .RowAlternationEnabled(false)
+            .Paging(p =>
+            {
+                p.PageSize(20);
+                p.Enabled(true);
+            }
+            )
+            .Pager(p =>
+            {
+                p.ShowInfo(true);
+            }
+            )
+            )
+
+    </div>
+</div>
+
+<script type="text/javascript">
+    function Redirect(a) {
+        window.open(a);
+    }
+</script>
+

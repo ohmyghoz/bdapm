@@ -1,0 +1,331 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+
+    //var isExport = false;
+    ////if (ViewBag.Akses != "Non Pengawas")
+    //if (ViewBag.Export)
+    //{
+    //    isExport = true;
+    //}
+
+    var maxItems = db.GetSetting("LimitFilterLJK");
+}
+
+@inject BDA.DataModel.DataEntities db
+
+@*<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.14/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/3.3.1/exceljs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/7.4.0/polyfill.min.js"></script>*@
+
+<script>
+    window.jsPDF = window.jspdf.jsPDF;
+    applyPlugin(window.jsPDF);
+</script>
+
+<script type="text/javascript">
+    function ExportToExcel() {
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("LogExportIndex", "DetailFrekuensiAktivitas")",
+            success: function (response) {
+                if (response.result == "Success") {
+                    var grid = $("#grid1").dxDataGrid("instance");
+                    grid.option("onFileSaving", function (e) { });
+                    grid.exportToExcel();
+                }
+            }
+        });
+    }
+
+    function ExportToPdf() {
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("LogExportIndex", "DetailFrekuensiAktivitas")",
+            success: function (response) {
+                if (response.result == "Success") {
+                    const doc = new jsPDF({
+                        orientation: "landscape",
+                        unit: "cm",
+                        format: [21, 60]
+                    });
+                    var dataGrid = $("#grid1").dxDataGrid("instance");
+                    var fileName = "DetailFrekuensiAktivitas_" + new Date().toISOString().slice(0, 10) + ".pdf";
+                    doc.setFontSize("6")
+                    //var keys = $("#grid1").dxDataGrid("getSelectedRowsData")
+                    //console.log(keys)
+                    DevExpress.pdfExporter.exportDataGrid({
+                        jsPDFDocument: doc,
+                        component: dataGrid,
+                        keepColumnWidths: true
+                        //selectedRowsOnly: true
+                    }).then(function () {
+                        doc.save(fileName);
+                    });
+                }
+            }
+        });
+    }
+
+    function ExportToPdf2() {
+        var dataGrid = $("#grid1").dxDataGrid("instance");
+        dataGrid.option("onFileSaving", function (e) {
+            var fd = new FormData();
+            fd.append("file", e.data);
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("ExportPDF", "DetailFrekuensiAktivitas")",
+                data: fd,
+                processData: false,
+                contentType: false
+            }).done(function (data) {
+                window.location = "@Url.Action("File", "DetailFrekuensiAktivitas")"
+            });
+            e.cancel = true;
+        });
+
+        dataGrid.exportToExcel();
+    }
+
+    var resetLJK;
+
+    $(function () {
+        const startDate = $("#PeriodeAwal").dxDateBox({
+            onValueChanged: function (e) {
+                endDate.option("min", e.value);
+            }
+        }).dxDateBox("instance");
+        const endDate = $("#PeriodeAkhir").dxDateBox({
+            onValueChanged: function (e) {
+                startDate.option("max", e.value);
+            }
+        }).dxDateBox("instance");
+
+        $("#PeriodeAwal").dxValidator({
+            validationGroup: "Filter",
+            validationRules: [{ type: "required", message: "[Periode Awal] harus dipilih" }]
+        })
+        $("#PeriodeAkhir").dxValidator({
+            validationGroup: "Filter",
+            validationRules: [{ type: "required", message: "[Periode Akhir] harus dipilih" }]
+        })
+    });
+
+    function onSelectionChanged(e) {
+        if (e.addedItems.length > 0) {
+            e.component.field().val("");
+        }
+    }
+
+    function onJenisLJKChanged(e) {
+        resetLJK = true;
+        $("#Members").dxTagBox("instance").getDataSource().reload();
+        $("#Members").dxTagBox("reset");
+        resetLJK = false;
+    }
+
+    function onButtonFilterClicked(e) {
+        const res = e.validationGroup.validate();
+        if (res.status === "valid") {
+            $("#grid1").dxDataGrid("instance").refresh();
+        }
+    }
+
+    function onGridBeforeSend(method, ajaxOptions) {
+        let memberTypes = $("#MemberTypes").dxTagBox("instance").option("value");
+
+        let members = $("#Members").dxTagBox("instance").option("value");
+
+        let status = $("#Status").dxTagBox("instance").option("value");
+
+        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
+        let periodeAwal = null;
+        if (tempPeriodeAwal != null) {
+            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + (tempPeriodeAwal.getMonth() + 1) + '-' + tempPeriodeAwal.getDate();
+        }
+
+        let tempPeriodeAkhir = $("#PeriodeAkhir").dxDateBox("instance").option("value");
+        let periodeAkhir = null;
+        if (tempPeriodeAkhir != null) {
+            periodeAkhir = tempPeriodeAkhir.getFullYear() + '-' + (tempPeriodeAkhir.getMonth() + 1) + '-' + tempPeriodeAkhir.getDate();
+        }
+
+        ajaxOptions.data.memberTypes = JSON.stringify(memberTypes);
+        ajaxOptions.data.members = JSON.stringify(members);
+        ajaxOptions.data.status = JSON.stringify(status);
+        ajaxOptions.data.periodeAwal = periodeAwal;
+        ajaxOptions.data.periodeAkhir = periodeAkhir;
+    }
+
+    function onLJKOpened(e) {
+        e.component.content().find('.dx-list-select-all').hide();
+    }
+
+    const maxItems = @maxItems;
+
+    function onLJKChanged(e) {
+        if (e.value.length > maxItems) {
+            const newValue = e.value.slice(0, maxItems);
+            e.component.option("value", newValue);
+            //tooltip.show();
+        }
+    }
+</script>
+
+<style type="text/css">
+    .mandatory {
+        color: red;
+    }
+</style>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="card card-default">
+        @*filter*@
+        <div class="row filter-panel" style="padding-top:0px;">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-4 form-group">
+                        <label>Jenis LJK</label>
+                        @(Html.DevExtreme().TagBox()
+                                .ID("MemberTypes")
+                                .DataSource(d => d.Mvc()
+                                    .Controller("DetailFrekuensiAktivitas")
+                                    .LoadAction("GetMemberTypes")
+                                    .Key("kode_jenis_ljk"))
+                                //.DataSourceOptions(d => d.Paginate(true).PageSize(10))
+                                .ValueExpr("kode_jenis_ljk")
+                                .DisplayExpr("Display")
+                                .ShowSelectionControls(true)
+                                .MaxDisplayedTags(3)
+                                .SearchEnabled(true)
+                                .ShowClearButton(true)
+                                .OnSelectionChanged("onSelectionChanged")
+                                .OnValueChanged("onJenisLJKChanged")
+                                .Width("100%"))
+                    </div>
+
+                    <div class="col-lg-4 form-group">
+                        <label>LJK</label>
+                        @(Html.DevExtreme().TagBox()
+                                .ID("Members")
+                                .DataSource(d => d.Mvc()
+                                    .Controller("DetailFrekuensiAktivitas")
+                                    .LoadAction("GetMembers")
+                                    .LoadParams(new { memberTypes = new JS("function() { return $(\"#MemberTypes\").dxTagBox(\"instance\").option(\"value\"); }"), reset = new JS("function() { return resetLJK; }") })
+                                    //.Key("kode_ljk")
+                                    .Key("CompositeKey")
+                                )
+                                .DataSourceOptions(d => d.Paginate(true).PageSize(10))
+                                //.ValueExpr("kode_ljk")
+                                .ValueExpr("CompositeKey")
+                                .DisplayExpr("Display")
+                                .ShowSelectionControls(true)
+                                .MaxDisplayedTags(3)
+                                .SearchEnabled(true)
+                                .ShowClearButton(true)
+                                .OnSelectionChanged("onSelectionChanged")
+                                .OnOpened("onLJKOpened")
+                                .OnValueChanged("onLJKChanged")
+                                .Width("100%"))
+                    </div>
+
+                    <div class="col-lg-4 form-group">
+                        <label>Status</label>
+                        @(Html.DevExtreme().TagBox()
+                                .ID("Status")
+                                .DataSource(new[] { "Normal", "Outliers" })
+                                .DataSourceOptions(d => d.Paginate(true).PageSize(10))
+                                .ShowSelectionControls(true)
+                                //.MaxDisplayedTags(3)
+                                .SearchEnabled(true)
+                                .ShowClearButton(true)
+                                .OnSelectionChanged("onSelectionChanged")
+                                .Width("100%"))
+                    </div>
+
+                    <div class="col-lg-4 form-group">
+                        <label>Periode Awal<span class="mandatory">*</span></label>
+                        @(Html.DevExtreme().DateBox()
+                                .ID("PeriodeAwal")
+                                .DisplayFormat("dd MMM yyyy")
+                                .Value(DateTime.Now)
+                                .Max(DateTime.Now)
+                                .Width("100%"))
+                    </div>
+
+                    <div class="col-lg-4 form-group">
+                        <label>Periode Akhir<span class="mandatory">*</span></label>
+                        @(Html.DevExtreme().DateBox()
+                                .ID("PeriodeAkhir")
+                                .DisplayFormat("dd MMM yyyy")
+                                .Value(DateTime.Now)
+                                .Min(DateTime.Now)
+                                .Width("100%"))
+                    </div>
+
+                </div>
+
+                <div class="float-left">
+                    @(Html.DevExtreme().Button()
+                        .ID("Filter")
+                        .Type(ButtonType.Default)
+                        .Text("Tampilkan")
+                        .OnClick("onButtonFilterClicked")
+                        .ValidationGroup("Filter"))
+                </div>
+
+                <div class="float-right">
+                    @if (ViewBag.Export)
+                    {
+                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                        @*<a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf();"><span class="image fa fa-file-pdf"></span> Export PDF</a>*@
+                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                    }
+                </div>
+            </div>
+        </div>
+
+        @*grid*@
+        <div class="gridview-div">
+            @(Html.DevExtreme().DataGrid()
+                .ID("grid1")
+                .DataSource(d => d.Mvc()
+                    .Controller("DetailFrekuensiAktivitas")
+                    .LoadAction("GetGridData")
+                    .OnBeforeSend("onGridBeforeSend"))
+                .RemoteOperations(true)
+                .Width("100%")
+                .AllowColumnResizing(true)
+                .Columns(columns =>
+                {
+                    columns.Add().DataField("rowid").Visible(false);
+                    columns.Add().DataField("periode").Caption("Periode").DataType(GridColumnDataType.DateTime).Format("dd MMM yyyy").Width("100%");
+                    columns.Add().DataField("LJK").Caption("Kode LJK").Width("100%");
+                    columns.Add().DataField("user_id").Caption("User ID").Width("100%");
+                    columns.Add().DataField("act_count").Caption("Jumlah Aktivitas").Format("#,##0").Width("100%");
+                    columns.Add().DataField("status").Caption("Status Outlier").Width("100%");
+                })
+                .FilterRow(f => f.Visible(true))
+                .ShowBorders(false)
+                ///.Selection(c => c.Mode(SelectionMode.Single))
+                .Paging(p =>
+                {
+                    p.PageSize(20);
+                    p.Enabled(true);
+                })
+                .Pager(p =>
+                {
+                    p.ShowInfo(true);
+                })
+                .OnExporting(@<text>
+                    function(e) {
+                        e.fileName = "DetailFrekuensiAktivitas_" + new Date().toISOString().slice(0, 10);
+                    }
+                </text>))
+        </div>
+    </div>
+} 

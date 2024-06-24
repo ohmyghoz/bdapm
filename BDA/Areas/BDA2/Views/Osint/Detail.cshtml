@@ -1,0 +1,573 @@
+﻿@using DevExtreme.AspNet.Mvc
+@inject BDA.DataModel.DataEntities db
+@model IEnumerable<Sparc.TagCloud.TagCloudTag>
+@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+    var maxItems = db.GetSetting("LimitFilterLJK");
+    bool isExport = ViewBag.Export;
+    string reportId = ViewBag.id;
+    bool isHive = ViewBag.Hive;
+    var p = (string[])TempData.Peek("periode");
+    var j = (string[])TempData.Peek("jns");
+    var i = (string)TempData.Peek("inq");
+}
+@*<link rel="stylesheet" href="~/css/cytoscape/jquery.qtip.css" />
+
+    <script src="~/js/cytoscape/jquery.qtip.js">
+    </script>*@
+
+<script src="~/js/cytoscape/cytoscape.min.js"></script>
+<script src="~/js/html2canvas.js" type="text/javascript"></script>
+@*<script src="~/js/cytoscape/cytoscape-qtip.js">
+    </script>*@
+
+
+
+<script>
+    window.jsPDF = window.jspdf.jsPDF;
+    applyPlugin(window.jsPDF);
+</script>
+
+<style>
+    #cy {
+        width: 100%;
+        height: 500px;
+        display: block;
+    }
+
+</style>
+
+<script type="text/javascript">
+    function ExportToExcel() {
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("LogExportIndex", "Osint", new {reportId = reportId})",
+            success: function (response) {
+                if (response.result == "Success") {
+                    var grid = $("#grid1").dxDataGrid("instance");
+                    grid.option("onExporting", function (e) {
+                        e.fileName = "Osint_@(reportId)_" + new Date().toISOString().slice(0, 10);
+                    });
+                    grid.option("onFileSaving", function (e) { });
+                    grid.exportToExcel();
+                }
+            }
+        });
+    }
+    $(document).ready(function onPageLoad() {
+        var animatedProperties = {
+            paddingLeft: '50px',
+            paddingTop: '75px',
+            paddingBottom: '125px',
+            paddingRight: '150px',
+            opacity: 1
+        };
+
+        $('.tag-cloud').animate(animatedProperties, 500);
+    });
+    function ExportToPdf2() {
+        var dataGrid = $("#grid1").dxDataGrid("instance");
+        dataGrid.option("onExporting", function (e) { });
+        dataGrid.option("onFileSaving", function (e) {
+            var fd = new FormData();
+            fd.append("file", e.data);
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("ExportPDF", "Osint", new {reportId = reportId})",
+                data: fd,
+                processData: false,
+                contentType: false
+            }).done(function (data) {
+                window.location = "@Url.Action("File", "Osint", new {reportId = reportId})"
+            });
+            e.cancel = true;
+        });
+
+        dataGrid.exportToExcel();
+    }
+
+    function Antrian() {
+        $.ajax({
+			type: "POST",
+			url: "@Url.Action("Antrian2", "Osint", new { reportId = reportId })",
+			contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+            dataType: "json",
+            success: function (response) {
+                swal({ type: 'success', title: 'Success', text: response });
+            },
+            error: function (response) {
+                swal({ type: 'error', title: 'Failed', text: response });
+            }
+		});
+    }
+
+    $(function () {
+        $("#Periode").dxValidator({
+            validationGroup: "Filter",
+            validationRules: [{ type: "required", message: "[Periode] harus dipilih" }]
+        })
+
+    });
+
+    function onSelectionChanged(e) {
+        if (e.addedItems.length > 0) {
+            e.component.field().val("");
+        }
+    }
+
+
+    function onGridBeforeSend(method, ajaxOptions) {
+        let jns = $("#Jns").dxTagBox("instance").option("value");
+        let inq = $("#Inq").dxTextBox("instance").option("value");
+        let periode = $("#Periode").dxTagBox("instance").option("value");
+        ajaxOptions.data.jns = JSON.stringify(jns);
+        ajaxOptions.data.inq = inq;
+        ajaxOptions.data.periode = JSON.stringify(periode);
+        ajaxOptions.data.reportId = '@reportId';
+    }
+
+
+
+</script>
+<style type="text/css">
+    .mandatory {
+        color: red;
+    }
+
+    .download-link {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+        opacity: 0;
+    }
+</style>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="card card-default">
+        @*filter*@
+        <div class="row filter-panel" style="padding-top:0px;">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-4 form-group">
+                        <label>Periode Data<span class="mandatory">*</span></label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("Periode")
+                            .DataSource(d => d.Mvc()
+                                .Controller("Ref")
+                                .LoadAction("GetPeriode")
+                                .Key("value"))
+                            .ValueExpr("value")
+                            .DisplayExpr("text")
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .ShowClearButton(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .Width("100%")
+                            .Value(p)
+                            .ReadOnly(true)
+                            )
+
+                    </div>
+                    <div class="col-lg-4 form-group">
+                        <label>Jenis Data</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("Jns")
+                            .DataSource(new[] {
+                                new { display = "Debitur Badan Usaha", value = "Debitur Badan Usaha" },
+                                new { display = "Fasilitas Pinjaman", value = "Fasilitas Pinjaman" },
+                                new { display = "Kategori Lainnya", value = "Kategori Lainnya" }
+                            })
+                            .DataSourceOptions(d => d.Paginate(true).PageSize(10))
+                            .ValueExpr("value")
+                            .DisplayExpr("display")
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .ShowClearButton(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .ReadOnly(true)
+                            .Value(j)
+                            .Width("100%"))
+                    </div>
+                    <div class="col-lg-12 form-group">
+                        <label>Inquiry Text</label>
+                        @(Html.DevExtreme().TextBox().ID("Inq").Width("100%").ReadOnly(true).Value(i))
+
+                    </div>
+                </div>
+
+                @*<div class="float-left">
+                        @(Html.DevExtreme().Button()
+                            .ID("Filter")
+                            .Type(ButtonType.Default)
+                            .Text("Tampilkan")
+                            .OnClick("onButtonFilterClicked")
+                            .ValidationGroup("Filter"))
+                    </div>*@
+
+                <div class="float-right">
+                    @if (ViewBag.Export)
+                    {
+                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:Antrian();"><span class="image fa fa-file-invoice"></span> Antrian (CSV)</a>
+                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportCloud();"><span class="image fa fa-file-image"></span> Export Word Cloud</a>
+                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportDNA();"><span class="image fa fa-file-image"></span> Export DNA</a>
+                    }
+                </div>
+            </div>
+        </div>
+
+        @*grid*@
+
+        <div class="gridview-div">
+            @BDA.Helper.BDADXExt.OsintDataGrid((Html.DevExtreme().DataGrid()
+                .ID("grid1")
+                .DataSource(d => d.Mvc()
+                    .Controller("Osint")
+                    .LoadAction("GetGridDataDetail")
+                    //.OnBeforeSend("onGridBeforeSend")
+                    )
+                .RemoteOperations(true)
+                .Width("100%")
+                .AllowColumnResizing(true)
+                .Scrolling(s => s.ShowScrollbar(ShowScrollbarMode.Always))
+                .FilterRow(f => f.Visible(true))
+                .ShowBorders(false)
+
+                ///.Selection(c => c.Mode(SelectionMode.Single))
+                .Paging(p =>
+                {
+                    p.PageSize(15);
+                    p.Enabled(true);
+                })
+                .Pager(p =>
+                {
+                    p.Visible(true);
+                    p.ShowInfo(true);
+                })
+            ), db, reportId, isHive)
+        </div>
+        <div class="gridview-div">
+            <div class="col-lg-12">
+                @(Html.DevExtreme().Chart()
+                    .ID("bar-chart")
+                    .DataSource(d => d.Mvc()
+                        .Controller("Osint")
+                        .LoadAction("GetGridDataDetail")
+                        .LoadParams(new { isChart = true})
+                        //.OnBeforeSend("onGridBeforeSend")
+                        )
+                    .Palette(VizPalette.Bright)
+                    .Margin(m => m.Top(20).Bottom(20).Right(20).Left(20))
+                    .Title("Berdasarkan Frekuensi Token")
+                    .Legend(l => l
+                        .VerticalAlignment(VerticalEdge.Bottom)
+                        .HorizontalAlignment(HorizontalAlignment.Center)
+                    )
+                    .LoadingIndicator(l => l.Enabled(true))
+                    .Legend(l => l.Visible(true))
+                    .CommonSeriesSettings(s => s
+                        .ArgumentField("dm_token")
+                        .ValueField("dm_count")
+                        .IgnoreEmptyPoints(true)
+                        .Type(SeriesType.Bar))
+                    .SeriesTemplate(t => t.NameField("dm_token"))
+                    .Tooltip(t => t
+                        .Enabled(true)
+                        .CustomizeTooltip(@<text>
+                            function(arg) {
+                               return {text: arg.argumentText + " - " + arg.valueText.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                            }
+                        </text>)
+                    )
+                    .ValueAxis(a => a
+                        .Add()
+                        .Label(l => l.CustomizeText(@<text>
+                            function() {
+                                if (this.value > 1000000) {
+                                        return  Math.round(this.value/1000000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " Juta";
+                                } else {
+                                    return this.valueText.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                                }
+                            }
+                        </text>))
+                    )
+                    .ArgumentAxis(a => a
+                        .Label(l => l
+                            .RotationAngle(45)
+                            .OverlappingBehavior(OverlappingBehavior.Rotate)
+
+                        )
+                    )
+                    .Export(e => e.Enabled(isExport))
+                    .OnExporting(@<text>
+                        function(e) {
+                            e.fileName = "BarChart_Osint_" + new Date().toISOString().slice(0, 10);
+                            $.ajax({
+                                type: "POST",
+                                url: "@Url.Action("LogExportIndex", "Osint", new { reportId = reportId })",
+                                success: function (response) {
+                                    if (response.result == "Success") {
+
+                                    }
+                                }
+                            });
+                        }
+                    </text>))
+            </div>
+        </div>
+        @*chart*@
+        <div class="gridview-div">
+            <div class="tag-cloud" id="taggy">
+                @foreach (var tag in Model)
+                {
+                    <span class="tag kind-@tag.Category">@tag.Text</span>
+                }
+            </div>
+
+            <script type="text/javascript">
+                function ExportCloud() {
+                    $.ajax({
+                        type: "POST",
+                        url: "@Url.Action("LogExportIndex", "Osint", new {reportId = reportId})",
+                        success: function (response) {
+                            if (response.result == "Success") {
+                                html2canvas(document.querySelector("#taggy")).then(canvas => {
+
+                                    const downloadLink = document.querySelector('.download-link')
+                                    downloadLink.href = canvas.toDataURL('image/jpeg').replace('image/jpeg', 'image/octet-stream');;
+                                    downloadLink.download = "OsintCloud_" + new Date().toISOString().slice(0, 10) + ".png";
+                                    downloadLink.click();
+                                });
+                            }
+                        }
+                    });
+
+                    //html2canvas('taggy', {
+                    //    onrendered: function (canvas) {
+                    //        var myImage = canvas.toDataURL("image/png");
+                    //        //create your own dialog with warning before saving file
+                    //        //beforeDownloadReadMessage();
+                    //        //Then download file
+                    //        downloadURI("data:" + myImage, "yourImage.png");
+                    //    }
+                    //});
+                }
+
+            </script>
+        </div>
+        <div class="gridview-div">
+            <a href="#" class="download-link" download>Download</a>
+            <div id="cy" class="text"></div>
+            <script>
+            var cy = cytoscape({
+                container: document.getElementById('cy'), // container to render in
+                style: [ // the stylesheet for the graph
+
+                     {
+                        selector: "node",
+                        style: {
+                            "width": "data(wh)",
+                            "height": "data(wh)",
+                            "content": "data(id)",
+                            "font-size": "22px",
+                            "text-valign": "center",
+                            "text-halign": "center",
+                            "background-color": "#f44336",
+                            "text-outline-color": "#000",
+                            "text-outline-width": "2px",
+                            "color": "#fff",
+                            "overlay-padding": "6px",
+                            "z-index": "10"
+                        }
+                    },
+                    {
+                        "selector": "node[?attr]",
+                        "style": {
+                            "shape": "rectangle",
+                            "background-color": "#aaa",
+                            "text-outline-color": "#aaa",
+                            "width": "16px",
+                            "height": "16px",
+                            "font-size": "6px",
+                            "z-index": "1"
+                        }
+                    },
+                    {
+                        "selector": "node[?query]",
+                        "style": {
+                            "background-clip": "none",
+                            "background-fit": "contain"
+                        }
+                    },
+                    {
+                        "selector": "node:selected",
+                        "style": {
+                            "border-width": "6px",
+                            "border-color": "#AAD8FF",
+                            "border-opacity": "0.5",
+                            "background-color": "#77828C",
+                            "text-outline-color": "#77828C"
+                        }
+                    },
+                    {
+                        selector: "edge",
+                        style: {
+                            "curve-style": "haystack",
+                            "haystack-radius": "0.5",
+                            "opacity": "0.4",
+                            "line-color": "#bbb",
+
+                            "overlay-padding": "3px"
+                        }
+                    }, {
+                        "selector": "node.unhighlighted",
+                        "style": {
+                            "opacity": "0.2"
+                        }
+                    }, {
+                        "selector": "edge.unhighlighted",
+                        "style": {
+                            "opacity": "0.05"
+                        }
+                    }, {
+                        "selector": ".highlighted",
+                        "style": {
+                            "z-index": "999999"
+                        }
+                    }, {
+                        "selector": "node.highlighted",
+                        "style": {
+                            "border-width": "6px",
+                            "border-color": "#AAD8FF",
+                            "border-opacity": "0.5",
+                            "background-color": "#394855",
+                            "text-outline-color": "#394855"
+                        }
+                    }, {
+                        "selector": "edge.filtered",
+                        "style": {
+                            "opacity": "0"
+                        }
+                    }
+                ],
+
+                layout: {
+                    name: 'cose',
+                    idealEdgeLength: 100,
+                    nodeOverlap: 20,
+                    refresh: 200,
+                    fit: true,
+                    padding: 30,
+                    componentSpacing: 100,
+                    nodeRepulsion: 400000,
+                    edgeElasticity: 100,
+                    nestingFactor: 5,
+                    gravity: 80,
+                    numIter: 1000,
+                    initialTemp: 200,
+                    coolingFactor: 0.95,
+                    minTemp: 1.0,
+                    randomize: false
+                }
+
+            });
+
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("GetEdgesNodes", "Osint")",
+                contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+                dataType: "json",
+                success: function (response) {
+                    for (var key in response.Nodes.data) {
+                        if (response.Nodes.data.hasOwnProperty(key)) {
+                            cy.add([
+                                { group: "nodes", data: { id: response.Nodes.data[key].id, score: parseFloat(response.Nodes.data[key].score), wh: response.Nodes.data[key].wh } }
+                            ])
+                        }
+
+                    }
+                    for (var key in response.Edges.data) {
+                        if (response.Edges.data.hasOwnProperty(key)) {
+                            cy.add([
+                                { group: "edges", data: { id: response.Edges.data[key].id, source: response.Edges.data[key].source, target: response.Edges.data[key].target} }
+                            ])
+                        }
+
+                    }
+                    cy.layout({
+                        name: 'cose',
+                        idealEdgeLength: 100,
+                        nodeOverlap: 20,
+                        refresh: 200,
+                        fit: true,
+                        padding: 30,
+                        componentSpacing: 100,
+                        nodeRepulsion: 400000,
+                        edgeElasticity: 100,
+                        nestingFactor: 5,
+                        gravity: 80,
+                        numIter: 1000,
+                        initialTemp: 200,
+                        coolingFactor: 0.95,
+                        minTemp: 1.0,
+                        randomize: false
+                    }).run();
+                }
+            });
+                //cy.elements().qtip({
+                //    content: function () { return 'Example qTip on ele ' + this.id() },
+                //    position: {
+                //        my: 'top center',
+                //        at: 'bottom center'
+                //    },
+                //    style: {
+                //        classes: 'qtip-bootstrap',
+                //        tip: {
+                //            width: 16,
+                //            height: 8
+                //        }
+                //    }
+                //});
+                //cy.qtip({
+                //    content: 'Example qTip on core bg',
+                //    position: {
+                //        my: 'top center',
+                //        at: 'bottom center'
+                //    },
+                //    show: {
+                //        cyBgOnly: true
+                //    },
+                //    style: {
+                //        classes: 'qtip-bootstrap',
+                //        tip: {
+                //            width: 16,
+                //            height: 8
+                //        }
+                //    }
+                //});
+            function ExportDNA() {
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("LogExportIndex", "Osint", new {reportId = reportId})",
+                    success: function (response) {
+                        if (response.result == "Success") {
+                            const base64URI = cy.png({ full: true });
+                            const downloadLink = document.querySelector('.download-link')
+                            console.log(base64URI);
+                            downloadLink.href = base64URI;
+                            downloadLink.download = "OsintDNA_" + new Date().toISOString().slice(0, 10) + ".png";
+                            downloadLink.click();
+                        }
+                    }
+                });
+            }
+            </script>
+        </div>
+    </div>
+}

@@ -1,0 +1,48 @@
+﻿{
+  "ProviderId": "Microsoft.VisualStudio.ConnectedService.Wcf",
+  "Version": "15.0.40203.910",
+  "ExtendedData": {
+    "inputs": [
+      "http://10.210.240.18:8888/CAMService.svc?wsdl"
+    ],
+    "collectionTypes": [
+      "System.Array",
+      "System.Collections.Generic.Dictionary`2"
+    ],
+    "namespaceMappings": [
+      "*, CAMService"
+    ],
+    "references": [
+      "DotNetZip, {DotNetZip, 1.13.6}",
+      "EntityFramework, {EntityFramework, 6.4.0}",
+      "EntityFramework.SqlServer, {EntityFramework, 6.4.0}",
+      "Newtonsoft.Json, {Newtonsoft.Json, 12.0.3}",
+      "SixLabors.Core, {SixLabors.Core, 1.0.0-beta0008}",
+      "SixLabors.ImageSharp, {SixLabors.ImageSharp, 1.0.0-beta0007}",
+      "System.CodeDom, {System.CodeDom, 4.7.0}",
+      "System.ComponentModel.Annotations, {System.ComponentModel.Annotations, 4.7.0}",
+      "System.Configuration.ConfigurationManager, {System.Configuration.ConfigurationManager, 4.7.0}",
+      "System.Data.SqlClient, {System.Data.SqlClient, 4.8.0}",
+      "System.DirectoryServices, {System.DirectoryServices, 4.7.0}",
+      "System.IO.FileSystem.AccessControl, {System.IO.FileSystem.AccessControl, 4.7.0}",
+      "System.Runtime, {System.Runtime, 4.3.0}",
+      "System.Runtime.CompilerServices.Unsafe, {System.Runtime.CompilerServices.Unsafe, 4.5.1}",
+      "System.Security.AccessControl, {System.Security.AccessControl, 4.7.0}",
+      "System.Security.Permissions, {System.Security.Permissions, 4.7.0}",
+      "System.Security.Principal.Windows, {System.Security.Principal.Windows, 4.7.0}",
+      "System.ServiceModel, {System.ServiceModel.Primitives, 4.4.4}",
+      "System.ServiceModel.Duplex, {System.ServiceModel.Duplex, 4.4.4}",
+      "System.ServiceModel.Http, {System.ServiceModel.Http, 4.4.4}",
+      "System.ServiceModel.NetTcp, {System.ServiceModel.NetTcp, 4.4.4}",
+      "System.ServiceModel.Primitives, {System.ServiceModel.Primitives, 4.4.4}",
+      "System.ServiceModel.Security, {System.ServiceModel.Security, 4.4.4}",
+      "System.Text.Encoding, {System.Text.Encoding, 4.3.0}",
+      "System.Text.Encoding.CodePages, {System.Text.Encoding.CodePages, 4.5.0}",
+      "System.Text.Encoding.Extensions, {System.Text.Encoding.Extensions, 4.3.0}",
+      "System.Windows.Extensions, {System.Windows.Extensions, 4.7.0}"
+    ],
+    "sync": true,
+    "targetFramework": "netcoreapp3.1",
+    "typeReuseMode": "All"
+  }
+}

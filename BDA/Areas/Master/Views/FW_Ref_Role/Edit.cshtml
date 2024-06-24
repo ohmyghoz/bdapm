@@ -1,0 +1,34 @@
+﻿@model BDA.DataModel.FWRefRole
+
+@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+}
+
+@section RightToolbar{
+    <div class="d-flex align-items-center">		          
+        <a class="nav-link btn btn-light-warning font-weight-bolder btn-sm mr-2" href="@Url.Action("Index")"><i class="fa fa-arrow-left"></i> Kembali Ke Daftar</a>                    
+	</div>
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="card card-default"> 
+
+        <div class="card-body">
+            <div class="row">
+                <securehidden asp-for="RoleId"></securehidden>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="RoleName"></label>
+                    @Html.DevExtreme().TextBoxFor(m => m.RoleName).Width("100%").MaxLength(50)
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="RoleCatatan"></label>
+                    @Html.DevExtreme().TextAreaFor(m => m.RoleCatatan).Width("100%").MaxLength(500)
+                </div>
+            </div>
+            @Html.DevExtreme().Button().ID("btnSave").Text("Simpan").UseSubmitBehavior(true)
+        </div>
+    </div>
+}

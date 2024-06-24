@@ -1,0 +1,63 @@
+﻿@model BDA.DataModel.RptGrid_Param
+@{
+    Layout = "~/Views/Shared/_LayoutPopup.cshtml";
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+
+
+
+    <div class="row">
+        <securehidden asp-for="rgpr_id"></securehidden>
+        <securehidden asp-for="rg_id"></securehidden>
+
+        <div class="col-lg-6 form-group">
+            <label asp-for="rgpr_kode"></label>
+            @Html.DevExtreme().TextBoxFor(m => m.rgpr_kode).Width("100%").ReadOnly(true)
+        </div>
+        <div class="col-lg-6 form-group">
+            <label asp-for="rgpr_nama"></label>
+            @Html.DevExtreme().TextBoxFor(m => m.rgpr_nama).Width("100%")
+        </div>
+
+        <div class="col-lg-6 form-group">
+            <label asp-for="rgpr_datatype"></label>
+            @Html.DevExtreme().SelectBoxFor(m => m.rgpr_datatype).Width("100%").Items(new string[] { "string", "number" })
+        </div>
+        <div class="col-lg-6 form-group">
+            <label asp-for="rgpr_controltype"></label>
+            @(Html.DevExtreme().SelectBoxFor(m => m.rgpr_controltype).Width("100%").Items(new string[] { "TextBox" }))
+        </div>
+        <div class="col-lg-6 form-group">
+            <label asp-for="rgpr_allow_null"></label>
+            @Html.DevExtreme().CheckBoxFor(m => m.rgpr_allow_null).Width("100%")
+        </div>
+        <div class="col-lg-6 form-group">
+            <label asp-for="rgpr_null_text"></label>
+            @Html.DevExtreme().TextBoxFor(m => m.rgpr_null_text).Width("100%")
+        </div>
+        <div class="col-lg-6 form-group">
+            <label asp-for="rgpr_value_default"></label>
+            @Html.DevExtreme().TextBoxFor(m => m.rgpr_value_default).Width("100%")
+        </div>
+        <div class="col-lg-6 form-group hidden">
+            <label asp-for="rgpr_value_csv"></label>
+            @Html.DevExtreme().TextAreaFor(m => m.rgpr_value_csv).Width("100%")
+        </div>
+        <div class="col-lg-6 form-group hidden">
+            <label asp-for="rgpr_value_query"></label>
+            @Html.DevExtreme().TextAreaFor(m => m.rgpr_value_query).Width("100%").Visible(false)
+        </div>
+        <div class="col-lg-6 form-group">
+            <label asp-for="rgpr_catatan"></label>
+            @Html.DevExtreme().TextBoxFor(m => m.rgpr_catatan).Width("100%")
+        </div>
+
+    </div>
+    @Html.DevExtreme().Button().ID("btnSave").Text("Save").UseSubmitBehavior(true)
+
+
+}

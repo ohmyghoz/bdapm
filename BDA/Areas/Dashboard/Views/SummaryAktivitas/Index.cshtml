@@ -1,0 +1,214 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+
+    var isExport = false;
+    //if (ViewBag.Akses != "Non Pengawas")
+    if (ViewBag.Export)
+    {
+        isExport = true;
+    }
+
+    var maxItems = db.GetSetting("LimitFilterLJK");
+}
+
+@inject BDA.DataModel.DataEntities db
+
+<script type="text/javascript">
+    function ExportToExcel() {
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("LogExportIndex", "SummaryAktivitas")",
+            success: function (response) {
+                if (response.result == "Success") {
+                    var grid = $("#grid1").dxDataGrid("instance");
+                    grid.option("onFileSaving", function (e) { });
+                    grid.exportToExcel();
+                }
+            }
+        });
+    }
+
+    var resetLJK;
+
+    $(function () {
+        $("#PeriodeAwal").dxValidator({
+            validationGroup: "Filter",
+            validationRules: [{ type: "required", message: "[Periode Awal] harus dipilih" }]
+        })
+    });
+
+    function onSelectionChanged(e) {
+        if (e.addedItems.length > 0) {
+            e.component.field().val("");
+        }
+    }
+
+    function onJenisLJKChanged(e) {
+        resetLJK = true;
+        $("#Members").dxTagBox("instance").getDataSource().reload();
+        $("#Members").dxTagBox("reset");
+        resetLJK = false;
+    }
+
+    function onButtonFilterClicked(e) {
+        const res = e.validationGroup.validate();
+        if (res.status === "valid") {
+            $("#bar-chart").dxChart("instance").refresh();
+        }
+    }
+
+    function onGridBeforeSend(method, ajaxOptions) {
+        let memberTypes = $("#MemberTypes").dxTagBox("instance").option("value");
+
+        let members = $("#Members").dxTagBox("instance").option("value");
+
+        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
+        let periodeAwal = null;
+        if (tempPeriodeAwal != null) {
+            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + (tempPeriodeAwal.getMonth() + 1) + '-' + tempPeriodeAwal.getDate();
+        }
+
+        ajaxOptions.data.memberTypes = JSON.stringify(memberTypes);
+        ajaxOptions.data.members = JSON.stringify(members);
+        ajaxOptions.data.periodeAwal = periodeAwal;
+    }
+
+    function onLJKOpened(e) {
+        e.component.content().find('.dx-list-select-all').hide();
+    }
+
+    const maxItems = @maxItems;
+
+    function onLJKChanged(e) {
+        if (e.value.length > maxItems) {
+            const newValue = e.value.slice(0, maxItems);
+            e.component.option("value", newValue);
+            //tooltip.show();
+        }
+    }
+</script>
+
+<style type="text/css">
+    .mandatory {
+        color: red;
+    }
+</style>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="card card-default">
+        @*filter*@
+        <div class="row filter-panel" style="padding-top:0px;">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-4 form-group">
+                        <label>Jenis LJK</label>
+                        @(Html.DevExtreme().TagBox()
+                                .ID("MemberTypes")
+                                .DataSource(d => d.Mvc()
+                                    .Controller("SummaryAktivitas")
+                                    .LoadAction("GetMemberTypes")
+                                    .Key("kode_jenis_ljk"))
+                                //.DataSourceOptions(d => d.Paginate(true).PageSize(10))
+                                .ValueExpr("kode_jenis_ljk")
+                                .DisplayExpr("Display")
+                                .ShowSelectionControls(true)
+                                .MaxDisplayedTags(3)
+                                .SearchEnabled(true)
+                                .ShowClearButton(true)
+                                .OnSelectionChanged("onSelectionChanged")
+                                .OnValueChanged("onJenisLJKChanged")
+                                .Width("100%"))
+                    </div>
+
+                    <div class="col-lg-4 form-group">
+                        <label>LJK</label>
+                        @(Html.DevExtreme().TagBox()
+                                .ID("Members")
+                                .DataSource(d => d.Mvc()
+                                    .Controller("SummaryAktivitas")
+                                    .LoadAction("GetMembers")
+                                    .LoadParams(new { memberTypes = new JS("function() { return $(\"#MemberTypes\").dxTagBox(\"instance\").option(\"value\"); }"), reset = new JS("function() { return resetLJK; }") })
+                                    //.Key("kode_ljk")
+                                    .Key("CompositeKey")
+                                )
+                                .DataSourceOptions(d => d.Paginate(true).PageSize(10))
+                                //.ValueExpr("kode_ljk")
+                                .ValueExpr("CompositeKey")
+                                .DisplayExpr("Display")
+                                .ShowSelectionControls(true)
+                                .MaxDisplayedTags(3)
+                                .SearchEnabled(true)
+                                .ShowClearButton(true)
+                                .OnSelectionChanged("onSelectionChanged")
+                                .OnOpened("onLJKOpened")
+                                .OnValueChanged("onLJKChanged")
+                                .Width("100%"))
+                    </div>
+
+                    <div class="col-lg-4 form-group">
+                        <label>Periode<span class="mandatory">*</span></label>
+                        @(Html.DevExtreme().DateBox()
+                                .ID("PeriodeAwal")
+                                .DisplayFormat("dd MMM yyyy")
+                                .Value(DateTime.Now)
+                                .Max(DateTime.Now)
+                                .Width("100%"))
+                    </div>
+
+                </div>
+
+                <div class="float-left">
+                    @(Html.DevExtreme().Button()
+                        .ID("Filter")
+                        .Type(ButtonType.Default)
+                        .Text("Tampilkan")
+                        .OnClick("onButtonFilterClicked")
+                        .ValidationGroup("Filter"))
+                </div>
+            </div>
+        </div>
+
+        @*chart*@
+        <div class="row">
+            <div class="col-lg-12">
+                @(Html.DevExtreme().Chart()
+                .ID("bar-chart")
+                .DataSource(d => d.Mvc()
+                    .Controller("SummaryAktivitas")
+                    .LoadAction("GetGridData")
+                    .OnBeforeSend("onGridBeforeSend"))
+                .Palette(VizPalette.Bright)
+                .Margin(m => m.Top(20).Bottom(20).Right(20).Left(20))
+                .Legend(l => l.Visible(false))
+                .Title("Summary Aktivitas")
+                .LoadingIndicator(l => l.Enabled(true))
+                .CommonSeriesSettings(s => s
+                    .ArgumentField("hour")
+                    .ValueField("user_sum")
+                    .IgnoreEmptyPoints(true)
+                    .Type(SeriesType.Bar))
+                .SeriesTemplate(t => t.NameField("hour"))
+                .Tooltip(t => t.Enabled(true))
+                .ValueAxis(a => a.Add().Title("Jumlah User ID"))
+                .ArgumentAxis(a => a.Type(AxisScaleType.Discrete).Title("Waktu"))
+                .Export(e => e.Enabled(isExport))
+                .OnExporting(@<text>
+                    function(e) {
+                        $.ajax({
+                            type: "POST",
+                            url: "@Url.Action("LogExportIndex", "HMLPerorangan")",
+                            success: function (response) {
+                                if (response.result == "Success") {
+                                }
+                            }
+                        });
+                        e.fileName = "BarChart_SummaryAktivitas_" + new Date().toISOString().slice(0, 10);
+                    }
+                </text>))
+            </div>
+        </div>
+    </div>
+}

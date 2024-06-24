@@ -1,0 +1,167 @@
+﻿@inject BDA.DataModel.DataEntities db
+
+@{
+    ViewBag.Title = "_LayoutMain";
+}
+@{
+    //var mdl = new BDA.Models.MenuModels(db);
+    var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+    var map = mdl.GetSiteDbMap();
+    var currentNode = mdl.GetCurrentNode();
+
+}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+    <meta charset="utf-8" />
+    @if (currentNode != null)
+    {
+
+        <title>@currentNode.Title - @RSC.AppTitle</title>
+    }
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link rel="apple-touch-icon" href="~/pages/ico/60.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="~/pages/ico/76.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="~/pages/ico/120.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="~/pages/ico/152.png">
+    <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-touch-fullscreen" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta content="" name="description" />
+    <meta content="" name="author" />
+
+    <link rel="stylesheet" href="~/assets/fonts/fonts.css" />
+    <link rel="stylesheet" href="~/assets/plugins/pace/pace-theme-flash.css" />
+    <link rel="stylesheet" href="~/assets/plugins/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/assets/plugins/font-awesome/css/font-awesome.css" />
+    <link rel="stylesheet" href="~/assets/plugins/jquery-scrollbar/jquery.scrollbar.css" />
+    <link rel="stylesheet" href="~/assets/plugins/select2/css/select2.min.css" />
+    <link rel="stylesheet" href="~/assets/plugins/switchery/css/switchery.min.css" />
+    <link rel="stylesheet" href="~/pages/css/pages-icons.css" />
+    <link rel="stylesheet" href="~/pages/css/pages.css" />
+    <link rel="stylesheet" href="~/assets/css/custom.css" />
+
+
+
+    @if (this.ViewContext.RouteData.Values["controller"].ToString() != "DXReport")
+    {
+        <link href="~/css/devextreme/dx.common.css" rel="stylesheet" />
+        <link href="~/css/devextreme/dx.light.css" rel="stylesheet" />
+        <script src="~/js/devextreme/jquery.js"></script>
+        <script src="~/js/devextreme/cldr.js"></script>
+        <script src="~/js/devextreme/cldr/event.js"></script>
+        <script src="~/js/devextreme/cldr/supplemental.js"></script>
+        <script src="~/js/devextreme/cldr/unresolved.js"></script>
+
+        <script src="~/js/devextreme/globalize.js"></script>
+        <script src="~/js/devextreme/globalize/message.js"></script>
+        <script src="~/js/devextreme/globalize/number.js"></script>
+        <script src="~/js/devextreme/globalize/currency.js"></script>
+        <script src="~/js/devextreme/globalize/date.js"></script>
+        <script src="~/js/devextreme/jszip.js"></script>
+        <script src="~/js/devextreme/dx.all.js"></script>
+        <script src="~/js/devextreme/vectormap-data/world.js"></script>
+        <script src="~/js/devextreme/aspnet/dx.aspnet.data.js"></script>
+        <script src="~/js/devextreme/aspnet/dx.aspnet.mvc.js"></script>
+
+
+        <script src="~/js/devextreme/dx.messages.id.js"></script>
+        <script>
+            DevExpress.localization.locale("en");
+        </script>
+    }
+
+
+
+</head>
+
+<body class="fixed-header" style="margin-bottom:0px; background-color:white;">
+    <script>
+        var pageTitle = "@(currentNode != null ? currentNode.Title : "")";
+    </script>
+
+    <div style="height: 100%; width: 100%;">
+        <!-- START PAGE-CONTAINER -->
+        <div style="margin:0px 15px; padding:5px 0px;">
+            @RenderBody()
+        </div>
+        <!-- END PAGE CONTAINER -->
+
+        <script src="~/assets/plugins/modernizr.custom.js"></script>
+        <script src="~/assets/plugins/tether/js/tether.min.js"></script>
+        <script src="~/assets/plugins/bootstrap/js/bootstrap.min.js"></script>
+        <script src="~/assets/plugins/jquery/jquery-easy.js"></script>
+        <script src="~/assets/plugins/jquery-unveil/jquery.unveil.min.js"></script>
+        <script src="~/assets/plugins/jquery-bez/jquery.bez.min.js"></script>
+        <script src="~/assets/plugins/jquery-ios-list/jquery.ioslist.min.js"></script>
+        <script src="~/assets/plugins/imagesloaded/imagesloaded.pkgd.min.js"></script>
+        
+        <script src="~/assets/plugins/jquery-actual/jquery.actual.min.js"></script>
+        <script src="~/assets/plugins/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+        <script src="~/assets/plugins/classie/classie.js"></script>
+        <script src="~/pages/js/pages.js"></script>
+        <script src="~/assets/js/scripts.js"></script>
+        <script src="~/assets/js/sweetalert2.all.js"></script>
+        <script src="~/assets/js/polyfill.min.js"></script>
+        <script src="~/assets/js/wsscripts.js"></script>
+        @{
+            var scriptText = "";
+            if (db.GetSessionString("errtext") != null)
+            {
+                scriptText += "<script>jQuery(document).ready(function () {swal({type: 'error', title: 'Oops...',  html: '" + (db.GetSessionString("errtext").Replace("'", "\\'").Replace(Environment.NewLine, "<br />")) + "',})});</script>";
+                db.RemoveSession("errtext");
+            }
+            if (db.GetSessionString("sctext") != null)
+            {
+                scriptText += "<script>jQuery(document).ready(function () {swal({type: 'success', title: 'Success',  html: '" + (db.GetSessionString("sctext").Replace("'", "\\'")) + "',})});</script>";
+                db.RemoveSession("sctext");
+            }
+            if (db.GetSessionString("warntext") != null)
+            {
+                scriptText += "<script>jQuery(document).ready(function () {swal({type: 'warning', title: 'Warning',  html: '" + (db.GetSessionString("warntext").Replace("'", "\\'")) + "',})});</script>";
+                db.RemoveSession("warntext");
+            }
+        }
+        @Html.Raw(scriptText)
+    <script>
+        @if (ViewBag.ClosePopup != null) {
+            <text>
+            $(document).ready(function () {
+                parent.ClosePopup("@ViewBag.ClosePopup");
+            });
+            </text>
+        }
+             @if (ViewBag.ClosePopupx != null) {
+            <text>
+            $(document).ready(function () {
+                parent.ClosePopupx("@ViewBag.ClosePopupx");
+            });
+            </text>
+        }
+    </script>
+        <script>
+            //important! to complement AutoValidateAntiforgeryTokenAttribute
+            if ($('input:hidden[name="__RequestVerificationToken"]').length) {
+                $.ajaxSetup({
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader("XSRF-TOKEN", $('input:hidden[name="__RequestVerificationToken"]').val());
+                    }
+                });
+            }
+        </script>
+
+
+        <script>
+            function ShowPopupMain(url, title, width, height, closingFunction) {
+                parent.ShowPopupMain2(url, title, width, height, closingFunction);
+            }
+        </script>
+    </div>
+</body>
+
+</html>

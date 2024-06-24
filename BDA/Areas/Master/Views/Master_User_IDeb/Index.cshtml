@@ -1,0 +1,75 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+}
+
+<script type="text/javascript">
+    function Export() {
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("LogExport", "Master_User_IDeb")",
+            success: function (response) {
+                if (response.result == "Success") {
+                    var grid = $("#grid1").dxDataGrid("instance");
+                    grid.option("onFileSaving", function (e) { });
+                    grid.exportToExcel();
+                }
+            }
+        });
+    }
+</script>
+
+@section RightToolbar{
+    <div class="d-flex align-items-center">
+        <!--begin::Actions-->
+        @if (ViewBag.Export)
+        {
+            <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:Export();"><span class="image fa fa-file-excel"></span> Export Excel</a>
+        }
+        <!--end::Actions-->
+    </div>
+}
+
+<div class="card card-default">
+    <div>
+        @Html.AntiForgeryToken()
+
+        @(Html.DevExtreme().DataGrid()
+            .ID("grid1")
+            .DataSource(d => d.Mvc()
+                .Controller("Master_User_IDeb")
+                .LoadAction("GetGridData")
+                .Key("user_id"))
+            .RemoteOperations(true)
+            .Width("100%")
+            .Columns(columns =>
+            {
+                columns.Add().DataField("user_id").Caption("User ID");
+                columns.Add().DataField("user_login_id").Caption("Login");
+                columns.Add().DataField("user_name").Caption("Nama");
+                columns.Add().DataField("phone_number").Caption("No Telp");
+                columns.Add().DataField("deskripsi_jenis_ljk").Caption("Jenis LJK");
+                columns.Add().DataField("nama_ljk").Caption("Nama LJK");
+                columns.Add().DataField("kantor_cabang").Caption("Kantor Cabang");
+                columns.Add().DataField("employee_id").Caption("Employee ID");
+            })
+            .FilterRow(f => f.Visible(true))
+            .ShowBorders(false)
+            .Selection(c => c.Mode(SelectionMode.Single))
+            .RowAlternationEnabled(false)
+            .OnExporting(@<text>
+                function(e) {
+                    e.fileName = "MasterUserIDeb_" + new Date().toISOString().slice(0, 10);
+                }
+            </text>)
+            .Paging(p =>
+            {
+                p.PageSize(20);
+                p.Enabled(true);
+            }))
+
+    </div>
+</div>
+
+<div class=" pull-left" style="font-weight:bold">
+    Last Sync : @ViewBag.lastsync
+</div>

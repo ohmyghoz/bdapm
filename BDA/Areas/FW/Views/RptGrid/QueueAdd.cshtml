@@ -1,0 +1,62 @@
+﻿@model BDA.DataModel.RptGrid
+@{
+    Layout = "~/Views/Shared/_LayoutMain.cshtml";
+    List<BDA.DataModel.RptGrid_Param> paramList = ViewBag.paramList;
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <script>
+         function value_changed(e) {
+            window.location = '@Url.Action("QueueAdd","RptGrid")?id=' + e.value;
+        }
+    </script>
+    <div class="card card-default">
+        <div class="card-header separator">
+            <div class="card-title">
+                <script>document.write(pageTitle);</script>
+            </div>
+            <div class="card-controls">
+                <a href="@Url.Action("Queue")"><i class="fa fa-arrow-left"></i> Return To List</a>
+            </div>
+        </div>
+
+        <div class="card-block m-t-10">
+            <div class="row">
+                <securehidden asp-for="rg_id"></securehidden>
+                <div class="col-lg-12 form-group">
+                    <label>Pilih Custom Report</label>
+                    @(Html.DevExtreme().SelectBoxFor(m => m.parent_id)
+                        .DataSource(d => d.Mvc().Controller("RptGrid").LoadAction("GetRefRptGrid").Key("rg_id"))
+                        .DisplayExpr("rg_nama")
+                        .ValueExpr("rg_id")
+                        .SearchEnabled(true)
+                        .Width("100%")
+                        .OnValueChanged("value_changed")
+                        .Value(Model.rg_id)
+                    )
+                </div>
+                @if (Model.rg_id > 0)
+                {
+                    @foreach (var prm in paramList)
+                    {
+                        <div class="col-lg-3 form-group">
+                            <label>@prm.rgpr_nama</label>
+                            @(Html.DevExtreme().TextBox().Name(prm.rgpr_kode).ID(prm.rgpr_kode)
+                                    .Value(prm.rgpr_value_default)
+                                    .Placeholder(prm.rgpr_null_text))
+                        </div>
+                    }
+
+                }
+            </div>
+            @if (Model.rg_id > 0)
+            {
+                <input type="submit" class="btn" name="btnAction" value="Preview Top 100" />
+                <input type="submit" class="btn btn-primary" name="btnAction" value="Antrikan Laporan" />
+            }
+        </div>
+    </div>
+}

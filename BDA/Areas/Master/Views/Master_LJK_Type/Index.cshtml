@@ -1,0 +1,67 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+}
+<script type="text/javascript">
+    function Export() {
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("LogExport", "Master_LJK_Type")",
+            success: function (response) {
+                if (response.result == "Success") {
+                    var grid = $("#grid1").dxDataGrid("instance");
+                    grid.option("onFileSaving", function (e) { });
+                    grid.exportToExcel();
+                }
+            }
+        });
+    }
+</script>
+
+@section RightToolbar{
+    <div class="d-flex align-items-center">
+        <!--begin::Actions-->
+        @if (ViewBag.Export)
+        {
+            <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:Export();"><span class="image fa fa-file-excel"></span> Export Excel</a>
+        }
+        <!--end::Actions-->
+    </div>
+}
+
+<div class="card card-default">
+    <div>
+        @Html.AntiForgeryToken()
+
+        @(Html.DevExtreme().DataGrid()
+            .ID("grid1")
+            .DataSource(d => d.Mvc()
+                .Controller("Master_LJK_Type")
+                .LoadAction("GetGridData")
+                .Key("kode_jenis_ljk"))
+            .RemoteOperations(true)
+            .Width("100%")
+            .Columns(columns =>
+            {
+                columns.Add().DataField("kode_jenis_ljk").Caption("Kode Jenis LJK");
+                columns.Add().DataField("deskripsi_jenis_ljk").Caption("Jenis LJK");
+            })
+            .FilterRow(f => f.Visible(true))
+            .ShowBorders(false)
+            .Selection(c => c.Mode(SelectionMode.Single))
+            .RowAlternationEnabled(false)
+            .OnExporting(@<text>
+                function(e) {
+                    e.fileName = "MasterLJKType_" + new Date().toISOString().slice(0, 10);
+                }
+            </text>)
+            .Paging(p =>
+            {
+                p.PageSize(20);
+                p.Enabled(true);
+            }))
+    </div>
+</div>
+
+<div class=" pull-left" style="font-weight:bold">
+    Last Sync : @ViewBag.lastsync
+</div>

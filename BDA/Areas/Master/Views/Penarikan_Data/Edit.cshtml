@@ -1,0 +1,66 @@
+﻿@model BDA.DataModel.Penarikan_Data
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+    string p=null;
+    if (TempData.Peek("test") != null) {
+        p = TempData.Peek("test").ToString();
+    }
+}
+@section RightToolbar{
+    <div class="d-flex align-items-center">
+        <a class="nav-link btn btn-light-warning font-weight-bolder btn-sm mr-2" href="@Url.Action("Index")"><i class="fa fa-arrow-left"></i> Kembali Ke Daftar</a>
+    </div>
+}
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="card card-default">
+        <div class="card-body">
+            <div class="row">
+                <securehidden asp-for="mpd_id"></securehidden>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="mpd_periode"></label>
+                    @(Html.DevExtreme().SelectBoxFor(m=>m.mpd_periode)
+                            //.ID("Periode")
+                            .DataSource(d => d.Mvc()
+                                .Controller("Ref")
+                                .Area("BDA2")
+                                .LoadAction("GetPeriode")
+                                .Key("value"))
+                            .ValueExpr("value")
+                            .DisplayExpr("text")
+                            .SearchEnabled(true)
+                            .Value(p)
+                            .Width("100%")
+                            )
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="mpd_jenis"></label>
+                    @(Html.DevExtreme().SelectBoxFor(m=>m.mpd_jenis)
+                            .ID("Jns")
+                            .DataSource(new[] {
+                                new { display = "Penarikan Data BDA Tahun 2021-2022", value = "hivebda_to_sql" },
+                                new { display = "Penarikan Data EWS Tahun 2021-2022", value = "hiveews_to_sql" },
+                                new { display = "Penarikan Data Master Tahun 2021-2022", value = "hivemaster_to_sql" },
+                                new { display = "Penarikan Data BDA Tahun 2022-2023 Tahap 1", value = "tarik1 " },
+                                new { display = "Penarikan Data BDA Tahun 2022-2023 Tahap 2", value = "tarik2" },
+                                new { display = "Penarikan Data BDA Tahun 2023-2024", value = "tarikan" }
+                            })
+                            .DataSourceOptions(d => d.Paginate(true).PageSize(10))
+                            .ValueExpr("value")
+                            .DisplayExpr("display")
+                            .SearchEnabled(true)
+                            .ShowClearButton(true)
+                            .Width("100%"))
+                </div>
+
+            </div>
+            @Html.DevExtreme().Button().ID("btnSave").Text("Simpan").OnClick("function ClikBtnSave() {if (DevExpress.validationEngine.validateGroup().isValid) { $('#btnSave').dxButton('instance').option('visible', false); } }").UseSubmitBehavior(true)
+
+        </div>
+    </div>
+}
+

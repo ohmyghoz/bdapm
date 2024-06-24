@@ -1,0 +1,7 @@
+CREATE TABLE [dbo].[DimTanggal]
+(
+[tgl] [date] NOT NULL
+) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[DimTanggal] ADD CONSTRAINT [PK_DimTanggal] PRIMARY KEY CLUSTERED ([tgl]) WITH (FILLFACTOR=80) ON [PRIMARY]
+GO

@@ -1,0 +1,545 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+    //var periodeAwal = (DateTime?)TempData.Peek("PeriodeAwal");
+    //var periodeAkhir = (DateTime?)TempData.Peek("PeriodeAkhir");
+
+    var isExport = false;
+    //if (ViewBag.Akses != "Non Pengawas")
+    if (ViewBag.Export)
+    {
+        isExport = true;
+    }
+
+    var maxItems = db.GetSetting("LimitFilterLJK");
+}
+
+@inject BDA.DataModel.DataEntities db
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="card card-default">
+        @*filter*@
+        <div class="row filter-panel" style="padding-top:0px;">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-4 form-group">
+                        <label>Jenis LJK</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("MemberTypes")
+                            .DataSource(d => d.Mvc()
+                                .Controller("ClusteringPredictive")
+                                .LoadAction("GetMemberTypes")
+                                .Key("kode_jenis_ljk"))
+                            //.DataSourceOptions(d => d.Paginate(true).PageSize(10))
+                            .ValueExpr("kode_jenis_ljk")
+                            .DisplayExpr("Display")
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .ShowClearButton(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .OnValueChanged("onJenisLJKChanged")
+                            .Width("100%"))
+                    </div>
+
+                    <div class="col-lg-4 form-group">
+                        <label>LJK</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("Members")
+                            .DataSource(d => d.Mvc()
+                                .Controller("ClusteringPredictive")
+                                .LoadAction("GetMembers")
+                                .LoadParams(new { memberTypes = new JS("function() { return $(\"#MemberTypes\").dxTagBox(\"instance\").option(\"value\"); }"), reset = new JS("function() { return resetLJK; }") })
+                                //.Key("kode_ljk")
+                                .Key("CompositeKey")
+                            )
+                            .DataSourceOptions(d => d.Paginate(true).PageSize(10))
+                            //.ValueExpr("kode_ljk")
+                            .ValueExpr("CompositeKey")
+                            .DisplayExpr("Display")
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .ShowClearButton(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .OnOpened("onLJKOpened")
+                            .OnValueChanged("onLJKChanged")
+                            .Width("100%"))
+                    </div>
+
+                    <div class="col-lg-4 form-group">
+                        <label>Jenis Agunan@*<span class="mandatory">*</span>*@</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("JenisAgunan")
+                            .DataSource(d => d.Mvc()
+                                .Controller("ClusteringPredictive")
+                                .LoadAction("GetAgunan")
+                                .Key("jenis_agunan"))
+                            .DataSourceOptions(d => d.Paginate(true).PageSize(10))
+                            .ValueExpr("jenis_agunan")
+                            .DisplayExpr("nama_agunan")
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .ShowClearButton(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .Width("100%"))
+                    </div>
+
+                    <div class="col-lg-4 form-group">
+                        <label>Periode Awal<span class="mandatory">*</span></label>
+                        @(Html.DevExtreme().DateBox()
+                            .ID("PeriodeAwal")
+                            .DisplayFormat("dd MMM yyyy")
+                            .Value(DateTime.Now)
+                            .Max(DateTime.Now)
+                            .Width("100%"))
+                    </div>
+
+                    <div class="col-lg-4 form-group">
+                        <label>Periode Akhir<span class="mandatory">*</span></label>
+                        @(Html.DevExtreme().DateBox()
+                            .ID("PeriodeAkhir")
+                            .DisplayFormat("dd MMM yyyy")
+                            .Value(DateTime.Now)
+                            .Min(DateTime.Now)
+                            .Width("100%"))
+                    </div>
+
+                    <div class="col-lg-4 form-group">
+                        <label>Cluster@*<span class="mandatory">*</span>*@</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("Cluster")
+                            .DataSource(new[] { "1", "2", "3", "4", "5" })
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .Width("100%"))
+                    </div>
+                </div>
+
+                <div class="float-left">
+                    @(Html.DevExtreme().Button()
+                        .ID("Filter")
+                        .Type(ButtonType.Default)
+                        .Text("Tampilkan")
+                        .OnClick("onButtonFilterClicked")
+                        .ValidationGroup("Filter"))
+                </div>
+
+                <div class="float-right">
+                    @if (ViewBag.Export)
+                    {
+                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                        @*<a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf();"><span class="image fa fa-file-pdf"></span> Export PDF</a>*@
+                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                    }
+                </div>
+            </div>
+        </div>
+
+        @*grid*@
+        <div class="gridview-div">
+            @(Html.DevExtreme().DataGrid()
+                .ID("grid1")
+                .DataSource(d => d.Mvc()
+                    .Controller("ClusteringPredictive")
+                    .LoadAction("GetGridData")
+                    .OnBeforeSend("onGridBeforeSend"))
+                .RemoteOperations(true)
+                .Width("100%")
+                .AllowColumnResizing(true)
+                .ColumnAutoWidth(true)
+                .Columns(columns =>
+                {
+                    columns.Add().DataField("jenis_agunan").Caption("Jenis Agunan");
+                    columns.Add().DataField("nama_agunan").Caption("Nama Agunan");
+                    columns.Add().DataField("nilai_agunan").Caption("Nilai Agunan").DataType(GridColumnDataType.String).Alignment(HorizontalAlignment.Right).Format("#,##0");
+                    columns.Add().DataField("cluster").Caption("Cluster");
+                })
+                .FilterRow(f => f.Visible(true))
+                .ShowBorders(false)
+                //.Selection(c => c.Mode(SelectionMode.Single))
+                .Paging(p =>
+                {
+                    p.PageSize(10);
+                    p.Enabled(true);
+                })
+                .Pager(p =>
+                {
+                    p.ShowInfo(true);
+                })
+                @*.OnExporting(@<text>
+                    function(e) {
+                        var workbook = new ExcelJS.Workbook();
+                        var worksheet = workbook.addWorksheet('Sheet1');
+                        DevExpress.excelExporter.exportDataGrid({
+                            component: e.component,
+                            worksheet: worksheet,
+                            customizeCell: function (options) {
+                                var gridCell = options.gridCell;
+                                var excelCell = options.excelCell;
+
+                                if (gridCell.rowType === "data") {
+                                    if (gridCell.column.dataField === 'nilai_agunan') {
+                                        excelCell.value = parseInt(gridCell.value);
+                                        excelCell.numFmt = '#,##0';
+                                    }
+                                }
+                            }
+                        }).then(function () {
+                            workbook.xlsx.writeBuffer().then(function (buffer) {
+                                saveAs(new Blob([buffer], { type: "application/octet-stream" }), "ClusteringPredictive_" + new Date().toISOString().slice(0, 10) +".xlsx");
+                            });
+                        });
+                        e.cancel = true;
+                    }
+                </text>)*@
+            )
+        </div>
+
+        <div class="row">
+            @*pie chart*@
+            <div class="col-lg-6">
+                @(Html.DevExtreme().PieChart()
+                    .ID("pie-chart")
+                    .DataSource(d => d.Mvc()
+                        .Controller("ClusteringPredictive")
+                        .LoadAction("GetPieChartData")
+                        .LoadParams(new { periodeAwal = new JS("function() { return $(\"#PeriodeAwal\").dxDateBox(\"instance\").option(\"text\");}"), periodeAkhir = new JS("function() { return $(\"#PeriodeAkhir\").dxDateBox(\"instance\").option(\"text\");}"), members = new JS("function() { return $(\"#Members\").dxTagBox(\"instance\").option(\"value\");}"), memberTypes = new JS("function() { return $(\"#MemberTypes\").dxTagBox(\"instance\").option(\"value\");}"), jenisAgunan = new JS("function() { return $(\"#JenisAgunan\").dxTagBox(\"instance\").option(\"value\");}"), cluster = new JS("function() { return $(\"#Cluster\").dxTagBox(\"instance\").option(\"value\");}") })
+                        )
+                    .ResolveLabelOverlapping(PieChartResolveLabelOverlapping.Shift)
+                    .Margin(m => m.Top(20).Bottom(20).Right(20).Left(20))
+                    //.Size(s => s.Height(400).Width(400))
+                    .Legend(l => l.Visible(false))
+                    .Title("Nilai Agunan")
+                    .LoadingIndicator(l => l.Enabled(true))
+                    .Series(s => s
+                        .Add()
+                        .ArgumentField("jenis_agunan")
+                        .ValueField("nilai_agunan"))
+                    //.Label(l => l
+                    //    .Visible(true)
+                    //    .Connector(c => c.Visible(true))
+                    //    .CustomizeText("function(arg) { return arg.argumentText; }")))
+                    .Tooltip(t => t
+                        .Enabled(true)
+                        .CustomizeTooltip(@<text>
+                            function(arg) {
+                                if (arg.value > 1000000) {
+                                    return {
+                                        text: arg.argumentText + ": Rp " + Math.round(arg.value/1000000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " Juta" + " (" + arg.percentText + ")"
+                                    }
+                                } else {
+                                    return {
+                                        text: arg.argumentText + ": Rp " + arg.valueText.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                    }
+                                }
+                            }
+                        </text>)
+                    )
+                    .Export(e => e.Enabled(isExport))
+                    .OnExporting(@<text>
+                        function(e) {
+                            e.fileName = "BarChart_ClusteringPredictive_" + new Date().toISOString().slice(0, 10);
+                            $.ajax({
+                                type: "POST",
+                                url: "@Url.Action("LogExportIndex", "ClusteringPredictive")",
+                                success: function (response) {
+                                    if (response.result == "Success") {
+                                    
+                                    }
+                                }
+                            });
+                        }
+                    </text>))
+            </div>
+
+            @*bar chart*@
+            <div class="col-lg-6">
+                @(Html.DevExtreme().Chart()
+                    .ID("bar-chart")
+                    .DataSource(d => d.Mvc()
+                        .Controller("ClusteringPredictive")
+                        .LoadAction("GetBarData")
+                        .LoadParams(new { periodeAwal = new JS("function() { return $(\"#PeriodeAwal\").dxDateBox(\"instance\").option(\"text\");}"), periodeAkhir = new JS("function() { return $(\"#PeriodeAkhir\").dxDateBox(\"instance\").option(\"text\");}"), members = new JS("function() { return $(\"#Members\").dxTagBox(\"instance\").option(\"value\");}"), memberTypes = new JS("function() { return $(\"#MemberTypes\").dxTagBox(\"instance\").option(\"value\");}"), jenisAgunan = new JS("function() { return $(\"#JenisAgunan\").dxTagBox(\"instance\").option(\"value\");}"), cluster = new JS("function() { return $(\"#Cluster\").dxTagBox(\"instance\").option(\"value\");}") })
+                        )
+                    .ArgumentAxis(a => a
+                        .Type(AxisScaleType.Discrete)
+                        .Label(l => l
+                            .DisplayMode(ChartLabelDisplayMode.Rotate)
+                            .RotationAngle(45)
+                            //.OverlappingBehavior(OverlappingBehavior.Rotate)
+                            )
+                    )
+                    .Title("Nilai Agunan")
+                    .LoadingIndicator(l => l.Enabled(true))
+                    .Palette(VizPalette.Bright)
+                    .Margin(m => m.Top(20).Bottom(20).Right(20).Left(20))
+                    .Legend(l => l.Visible(false))
+                    .CommonSeriesSettings(s => s
+                        .ArgumentField("jenis_agunan")
+                        .ValueField("nilai_agunan")
+                        .IgnoreEmptyPoints(true)
+                        .Type(SeriesType.Bar))
+                    .SeriesTemplate(t => t.NameField("jenis_agunan"))
+                    @*.CustomizeLabel(@<text>
+                        function() {
+                            return {
+                                visible: true,
+                                customizeText: function() {
+                                    return this.valueText.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");;
+                                }
+                            };
+                        }
+                    </text>)*@
+                    .Tooltip(t => t
+                        .Enabled(true)
+                        .CustomizeTooltip(@<text>
+                            function(arg) {
+                               if (arg.value > 1000000) {
+                                    return {
+                                        text: arg.argumentText + ": Rp " + Math.round(arg.value/1000000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " Juta"
+                                    }
+                                } else {
+                                    return {
+                                        text: arg.argumentText + ": Rp " + arg.valueText.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                                    }
+                                }
+                            }
+                        </text>)
+                    )
+                    .ValueAxis(a => a
+                        .Add()
+                        .Label(l => l.CustomizeText(@<text>
+                            function() {
+                                if (this.value > 1000000) {
+                                        return "Rp " + Math.round(this.value/1000000).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " Juta";
+                                } else {
+                                    return "Rp " + this.valueText.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                                }
+                            }
+                        </text>))
+                    )
+                    .Export(e => e.Enabled(isExport))
+                    .OnExporting(@<text>
+                        function(e) {
+                            e.fileName = "BarChart_ClusteringPredictive_" + new Date().toISOString().slice(0, 10);
+                            $.ajax({
+                                type: "POST",
+                                url: "@Url.Action("LogExportIndex", "ClusteringPredictive")",
+                                success: function (response) {
+                                    if (response.result == "Success") {
+
+                                    }
+                                }
+                            });
+                        }
+                    </text>))
+            </div>
+        </div>
+    </div>
+}
+
+@*<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.14/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/3.3.1/exceljs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/7.4.0/polyfill.min.js"></script>*@
+
+<script>
+    window.jsPDF = window.jspdf.jsPDF;
+    applyPlugin(window.jsPDF);
+</script>
+
+<script>
+    function ExportToExcel() {
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("LogExportIndex", "ClusteringPredictive")",
+            success: function (response) {
+                if (response.result == "Success") {
+                    var grid = $("#grid1").dxDataGrid("instance");
+                    //grid.option("onExporting", function (e) {
+                    //    var workbook = new ExcelJS.Workbook();
+                    //    var worksheet = workbook.addWorksheet('Sheet1');
+                    //    DevExpress.excelExporter.exportDataGrid({
+                    //        component: e.component,
+                    //        worksheet: worksheet,
+                    //        customizeCell: function (options) {
+                    //            var gridCell = options.gridCell;
+                    //            var excelCell = options.excelCell;
+
+                    //            if (gridCell.rowType === "data") {
+                    //                if (gridCell.column.dataField === 'nilai_agunan') {
+                    //                    excelCell.value = parseInt(gridCell.value);
+                    //                    excelCell.numFmt = '#,##0';
+                    //                }
+                    //            }
+                    //        }
+                    //    }).then(function () {
+                    //        workbook.xlsx.writeBuffer().then(function (buffer) {
+                    //            saveAs(new Blob([buffer], { type: "application/octet-stream" }), "ClusteringPredictive_" + new Date().toISOString().slice(0, 10) + ".xlsx");
+                    //        });
+                    //    });
+                    //    e.cancel = true;
+                    //});
+
+                    grid.option("onExporting", function (e) {
+                        e.fileName = "ClusteringPredictive_" + new Date().toISOString().slice(0, 10);
+                    });
+                    grid.option("onFileSaving", function (e) { });
+                    grid.exportToExcel();
+                }
+            }
+        });
+    }
+
+    function ExportToPdf() {
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("LogExportIndex", "ClusteringPredictive")",
+            success: function (response) {
+                if (response.result == "Success") {
+                    const doc = new jsPDF({
+                        orientation: "landscape",
+                        unit: "cm",
+                        format: [21, 60]
+                    });
+                    var dataGrid = $("#grid1").dxDataGrid("instance");
+                    var fileName = "ClusteringPredictive_" + new Date().toISOString().slice(0, 10) + ".pdf";
+                    doc.setFontSize("6")
+                    //var keys = $("#grid1").dxDataGrid("getSelectedRowsData")
+                    //console.log(keys)
+                    DevExpress.pdfExporter.exportDataGrid({
+                        jsPDFDocument: doc,
+                        component: dataGrid,
+                        keepColumnWidths: true
+                        //selectedRowsOnly: true
+                    }).then(function () {
+                        doc.save(fileName);
+                    });
+                }
+            }
+        });
+    }
+
+    function ExportToPdf2() {
+        var dataGrid = $("#grid1").dxDataGrid("instance");
+        dataGrid.option("onExporting", function (e) { });
+        dataGrid.option("onFileSaving", function (e) {
+            var fd = new FormData();
+            fd.append("file", e.data);
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("ExportPDF", "ClusteringPredictive")",
+                data: fd,
+                processData: false,
+                contentType: false
+            }).done(function (data) {
+                window.location = "@Url.Action("File", "ClusteringPredictive")"
+            });
+            e.cancel = true;
+        });
+
+        dataGrid.exportToExcel();
+    }
+
+    var resetLJK;
+
+    $(function () {
+        const startDate = $("#PeriodeAwal").dxDateBox({
+            onValueChanged: function (e) {
+                endDate.option("min", e.value);
+            }
+        }).dxDateBox("instance");
+        const endDate = $("#PeriodeAkhir").dxDateBox({
+            onValueChanged: function (e) {
+                startDate.option("max", e.value);
+            }
+        }).dxDateBox("instance");
+
+        $("#PeriodeAwal").dxValidator({
+            validationGroup: "Filter",
+            validationRules: [{ type: "required", message: "[Periode Awal] harus dipilih" }]
+        })
+        $("#PeriodeAkhir").dxValidator({
+            validationGroup: "Filter",
+            validationRules: [{ type: "required", message: "[Periode Akhir] harus dipilih" }]
+        })
+    });
+
+    function onSelectionChanged(e) {
+        if (e.addedItems.length > 0) {
+            e.component.field().val(""); // Clears the search text. However, search filter is only applied to the widget after focus is lost in the input element
+        }
+    }
+
+    function onJenisLJKChanged(e) {
+        resetLJK = true;
+        $("#Members").dxTagBox("instance").getDataSource().reload();
+        $("#Members").dxTagBox("reset");
+        resetLJK = false;
+    }
+
+    function onButtonFilterClicked(e) {
+        const res = e.validationGroup.validate();
+        if (res.status === "valid") {
+            $("#grid1").dxDataGrid("instance").refresh();
+            $("#pie-chart").dxPieChart("instance").refresh();
+            $("#bar-chart").dxChart("instance").refresh();
+        }
+    }
+
+    function onGridBeforeSend(method, ajaxOptions) {
+        let memberTypes = $("#MemberTypes").dxTagBox("instance").option("value");
+
+        let members = $("#Members").dxTagBox("instance").option("value");
+
+        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
+        let periodeAwal = null;
+        if (tempPeriodeAwal != null) {
+            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + (tempPeriodeAwal.getMonth() + 1) + '-' + tempPeriodeAwal.getDate();
+        }
+
+        let tempPeriodeAkhir = $("#PeriodeAkhir").dxDateBox("instance").option("value");
+        let periodeAkhir = null;
+        if (tempPeriodeAkhir != null) {
+            periodeAkhir = tempPeriodeAkhir.getFullYear() + '-' + (tempPeriodeAkhir.getMonth() + 1) + '-' + tempPeriodeAkhir.getDate();
+        }
+
+        let jenisAgunan = $("#JenisAgunan").dxTagBox("instance").option("value");
+
+        let cluster = $("#Cluster").dxTagBox("instance").option("value");
+
+        ajaxOptions.data.memberTypes = JSON.stringify(memberTypes);
+        ajaxOptions.data.members = JSON.stringify(members);
+        ajaxOptions.data.periodeAwal = periodeAwal;
+        ajaxOptions.data.periodeAkhir = periodeAkhir;
+        ajaxOptions.data.jenisAgunan = JSON.stringify(jenisAgunan);
+        ajaxOptions.data.cluster = JSON.stringify(cluster);
+    }
+
+    function onLJKOpened(e) {
+        e.component.content().find('.dx-list-select-all').hide();
+    }
+
+    const maxItems = @maxItems;
+
+    function onLJKChanged(e) {
+        if (e.value.length > maxItems) {
+            const newValue = e.value.slice(0, maxItems);
+            e.component.option("value", newValue);
+            //tooltip.show();
+        }
+    }
+</script>
+
+<style type="text/css">
+    .mandatory {
+        color: red;
+    }
+</style>

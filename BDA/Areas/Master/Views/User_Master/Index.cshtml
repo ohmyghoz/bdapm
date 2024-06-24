@@ -1,0 +1,163 @@
+﻿@using DevExtreme.AspNet.Mvc
+@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+    bool isExport = ViewBag.Export;
+    string reportId = ViewBag.id;
+}
+
+<script type="text/javascript">
+
+    function ExportToExcel() {
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("LogExportIndex", "User_Master", new {reportId = reportId})",
+            success: function (response) {
+                if (response.result == "Success") {
+                    var grid = $("#grid1").dxDataGrid("instance");
+                    grid.option("onExporting", function (e) {
+                        e.fileName = "MU_@(reportId)_" + new Date().toISOString().slice(0, 10);
+                    });
+                    grid.option("onFileSaving", function (e) { });
+                    grid.exportToExcel();
+                }
+            }
+        });
+    }
+
+    function ExportToPdf2() {
+        var dataGrid = $("#grid1").dxDataGrid("instance");
+        dataGrid.option("onExporting", function (e) { });
+        dataGrid.option("onFileSaving", function (e) {
+            var fd = new FormData();
+            fd.append("file", e.data);
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("ExportPDF", "User_Master", new {reportId = reportId})",
+                data: fd,
+                processData: false,
+                contentType: false
+            }).done(function (data) {
+                window.location = "@Url.Action("File", "User_Master", new {reportId = reportId})"
+            });
+            e.cancel = true;
+        });
+
+        dataGrid.exportToExcel();
+    }
+
+    function Edit() {
+        var keys = $("#grid1").dxDataGrid("getSelectedRowKeys");
+        if (keys.length >= 1) {
+            window.location = "@Url.Action("Edit","User_Master")/" + keys[0].toString();
+        } else {
+            alert('Silahkan Pilih Baris Telebih Dahulu');
+        }
+    }
+    function Delete() {
+        var keys = $("#grid1").dxDataGrid("getSelectedRowKeys");
+        if (keys.length >= 1) {
+            var ask = confirm('Apakah Anda yakin akan menghapus data ini ?');
+            if (ask) {
+                $.ajax({
+					type: "POST",
+					url: "@Url.Action("Delete","User_Master")?handler=Delete",
+					contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+                    dataType: "json",
+                    data: "param1=" + keys[0].toString(),
+                    success: function (response) {
+                        alert(response);
+                        $("#grid1").dxDataGrid("refresh");
+                    },
+                    error: function (response) {
+                        alert(response.responseJSON.error);
+                    }
+				});
+            }
+        } else {
+            alert('Silahkan Pilih Baris Telebih Dahulu');
+        }
+    }
+    function chk(e) {
+        if (e.parentType === "dataRow" && (e.dataField === "user_is_notifredalert" || e.dataField === "user_is_notifyellowalert")) {
+            e.editorElement.dxCheckBox({
+                value: e.value,
+                readOnly: e.readOnly,
+                onValueChanged: function (ea) {
+                    debugger;
+                    if (ea.value)
+                        e.setValue(1);
+                    else
+                        e.setValue(0);
+                }
+            });
+            e.cancel = true;
+        }
+    }
+    function ExportToCSV() {
+        window.location.href = "@Url.Action("ExportCSV", "User_Master")";
+    }
+</script>
+
+@section RightToolbar{
+    <div class="d-flex align-items-center">
+		<!--begin::Actions-->
+        @{
+            if (ViewBag.Export)
+            {
+                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToCSV();"><span class="image fa fa-file-invoice"></span> Export CSV</a>
+                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                //<a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+            }
+            if (ViewBag.Add)
+            {
+                @*<a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="@Url.Action("Create","User_Master")"><span class="image fa fa-plus"></span> Add</a>*@
+                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="@Url.Action("CreateLDAP", "User_Master")"><span class="image fa fa-plus"></span> Add LDAP</a>
+            }
+            if (ViewBag.Edit)
+            {
+                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:Edit();"><span class="image fa fa-edit"></span> Edit</a>
+            }
+            if (ViewBag.Delete)
+            {
+                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:Delete();"><span class="image fa fa-times"></span> Delete</a>
+            }
+        }		
+		<!--end::Actions-->		
+	</div>
+}
+<div class="card card-default">
+    <div>
+        @Html.AntiForgeryToken()
+
+        @(Html.DevExtreme().DataGrid()
+            .ID("grid1")
+            .DataSource(d => d.Mvc()
+                .Controller("User_Master")
+                .LoadAction("GetGridData")
+                .Key("UserId"))
+            .RemoteOperations(true)
+            .Width("100%")
+            .Columns(columns =>
+            {
+                columns.Add().DataField("UserId").Caption("ID Pengguna");
+                columns.Add().DataField("UserNama").Caption("Nama Pengguna");
+                //columns.Add().DataField("UserAlamat").Caption("Alamat");
+                //columns.Add().DataField("UserTelp").Caption("Telp");
+                columns.Add().DataField("UserEmail").Caption("Email");
+                columns.Add().DataField("RoleName").Caption("Peran Pengguna");
+                columns.Add().DataField("user_is_notifredalert").Caption("Send Red Alert?").DataType(GridColumnDataType.Boolean);
+                columns.Add().DataField("user_is_notifyellowalert").Caption("Send Yellow Alert?").DataType(GridColumnDataType.Boolean);
+            })
+            .FilterRow(f => f.Visible(true))
+            .ShowBorders(false)
+            .Selection(c => c.Mode(SelectionMode.Single))
+            .RowAlternationEnabled(false)
+            .OnEditorPreparing("chk")
+            .Paging(p =>
+            {
+                p.PageSize(20);
+                p.Enabled(true);
+            }))
+
+    </div>
+</div>

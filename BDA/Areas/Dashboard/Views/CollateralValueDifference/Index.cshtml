@@ -1,0 +1,334 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+
+    var maxItems = db.GetSetting("LimitFilterLJK");
+}
+
+@inject BDA.DataModel.DataEntities db
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="card card-default">
+        <div class="row filter-panel" style="padding-top:0px;">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-4 form-group">
+                        <label>Jenis LJK</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("MemberTypes")
+                            .DataSource(d => d.Mvc()
+                                .Controller("ClusteringPredictive")
+                                .LoadAction("GetMemberTypes")
+                                .Key("kode_jenis_ljk"))
+                            //.DataSourceOptions(d => d.Paginate(true).PageSize(10))
+                            .ValueExpr("kode_jenis_ljk")
+                            .DisplayExpr("Display")
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .ShowClearButton(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .OnValueChanged("onJenisLJKChanged")
+                            .Width("100%"))
+                    </div>
+
+                    <div class="col-lg-4 form-group">
+                        <label>LJK</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("Members")
+                            .DataSource(d => d.Mvc()
+                                .Controller("ClusteringPredictive")
+                                .LoadAction("GetMembers")
+                                .LoadParams(new { memberTypes = new JS("function() { return $(\"#MemberTypes\").dxTagBox(\"instance\").option(\"value\"); }"), reset = new JS("function() { return resetLJK; }") })
+                                //.Key("kode_ljk")
+                                .Key("CompositeKey")
+                            )
+                            .DataSourceOptions(d => d.Paginate(true).PageSize(10))
+                            //.ValueExpr("kode_ljk")
+                            .ValueExpr("CompositeKey")
+                            .DisplayExpr("Display")
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .ShowClearButton(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .OnOpened("onLJKOpened")
+                            .OnValueChanged("onLJKChanged")
+                            .Width("100%"))
+                    </div>
+
+                    <div class="col-lg-4 form-group">
+                        <label>Jenis Debitur@*<span class="mandatory">*</span>*@</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("DebiturTypes")
+                            .DataSource(new[] { "Perorangan", "Badan Usaha", "Tidak Diketahui" })
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .Width("100%"))
+                    </div>
+
+                    <div class="col-lg-4 form-group">
+                        <label>Jenis Agunan@*<span class="mandatory">*</span>*@</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("JenisAgunan")
+                            .DataSource(d => d.Mvc()
+                                .Controller("CollateralValueDifference")
+                                .LoadAction("GetCollateralTypes")
+                                .Key("jenis_agunan"))
+                            .DataSourceOptions(d => d.Paginate(true).PageSize(10))
+                            .ValueExpr("jenis_agunan")
+                            .DisplayExpr("nama_agunan")
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .Width("100%"))
+                    </div>
+
+                    <div class="col-lg-4 form-group">
+                        <label>Periode@*<span class="mandatory">*</span>*@</label>
+                        @(Html.DevExtreme().DateBox()
+                            .ID("Periode")
+                            //.DisplayFormat("dd MMM yyyy")
+                            .Value(DateTime.Now)
+                            .CalendarOptions(c => c.MaxZoomLevel(CalendarZoomLevel.Year).MinZoomLevel(CalendarZoomLevel.Century))
+                            .DisplayFormat("monthAndYear")
+                            .ShowClearButton(true)
+                            .Width("100%"))
+                    </div>
+
+                </div>
+
+                <div class="float-left">
+                    @(Html.DevExtreme().Button()
+                        .ID("Filter")
+                        .Type(ButtonType.Default)
+                        .Text("Tampilkan")
+                        .OnClick("onButtonFilterClicked")
+                        /*.ValidationGroup("Filter")*/)
+                </div>
+
+                <div class="float-left" style="margin-left: 10px;">
+                    <div style="border-radius: 10px; background-color: orange; padding: 3px; margin: auto">
+                        <span style="color: white; font-weight: bold">Sumber Data dari HIVE</span>
+                    </div>
+                </div>
+
+                <div class="float-right">
+                    @if (ViewBag.Export)
+                    {
+                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                        @*<a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf();"><span class="image fa fa-file-pdf"></span> Export PDF</a>*@
+                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                    }
+                </div>
+            </div>
+        </div>
+
+        @*grid*@
+        <div class="gridview-div">
+            @(Html.DevExtreme().DataGrid()
+                .ID("grid1")
+                .DataSource(d => d.Mvc()
+                    .Controller("CollateralValueDifference")
+                    .LoadAction("GetGridData")
+                    .OnBeforeSend("onGridBeforeSend"))
+                .RemoteOperations(false)
+                .Width("100%")
+                .AllowColumnResizing(true)
+                .ColumnAutoWidth(true)
+                .Columns(columns =>
+                {
+                    columns.Add().DataField("periode").Caption("Periode").DataType(GridColumnDataType.DateTime).Format("MMM yyyy");
+                    columns.Add().DataField("desc_jenis_ljk_byreff").Caption("Jenis LJK");
+                    columns.Add().DataField("member_code").Caption("Kode LJK");
+                    columns.Add().DataField("collateral_reg_no").Caption("Collateral ID");
+                    columns.Add().DataField("status").Caption("Jenis Debitur");
+                    columns.Add().DataField("pjenis_agunan").Caption("Jenis Agunan");
+                    columns.Add().DataField("collateral_value_member").Caption("Nilai Member").Format("#,##0");
+                    columns.Add().DataField("collateral_value_appr").Caption("Appraisal").Format("#,##0");
+                    columns.Add().DataField("collateral_value_tax").Caption("Tax").Format("#,##0");
+                    columns.Add().DataField("selisih_member_appr").Caption("Selisih dari Member - Appraisal").Format("#,##0");
+                    columns.Add().DataField("selisih_member_tax").Caption("Selisih dari Member - Tax").Format("#,##0");
+                })
+                .Paging(p =>
+                {
+                    p.PageSize(20);
+                    p.Enabled(true);
+                })
+                .Pager(p =>
+                {
+                    p.ShowInfo(true);
+                })
+                .ShowBorders(false)
+
+            )
+        </div>
+    </div>
+}
+
+@*<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.14/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/3.3.1/exceljs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/7.4.0/polyfill.min.js"></script>*@
+
+<script>
+    window.jsPDF = window.jspdf.jsPDF;
+    applyPlugin(window.jsPDF);
+</script>
+
+<script>
+    function ExportToExcel() {
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("LogExportIndex", "CollateralValueDifference")",
+            success: function (response) {
+                if (response.result == "Success") {
+                    var grid = $("#grid1").dxDataGrid("instance");
+                    grid.option("onExporting", function (e) {
+                        e.fileName = "CollateralValueDifference_" + new Date().toISOString().slice(0, 10);
+                    });
+                    grid.exportToExcel();
+                }
+            }
+        });
+    }
+
+    function ExportToPdf() {
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("LogExportIndex", "CollateralValueDifference")",
+            success: function (response) {
+                if (response.result == "Success") {
+                    const doc = new jsPDF({
+                        orientation: "landscape",
+                        unit: "cm",
+                        format: [21, 60]
+                    });
+                    var dataGrid = $("#grid1").dxDataGrid("instance");
+                    var fileName = "CollateralValueDifference_" + new Date().toISOString().slice(0, 10) + ".pdf";
+                    doc.setFontSize("6")
+                    //var keys = $("#grid1").dxDataGrid("getSelectedRowsData")
+                    //console.log(keys)
+                    DevExpress.pdfExporter.exportDataGrid({
+                        jsPDFDocument: doc,
+                        component: dataGrid,
+                        keepColumnWidths: true
+                        //selectedRowsOnly: true
+                    }).then(function () {
+                        doc.save(fileName);
+                    });
+                }
+            }
+        });
+    }
+
+    function ExportToPdf2() {
+        var dataGrid = $("#grid1").dxDataGrid("instance");
+        dataGrid.option("onFileSaving", function (e) {
+            var fd = new FormData();
+            fd.append("file", e.data);
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("ExportPDF", "CollateralValueDifference")",
+                data: fd,
+                processData: false,
+                contentType: false
+            }).done(function (data) {
+                window.location = "@Url.Action("File", "CollateralValueDifference")"
+            });
+            e.cancel = true;
+        });
+
+        dataGrid.exportToExcel();
+    }
+
+    var resetLJK;
+
+    //$(function () {
+    //    const startDate = $("#PeriodeAwal").dxDateBox({
+    //        onValueChanged: function (e) {
+    //            endDate.option("min", e.value);
+    //        }
+    //    }).dxDateBox("instance");
+    //    const endDate = $("#PeriodeAkhir").dxDateBox({
+    //        onValueChanged: function (e) {
+    //            startDate.option("max", e.value);
+    //        }
+    //    }).dxDateBox("instance");
+
+    //    $("#PeriodeAwal").dxValidator({
+    //        validationGroup: "Filter",
+    //        validationRules: [{ type: "required", message: "[Periode Awal] harus dipilih" }]
+    //    })
+    //    $("#PeriodeAkhir").dxValidator({
+    //        validationGroup: "Filter",
+    //        validationRules: [{ type: "required", message: "[Periode Akhir] harus dipilih" }]
+    //    })
+    //});
+
+    function onSelectionChanged(e) {
+        if (e.addedItems.length > 0) {
+            e.component.field().val(""); // Clears the search text. However, search filter is only applied to the widget after focus is lost in the input element
+        }
+    }
+    function onJenisLJKChanged(e) {
+        resetLJK = true;
+        $("#Members").dxTagBox("instance").getDataSource().reload();
+        $("#Members").dxTagBox("reset");
+        resetLJK = false;
+    }
+    function onButtonFilterClicked(e) {
+        const res = e.validationGroup.validate();
+        if (res.status === "valid") {
+            $("#grid1").dxDataGrid("instance").refresh();
+        }
+    }
+
+    function onGridBeforeSend(method, ajaxOptions) {
+        let memberTypes = $("#MemberTypes").dxTagBox("instance").option("value");
+
+        let members = $("#Members").dxTagBox("instance").option("value");
+
+        let tempPeriode = $("#Periode").dxDateBox("instance").option("value");
+        let periode = null;
+        if (tempPeriode != null) {
+            periode = tempPeriode.getFullYear() + '-' + (tempPeriode.getMonth() + 1) + '-' + tempPeriode.getDate();
+        }
+
+        let jenisDebitur = $("#DebiturTypes").dxTagBox("instance").option("value");
+
+        let jenisAgunan = $("#JenisAgunan").dxTagBox("instance").option("value");
+
+        ajaxOptions.data.memberTypes = JSON.stringify(memberTypes);
+        ajaxOptions.data.members = JSON.stringify(members);
+        ajaxOptions.data.periode = periode;
+        ajaxOptions.data.jenisDebitur = JSON.stringify(jenisDebitur);
+        ajaxOptions.data.jenisAgunan = JSON.stringify(jenisAgunan);
+    }
+
+    function onLJKOpened(e) {
+        e.component.content().find('.dx-list-select-all').hide();
+    }
+
+    const maxItems = @maxItems;
+
+    function onLJKChanged(e) {
+        if (e.value.length > maxItems) {
+            const newValue = e.value.slice(0, maxItems);
+            e.component.option("value", newValue);
+            //tooltip.show();
+        }
+    }
+</script>
+
+<style type="text/css">
+    .mandatory {
+        color: red;
+    }
+</style>

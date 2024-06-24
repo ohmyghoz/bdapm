@@ -1,0 +1,136 @@
+﻿@model BDA.DataModel.UserMaster
+
+@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+    bool isEdit = Convert.ToBoolean(ViewBag.IsEdit);
+    bool IsLdap = Convert.ToBoolean(ViewBag.IsLdap);
+}
+
+@section RightToolbar{
+    <div class="d-flex align-items-center">		          
+        <a class="nav-link btn btn-light-warning font-weight-bolder btn-sm mr-2" href="@Url.Action("Index")"><i class="fa fa-arrow-left"></i> Kembali Ke Daftar</a>                    
+	</div>
+}
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="card card-default">        
+        <div class="card-body">
+            <div class="row">
+                @*<securehidden asp-for="UserId"></securehidden>*@
+                <div class="col-lg-6 form-group">
+                    <label asp-for="UserId">User Id <span style="color: red">*</span></label>
+                    @Html.DevExtreme().TextBoxFor(m => m.UserId).ID("UserID").Width("100%").MaxLength(250).ReadOnly(isEdit)
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="UserNama"> Nama <span style="color: red">*</span></label>
+                    @Html.DevExtreme().TextBoxFor(m => m.UserNama).ID("UserNama").Width("100%").MaxLength(200).ReadOnly(IsLdap)
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="UserPassword">Password <span class="conditional">*</span></label>
+                    @Html.DevExtreme().TextBoxFor(m => m.UserPassword).ID("UserPassword").Width("100%").MaxLength(100).Mode(TextBoxMode.Password).ReadOnly(IsLdap)
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="UserEmail">Email <span style="color: red">*</span></label>
+                    @Html.DevExtreme().TextBoxFor(m => m.UserEmail).ID("UserEmail").Width("100%").MaxLength(250)
+                </div>
+                @*<div class="col-lg-6 form-group">
+                    <label asp-for="UserAlamat"></label>
+                    @Html.DevExtreme().TextBoxFor(m => m.UserAlamat).Width("100%").MaxLength(500)
+                </div>*@
+                @*<div class="col-lg-6 form-group">
+                    <label asp-for="UserTelp"></label>
+                    @Html.DevExtreme().TextBoxFor(m => m.UserTelp).Width("100%").MaxLength(100)
+                </div>*@
+            <div class="col-lg-6 form-group">
+                <label asp-for="UserMainRole">Role <span style="color: red">*</span></label>
+                @(Html.DevExtreme().TagBox()
+                            .DataSource(s => s.Mvc().Controller("User_Master").LoadAction("GetRole").Key("RoleName"))
+                            .DisplayExpr("RoleName")
+                            .ValueExpr("RoleName")
+                            .Width("100%")
+                            .SearchEnabled(true)
+                            .ShowClearButton(true)
+                            .Placeholder("Pilih Role")
+                            .Name("listRole").ID("listRole")
+                            .HideSelectedItems(true)
+                            .OnInitialized("getRole")
+                            .Multiline(true)
+                            .Height("auto")
+                            .WrapItemText(true)
+                            .ShowDropDownButton(true)
+                            )
+            </div>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="user_is_notifredalert">Send Red Alert?</label>
+                    @Html.DevExtreme().CheckBoxFor(m => m.user_is_notifredalert).Width("100%")
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="user_is_notifyellowalert">Send Yellow Alert?</label>
+                    @Html.DevExtreme().CheckBoxFor(m => m.user_is_notifyellowalert).Width("100%")
+                </div>
+            </div>
+            @Html.DevExtreme().Button().ID("btnSave").Text("Simpan").UseSubmitBehavior(true).ValidationGroup("Submit")
+        </div>
+    </div>
+}
+
+<script>
+    $(function () {
+        let asterisk = document.getElementsByClassName("conditional");
+
+        var isEdit = @isEdit.ToString().ToLower();
+
+        $("#UserID").dxValidator({
+            validationGroup: "Submit",
+            validationRules: [{ type: "required", message: "[User ID] harus diisi" }]
+        })
+        $("#UserNama").dxValidator({
+            validationGroup: "Submit",
+            validationRules: [{ type: "required", message: "[Nama] harus diisi" }]
+        })
+        $("#UserEmail").dxValidator({
+            validationGroup: "Submit",
+            validationRules: [
+                {
+                    type: "required", message: "[Email] harus diisi"
+                },
+                {
+                    type: "email",
+                    message: 'Format [Email] tidak sesuai'
+                }
+            ]
+        })
+        $("#listRole").dxValidator({
+            validationGroup: "Submit",
+            validationRules: [{ type: "required", message: "[Role] harus diisi" }]
+        })
+        if (isEdit) {
+            asterisk[0].style.visibility = "hidden";
+            $("#UserPassword").dxValidator({
+                validationGroup: "Submit",
+                validationRules: null
+            })
+        } else {
+            asterisk[0].style.visibility = "visible";
+            $("#UserPassword").dxValidator({
+                validationGroup: "Submit",
+                validationRules: [{ type: "required", message: "[Password] harus diisi" }]
+            })
+        }
+    });
+    function getRole(data) {
+        var role = "@Model.UserMainRole";
+        var array = role.split(",");
+        data.component.option("value", array);
+        console.log(array);
+    }
+</script>
+
+<style>
+    .conditional {
+        color: red;
+    }
+</style>

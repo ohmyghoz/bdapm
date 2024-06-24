@@ -1,0 +1,103 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30011.22
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataModel", "DataModel\DataModel.csproj", "{9E32ABAF-CDB6-458B-B503-5E230B152D02}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EFAF0F7C-6399-497F-8DFF-EAC78ABD79F3}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.tfignore = .tfignore
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BusinessLayer", "BusinessLayer\BusinessLayer.csproj", "{41819A72-D0F6-4ECC-9A44-E1B19BE519CB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BDA", "BDA\BDA.csproj", "{EB816E8C-3F5A-441C-B9A6-40D8B7A6DE88}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SyncWebService", "SyncWebService\SyncWebService.csproj", "{F604F832-CFD6-483A-A9AB-CD853290F9F4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleSyncUser", "ConsoleSyncUser\ConsoleSyncUser.csproj", "{9098F65F-8E4D-4B21-BE5D-DB07F00A9C57}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleApp", "ConsoleApp\ConsoleApp.csproj", "{2BA8FDE0-C3DD-4863-88F0-16CFE189849C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleQueue", "ConsoleQueue\ConsoleQueue.csproj", "{B9696F75-A6E8-4A85-8098-BE9227408D50}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleTestingHive", "ConsoleTestingHive\ConsoleTestingHive.csproj", "{59EB2C26-A9F6-4FDE-BE0E-94AE6E7A8798}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9E32ABAF-CDB6-458B-B503-5E230B152D02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E32ABAF-CDB6-458B-B503-5E230B152D02}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E32ABAF-CDB6-458B-B503-5E230B152D02}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E32ABAF-CDB6-458B-B503-5E230B152D02}.Release|Any CPU.Build.0 = Release|Any CPU
+		{41819A72-D0F6-4ECC-9A44-E1B19BE519CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{41819A72-D0F6-4ECC-9A44-E1B19BE519CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{41819A72-D0F6-4ECC-9A44-E1B19BE519CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{41819A72-D0F6-4ECC-9A44-E1B19BE519CB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB816E8C-3F5A-441C-B9A6-40D8B7A6DE88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB816E8C-3F5A-441C-B9A6-40D8B7A6DE88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB816E8C-3F5A-441C-B9A6-40D8B7A6DE88}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB816E8C-3F5A-441C-B9A6-40D8B7A6DE88}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F604F832-CFD6-483A-A9AB-CD853290F9F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F604F832-CFD6-483A-A9AB-CD853290F9F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F604F832-CFD6-483A-A9AB-CD853290F9F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F604F832-CFD6-483A-A9AB-CD853290F9F4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9098F65F-8E4D-4B21-BE5D-DB07F00A9C57}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9098F65F-8E4D-4B21-BE5D-DB07F00A9C57}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9098F65F-8E4D-4B21-BE5D-DB07F00A9C57}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9098F65F-8E4D-4B21-BE5D-DB07F00A9C57}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2BA8FDE0-C3DD-4863-88F0-16CFE189849C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2BA8FDE0-C3DD-4863-88F0-16CFE189849C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2BA8FDE0-C3DD-4863-88F0-16CFE189849C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2BA8FDE0-C3DD-4863-88F0-16CFE189849C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9696F75-A6E8-4A85-8098-BE9227408D50}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9696F75-A6E8-4A85-8098-BE9227408D50}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9696F75-A6E8-4A85-8098-BE9227408D50}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9696F75-A6E8-4A85-8098-BE9227408D50}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59EB2C26-A9F6-4FDE-BE0E-94AE6E7A8798}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59EB2C26-A9F6-4FDE-BE0E-94AE6E7A8798}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59EB2C26-A9F6-4FDE-BE0E-94AE6E7A8798}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59EB2C26-A9F6-4FDE-BE0E-94AE6E7A8798}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {41301B28-6387-4539-9175-EBEC74256BAC}
+	EndGlobalSection
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 9
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = http://wsserver1:8080/tfs/defaultcollection
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = BDA\\BDA.csproj
+		SccProjectName1 = BDA
+		SccLocalPath1 = BDA
+		SccProjectUniqueName2 = BusinessLayer\\BusinessLayer.csproj
+		SccProjectName2 = BusinessLayer
+		SccLocalPath2 = BusinessLayer
+		SccProjectUniqueName3 = ConsoleApp\\ConsoleApp.csproj
+		SccProjectName3 = ConsoleApp
+		SccLocalPath3 = ConsoleApp
+		SccProjectUniqueName4 = ConsoleSyncUser\\ConsoleSyncUser.csproj
+		SccProjectName4 = ConsoleSyncUser
+		SccLocalPath4 = ConsoleSyncUser
+		SccProjectUniqueName5 = DataModel\\DataModel.csproj
+		SccProjectName5 = DataModel
+		SccLocalPath5 = DataModel
+		SccProjectUniqueName6 = SyncWebService\\SyncWebService.csproj
+		SccProjectName6 = SyncWebService
+		SccLocalPath6 = SyncWebService
+		SccProjectUniqueName7 = ConsoleQueue\\ConsoleQueue.csproj
+		SccProjectName7 = ConsoleQueue
+		SccLocalPath7 = ConsoleQueue
+		SccProjectUniqueName8 = ConsoleTestingHive\\ConsoleTestingHive.csproj
+		SccProjectName8 = ConsoleTestingHive
+		SccLocalPath8 = ConsoleTestingHive
+	EndGlobalSection
+EndGlobal

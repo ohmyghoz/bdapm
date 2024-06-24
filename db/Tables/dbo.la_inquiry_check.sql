@@ -1,0 +1,40 @@
+CREATE TABLE [dbo].[la_inquiry_check]
+(
+[rowid] [bigint] NOT NULL IDENTITY(1, 1),
+[dm_periode] [date] NOT NULL,
+[dm_jenis_ljk] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[dm_kode_ljk] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[dm_jenis_debitur] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[dm_cif] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[dm_nama_debitur] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[dm_nomor_rekening] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[dm_no_id_debitur] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[dm_tanggal_lahir] [date] NULL,
+[dm_tempat_lahir] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[dm_kode_gender] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[dm_jenis_kredit] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[dm_jenis_penggunaan] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[dm_sifat_kredit] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[dm_no_akad_akhir] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[dm_kolektibilitas] [varchar] (50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[dm_nilai_outstanding] [decimal] (38, 6) NULL,
+[dm_nilai_plafon] [decimal] (38, 6) NULL,
+[dm_nilai_baki_debet] [decimal] (38, 6) NULL,
+[dm_jenis_fasilitas_pinjaman] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[dm_tanggal_awal_pinjaman] [date] NULL,
+[dm_tanggal_inquiry] [date] NULL,
+[dm_selisih_awalvsinquiry] [decimal] (38, 6) NULL,
+[dm_status_pengecekan] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[dm_periode_inquiry] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[dm_inquiry_id] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[dm_algoritma_pencarian] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[dm_created_by] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[dm_nomor_laporan_inquiry] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[dm_kode_kantor_cabang] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[dm_nama_kantor_cabang] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+[dm_pperiode_inquiry] [int] NULL,
+[dm_pstatus_pengecekan] [varchar] (200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL
+)
+GO
+ALTER TABLE [dbo].[la_inquiry_check] ADD CONSTRAINT [PK_la_inquiry_check] PRIMARY KEY CLUSTERED  ([rowid])
+GO

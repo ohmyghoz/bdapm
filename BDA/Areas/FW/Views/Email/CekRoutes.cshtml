@@ -1,0 +1,40 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutMain.cshtml";
+}
+
+<style>
+    .dx-datagrid .dx-row > td{
+        font-size:80%;
+    }
+</style>
+<div class="card card-default">
+    
+    <div class="gridview-div">
+        @Html.AntiForgeryToken()
+
+        @(Html.DevExtreme().DataGrid()
+            .ID("grid1")
+            .DataSource(d => d.Mvc()
+                .Controller("Email")
+                .LoadAction("GetRoutesData")
+            )
+            .Export(x=> x.Enabled(true))
+            .Width("100%")
+            .RemoteOperations(true)
+             .FilterRow(f => f.Visible(true))
+             .ShowBorders(false)
+             .Selection(c => c.Mode(SelectionMode.Single))
+             .RowAlternationEnabled(false)
+             .AllowColumnResizing(true)
+             .AllowColumnReordering(true)
+ 
+             .Paging(p =>
+              {
+                  p.PageSize(20);
+                  p.Enabled(true);
+              }
+ )
+        )
+
+    </div>
+</div>

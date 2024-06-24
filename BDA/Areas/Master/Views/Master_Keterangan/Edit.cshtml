@@ -1,0 +1,70 @@
+﻿@model BDA.DataModel.Master_Keterangan
+
+@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+}
+<script src="~/js/dx-quill.min.js"></script>
+
+@section RightToolbar{
+    <div class="d-flex align-items-center">
+        <a class="nav-link btn btn-light-warning font-weight-bolder btn-sm mr-2" href="@Url.Action("Index")"><i class="fa fa-arrow-left"></i> Kembali Ke Daftar</a>
+    </div>
+}
+
+    @using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="card card-default">
+
+        <div class="card-body">
+            <div class="row">
+                <securehidden asp-for="mk_id"></securehidden>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="mk_kode"></label>
+                    @Html.DevExtreme().TextBoxFor(m=>m.mk_kode).Width("100%").ReadOnly(true)
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="mk_menu"></label>
+                    @Html.DevExtreme().TextBoxFor(m=>m.mk_menu).Width("100%").ReadOnly(true)
+                </div>
+                <div class="col-lg-12 form-group">
+                    <label asp-for="mk_keterangan"></label>
+                    @(Html.DevExtreme().HtmlEditorFor(model => model.mk_keterangan)
+                            .Height(200)
+                             .Toolbar(toolbar => toolbar.Items(
+                                 items =>
+                                 {
+                                     items.Add().Name("undo");
+                                     items.Add().Name("redo");
+                                     items.Add().Name("separator");
+                                     items.Add().Name("size").AcceptedValues(new[] { "8pt", "10pt", "12pt", "14pt", "18pt", "24pt", "36pt" });
+                                     items.Add().Name("font").AcceptedValues(new[] { "Arial", "Courier New", "Georgia", "Impact", "Lucida Console", "Tahoma", "Times New Roman", "Verdana" });
+                                     items.Add().Name("bold");
+                                     items.Add().Name("italic");
+                                     items.Add().Name("strike");
+                                     items.Add().Name("underline");
+                                     items.Add().Name("separator");
+                                     items.Add().Name("alignLeft");
+                                     items.Add().Name("alignCenter");
+                                     items.Add().Name("alignRight");
+                                     items.Add().Name("alignJustify");
+                                     items.Add().Name("separator");
+                                     items.Add().Name("orderedList");
+                                     items.Add().Name("bulletList");
+                                     items.Add().Name("separator");
+                                     items.Add().Name("color");
+                                     items.Add().Name("background");
+                                 })
+                             )
+                    )
+                </div>
+                <div class="col-lg-6 form-group">
+                    <label asp-for="mk_deskripsi_export"></label>
+                    <textarea asp-for="mk_deskripsi_export" class="form-control" rows="4" maxlength="1000"></textarea>
+                </div>
+            </div>
+            @Html.DevExtreme().Button().ID("btnSave").Text("Simpan").UseSubmitBehavior(true)
+        </div>
+    </div>
+}
