@@ -70,10 +70,10 @@
   <ItemGroup>
     <ProjectReference Include="..\BusinessLayer\BusinessLayer.csproj" />
     <ProjectReference Include="..\DataModel\DataModel.csproj" />
-    <PackageReference Include="DevExpress.AspNetCore.Dashboard" Version="21.2.5" />
+    <PackageReference Include="DevExpress.AspNetCore.Dashboard" Version="21.2.7" />
     <PackageReference Include="DevExpress.AspNetCore.Reporting" Version="21.2.5" />
     <PackageReference Include="DevExpress.AspNetCore.RichEdit" Version="21.2.5" />
-    <PackageReference Include="DevExpress.Data" Version="21.2.5" />
+    <PackageReference Include="DevExpress.Data" Version="21.2.7" />
     <PackageReference Include="DevExpress.Reporting.Core" Version="21.2.5" />
     <PackageReference Include="DevExtreme.AspNet.Core" Version="21.2.5" />
     <PackageReference Include="DevExtreme.AspNet.Data" Version="2.8.2" />

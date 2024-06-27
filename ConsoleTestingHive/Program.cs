@@ -5,6 +5,7 @@ using System.Collections.Generic;
 
 using System.Text.RegularExpressions;
 using System.Data.Odbc;
+using System.Data;
 
 namespace ConsoleQueue
 {
