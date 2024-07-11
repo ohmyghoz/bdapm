@@ -373,7 +373,7 @@
                         .LoadAction("GetGridData")
                         .LoadParams(new {isChart = true})
                         .OnBeforeSend("onGridBeforeSend"))
-                    .ResolveLabelOverlapping(PieChartResolveLabelOverlapping.Shift)
+                    .ResolveLabelOverlapping(ShiftLabelOverlap.Shift)
                     .Margin(m => m.Top(20).Bottom(20).Right(20).Left(20))
                     //.Size(s => s.Height(400).Width(400))
                     .Title(TempData.Peek("judulChart").ToString())

@@ -6,7 +6,7 @@
     <SccLocalPath>SAK</SccLocalPath>
   </PropertyGroup>
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>BDA</RootNamespace>
     <AssemblyName>BDA</AssemblyName>
     <PackageId>BDA</PackageId>
@@ -15,6 +15,8 @@
     <Company>BDA</Company>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Areas\BDA2\Views\DNA\**" />
+    <Compile Remove="Areas\BDA2\Views\Osint\**" />
     <Compile Remove="Areas\Master\Views\Calendar\**" />
     <Compile Remove="Areas\Master\Views\LOV\**" />
     <Compile Remove="Areas\Master\Views\MasterThreshold\**" />
@@ -23,6 +25,8 @@
     <Compile Remove="Areas\Website\Models\**" />
     <Compile Remove="Controllers\**" />
     <Compile Remove="Views\Login\**" />
+    <Content Remove="Areas\BDA2\Views\DNA\**" />
+    <Content Remove="Areas\BDA2\Views\Osint\**" />
     <Content Remove="Areas\Master\Views\Calendar\**" />
     <Content Remove="Areas\Master\Views\LOV\**" />
     <Content Remove="Areas\Master\Views\MasterThreshold\**" />
@@ -31,6 +35,8 @@
     <Content Remove="Areas\Website\Models\**" />
     <Content Remove="Controllers\**" />
     <Content Remove="Views\Login\**" />
+    <EmbeddedResource Remove="Areas\BDA2\Views\DNA\**" />
+    <EmbeddedResource Remove="Areas\BDA2\Views\Osint\**" />
     <EmbeddedResource Remove="Areas\Master\Views\Calendar\**" />
     <EmbeddedResource Remove="Areas\Master\Views\LOV\**" />
     <EmbeddedResource Remove="Areas\Master\Views\MasterThreshold\**" />
@@ -39,6 +45,8 @@
     <EmbeddedResource Remove="Areas\Website\Models\**" />
     <EmbeddedResource Remove="Controllers\**" />
     <EmbeddedResource Remove="Views\Login\**" />
+    <None Remove="Areas\BDA2\Views\DNA\**" />
+    <None Remove="Areas\BDA2\Views\Osint\**" />
     <None Remove="Areas\Master\Views\Calendar\**" />
     <None Remove="Areas\Master\Views\LOV\**" />
     <None Remove="Areas\Master\Views\MasterThreshold\**" />
@@ -49,13 +57,14 @@
     <None Remove="Views\Login\**" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Remove="Areas\BDA2\Controllers\DNAController.cs" />
+    <Compile Remove="Areas\BDA2\Controllers\OsintController.cs" />
     <Compile Remove="Areas\Master\Controllers\MasterThresholdController.cs" />
     <Compile Remove="Helper\FW\CAMHelper.cs" />
     <Compile Remove="Helper\FW\MenuModels.cs" />
     <Compile Remove="Helper\FW\WSReportStorageWebExtensions - Copy.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Remove="Areas\BDA2\_ViewImports.cshtml" />
     <Content Remove="Areas\FW\Views\DXReport\Designer.cshtml" />
     <Content Remove="Areas\FW\Views\DXReport\QueryBuilder.cshtml" />
     <Content Remove="Areas\FW\Views\DXReport\Viewer.cshtml" />
@@ -68,26 +77,56 @@
     <None Remove="Views\Shared\_ReportViewerPartial.cshtml.bak" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BusinessLayer\BusinessLayer.csproj" />
-    <ProjectReference Include="..\DataModel\DataModel.csproj" />
-    <PackageReference Include="DevExpress.AspNetCore.Dashboard" Version="21.2.7" />
-    <PackageReference Include="DevExpress.AspNetCore.Reporting" Version="21.2.5" />
-    <PackageReference Include="DevExpress.AspNetCore.RichEdit" Version="21.2.5" />
-    <PackageReference Include="DevExpress.Data" Version="21.2.7" />
-    <PackageReference Include="DevExpress.Reporting.Core" Version="21.2.5" />
-    <PackageReference Include="DevExtreme.AspNet.Core" Version="21.2.5" />
-    <PackageReference Include="DevExtreme.AspNet.Data" Version="2.8.2" />
+    <PackageReference Include="Aspose.Cells" Version="24.6.0" />
+    <PackageReference Include="DevExpress.AspNetCore.Dashboard" Version="24.1.3" />
+    <PackageReference Include="DevExpress.AspNetCore.Reporting" Version="24.1.3" />
+    <PackageReference Include="DevExpress.AspNetCore.RichEdit" Version="24.1.3" />
+    <PackageReference Include="DevExpress.Data" Version="24.1.3" />
+    <PackageReference Include="DevExpress.Reporting.Core" Version="24.1.3" />
+    <PackageReference Include="DevExtreme.AspNet.Core" Version="24.1.3" />
+    <PackageReference Include="DevExtreme.AspNet.Data" Version="4.0.0" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.23" />
     <PackageReference Include="MailKit" Version="2.5.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.2" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.1" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Utils" Version="3.1.1" />
-    <PackageReference Include="RestSharp" Version="106.10.1" />
-    <PackageReference Include="System.Data.Odbc" Version="5.0.0" />
+    <PackageReference Include="RestSharp" Version="111.3.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.6" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.31" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.2" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Utils" Version="8.0.2" />
+    <PackageReference Include="System.Data.Odbc" Version="8.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Areas\BDA2\_ViewImports.cshtml" />
+    <None Include="Areas\BDA2\Views\CoverageMap\Index.cshtml" />
+    <None Include="Areas\BDA2\Views\DA\AnomaliDokumenAgunan.cshtml" />
+    <None Include="Areas\BDA2\Views\DA\AnomaliDuplikasiNama.cshtml" />
+    <None Include="Areas\BDA2\Views\DA\AnomaliFormatKTP.cshtml" />
+    <None Include="Areas\BDA2\Views\DA\AnomaliGender.cshtml" />
+    <None Include="Areas\BDA2\Views\DA\AnomaliIDAgunan.cshtml" />
+    <None Include="Areas\BDA2\Views\LA\InquiryCheck.cshtml" />
+    <None Include="Areas\BDA2\Views\LA\InquiryPatternRecognition.cshtml" />
+    <None Include="Areas\BDA2\Views\ListMenu\Index.cshtml" />
+    <None Include="Areas\BDA2\Views\Macro\Forecasting.cshtml" />
+    <None Include="Areas\BDA2\Views\Macro\PenetrasiPinjaman.cshtml" />
+    <None Include="Areas\BDA2\Views\Macro\PertumbuhanPinjaman.cshtml" />
+    <None Include="Areas\BDA2\Views\Macro\PolicyEvaluation.cshtml" />
+    <None Include="Areas\BDA2\Views\MA\AnalisisPencurianIdentitas.cshtml" />
+    <None Include="Areas\BDA2\Views\MA\AnomaliPekerjaan.cshtml" />
+    <None Include="Areas\BDA2\Views\MA\Index.cshtml" />
+    <None Include="Areas\BDA2\Views\MA\KolektibilitasKesalahanLJK.cshtml" />
+    <None Include="Areas\BDA2\Views\MA\OutstandingMacet.cshtml" />
+    <None Include="Areas\BDA2\Views\MA\RekBaruNPL.cshtml" />
+    <None Include="Areas\BDA2\Views\Micro\CreditRisk.cshtml" />
+    <None Include="Areas\BDA2\Views\Micro\Index.cshtml" />
+    <None Include="Areas\BDA2\Views\Micro\LiquidityRisk.cshtml" />
+    <None Include="Areas\BDA2\Views\MS\Index.cshtml" />
+    <None Include="Areas\BDA2\Views\MS\KetentuanKolektibilitas.cshtml" />
+    <None Include="Areas\BDA2\Views\MS\KolektibilitasKaryawanLJK.cshtml" />
+    <None Include="Areas\BDA2\Views\MS\PemberianPinjamanKaryawanLJK.cshtml" />
+    <None Include="Areas\BDA2\Views\MS\PinjamanBaruBersamaan.cshtml" />
+    <None Include="Areas\BDA2\Views\MS\PinjamanBaruBersamaanDetail.cshtml" />
+    <None Include="Areas\BDA2\Views\OSIDA\Detail.cshtml" />
+    <None Include="Areas\BDA2\Views\OSIDA\Index.cshtml" />
+    <None Include="Areas\BDA2\Views\OSIDA\Index2.cshtml" />
+    <None Include="Areas\BDA2\Views\OSIDA\Summary.cshtml" />
     <None Include="Areas\FW\Views\Attachment\Sample.cshtml" />
     <None Include="Areas\FW\Views\DXReport\Designer.cshtml" />
     <None Include="Areas\FW\Views\DXReport\QueryBuilder.cshtml" />
@@ -1260,21 +1299,16 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Aspose.Cells">
-      <HintPath>..\ProjFile\Aspose.Cells.dll</HintPath>
-    </Reference>
-    <Reference Include="LemmaSharp">
-      <HintPath>..\ProjFile\LemmaSharp.dll</HintPath>
-    </Reference>
     <Reference Include="RazorEngineCore">
       <HintPath>..\ProjFile\RazorEngineCore.dll</HintPath>
-    </Reference>
-    <Reference Include="Sparc.TagCloud">
-      <HintPath>..\ProjFile\Sparc.TagCloud.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="wwwroot\temp\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BusinessLayer\BusinessLayer.csproj" />
+    <ProjectReference Include="..\DataModel\DataModel.csproj" />
   </ItemGroup>
   <ProjectExtensions>
     <VisualStudio>

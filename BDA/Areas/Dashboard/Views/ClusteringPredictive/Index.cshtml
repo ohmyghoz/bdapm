@@ -211,7 +211,7 @@
                         .LoadAction("GetPieChartData")
                         .LoadParams(new { periodeAwal = new JS("function() { return $(\"#PeriodeAwal\").dxDateBox(\"instance\").option(\"text\");}"), periodeAkhir = new JS("function() { return $(\"#PeriodeAkhir\").dxDateBox(\"instance\").option(\"text\");}"), members = new JS("function() { return $(\"#Members\").dxTagBox(\"instance\").option(\"value\");}"), memberTypes = new JS("function() { return $(\"#MemberTypes\").dxTagBox(\"instance\").option(\"value\");}"), jenisAgunan = new JS("function() { return $(\"#JenisAgunan\").dxTagBox(\"instance\").option(\"value\");}"), cluster = new JS("function() { return $(\"#Cluster\").dxTagBox(\"instance\").option(\"value\");}") })
                         )
-                    .ResolveLabelOverlapping(PieChartResolveLabelOverlapping.Shift)
+                    .ResolveLabelOverlapping(ShiftLabelOverlap.Shift)
                     .Margin(m => m.Top(20).Bottom(20).Right(20).Left(20))
                     //.Size(s => s.Height(400).Width(400))
                     .Legend(l => l.Visible(false))
