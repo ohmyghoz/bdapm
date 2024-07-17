@@ -1,0 +1,67 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutPopup.cshtml";
+}
+@using DevExtreme.AspNet.Mvc
+@using (Html.BeginForm())
+{
+    var roleId = ViewBag.roleId;
+
+    @Html.AntiForgeryToken()
+
+    @(Html.DevExtreme().TagBox()
+        .ID("Status")
+        .DataSource(new[] { "Pengawasan Transaksi Efek", "Pengawasan Perusahaan Efek", "Pengawasan Pengelolaan Investasi", "Pengawasan Emiten dan Perusahaan Publik", "Analisis Informasi dan PMK" })
+        .ShowSelectionControls(false)
+        .MaxDisplayedTags(3)
+        .SearchEnabled(true)
+        .OnSelectionChanged("onSelectionChanged")
+        .Width("100%"))
+    @* @(Html.DevExtreme().DataGrid()
+            .ID("grid")
+            .DataSource(d => d.Mvc()
+                    .Controller("PenggunaanData")
+                .LoadAction("GetRoleUser")
+                .Key("id")
+                )
+            .RemoteOperations(true)
+            .Selection(s => s.Mode(SelectionMode.Single))
+            .ShowColumnLines(false)
+            .ShowRowLines(true)
+            .RowAlternationEnabled(true)
+            .ShowBorders(true)
+            .FocusedRowEnabled(true)
+            .Columns(columns =>
+            {
+                    columns.Add().DataField("Penggunaan_Data").Caption("Penggunaan Data");
+            })
+            .AllowColumnResizing(true)
+            .FocusedRowKey(roleId)
+            .WordWrapEnabled(true)
+            .OnFocusedRowChanged("onFocusedRowChanged")
+        ) *@
+    @Html.DevExtreme().TextBox().ID("role_id").Name("role_id").Visible(false)
+    <br />
+    @Html.DevExtreme().Button().ID("btnSave").Text("select").StylingMode(ButtonStylingMode.Contained).Type(ButtonType.Success).UseSubmitBehavior(true)
+
+    <script type="text/javascript">
+        function onSelectionChanged(e) {
+            if (e.addedItems.length > 0) {
+                e.component.field().val(""); // Clears the search text. However, search filter is only applied to the widget after focus is lost in the input element
+            }
+        }
+        function onFocusedRowChanged(e) {
+            $("#id").dxTextBox("instance").option('value', e.row.data.role_id);
+        }
+    </script>
+
+    <style type="text/css">
+        .dx-datagrid-rowsview .dx-row-focused.dx-data-row:not(.dx-edit-row) > td:not(.dx-focused),
+        .dx-datagrid-rowsview .dx-row-focused.dx-data-row:not(.dx-edit-row) > tr > td:not(.dx-focused),
+        .dx-datagrid-rowsview .dx-row-focused.dx-data-row:not(.dx-edit-row) .dx-command-edit .dx-link {
+            background-color: red !important;
+            color: #fff;
+        }
+    </style>
+
+}
+

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="54199a72b79a441ebe97de0c65e4d6bd" Name="Diagram1">
+        <EntityTypeShape EntityType="DataModel.Alert_Master" Width="1.5" PointX="0.75" PointY="10.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.Alert_Summary" Width="1.5" PointX="11.75" PointY="8.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.AuditTrail" Width="1.5" PointX="5.75" PointY="22.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.BDA_A01_Cluster" Width="1.5" PointX="2.75" PointY="10.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.BDA_HML_MCDFA" Width="1.5" PointX="19.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.BDA_Log_PerHour" Width="1.5" PointX="4.75" PointY="10.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.BDA_LogOutliers_Act" Width="1.5" PointX="12.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.BDA2_Table" Width="1.5" PointX="2.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.BDA2_Table_Period" Width="1.5" PointX="19.75" PointY="9.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.BDA2_Table_Period_LJK" Width="1.5" PointX="19.75" PointY="12.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.debitur_anomali_data_populasi" Width="1.5" PointX="7.75" PointY="24.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.DimTanggal" Width="1.5" PointX="21.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.DimTime" Width="1.5" PointX="21.75" PointY="6.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.DxReport" Width="1.5" PointX="21.75" PointY="17.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.Email_In" Width="1.5" PointX="12" PointY="27.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.FWAttachment" Width="1.5" PointX="14.25" PointY="21.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.FWCalendar" Width="1.5" PointX="21.75" PointY="20.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.FWEmailQueue" Width="1.5" PointX="10.5" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.FWHoliday" Width="1.5" PointX="21.75" PointY="24.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.FWKodeCounter" Width="1.5" PointX="3" PointY="21.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.FWKodeDetail" Width="1.5" PointX="3" PointY="24.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.FWKodeFormat" Width="1.5" PointX="0.75" PointY="22.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.FWLOGError" Width="1.5" PointX="23.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.FWNotice" Width="1.5" PointX="8.25" PointY="1.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.FWNoticeQueue" Width="1.5" PointX="12.75" PointY="15" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.FWNoticeTemplate" Width="1.5" PointX="6" PointY="1.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.FWRefModul" Width="1.5" PointX="16.75" PointY="23" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.FWRefModulMenu" Width="1.5" PointX="19" PointY="23.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.FWRefRole" Width="1.5" PointX="16.75" PointY="18" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.FWRefSetting" Width="1.5" PointX="23.75" PointY="7.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.FWRoleRight" Width="1.5" PointX="0.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.FWTempTable" Width="1.5" PointX="5.75" PointY="27.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.FWUserLostPassword" Width="1.5" PointX="9.75" PointY="16.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.FWUserRole" Width="1.5" PointX="9.75" PointY="21.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.FWWorkday" Width="1.5" PointX="23.75" PointY="10.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.Help" Width="1.5" PointX="12" PointY="34.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.HiveSync" Width="1.5" PointX="23.75" PointY="15.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.ip_sid" Width="1.5" PointX="23.75" PointY="18.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.KonfigurasiAlert" Width="1.5" PointX="7.5" PointY="8.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.KonfigurasiALertDetail" Width="1.5" PointX="9.75" PointY="12.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.la_inquiry_check" Width="1.5" PointX="18.75" PointY="27.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.la_inquiry_pattern_recognition" Width="1.5" PointX="0.75" PointY="28.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.LOG_AKSES" Width="1.5" PointX="2.75" PointY="28.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.Log_ETL" Width="1.5" PointX="14.75" PointY="28.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.market_driven_ape_growth" Width="1.5" PointX="20.75" PointY="28.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.market_driven_rg_ng" Width="1.5" PointX="25.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.market_driven_stp_balance" Width="1.5" PointX="25.75" PointY="9.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.market_driven_stp_settlement_new" Width="1.5" PointX="25.75" PointY="13.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.Master_Agunan" Width="1.5" PointX="25.75" PointY="18.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.Master_Keterangan" Width="1.5" PointX="25.75" PointY="21.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.master_ljk" Width="1.5" PointX="25.75" PointY="25.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.master_ljk_type" Width="1.5" PointX="4.75" PointY="30.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.master_office_ljk" Width="1.5" PointX="6.75" PointY="30.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.master_penggunaan_data" Width="1.5" PointX="27.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.master_user_ideb" Width="1.5" PointX="27.75" PointY="7.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.MasterKota" Width="1.5" PointX="3" PointY="15.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.MasterPropinsi" Width="1.5" PointX="0.75" PointY="15.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.MasterSatker" Width="1.5" PointX="5.25" PointY="15" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.osida_master" Width="1.5" PointX="27.75" PointY="13.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.osida_nik_tidak_konsisten_det" Width="1.5" PointX="27.75" PointY="18.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.osida_nik_tidak_konsisten_mst" Width="1.5" PointX="27.75" PointY="25.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.osida_pembanding_populasi_chart" Width="1.5" PointX="25.75" PointY="31.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.pe_segmentation_bridging_detail" Width="1.5" PointX="27.75" PointY="31.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.pe_segmentation_det_jaminan_margin" Width="1.5" PointX="14.75" PointY="32.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.pe_segmentation_det_jaminan_margin_sum" Width="1.5" PointX="29.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.pe_segmentation_det_portofolio_saham" Width="1.5" PointX="29.75" PointY="8.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.pe_segmentation_det_portofolio_saham_sum" Width="1.5" PointX="8.75" PointY="33.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.pe_segmentation_det_reksa_dana" Width="1.5" PointX="29.75" PointY="14.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.pe_segmentation_det_reksa_dana_sum" Width="1.5" PointX="29.75" PointY="19.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.pe_segmentation_det_reverse_repo" Width="1.5" PointX="29.75" PointY="23.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.pe_segmentation_det_reverse_repo_sum" Width="1.5" PointX="29.75" PointY="28.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.pe_segmentation_sum_cluster_mkbd" Width="1.5" PointX="29.75" PointY="33.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.Penarikan_Data" Width="1.5" PointX="2.75" PointY="34.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.ref_cities" Width="1.5" PointX="31.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.ref_collateral_types" Width="1.5" PointX="31.75" PointY="8.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.ref_credit_types" Width="1.5" PointX="4.75" PointY="35.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.ref_credit_usages" Width="1.5" PointX="31.75" PointY="12.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.ref_ownership_document_temp" Width="1.5" PointX="31.75" PointY="16.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.ref_pekerjaan_temp" Width="1.5" PointX="31.75" PointY="19.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.ReportDef" Width="1.5" PointX="3.75" PointY="7.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.RptGrid" Width="1.5" PointX="14.75" PointY="8.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.RptGrid_Param" Width="1.5" PointX="17" PointY="5.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.RptGrid_Queue" Width="1.5" PointX="17" PointY="10.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.RptGrid_RoleSetting" Width="1.5" PointX="19" PointY="18.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.TableauLink" Width="1.5" PointX="31.75" PointY="22.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.Thread" Width="1.5" PointX="9.75" PointY="28.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.Thread_Post" Width="1.5" PointX="12" PointY="21" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.UserMaster" Width="1.5" PointX="7.5" PointY="13" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.pengawas_ljk" Width="1.5" PointX="31.75" PointY="26.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.vw_getMasterLJK" Width="1.5" PointX="31.75" PointY="31.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.vw_getMasterOfficeLJK" Width="1.5" PointX="16.75" PointY="36.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.vw_JarakAntarAktivitas" Width="1.5" PointX="18.75" PointY="36.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.vw_ListUser" Width="1.5" PointX="20.75" PointY="36.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.vw_Log_Akses" Width="1.5" PointX="25.75" PointY="36.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.vw_Modul" Width="1.5" PointX="33.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.vw_PengawasLJK" Width="1.5" PointX="33.75" PointY="9.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.vw_PeriodTableHive" Width="1.5" PointX="6.75" PointY="37.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.vw_RefDeskripsiKategori" Width="1.5" PointX="8.75" PointY="37.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.vw_TableDictionary" Width="1.5" PointX="33.75" PointY="15.75" IsExpanded="true" />
+        <AssociationConnector Association="DataModel.FK_FW_Attachment_Email_In" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_FW_Attachment_Help" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_FW_Attachment_Thread_Post" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_FW_Email_Queue_FW_Notice" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_Notice_Queue_Email_Queue" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_New_Kode_Counter_New_Kode_Format" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_New_Kode_Detail_New_Kode_Format" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_FW_Notice_FW_Notice_Template" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_Notice_Queue_Notice_Template" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_Notice_Queue_User_Master" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_FW_Notice_Template_ReportDef" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_FWRefModulMenu_FWRefModul" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_RptGrid_RoleSetting_FW_Ref_Role" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_FWRoleRight_FWRoleRight" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_User_Lost_Password_User_Master" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_FW_User_Role_User_Master" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_KonfigurasiALertDetail_KonfigurasiAlert" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_KonfigurasiALertDetail_UserMaster" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_Master_Satker_Ref_Kota" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_Ref_Kota_Ref_Propinsi" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_User_Master_Master_Satker" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_RptGrid_Param_RptGrid" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_RptGrid_Queue_RptGrid" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_RptGrid_RptGrid" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_Post_Thread" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_Thread_User_Master" ManuallyRouted="false" />
+        <AssociationConnector Association="DataModel.FK_Post_User_Master" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

@@ -1,90 +1,205 @@
-﻿@model BDA.DataModel.osida_master
+﻿@using DevExtreme.AspNet.Mvc
 @{
     Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
-    var maxItems = db.GetSetting("LimitFilterLJK");
-    var maxExport = db.GetSetting("LimitExportExcelPDF");
-    bool isExport = ViewBag.Export;
-    bool isHive = ViewBag.Hive;
-
+    string reportId = "Segmentation_Summary_Cluster_MKBD";
     var p = (string[])ViewBag.period;
-    var j = (string[])ViewBag.jljk;
-    var l = (string[])ViewBag.ljk;
-    string sd = TempData.Peek("SD").ToString();
-    string sg = TempData.Peek("SG").ToString();
-    string pm = TempData.Peek("PM").ToString();
-    string lbl1 = "Waktu Proses : " + sd + " detik \nWaktu tunggu Hive/SQL : " + sg + " detik \nPenggunaan Memory Webserver : " + pm + " KB ";
+    var maxItems = db.GetSetting("LimitFilterLJK");
 }
+
 @inject BDA.DataModel.DataEntities db
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="card card-default">
+        @*filter*@
+        <div class="row filter-panel" style="padding-top:0px;">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-4 form-group">
+                        <label>Tanggal<span class="mandatory">*</span></label>
+                        @(Html.DevExtreme().DateBox()
+                            .ID("PeriodeAwal")
+                            .DisplayFormat("dd MMM yyyy")
+                            //.Value(periodeAwal1 == null ? DateTime.Now : periodeAwal1)
+                            .Value(DateTime.Now)
+                            .Max(DateTime.Now)
+                            .Width("100%"))
+                    </div>
+
+                    <div class="col-lg-4 form-group">
+                        <label>Nama PE</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("Members")
+                            @* .DataSource(d => d.Mvc()
+                            .Controller("MaxMinOverdue")
+                            .LoadAction("GetMembers")
+                            .LoadParams(new { memberTypes = new JS("function() { return $(\"#MemberTypes\").dxTagBox(\"instance\").option(\"value\"); }"), reset = new JS("function() { return resetLJK; }") })
+                            //.Key("kode_ljk")
+                            .Key("CompositeKey")
+                            )
+                            .DataSourceOptions(d => d.Paginate(true).PageSize(10))
+                            //.ValueExpr("kode_ljk")
+                            .ValueExpr("CompositeKey")
+                            .DisplayExpr("Display")
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .ShowClearButton(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .OnOpened("onLJKOpened")
+                            .OnValueChanged("onLJKChanged") *@
+                            .Width("100%"))
+                    </div>
+
+                    <div class="col-lg-4 form-group">
+                        <label>Status@*<span class="mandatory">*</span>*@</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("Status")
+                            .DataSource(new[] { "Alert", "Normal" })
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .Width("100%"))
+                    </div>
+
+                </div>
+
+                <div class="float-left">
+                    @(Html.DevExtreme().Button()
+                        .ID("Filter")
+                        .Type(ButtonType.Default)
+                        .Text("Tampilkan")
+                        .OnClick("onButtonFilterClicked")
+                        .ValidationGroup("Filter"))
+                </div>
+
+                <div class="float-right">
+                    @if (ViewBag.Export)
+                    {
+                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:Antrian();"><span class="image fa fa-file-invoice"></span> Antrian (CSV)</a>
+                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                    }
+                </div>
+            </div>
+        </div>
+
+        @*grid*@
+        <div class="gridview-div">
+            @(Html.DevExtreme().DataGrid()
+                .ID("grid1")
+                .DataSource(d => d.Mvc()
+                .Controller("SegmentationSummaryClusterMKBD")
+                .LoadAction("GetGridData")
+                .Key("rowid")
+                .OnBeforeSend("onGridBeforeSend"))
+                .RemoteOperations(true)
+                .Width("100%")
+                .AllowColumnResizing(true)
+                .ColumnAutoWidth(true)
+                .Columns(columns =>
+                {
+                    columns.Add().DataField("rowid").Visible(false);
+                    columns.Add().DataField("securitycompanycode").Caption("Kode PE");
+                    columns.Add().DataField("securitycompanyname").Caption("Nama PE");
+                    columns.Add().DataField("simpanangiro").Caption("Simpanan Giro");
+
+                    columns.Add().DataField("cluster").Caption("Deposito < 3 Bulan");
+                    columns.Add().DataField("depositolt3bulan").Caption("Deposito > 3 Bulan  ");
+                    columns.Add().DataField("depositogt3bulandijaminlps").Caption("Deposito > 3 Bulan Dijamin LPS");
+                    columns.Add().DataField("uangjaminanlkp").Caption("Uang Jaminan LKP").Format("#,##0");
+                    columns.Add().DataField("kasdansetarakas").Caption("Kas dan Setara Kas(Simpanan Giro + Deposito < 3 Bulan + Uang Jaminan LKP)").Format("#,##0");
+                    columns.Add().DataField("mkbd").Caption("MKBD").Format("#,##0");
+                    columns.Add().DataField("mkbdminimum").Caption("MKBD Minimum").Format("#,##0");
+                    columns.Add().DataField("mkbdpermkbdminimum").Caption("MKBD Terhadap MKBD Minimum");
+                    columns.Add().Type(GridCommandColumnType.Buttons).Caption("Action").Buttons(b =>
+                    {
+                        b.Add()
+                    .Hint("Detail")
+                    .Icon("detailslayout")
+                    .OnClick("Detail");
+                    });
+                })
+                .FilterRow(f => f.Visible(true))
+                .ShowBorders(false)
+                .Paging(p =>
+                {
+                    p.PageSize(20);
+                    p.Enabled(true);
+                })
+                .Pager(p =>
+                {
+                    p.ShowInfo(true);
+                }))
+        </div>
+    </div>
+}
 
 <script>
     window.jsPDF = window.jspdf.jsPDF;
     applyPlugin(window.jsPDF);
 </script>
 
-<script type="text/javascript">
-    function ExportToCSV() {
-        var grid = $("#grid1").dxDataGrid("instance");
-        $.ajax({
-            type: "POST",
-            url: "@Url.Action("LogExportIndex", "OSIDA2023", new { reportId = Model.kode })",
-            success: function (response) {
-                if (response.result == "Success") {
-                    var workbook = new ExcelJS.Workbook();
-                    var worksheet = workbook.addWorksheet('Main sheet');
-
-                    DevExpress.excelExporter.exportDataGrid({
-                        component: $("#grid1").dxDataGrid("instance"),
-                        worksheet: worksheet,
-                        autoFilterEnabled: true
-                    }).then(function () {
-                        workbook.csv.writeBuffer().then(function (buffer) {
-                            saveAs(new Blob([buffer], { type: "application/octet-stream" }), "OSIDA_@(Model.kode)_" + new Date().toISOString().slice(0, 10) + ".csv");
-                        });
-                    });
-                    grid.cancel = true;
-                }
-            }
-        });
+<script>
+    function PopupPenggunaanDataHidden() {
+        window.location = "@Url.Action("Index", "Default", new { area = "Website" })";
     }
+
+    function PenggunaanData() {
+        ShowPopupMain("@Url.Action("PenggunaanData", "PenggunaanData", new { area = "Website" })", "Penggunaan Data", "600px", "400px", PopupPenggunaanDataHidden);
+    }
+    $(window).on('load', function () {
+        PenggunaanData();
+    });
+
     function ExportToExcel() {
         $.ajax({
             type: "POST",
-            url: "@Url.Action("LogExportIndex", "OSIDA2023", new { reportId = Model.kode })",
+            url: "@Url.Action("LogExportIndex", "MaxMinOverdue")",
             success: function (response) {
                 if (response.result == "Success") {
-                    var workbook = new ExcelJS.Workbook();
-                    var worksheet = workbook.addWorksheet('Main sheet');
-
-                    DevExpress.excelExporter.exportDataGrid({
-                        component: $("#grid1").dxDataGrid("instance"),
-                        worksheet: worksheet,
-                        customizeCell: function (options) {
-                            var { gridCell, excelCell } = options;
-
-                            if (gridCell.rowType === 'data') {
-                                if (options.gridCell.column.dataType === 'number') {
-                                    excelCell.numFmt = '#,##0.00';
-                                }
-                            }
-                        }
-                    }).then(function () {
-                        workbook.xlsx.writeBuffer().then(function (buffer) {
-                            saveAs(new Blob([buffer], { type: "application/octet-stream" }), "OSIDA_@(Model.kode)_" + new Date().toISOString().slice(0, 10) + ".xlsx");
-                        });
+                    var grid = $("#grid1").dxDataGrid("instance");
+                    grid.option("onExporting", function (e) {
+                        e.fileName = "MaxMinOverdue_" + new Date().toISOString().slice(0, 10);
                     });
+                    grid.option("onFileSaving", function (e) { });
+                    grid.exportToExcel();
                 }
             }
         });
     }
-    function CFE(filterValue, selectedFilterOperation) {
-        if (selectedFilterOperation === "=") {
-            var filterExpression = [
-                [this.dataField, ">=", filterValue - 0.5],
-                "and", [this.dataField, "<=", filterValue + 0.5]
-            ];
-            return filterExpression;
-        }
-        return [this.dataField, selectedFilterOperation || '=', filterValue];
+
+    function ExportToPdf() {
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("LogExportIndex", "MaxMinOverdue")",
+            success: function (response) {
+                if (response.result == "Success") {
+                    const doc = new jsPDF({
+                        orientation: "landscape",
+                        unit: "cm",
+                        format: [21, 60]
+                    });
+                    var dataGrid = $("#grid1").dxDataGrid("instance");
+                    var fileName = "MaxMinOverdue_" + new Date().toISOString().slice(0, 10) + ".pdf";
+                    doc.setFontSize("6")
+                    //var keys = $("#grid1").dxDataGrid("getSelectedRowsData")
+                    //console.log(keys)
+                    DevExpress.pdfExporter.exportDataGrid({
+                        jsPDFDocument: doc,
+                        component: dataGrid,
+                        keepColumnWidths: true
+                        //selectedRowsOnly: true
+                    }).then(function () {
+                        doc.save(fileName);
+                    });
+                }
+            }
+        });
     }
 
     function ExportToPdf2() {
@@ -95,153 +210,56 @@
             fd.append("file", e.data);
             $.ajax({
                 type: "POST",
-                url: "@Url.Action("ExportPDF", "OSIDA2023", new { reportId = Model.kode })",
+                url: "@Url.Action("ExportPDF", "MaxMinOverdue")",
                 data: fd,
                 processData: false,
                 contentType: false
             }).done(function (data) {
-                window.location = "@Url.Action("File", "OSIDA2023", new { reportId = Model.kode })"
+                window.location = "@Url.Action("File", "MaxMinOverdue")"
             });
             e.cancel = true;
         });
 
         dataGrid.exportToExcel();
     }
-    function ExportToPdf() {
-        $.ajax({
-            type: "POST",
-            url: "@Url.Action("LogExportIndex", "OSIDA2023", new { reportId = Model.kode })",
-            success: function (response) {
-                if (response.result == "Success") {
-                    const doc = new jsPDF({
-                        orientation: "landscape",
-                        unit: "cm",
-                        format: [21, 60]
-                    });
-                    var dataGrid = $("#grid1").dxDataGrid("instance");
-                    var fileName = "OSIDA_@(Model.kode)_" + new Date().toISOString().slice(0, 10) + ".pdf";
-                    doc.setFontSize("6")
-                    //var img = new Image();
-                    //img.src = "/assets_m/img/OJK_Logo.png";
-                    //doc.addImage(img, 'PNG', 15, 40, 180, 160);
-                    //var keys = $("#grid1").dxDataGrid("getSelectedRowsData")
-                    //console.log(keys)
-                    DevExpress.pdfExporter.exportDataGrid({
-                        jsPDFDocument: doc,
-                        component: dataGrid,
-                        keepColumnWidths: true,
-                        customizeCell: function (options) {
-                            var { gridCell, excelCell } = options;
 
-                            if (gridCell.rowType === 'data') {
-                                if (options.gridCell.column.dataType === 'number') {
-                                    excelCell.numFmt = '#,##0.00';
-                                }
-                            }
-                        }
-                        //selectedRowsOnly: true
-                    }).then(function () {
-                        doc.save(fileName);
-                    });
-                }
-            }
-        });
-    }
-    function Antrian() {
-        $("#grid1").dxDataGrid("instance").refresh().then(function () {
-            $.ajax({
-                type: "POST",
-                url: "@Url.Action("Antrian", "OSIDA2023", new { reportId = Model.kode })",
-                contentType: "application/x-www-form-urlencoded;charset=UTF-8",
-                dataType: "json",
-                success: function (response) {
-                    swal({ type: 'success', title: 'Success', text: response });
-                },
-                error: function (response) {
-                    swal({ type: 'error', title: 'Failed', text: response });
-                }
-            });
-        });
-    }
-    function Antrian2() {
-        $("#grid1").dxDataGrid("instance").refresh().then(function () {
-            $.ajax({
-                type: "POST",
-                url: "@Url.Action("AntrianDetail2", "OSIDA2023", new { reportId = Model.kode })",
-                contentType: "application/x-www-form-urlencoded;charset=UTF-8",
-                dataType: "json",
-                success: function (response) {
-                    swal({ type: 'success', title: 'Success', text: response });
-                },
-                error: function (response) {
-                    swal({ type: 'error', title: 'Failed', text: response });
-                }
-            });
-        });
-    }
     var resetLJK;
-    var resetKC;
+
     $(function () {
-        $("#Periode").dxValidator({
+        const startDate = $("#PeriodeAwal").dxDateBox({
+            onValueChanged: function (e) {
+                endDate.option("min", e.value);
+            }
+        }).dxDateBox("instance");
+
+        $("#PeriodeAwal").dxValidator({
             validationGroup: "Filter",
-            validationRules: [{ type: "required", message: "[Periode] harus dipilih" }]
+            validationRules: [{ type: "required", message: "[Tanggal] harus dipilih" }]
         })
-        chkRpt();
     });
-    function chkRpt() {
-        let rpt = '@Model.kode';
-        $("#divWaktu").hide();
-        if (rpt == 'osida_kredit_no_agunan') {
-            $("#divWaktu").show();
-        }
-    }
+
     function onSelectionChanged(e) {
         if (e.addedItems.length > 0) {
-            e.component.field().val("");
+            e.component.field().val(""); // Clears the search text. However, search filter is only applied to the widget after focus is lost in the input element
         }
-    }
-
-    function onJenisLJKChanged(e) {
-        resetLJK = true;
-        $("#Members").dxTagBox("instance").getDataSource().reload();
-        $("#Members").dxTagBox("reset");
-        resetLJK = false;
     }
 
     function onButtonFilterClicked(e) {
         const res = e.validationGroup.validate();
         if (res.status === "valid") {
             $("#grid1").dxDataGrid("instance").refresh();
-            $.ajax({
-                type: "POST",
-                url: "@Url.Action("getTime", "OSIDA2023")",
-                contentType: "application/x-www-form-urlencoded;charset=UTF-8",
-                dataType: "json",
-                success: function (response) {
-                    $("#txtTest").dxTextArea("instance").option("value", response);
-                }
-            });
         }
     }
 
     function onGridBeforeSend(method, ajaxOptions) {
-        let memberTypes = $("#MemberTypes").dxTagBox("instance").option("value");
         let members = $("#Members").dxTagBox("instance").option("value");
-        let mdl = '@Model.kode';
-        let periode = $("#Periode").dxTagBox("instance").option("value");
-
-        ajaxOptions.data.memberTypes = JSON.stringify(memberTypes);
+        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
+        let periodeAwal = null;
+        if (tempPeriodeAwal != null) {
+            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + (tempPeriodeAwal.getMonth() + 1) + '-' + tempPeriodeAwal.getDate();
+        }
         ajaxOptions.data.members = JSON.stringify(members);
-        if (mdl != "osida_potensi_konversi_kur_deb_noneligible_mst" && mdl != "osida_pemberian_kur_deb_noneligible_mst") {
-            let kantorCabangs = $("#KantorCabangs").dxTagBox("instance").option("value");
-            ajaxOptions.data.kantorCabangs = JSON.stringify(kantorCabangs);
-        }
-        if (mdl == "osida_potensi_konversi_kur_deb_noneligible_mst" || mdl == "osida_pemberian_kur_deb_noneligible_mst" || mdl == "osida_pengurus_pemilik_kredit_bermasalah_mst") {
-            let chk = $("#chk100").dxCheckBox("instance").option("value");
-            ajaxOptions.data.chk100 = chk;
-        }
-        ajaxOptions.data.periode = JSON.stringify(periode);
-        ajaxOptions.data.reportId = '@Model.kode';
+        ajaxOptions.data.periodeAwal = periodeAwal;
     }
 
     function onLJKOpened(e) {
@@ -256,50 +274,14 @@
             e.component.option("value", newValue);
             //tooltip.show();
         }
-        let mdl = '@Model.kode';
-        if (mdl != "osida_potensi_konversi_kur_deb_noneligible_mst" && mdl != "osida_pemberian_kur_deb_noneligible_mst") {
-            resetKC = true;
-            $("#KantorCabangs").dxTagBox("instance").getDataSource().reload();
-            $("#KantorCabangs").dxTagBox("reset");
-            resetKC = false;
-        }
-
     }
 
-    function onKCChanged(e) {
-        if (e.value.length > maxItems) {
-            const newValue = e.value.slice(0, maxItems);
-            e.component.option("value", newValue);
-            //tooltip.show();
-        }
-    }
-    //function onContentReady(e) {
-    //    if (e.component.totalCount() == 0) {
-    //        $("#divSkenario").show();
-    //        $("#divOutputEmpty").show();
-    //        $("#divOutput").hide();
-    //        $("#divTindakLanjut").hide();
-
-    //    } else {
-    //        $("#divSkenario").show();
-    //        $("#divOutputEmpty").hide();
-    //        $("#divOutput").show();
-    //        $("#divTindakLanjut").show();
-    //    }
-
-    //}
     function Detail(e) {
-        var keys = $("#grid1").dxDataGrid("getSelectedRowKeys");
-        if (keys.length >= 1) {
-            window.open("@Url.Action("OsidaDetail", "OSIDA2023")/" + '@Model.kode' + '?keys=' + keys[0].toString());
-        } else {
-            swal({ type: 'error', title: 'Oops...', text: 'Silahkan Pilih Baris Telebih Dahulu' });
+        var keys = e.row.key;
+        if (typeof (keys) !== "undefined" && typeof (keys) !== null) {
+            window.open('@Url.Action("Detail", "MaxMinOverdue")?id=' + keys.toString());
         }
     }
-    function onOpened(e) {
-        $('.dx-list-select-all').hide()
-    }
-
 </script>
 
 <style type="text/css">
@@ -307,46 +289,3 @@
         color: red;
     }
 </style>
-
-@using (Html.BeginForm())
-{
-    @Html.AntiForgeryToken()
-
-    <div class="card card-default">
-        @*filter*@
-        <div class="row filter-panel" style="padding-top:0px;">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-lg-4 form-group">
-                        <label>Periode<span class="mandatory">*</span></label>
-                        
-                    </div>
-                    <div class="col-lg-4 form-group">
-                        <label>Nama PE</label>
-                        
-                    </div>
-                    <div class="col-lg-4 form-group">
-                        <label>Status</label>
-                        
-                    </div>
-                </div>
-
-                <div class="float-right">
-                    <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:Detail();"><span class="image fa fa-desktop"></span> Detail</a>
-                    @if (ViewBag.Export)
-                    {
-                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:Antrian();"><span class="image fa fa-file-invoice"></span> Antrian (CSV)</a>
-                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();" title="Export Excel maksimal @maxExport data"><span class="image fa fa-file-excel"></span> Export Excel</a>
-                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();" title="Export PDF maksimal @maxExport data"><span class="image fa fa-file-pdf"></span> Export PDF</a>
-                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToCSV();"><span class="image fa fa-file-archive"></span> Export CSV</a>
-                    }
-                </div>
-            </div>
-        </div>
-
-        @*grid*@
-        <div class="gridview-div">
-
-        </div>
-    </div>
-}
