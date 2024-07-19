@@ -7,12 +7,12 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace BDA.DataModel
+namespace BDAPM.DataModel
 {
     using System;
     using System.Collections.Generic;
     
-    public partial class master_penggunaan_data
+    public partial class MasterPenggunaanData
     {
         public int ID { get; set; }
         public string Penggunaan_Data { get; set; }

@@ -8,20 +8,20 @@
 
     @Html.AntiForgeryToken()
 
-    @(Html.DevExtreme().TagBox()
+   @*  @(Html.DevExtreme().TagBox()
         .ID("Status")
         .DataSource(new[] { "Pengawasan Transaksi Efek", "Pengawasan Perusahaan Efek", "Pengawasan Pengelolaan Investasi", "Pengawasan Emiten dan Perusahaan Publik", "Analisis Informasi dan PMK" })
         .ShowSelectionControls(false)
         .MaxDisplayedTags(3)
         .SearchEnabled(true)
         .OnSelectionChanged("onSelectionChanged")
-        .Width("100%"))
-    @* @(Html.DevExtreme().DataGrid()
+        .Width("100%")) *@
+    @(Html.DevExtreme().DataGrid()
             .ID("grid")
             .DataSource(d => d.Mvc()
                     .Controller("PenggunaanData")
-                .LoadAction("GetRoleUser")
-                .Key("id")
+                    .LoadAction("GetPenggunaanData")
+                    .Key("id")
                 )
             .RemoteOperations(true)
             .Selection(s => s.Mode(SelectionMode.Single))
@@ -38,8 +38,8 @@
             .FocusedRowKey(roleId)
             .WordWrapEnabled(true)
             .OnFocusedRowChanged("onFocusedRowChanged")
-        ) *@
-    @Html.DevExtreme().TextBox().ID("role_id").Name("role_id").Visible(false)
+        )
+    @Html.DevExtreme().TextBox().ID("id").Name("id").Visible(false)
     <br />
     @Html.DevExtreme().Button().ID("btnSave").Text("select").StylingMode(ButtonStylingMode.Contained).Type(ButtonType.Success).UseSubmitBehavior(true)
 
@@ -50,7 +50,7 @@
             }
         }
         function onFocusedRowChanged(e) {
-            $("#id").dxTextBox("instance").option('value', e.row.data.role_id);
+            $("#id").dxTextBox("instance").option('value', e.row.data.id);
         }
     </script>
 

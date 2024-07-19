@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="DataModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="DataModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="Alert_Master">
           <Key>
             <PropertyRef Name="KODE_ALERT" />
@@ -1094,13 +1094,11 @@
           <Property Name="p_date" Type="varchar" MaxLength="50" />
           <Property Name="sync_date" Type="datetime" />
         </EntityType>
-        <EntityType Name="master_penggunaan_data">
+        <EntityType Name="master_sid">
           <Key>
-            <PropertyRef Name="ID" />
+            <PropertyRef Name="sid" />
           </Key>
-          <Property Name="ID" Type="int" Nullable="false" />
-          <Property Name="Penggunaan_Data" Type="varchar" MaxLength="150" />
-          <Property Name="Sts_Aktif" Type="int" />
+          <Property Name="sid" Type="varchar" MaxLength="15" Nullable="false" />
         </EntityType>
         <EntityType Name="master_user_ideb">
           <Key>
@@ -1127,29 +1125,6 @@
           <Property Name="p_date" Type="varchar" MaxLength="50" />
           <Property Name="sync_date" Type="datetime" />
         </EntityType>
-        <!--Errors Found During Generation:
-warning 6013: The table/view 'BDAPM.dbo.master_user_ideb2' does not have a primary key defined and no valid primary key could be inferred. This table/view has been excluded. To use the entity, you will need to review your schema, add the correct keys, and uncomment it.
-        <EntityType Name="master_user_ideb2">
-          <Property Name="user_id" Type="nvarchar(max)" />
-          <Property Name="user_login_id" Type="nvarchar(max)" />
-          <Property Name="user_name" Type="nvarchar(max)" />
-          <Property Name="phone_number" Type="nvarchar(max)" />
-          <Property Name="user_type_flag" Type="nvarchar(max)" />
-          <Property Name="member_type_code" Type="nvarchar(max)" />
-          <Property Name="member_code" Type="nvarchar(max)" />
-          <Property Name="office_code" Type="nvarchar(max)" />
-          <Property Name="employee_id" Type="nvarchar(max)" />
-          <Property Name="password_latest_changed_date" Type="nvarchar(max)" />
-          <Property Name="password_lock_count" Type="nvarchar(max)" />
-          <Property Name="user_latest_login_date" Type="nvarchar(max)" />
-          <Property Name="active_flag" Type="nvarchar(max)" />
-          <Property Name="created_by" Type="nvarchar(max)" />
-          <Property Name="created_datetime" Type="nvarchar(max)" />
-          <Property Name="updated_by" Type="nvarchar(max)" />
-          <Property Name="updated_datetime" Type="nvarchar(max)" />
-          <Property Name="user_status_flag" Type="nvarchar(max)" />
-          <Property Name="p_date" Type="nvarchar(max)" />
-        </EntityType>-->
         <EntityType Name="MasterKota">
           <Key>
             <PropertyRef Name="RefKotaId" />
@@ -1164,6 +1139,14 @@ warning 6013: The table/view 'BDAPM.dbo.master_user_ideb2' does not have a prima
           <Property Name="UpdatedDatetime" Type="datetime" />
           <Property Name="RefPropinsiId" Type="bigint" />
           <Property Name="JtiCityid" Type="varchar" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="MasterPenggunaanData">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="int" Nullable="false" />
+          <Property Name="Penggunaan_Data" Type="varchar" MaxLength="150" />
+          <Property Name="Sts_Aktif" Type="int" />
         </EntityType>
         <EntityType Name="MasterPropinsi">
           <Key>
@@ -1522,6 +1505,55 @@ warning 6002: The table/view 'BDAPM.dbo.pengawas_ljk' does not have a primary ke
           <Property Name="p_date" Type="varchar" MaxLength="50" />
           <Property Name="sync_date" Type="datetime" />
         </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'BDAPM.dbo.PM_dimSecurityCompanies' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="PM_dimSecurityCompanies">
+          <Key>
+            <PropertyRef Name="SecurityCompanySK" />
+          </Key>
+          <Property Name="SecurityCompanySK" Type="decimal" Precision="18" Scale="0" Nullable="false" />
+          <Property Name="SecurityCompanyCode" Type="varchar" MaxLength="30" />
+          <Property Name="SecurityCompanyName" Type="varchar" MaxLength="255" />
+          <Property Name="SPABNo" Type="varchar" MaxLength="50" />
+          <Property Name="SPABDate" Type="datetime2" Precision="3" />
+          <Property Name="LicenseNo" Type="varchar" MaxLength="50" />
+          <Property Name="ShareNo" Type="varchar" MaxLength="50" />
+          <Property Name="TransactionDate" Type="datetime2" Precision="3" />
+          <Property Name="InternalCode" Type="varchar" MaxLength="50" />
+          <Property Name="ReinfoCode" Type="varchar" MaxLength="50" />
+          <Property Name="StatusDate" Type="date" />
+          <Property Name="CurrentStatus" Type="char" MaxLength="1" />
+          <Property Name="CapitalSourceTypeSK" Type="decimal" Precision="18" Scale="0" />
+          <Property Name="CapitalSourceTypeCode" Type="varchar" MaxLength="30" />
+          <Property Name="EffectiveStartDateSK" Type="decimal" Precision="18" Scale="0" />
+          <Property Name="EffectiveStartDate" Type="date" />
+          <Property Name="EffectiveEndDateSK" Type="decimal" Precision="18" Scale="0" />
+          <Property Name="EffectiveEndDate" Type="date" />
+          <Property Name="EMOperationalStatusSK" Type="decimal" Precision="18" Scale="0" />
+          <Property Name="EMOperationalStatusCode" Type="varchar" MaxLength="30" />
+          <Property Name="BaseCapital" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="DepositsCapital" Type="decimal" Precision="18" Scale="2" />
+          <Property Name="RegisterNumber" Type="varchar" MaxLength="50" />
+          <Property Name="CompanyLogoImageURL" Type="varchar" MaxLength="255" />
+          <Property Name="PPEFlag" Type="char" MaxLength="1" />
+          <Property Name="PEEFlag" Type="char" MaxLength="1" />
+          <Property Name="MIFlag" Type="char" MaxLength="1" />
+          <Property Name="LicenseTypeCombinationSK" Type="decimal" Precision="18" Scale="0" />
+          <Property Name="LicenseTypeCombinationCode" Type="varchar" MaxLength="30" />
+          <Property Name="RemoteFlag" Type="char" MaxLength="1" />
+          <Property Name="DMAFlag" Type="char" MaxLength="1" />
+          <Property Name="OnlineFlag" Type="char" MaxLength="1" />
+          <Property Name="AlgoritmicFlag" Type="char" MaxLength="1" />
+          <Property Name="TransactionMethodCombinationSK" Type="decimal" Precision="18" Scale="0" />
+          <Property Name="TransactionMethodCombinationCode" Type="varchar" MaxLength="30" />
+          <Property Name="EMMarginTypeSK" Type="decimal" Precision="18" Scale="0" />
+          <Property Name="EMMarginTypeCode" Type="varchar" MaxLength="30" />
+          <Property Name="SecurityCompanyTypeSK" Type="decimal" Precision="18" Scale="0" />
+          <Property Name="SecurityCompanyTypeCode" Type="varchar" MaxLength="30" />
+          <Property Name="ABFlag" Type="char" MaxLength="1" />
+          <Property Name="DataSourceSK" Type="decimal" Precision="18" Scale="0" />
+          <Property Name="DataSourceCode" Type="varchar" MaxLength="30" />
+        </EntityType>
         <EntityType Name="ref_cities">
           <Key>
             <PropertyRef Name="rowid" />
@@ -1578,11 +1610,6 @@ warning 6002: The table/view 'BDAPM.dbo.pengawas_ljk' does not have a primary ke
           <Property Name="dm_update_date" Type="varchar" MaxLength="100" />
           <Property Name="dm_reference_date" Type="varchar" MaxLength="100" />
         </EntityType>
-        <!--Errors Found During Generation:
-warning 6013: The table/view 'BDAPM.dbo.ref_kategori_debitur_temp' does not have a primary key defined and no valid primary key could be inferred. This table/view has been excluded. To use the entity, you will need to review your schema, add the correct keys, and uncomment it.
-        <EntityType Name="ref_kategori_debitur_temp">
-          <Property Name="dm_deskripsi_kategori" Type="varchar" MaxLength="200" />
-        </EntityType>-->
         <EntityType Name="ref_ownership_document_temp">
           <Key>
             <PropertyRef Name="row_id" />
@@ -1704,29 +1731,6 @@ warning 6013: The table/view 'BDAPM.dbo.ref_kategori_debitur_temp' does not have
           <Property Name="date_modified" Type="datetime" />
           <Property Name="date_update" Type="datetime" />
         </EntityType>
-        <!--Errors Found During Generation:
-warning 6013: The table/view 'BDAPM.dbo.TestHWC' does not have a primary key defined and no valid primary key could be inferred. This table/view has been excluded. To use the entity, you will need to review your schema, add the correct keys, and uncomment it.
-        <EntityType Name="TestHWC">
-          <Property Name="dm_periode" Type="int" />
-          <Property Name="dm_jenis_ljk" Type="nvarchar(max)" />
-          <Property Name="dm_kode_ljk" Type="nvarchar(max)" />
-          <Property Name="dm_kode_kantor_cabang" Type="nvarchar(max)" />
-          <Property Name="dm_nama_ljk" Type="nvarchar(max)" />
-          <Property Name="dm_nama_kantor_cabang" Type="nvarchar(max)" />
-          <Property Name="dm_cif" Type="nvarchar(max)" />
-          <Property Name="dm_no_rekening" Type="nvarchar(max)" />
-          <Property Name="dm_nama_nasabah" Type="nvarchar(max)" />
-          <Property Name="dm_no_agunan" Type="nvarchar(max)" />
-          <Property Name="dm_jenis_agunan" Type="nvarchar(max)" />
-          <Property Name="dm_jenis_ikat" Type="nvarchar(max)" />
-          <Property Name="dm_nama_pemilik_agunan" Type="nvarchar(max)" />
-          <Property Name="dm_bukti_kepemilikan" Type="nvarchar(max)" />
-          <Property Name="dm_alamat_agunan" Type="nvarchar(max)" />
-          <Property Name="dm_lokasi_agunan" Type="nvarchar(max)" />
-          <Property Name="dm_nilai_agunan_njop" Type="bigint" />
-          <Property Name="dm_nilai_agunan_ljk" Type="bigint" />
-          <Property Name="dm_pperiode" Type="int" />
-        </EntityType>-->
         <EntityType Name="Thread">
           <Key>
             <PropertyRef Name="thread_id" />
@@ -2710,9 +2714,10 @@ warning 6002: The table/view 'BDAPM.dbo.vw_TableDictionary' does not have a prim
           <EntitySet Name="master_ljk" EntityType="Self.master_ljk" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="master_ljk_type" EntityType="Self.master_ljk_type" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="master_office_ljk" EntityType="Self.master_office_ljk" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="master_penggunaan_data" EntityType="Self.master_penggunaan_data" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="master_sid" EntityType="Self.master_sid" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="master_user_ideb" EntityType="Self.master_user_ideb" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="MasterKota" EntityType="Self.MasterKota" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="MasterPenggunaanData" EntityType="Self.MasterPenggunaanData" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="MasterPropinsi" EntityType="Self.MasterPropinsi" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="MasterSatker" EntityType="Self.MasterSatker" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="osida_master" EntityType="Self.osida_master" Schema="dbo" store:Type="Tables" />
@@ -2762,6 +2767,52 @@ warning 6002: The table/view 'BDAPM.dbo.vw_TableDictionary' does not have a prim
     [pengawas_ljk].[p_date] AS [p_date], 
     [pengawas_ljk].[sync_date] AS [sync_date]
     FROM [dbo].[pengawas_ljk] AS [pengawas_ljk]</DefiningQuery>
+          </EntitySet>
+          <EntitySet Name="PM_dimSecurityCompanies" EntityType="Self.PM_dimSecurityCompanies" store:Type="Tables" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [PM_dimSecurityCompanies].[SecurityCompanySK] AS [SecurityCompanySK], 
+    [PM_dimSecurityCompanies].[SecurityCompanyCode] AS [SecurityCompanyCode], 
+    [PM_dimSecurityCompanies].[SecurityCompanyName] AS [SecurityCompanyName], 
+    [PM_dimSecurityCompanies].[SPABNo] AS [SPABNo], 
+    [PM_dimSecurityCompanies].[SPABDate] AS [SPABDate], 
+    [PM_dimSecurityCompanies].[LicenseNo] AS [LicenseNo], 
+    [PM_dimSecurityCompanies].[ShareNo] AS [ShareNo], 
+    [PM_dimSecurityCompanies].[TransactionDate] AS [TransactionDate], 
+    [PM_dimSecurityCompanies].[InternalCode] AS [InternalCode], 
+    [PM_dimSecurityCompanies].[ReinfoCode] AS [ReinfoCode], 
+    [PM_dimSecurityCompanies].[StatusDate] AS [StatusDate], 
+    [PM_dimSecurityCompanies].[CurrentStatus] AS [CurrentStatus], 
+    [PM_dimSecurityCompanies].[CapitalSourceTypeSK] AS [CapitalSourceTypeSK], 
+    [PM_dimSecurityCompanies].[CapitalSourceTypeCode] AS [CapitalSourceTypeCode], 
+    [PM_dimSecurityCompanies].[EffectiveStartDateSK] AS [EffectiveStartDateSK], 
+    [PM_dimSecurityCompanies].[EffectiveStartDate] AS [EffectiveStartDate], 
+    [PM_dimSecurityCompanies].[EffectiveEndDateSK] AS [EffectiveEndDateSK], 
+    [PM_dimSecurityCompanies].[EffectiveEndDate] AS [EffectiveEndDate], 
+    [PM_dimSecurityCompanies].[EMOperationalStatusSK] AS [EMOperationalStatusSK], 
+    [PM_dimSecurityCompanies].[EMOperationalStatusCode] AS [EMOperationalStatusCode], 
+    [PM_dimSecurityCompanies].[BaseCapital] AS [BaseCapital], 
+    [PM_dimSecurityCompanies].[DepositsCapital] AS [DepositsCapital], 
+    [PM_dimSecurityCompanies].[RegisterNumber] AS [RegisterNumber], 
+    [PM_dimSecurityCompanies].[CompanyLogoImageURL] AS [CompanyLogoImageURL], 
+    [PM_dimSecurityCompanies].[PPEFlag] AS [PPEFlag], 
+    [PM_dimSecurityCompanies].[PEEFlag] AS [PEEFlag], 
+    [PM_dimSecurityCompanies].[MIFlag] AS [MIFlag], 
+    [PM_dimSecurityCompanies].[LicenseTypeCombinationSK] AS [LicenseTypeCombinationSK], 
+    [PM_dimSecurityCompanies].[LicenseTypeCombinationCode] AS [LicenseTypeCombinationCode], 
+    [PM_dimSecurityCompanies].[RemoteFlag] AS [RemoteFlag], 
+    [PM_dimSecurityCompanies].[DMAFlag] AS [DMAFlag], 
+    [PM_dimSecurityCompanies].[OnlineFlag] AS [OnlineFlag], 
+    [PM_dimSecurityCompanies].[AlgoritmicFlag] AS [AlgoritmicFlag], 
+    [PM_dimSecurityCompanies].[TransactionMethodCombinationSK] AS [TransactionMethodCombinationSK], 
+    [PM_dimSecurityCompanies].[TransactionMethodCombinationCode] AS [TransactionMethodCombinationCode], 
+    [PM_dimSecurityCompanies].[EMMarginTypeSK] AS [EMMarginTypeSK], 
+    [PM_dimSecurityCompanies].[EMMarginTypeCode] AS [EMMarginTypeCode], 
+    [PM_dimSecurityCompanies].[SecurityCompanyTypeSK] AS [SecurityCompanyTypeSK], 
+    [PM_dimSecurityCompanies].[SecurityCompanyTypeCode] AS [SecurityCompanyTypeCode], 
+    [PM_dimSecurityCompanies].[ABFlag] AS [ABFlag], 
+    [PM_dimSecurityCompanies].[DataSourceSK] AS [DataSourceSK], 
+    [PM_dimSecurityCompanies].[DataSourceCode] AS [DataSourceCode]
+    FROM [dbo].[PM_dimSecurityCompanies] AS [PM_dimSecurityCompanies]</DefiningQuery>
           </EntitySet>
           <EntitySet Name="vw_getMasterLJK" EntityType="Self.vw_getMasterLJK" store:Type="Views" store:Schema="dbo">
             <DefiningQuery>SELECT 
@@ -3022,8 +3073,7 @@ warning 6002: The table/view 'BDAPM.dbo.vw_TableDictionary' does not have a prim
             <End Role="UserMaster" EntitySet="UserMaster" />
           </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="DataModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -4163,14 +4213,6 @@ warning 6002: The table/view 'BDAPM.dbo.vw_TableDictionary' does not have a prim
           <Property Name="update_date" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="p_date" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="sync_date" Type="DateTime" Precision="3" />
-        </EntityType>
-        <EntityType Name="master_penggunaan_data">
-          <Key>
-            <PropertyRef Name="ID" />
-          </Key>
-          <Property Name="ID" Type="Int32" Nullable="false" />
-          <Property Name="Penggunaan_Data" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
-          <Property Name="Sts_Aktif" Type="Int32" />
         </EntityType>
         <EntityType Name="master_user_ideb">
           <Key>
@@ -5406,7 +5448,6 @@ warning 6002: The table/view 'BDAPM.dbo.vw_TableDictionary' does not have a prim
           <EntitySet Name="master_ljk" EntityType="Self.master_ljk" />
           <EntitySet Name="master_ljk_type" EntityType="Self.master_ljk_type" />
           <EntitySet Name="master_office_ljk" EntityType="Self.master_office_ljk" />
-          <EntitySet Name="master_penggunaan_data" EntityType="Self.master_penggunaan_data" />
           <EntitySet Name="master_user_ideb" EntityType="Self.master_user_ideb" />
           <EntitySet Name="MasterKota" EntityType="Self.MasterKota" />
           <EntitySet Name="MasterPropinsi" EntityType="Self.MasterPropinsi" />
@@ -5561,10 +5602,10 @@ warning 6002: The table/view 'BDAPM.dbo.vw_TableDictionary' does not have a prim
             <End Role="Thread_Post" EntitySet="Thread_Post" />
           </AssociationSet>
           <FunctionImport Name="FT_Modul_Children" IsComposable="true" ReturnType="Collection(DataModel.FT_Modul_Children_Result)">
-            <Parameter Name="node_id" Mode="In" Type="String" />
+          <Parameter Name="node_id" Mode="In" Type="String" />
           </FunctionImport>
           <FunctionImport Name="FT_Satker_Ancestor" IsComposable="true" ReturnType="Collection(DataModel.FT_Satker_Ancestor_Result)">
-            <Parameter Name="sakterID" Mode="In" Type="Int64" />
+          <Parameter Name="sakterID" Mode="In" Type="Int64" />
           </FunctionImport>
           <FunctionImport Name="Split" IsComposable="true" ReturnType="Collection(DataModel.Split_Result)">
             <Parameter Name="sep" Mode="In" Type="String" />
@@ -5576,7 +5617,7 @@ warning 6002: The table/view 'BDAPM.dbo.vw_TableDictionary' does not have a prim
             <Parameter Name="role_name" Mode="In" Type="String" />
           </FunctionImport>
           <FunctionImport Name="PrintLongString">
-            <Parameter Name="str" Mode="In" Type="String" />
+          <Parameter Name="str" Mode="In" Type="String" />
           </FunctionImport>
           <FunctionImport Name="usp_calendar_workday" ReturnType="Collection(DataModel.usp_calendar_workday_Result)" />
           <FunctionImport Name="usp_CheckMatchLoginLogoutLog" />
@@ -5609,7 +5650,7 @@ warning 6002: The table/view 'BDAPM.dbo.vw_TableDictionary' does not have a prim
             <Parameter Name="level_alert" Mode="In" Type="String" />
           </FunctionImport>
           <FunctionImport Name="usp_getColumnName" ReturnType="Collection(DataModel.usp_getColumnName_Result)">
-            <Parameter Name="tblName" Mode="In" Type="String" />
+          <Parameter Name="tblName" Mode="In" Type="String" />
           </FunctionImport>
           <FunctionImport Name="usp_GetDataAlert" ReturnType="Collection(DataModel.usp_GetDataAlert_Result)">
             <Parameter Name="userID" Mode="In" Type="String" />
@@ -5684,13 +5725,13 @@ warning 6002: The table/view 'BDAPM.dbo.vw_TableDictionary' does not have a prim
             <Parameter Name="dimensi1" Mode="In" Type="String" />
           </FunctionImport>
           <FunctionImport Name="usp_getListMenu" ReturnType="Collection(DataModel.usp_getListMenu_Result)">
-            <Parameter Name="tipe" Mode="In" Type="String" />
+          <Parameter Name="tipe" Mode="In" Type="String" />
           </FunctionImport>
           <FunctionImport Name="usp_getListQueue" ReturnType="Collection(DataModel.usp_getListQueue_Result)" />
           <FunctionImport Name="usp_getListUserPengawasForDelete" ReturnType="Collection(String)" />
           <FunctionImport Name="usp_getListUserSync" ReturnType="Collection(String)" />
           <FunctionImport Name="usp_getLJKPengawas" ReturnType="Collection(DataModel.usp_getLJKPengawas_Result)">
-            <Parameter Name="userID" Mode="In" Type="String" />
+          <Parameter Name="userID" Mode="In" Type="String" />
           </FunctionImport>
           <FunctionImport Name="usp_getLogOutliers" ReturnType="Collection(DataModel.usp_getLogOutliers_Result)">
             <Parameter Name="jenis_ljk" Mode="In" Type="String" />
@@ -5734,10 +5775,10 @@ warning 6002: The table/view 'BDAPM.dbo.vw_TableDictionary' does not have a prim
             <Parameter Name="role_name" Mode="In" Type="String" />
           </FunctionImport>
           <FunctionImport Name="usp_getModulChildren" ReturnType="Collection(DataModel.usp_getModulChildren_Result)">
-            <Parameter Name="node_id" Mode="In" Type="Int64" />
+          <Parameter Name="node_id" Mode="In" Type="Int64" />
           </FunctionImport>
           <FunctionImport Name="usp_getNotification" ReturnType="Collection(DataModel.usp_getNotification_Result)">
-            <Parameter Name="user_id" Mode="In" Type="String" />
+          <Parameter Name="user_id" Mode="In" Type="String" />
           </FunctionImport>
           <FunctionImport Name="usp_getPengawasDailyALert" ReturnType="Collection(String)">
             <Parameter Name="periode" Mode="In" Type="DateTime" />
@@ -5755,7 +5796,7 @@ warning 6002: The table/view 'BDAPM.dbo.vw_TableDictionary' does not have a prim
             <Parameter Name="periode_until" Mode="In" Type="DateTime" />
           </FunctionImport>
           <FunctionImport Name="usp_getRoleEmail" ReturnType="Collection(String)">
-            <Parameter Name="roleCsv" Mode="In" Type="String" />
+          <Parameter Name="roleCsv" Mode="In" Type="String" />
           </FunctionImport>
           <FunctionImport Name="usp_getRoleWithSatkerEmail" ReturnType="Collection(String)">
             <Parameter Name="roleCsv" Mode="In" Type="String" />
@@ -5778,11 +5819,14 @@ warning 6002: The table/view 'BDAPM.dbo.vw_TableDictionary' does not have a prim
             <Parameter Name="ljk" Mode="In" Type="String" />
           </FunctionImport>
           <FunctionImport Name="usp_getTotalPelapor" ReturnType="Collection(Int32)">
-            <Parameter Name="userID" Mode="In" Type="String" />
+          <Parameter Name="userID" Mode="In" Type="String" />
           </FunctionImport>
           <FunctionImport Name="usp_updSBPembandingFromRJPSeflBulanan">
-            <Parameter Name="periode_from" Mode="In" Type="DateTime" />
+          <Parameter Name="periode_from" Mode="In" Type="DateTime" />
           </FunctionImport>
+          <EntitySet Name="master_sid" EntityType="DataModel.master_sid" />
+          <EntitySet Name="PM_dimSecurityCompanies" EntityType="DataModel.PM_dimSecurityCompanies" />
+          <EntitySet Name="MasterPenggunaanData" EntityType="DataModel.MasterPenggunaanData" />
         </EntityContainer>
         <ComplexType Name="FW_userPermission_Result">
           <Property Type="String" Name="UserId" Nullable="false" MaxLength="250" />
@@ -5986,6 +6030,67 @@ warning 6002: The table/view 'BDAPM.dbo.vw_TableDictionary' does not have a prim
           <Property Type="String" Name="link" Nullable="true" />
           <Property Type="Int32" Name="Rows" Nullable="true" />
         </ComplexType>
+        <EntityType Name="master_sid">
+          <Key>
+            <PropertyRef Name="sid" />
+          </Key>
+          <Property Name="sid" Type="String" Nullable="false" MaxLength="15" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="PM_dimSecurityCompanies">
+          <Key>
+            <PropertyRef Name="SecurityCompanySK" />
+          </Key>
+          <Property Name="SecurityCompanySK" Type="Decimal" Nullable="false" Precision="18" Scale="0" />
+          <Property Name="SecurityCompanyCode" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="SecurityCompanyName" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="SPABNo" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="SPABDate" Type="DateTime" Precision="3" />
+          <Property Name="LicenseNo" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ShareNo" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="TransactionDate" Type="DateTime" Precision="3" />
+          <Property Name="InternalCode" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ReinfoCode" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="StatusDate" Type="DateTime" Precision="0" />
+          <Property Name="CurrentStatus" Type="String" MaxLength="1" FixedLength="true" Unicode="false" />
+          <Property Name="CapitalSourceTypeSK" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="CapitalSourceTypeCode" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="EffectiveStartDateSK" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="EffectiveStartDate" Type="DateTime" Precision="0" />
+          <Property Name="EffectiveEndDateSK" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="EffectiveEndDate" Type="DateTime" Precision="0" />
+          <Property Name="EMOperationalStatusSK" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="EMOperationalStatusCode" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="BaseCapital" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="DepositsCapital" Type="Decimal" Precision="18" Scale="2" />
+          <Property Name="RegisterNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="CompanyLogoImageURL" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <Property Name="PPEFlag" Type="String" MaxLength="1" FixedLength="true" Unicode="false" />
+          <Property Name="PEEFlag" Type="String" MaxLength="1" FixedLength="true" Unicode="false" />
+          <Property Name="MIFlag" Type="String" MaxLength="1" FixedLength="true" Unicode="false" />
+          <Property Name="LicenseTypeCombinationSK" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="LicenseTypeCombinationCode" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="RemoteFlag" Type="String" MaxLength="1" FixedLength="true" Unicode="false" />
+          <Property Name="DMAFlag" Type="String" MaxLength="1" FixedLength="true" Unicode="false" />
+          <Property Name="OnlineFlag" Type="String" MaxLength="1" FixedLength="true" Unicode="false" />
+          <Property Name="AlgoritmicFlag" Type="String" MaxLength="1" FixedLength="true" Unicode="false" />
+          <Property Name="TransactionMethodCombinationSK" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="TransactionMethodCombinationCode" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="EMMarginTypeSK" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="EMMarginTypeCode" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="SecurityCompanyTypeSK" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="SecurityCompanyTypeCode" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="ABFlag" Type="String" MaxLength="1" FixedLength="true" Unicode="false" />
+          <Property Name="DataSourceSK" Type="Decimal" Precision="18" Scale="0" />
+          <Property Name="DataSourceCode" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="MasterPenggunaanData">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" />
+          <Property Name="Penggunaan_Data" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="Sts_Aktif" Type="Int32" />
+        </EntityType>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -7119,15 +7224,6 @@ warning 6002: The table/view 'BDAPM.dbo.vw_TableDictionary' does not have a prim
                 <ScalarProperty Name="update_date" ColumnName="update_date" />
                 <ScalarProperty Name="p_date" ColumnName="p_date" />
                 <ScalarProperty Name="sync_date" ColumnName="sync_date" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="master_penggunaan_data">
-            <EntityTypeMapping TypeName="DataModel.master_penggunaan_data">
-              <MappingFragment StoreEntitySet="master_penggunaan_data">
-                <ScalarProperty Name="ID" ColumnName="ID" />
-                <ScalarProperty Name="Penggunaan_Data" ColumnName="Penggunaan_Data" />
-                <ScalarProperty Name="Sts_Aktif" ColumnName="Sts_Aktif" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -8297,6 +8393,70 @@ warning 6002: The table/view 'BDAPM.dbo.vw_TableDictionary' does not have a prim
           </FunctionImportMapping>
           <FunctionImportMapping FunctionImportName="usp_getTotalPelapor" FunctionName="DataModel.Store.usp_getTotalPelapor" />
           <FunctionImportMapping FunctionImportName="usp_updSBPembandingFromRJPSeflBulanan" FunctionName="DataModel.Store.usp_updSBPembandingFromRJPSeflBulanan" />
+          <EntitySetMapping Name="master_sid">
+            <EntityTypeMapping TypeName="DataModel.master_sid">
+              <MappingFragment StoreEntitySet="master_sid">
+                <ScalarProperty Name="sid" ColumnName="sid" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PM_dimSecurityCompanies">
+            <EntityTypeMapping TypeName="DataModel.PM_dimSecurityCompanies">
+              <MappingFragment StoreEntitySet="PM_dimSecurityCompanies">
+                <ScalarProperty Name="DataSourceCode" ColumnName="DataSourceCode" />
+                <ScalarProperty Name="DataSourceSK" ColumnName="DataSourceSK" />
+                <ScalarProperty Name="ABFlag" ColumnName="ABFlag" />
+                <ScalarProperty Name="SecurityCompanyTypeCode" ColumnName="SecurityCompanyTypeCode" />
+                <ScalarProperty Name="SecurityCompanyTypeSK" ColumnName="SecurityCompanyTypeSK" />
+                <ScalarProperty Name="EMMarginTypeCode" ColumnName="EMMarginTypeCode" />
+                <ScalarProperty Name="EMMarginTypeSK" ColumnName="EMMarginTypeSK" />
+                <ScalarProperty Name="TransactionMethodCombinationCode" ColumnName="TransactionMethodCombinationCode" />
+                <ScalarProperty Name="TransactionMethodCombinationSK" ColumnName="TransactionMethodCombinationSK" />
+                <ScalarProperty Name="AlgoritmicFlag" ColumnName="AlgoritmicFlag" />
+                <ScalarProperty Name="OnlineFlag" ColumnName="OnlineFlag" />
+                <ScalarProperty Name="DMAFlag" ColumnName="DMAFlag" />
+                <ScalarProperty Name="RemoteFlag" ColumnName="RemoteFlag" />
+                <ScalarProperty Name="LicenseTypeCombinationCode" ColumnName="LicenseTypeCombinationCode" />
+                <ScalarProperty Name="LicenseTypeCombinationSK" ColumnName="LicenseTypeCombinationSK" />
+                <ScalarProperty Name="MIFlag" ColumnName="MIFlag" />
+                <ScalarProperty Name="PEEFlag" ColumnName="PEEFlag" />
+                <ScalarProperty Name="PPEFlag" ColumnName="PPEFlag" />
+                <ScalarProperty Name="CompanyLogoImageURL" ColumnName="CompanyLogoImageURL" />
+                <ScalarProperty Name="RegisterNumber" ColumnName="RegisterNumber" />
+                <ScalarProperty Name="DepositsCapital" ColumnName="DepositsCapital" />
+                <ScalarProperty Name="BaseCapital" ColumnName="BaseCapital" />
+                <ScalarProperty Name="EMOperationalStatusCode" ColumnName="EMOperationalStatusCode" />
+                <ScalarProperty Name="EMOperationalStatusSK" ColumnName="EMOperationalStatusSK" />
+                <ScalarProperty Name="EffectiveEndDate" ColumnName="EffectiveEndDate" />
+                <ScalarProperty Name="EffectiveEndDateSK" ColumnName="EffectiveEndDateSK" />
+                <ScalarProperty Name="EffectiveStartDate" ColumnName="EffectiveStartDate" />
+                <ScalarProperty Name="EffectiveStartDateSK" ColumnName="EffectiveStartDateSK" />
+                <ScalarProperty Name="CapitalSourceTypeCode" ColumnName="CapitalSourceTypeCode" />
+                <ScalarProperty Name="CapitalSourceTypeSK" ColumnName="CapitalSourceTypeSK" />
+                <ScalarProperty Name="CurrentStatus" ColumnName="CurrentStatus" />
+                <ScalarProperty Name="StatusDate" ColumnName="StatusDate" />
+                <ScalarProperty Name="ReinfoCode" ColumnName="ReinfoCode" />
+                <ScalarProperty Name="InternalCode" ColumnName="InternalCode" />
+                <ScalarProperty Name="TransactionDate" ColumnName="TransactionDate" />
+                <ScalarProperty Name="ShareNo" ColumnName="ShareNo" />
+                <ScalarProperty Name="LicenseNo" ColumnName="LicenseNo" />
+                <ScalarProperty Name="SPABDate" ColumnName="SPABDate" />
+                <ScalarProperty Name="SPABNo" ColumnName="SPABNo" />
+                <ScalarProperty Name="SecurityCompanyName" ColumnName="SecurityCompanyName" />
+                <ScalarProperty Name="SecurityCompanyCode" ColumnName="SecurityCompanyCode" />
+                <ScalarProperty Name="SecurityCompanySK" ColumnName="SecurityCompanySK" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="MasterPenggunaanData">
+            <EntityTypeMapping TypeName="DataModel.MasterPenggunaanData">
+              <MappingFragment StoreEntitySet="MasterPenggunaanData">
+                <ScalarProperty Name="Sts_Aktif" ColumnName="Sts_Aktif" />
+                <ScalarProperty Name="Penggunaan_Data" ColumnName="Penggunaan_Data" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

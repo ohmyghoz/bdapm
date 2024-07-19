@@ -58,7 +58,6 @@
         <EntityTypeShape EntityType="DataModel.master_ljk" Width="1.5" PointX="25.75" PointY="25.75" IsExpanded="true" />
         <EntityTypeShape EntityType="DataModel.master_ljk_type" Width="1.5" PointX="4.75" PointY="30.75" IsExpanded="true" />
         <EntityTypeShape EntityType="DataModel.master_office_ljk" Width="1.5" PointX="6.75" PointY="30.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.master_penggunaan_data" Width="1.5" PointX="27.75" PointY="4.75" IsExpanded="true" />
         <EntityTypeShape EntityType="DataModel.master_user_ideb" Width="1.5" PointX="27.75" PointY="7.75" IsExpanded="true" />
         <EntityTypeShape EntityType="DataModel.MasterKota" Width="1.5" PointX="3" PointY="15.625" IsExpanded="true" />
         <EntityTypeShape EntityType="DataModel.MasterPropinsi" Width="1.5" PointX="0.75" PointY="15.625" IsExpanded="true" />
@@ -131,6 +130,9 @@
         <AssociationConnector Association="DataModel.FK_Post_Thread" ManuallyRouted="false" />
         <AssociationConnector Association="DataModel.FK_Thread_User_Master" ManuallyRouted="false" />
         <AssociationConnector Association="DataModel.FK_Post_User_Master" ManuallyRouted="false" />
+        <EntityTypeShape EntityType="DataModel.master_sid" Width="1.5" PointX="0.75" PointY="0.75" />
+        <EntityTypeShape EntityType="DataModel.PM_dimSecurityCompanies" Width="1.5" PointX="34.75" PointY="19.75" />
+        <EntityTypeShape EntityType="DataModel.MasterPenggunaanData" Width="1.5" PointX="13.375" PointY="0.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

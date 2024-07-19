@@ -80,7 +80,6 @@ namespace BDA.DataModel
         public virtual DbSet<master_ljk> master_ljk { get; set; }
         public virtual DbSet<master_ljk_type> master_ljk_type { get; set; }
         public virtual DbSet<master_office_ljk> master_office_ljk { get; set; }
-        public virtual DbSet<master_penggunaan_data> master_penggunaan_data { get; set; }
         public virtual DbSet<master_user_ideb> master_user_ideb { get; set; }
         public virtual DbSet<MasterKota> MasterKota { get; set; }
         public virtual DbSet<MasterPropinsi> MasterPropinsi { get; set; }
@@ -126,6 +125,9 @@ namespace BDA.DataModel
         public virtual DbSet<vw_PeriodTableHive> vw_PeriodTableHive { get; set; }
         public virtual DbSet<vw_RefDeskripsiKategori> vw_RefDeskripsiKategori { get; set; }
         public virtual DbSet<vw_TableDictionary> vw_TableDictionary { get; set; }
+        public virtual DbSet<master_sid> master_sid { get; set; }
+        public virtual DbSet<PM_dimSecurityCompanies> PM_dimSecurityCompanies { get; set; }
+        public virtual DbSet<MasterPenggunaanData> MasterPenggunaanData { get; set; }
     
         [DbFunction("DataEntities", "FT_Modul_Children")]
         public virtual IQueryable<FT_Modul_Children_Result> FT_Modul_Children(string node_id)

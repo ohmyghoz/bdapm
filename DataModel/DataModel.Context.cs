@@ -220,7 +220,7 @@ namespace BDA.DataModel
         public virtual DbSet<pe_segmentation_det_reverse_repo> pe_segmentation_det_reverse_repo { get; set; }
         public virtual DbSet<pe_segmentation_det_reverse_repo_sum> pe_segmentation_det_reverse_repo_sum { get; set; }
         public virtual DbSet<pe_segmentation_sum_cluster_mkbd> pe_segmentation_sum_cluster_mkbd { get; set; }
-        public virtual DbSet<master_penggunaan_data> master_penggunaan_data { get; set; }
+        public virtual DbSet<MasterPenggunaanData> MasterPenggunaanData { get; set; }
         //---------------------------------------------------------2024 BDAPM--------------------------------------------------------------------//
 
         public virtual ObjectResult<FW_userPermission_Result> FW_userPermission(string user_id, string mod_kode, string role_name)

@@ -824,6 +824,11 @@ namespace BDA.DataModel
 
     }
 
-    
+    public class MasterPenggunaanData
+    {
+        public int ID { get; set; }
+        public string Penggunaan_Data { get; set; }
+        public Nullable<int> Sts_Aktif { get; set; }
+    }
 
 }

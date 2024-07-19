@@ -85,7 +85,8 @@ namespace BDA.Controllers
             string stringStatus = null;
             string reportId = "pe_segmentation_sum_cluster_mkbd"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
 
-            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId);
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(
+                db, reportId);
 
             /*check pengawas LJK*/
             if (IsPengawasLJK())

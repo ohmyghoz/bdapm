@@ -222,6 +222,9 @@
     <Compile Include="MasterKota.cs">
       <DependentUpon>DataModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="MasterPenggunaanData.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="MasterPropinsi.cs">
       <DependentUpon>DataModel.tt</DependentUpon>
     </Compile>
@@ -243,7 +246,7 @@
     <Compile Include="master_office_ljk.cs">
       <DependentUpon>DataModel.tt</DependentUpon>
     </Compile>
-    <Compile Include="master_penggunaan_data.cs">
+    <Compile Include="master_sid.cs">
       <DependentUpon>DataModel.tt</DependentUpon>
     </Compile>
     <Compile Include="master_user_ideb.cs">
@@ -295,6 +298,9 @@
       <DependentUpon>DataModel.tt</DependentUpon>
     </Compile>
     <Compile Include="pe_segmentation_sum_cluster_mkbd.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="PM_dimSecurityCompanies.cs">
       <DependentUpon>DataModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
