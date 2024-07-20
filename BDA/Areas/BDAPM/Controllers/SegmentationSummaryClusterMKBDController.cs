@@ -16,6 +16,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.Data.SqlClient;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace BDA.Controllers
 {
@@ -137,6 +139,48 @@ namespace BDA.Controllers
                 loadOptions = new DataSourceLoadOptions();
             }
             return DataSourceLoader.Load(new List<string>(), loadOptions);
+        }
+        [HttpPost]
+        public ActionResult SimpanPenggunaanData(string id)
+        {
+            string message = "";
+            string Penggunaan_Data = "";
+            bool result = true;
+
+            try
+            {
+                var userId = HttpContext.User.Identity.Name;
+                string strSQL = db.appSettings.DataConnString;
+                using (SqlConnection conn = new SqlConnection(strSQL))
+                {
+                    conn.Open();
+                    string strQuery = "Select * from MasterPenggunaanData where id=" + id + " order by id asc ";
+                    SqlDataAdapter da = new SqlDataAdapter(strQuery, conn);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+                    if (dt.Rows.Count > 0)
+                    {
+                         Penggunaan_Data = dt.Rows[0]["Penggunaan_Data"].ToString();
+                    }
+                    conn.Close();
+                    conn.Dispose();
+                }
+
+                var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+                var currentNode = mdl.GetCurrentNode();
+
+                string pageTitle = currentNode != null ? currentNode.Title : "";
+
+                db.InsertAuditTrail("SegmentationSummaryClusterMKBD_Akses_Page", "user "+ userId + " mengakases halaman Segmentation Summary Cluster MKBD untuk digunakan sebagai " + Penggunaan_Data + "", pageTitle);
+                result = true;
+            }
+            catch (Exception ex)
+            {
+                string errMsg = ex.Message;
+                message = "Saving Failed !, " + " " + errMsg;
+                result = false;
+            }
+            return Json(new { message, success = result }, new Newtonsoft.Json.JsonSerializerSettings());
         }
     }
 }

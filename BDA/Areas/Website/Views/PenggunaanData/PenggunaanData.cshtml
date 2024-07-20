@@ -16,32 +16,62 @@
         .SearchEnabled(true)
         .OnSelectionChanged("onSelectionChanged")
         .Width("100%")) *@
-    @(Html.DevExtreme().DataGrid()
-            .ID("grid")
-            .DataSource(d => d.Mvc()
-                    .Controller("PenggunaanData")
-                    .LoadAction("GetPenggunaanData")
-                    .Key("id")
-                )
-            .RemoteOperations(true)
-            .Selection(s => s.Mode(SelectionMode.Single))
-            .ShowColumnLines(false)
-            .ShowRowLines(true)
-            .RowAlternationEnabled(true)
-            .ShowBorders(true)
-            .FocusedRowEnabled(true)
-            .Columns(columns =>
-            {
-                    columns.Add().DataField("Penggunaan_Data").Caption("Penggunaan Data");
-            })
-            .AllowColumnResizing(true)
-            .FocusedRowKey(roleId)
-            .WordWrapEnabled(true)
-            .OnFocusedRowChanged("onFocusedRowChanged")
-        )
-    @Html.DevExtreme().TextBox().ID("id").Name("id").Visible(false)
+
+
+
+        <!-- The Modal  Detail-->
+        <div class="modal fade" id="ModalSimpanQueryDetail" tabindex="-1" role="document" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color:#0066b2">
+                        @*<button type="button" class="close clear-validation" data-dismiss="modal" aria-hidden="true">&times;</button>*@
+                        <h4 class="modal-title" style="text-align:left">
+                            <font color="white">Detil Query</font>
+                        </h4>
+                    </div><!--Modal Header-->
+                    <!-- Modal body -->
+                    <div class="modal-body">
+                        <form id="StrukturFormDetail" method="POST" action="" class="form-horizontal row-border">
+                            <div class="row" style="padding: 0 10px 0 10px;">
+                            @(Html.DevExtreme().DataGrid()
+                                .ID("grid")
+                                .DataSource(d => d.Mvc()
+                                .Controller("PenggunaanData")
+                                .LoadAction("GetPenggunaanData")
+                                .Key("id")
+                                )
+                                .RemoteOperations(true)
+                                .Selection(s => s.Mode(SelectionMode.Single))
+                                .ShowColumnLines(false)
+                                .ShowRowLines(true)
+                                .RowAlternationEnabled(true)
+                                .ShowBorders(true)
+                                .FocusedRowEnabled(true)
+                                .Columns(columns =>
+                                {
+                                    columns.Add().DataField("Penggunaan_Data").Caption("Penggunaan Data");
+                                })
+                                .AllowColumnResizing(true)
+                                .FocusedRowKey(roleId)
+                                .WordWrapEnabled(true)
+                                .OnFocusedRowChanged("onFocusedRowChanged")
+                                )
+                            @Html.DevExtreme().TextBox().ID("id").Name("id").Visible(false)
+                            </div>
+                        </form>
+                    </div>
+                    <!-- Modal footer -->
+                    <div class="modal-footer">
+                    @Html.DevExtreme().Button().ID("btnSave").Text("select").StylingMode(ButtonStylingMode.Contained).Type(ButtonType.Success).UseSubmitBehavior(true)
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- The Modal  Detail-->
+
+    
     <br />
-    @Html.DevExtreme().Button().ID("btnSave").Text("select").StylingMode(ButtonStylingMode.Contained).Type(ButtonType.Success).UseSubmitBehavior(true)
+    
 
     <script type="text/javascript">
         function onSelectionChanged(e) {

@@ -34,23 +34,23 @@
                         @(Html.DevExtreme().TagBox()
                             .ID("Members")
                             @* .DataSource(d => d.Mvc()
-                            .Controller("MaxMinOverdue")
-                            .LoadAction("GetMembers")
-                            .LoadParams(new { memberTypes = new JS("function() { return $(\"#MemberTypes\").dxTagBox(\"instance\").option(\"value\"); }"), reset = new JS("function() { return resetLJK; }") })
-                            //.Key("kode_ljk")
-                            .Key("CompositeKey")
-                            )
-                            .DataSourceOptions(d => d.Paginate(true).PageSize(10))
-                            //.ValueExpr("kode_ljk")
-                            .ValueExpr("CompositeKey")
-                            .DisplayExpr("Display")
-                            .ShowSelectionControls(true)
-                            .MaxDisplayedTags(3)
-                            .SearchEnabled(true)
-                            .ShowClearButton(true)
-                            .OnSelectionChanged("onSelectionChanged")
-                            .OnOpened("onLJKOpened")
-                            .OnValueChanged("onLJKChanged") *@
+                    .Controller("MaxMinOverdue")
+                    .LoadAction("GetMembers")
+                    .LoadParams(new { memberTypes = new JS("function() { return $(\"#MemberTypes\").dxTagBox(\"instance\").option(\"value\"); }"), reset = new JS("function() { return resetLJK; }") })
+                    //.Key("kode_ljk")
+                    .Key("CompositeKey")
+                    )
+                    .DataSourceOptions(d => d.Paginate(true).PageSize(10))
+                    //.ValueExpr("kode_ljk")
+                    .ValueExpr("CompositeKey")
+                    .DisplayExpr("Display")
+                    .ShowSelectionControls(true)
+                    .MaxDisplayedTags(3)
+                    .SearchEnabled(true)
+                    .ShowClearButton(true)
+                    .OnSelectionChanged("onSelectionChanged")
+                    .OnOpened("onLJKOpened")
+                    .OnValueChanged("onLJKChanged") *@
                             .Width("100%"))
                     </div>
 
@@ -136,6 +136,43 @@
                     p.ShowInfo(true);
                 }))
         </div>
+        <!-- The Modal  Detail-->
+        <div class="modal fade" id="ModalSimpanPenggunaanData" tabindex="-1" role="document" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color:#0066b2">
+                        @*<button type="button" class="close clear-validation" data-dismiss="modal" aria-hidden="true">&times;</button>*@
+                        <h4 class="modal-title" style="text-align:left">
+                            <font color="white">Pilih Penggunaan Data</font>
+                        </h4>
+                    </div><!--Modal Header-->
+                    <!-- Modal body -->
+                    <div class="modal-body">
+                        <form id="StrukturFormDetail" method="POST" action="" class="form-horizontal row-border">
+                            <div class="row" style="padding: 0 10px 0 10px;">
+                                @(Html.DevExtreme().SelectBox()
+                                    .ID("penggunaandataid")
+                                    .DataSource(d => d.Mvc()
+                                    .Controller("PenggunaanData")
+                                    .Area("Website")
+                                    .LoadAction("GetPenggunaanData")
+                                    .Key("value"))
+                                    .ValueExpr("value")
+                                    .DisplayExpr("text")
+                                    .SearchEnabled(true)
+                                    .Width("100%")
+                                    )
+                            </div>
+                        </form>
+                    </div>
+                    <!-- Modal footer -->
+                    <div class="modal-footer">
+                        <button type="button" id="btnSavePenggunaanData" class="btn btn-primary" data-bs-dismiss="modal"><i class='fa fa-save'></i> Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- The Modal  Detail-->
     </div>
 }
 
@@ -145,16 +182,95 @@
 </script>
 
 <script>
-    function PopupPenggunaanDataHidden() {
-        window.location = "@Url.Action("Index", "Default", new { area = "Website" })";
-    }
 
-    function PenggunaanData() {
-        ShowPopupMain("@Url.Action("PenggunaanData", "PenggunaanData", new { area = "Website" })", "Penggunaan Data", "600px", "400px", PopupPenggunaanDataHidden);
-    }
-    $(window).on('load', function () {
-        PenggunaanData();
+    $(function () {
+        $("#penggunaandataid").dxValidator({
+            validationGroup: "Filter",
+            validationRules: [{ type: "required", message: "[Penggunaan Data] harus dipilih" }]
+        })
     });
+
+    $(window).on('load', function () {
+        $("#ModalSimpanPenggunaanData").modal("show");
+    });
+
+    $("#btnSavePenggunaanData").click(function () {
+        let penggunaandataid = $("#penggunaandataid").dxSelectBox("instance").option("value");
+
+        if (penggunaandataid == null) {
+            alert("Silahkan Pilih Tujuan Penggunaan Data");
+            return false;
+        } else {
+            $.ajax({
+                url: '@Url.Action("SimpanPenggunaanData", "SegmentationSummaryClusterMKBD")',
+                data: { id: penggunaandataid },
+                dataType: "json",
+                type: "POST",
+                beforeSend: function () {
+                    waitingDialog.show('Saving on progress....');
+                },
+                success: function (data) {
+                    if (data.success == true) {
+                        //alert(data.message);
+                        waitingDialog.hide();
+                        $('#ModalSimpanPenggunaanData').modal('hide');
+                        return "Saving Success !";
+                    }
+                    else if (data.success == false) {
+                        waitingDialog.hide();
+                        alert(data.message);
+                        $('#ModalSimpanPenggunaanData').modal('hide');
+                        return "Saving Failed !";
+                    }
+                }
+            });
+        }
+    });
+
+    var waitingDialog = (function ($) {
+
+        // Creating modal dialog's DOM
+        var $dialog = $(
+            '<div class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">' +
+            '<div class="modal-dialog modal-m">' +
+            '<div class="modal-content">' +
+            '<div class="modal-header"><h3 style="margin:0;"></h3></div>' +
+            '<div class="modal-body">' +
+            '<div class="progress progress-striped active" style="margin-bottom:0;"><div class="progress-bar" style="width: 100%"></div></div>' +
+            '</div>' +
+            '</div></div></div>');
+
+        return {
+            show: function (message, options) {
+                // Assigning defaults
+                var settings = $.extend({
+                    dialogSize: 'm',
+                    progressType: ''
+                }, options);
+                if (typeof message === 'undefined') {
+                    message = 'Loading';
+                }
+                if (typeof options === 'undefined') {
+                    options = {};
+                }
+                // Configuring dialog
+                $dialog.find('.modal-dialog').attr('class', 'modal-dialog').addClass('modal-' + settings.dialogSize);
+                $dialog.find('.progress-bar').attr('class', 'progress-bar');
+                if (settings.progressType) {
+                    $dialog.find('.progress-bar').addClass('progress-bar-' + settings.progressType);
+                }
+                $dialog.find('h3').text(message);
+                // Opening dialog
+                $dialog.modal();
+            },
+            /**
+                * Closes dialog
+                */
+            hide: function () {
+                $dialog.modal('hide');
+            }
+        }
+    })(jQuery);
 
     function ExportToExcel() {
         $.ajax({
