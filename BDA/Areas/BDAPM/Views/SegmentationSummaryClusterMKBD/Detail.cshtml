@@ -1,0 +1,484 @@
+﻿@using DevExtreme.AspNet.Mvc
+@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+    string reportId = "pe_segmentation_bridging_detail";
+    var p = (string[])ViewBag.period;
+    var maxItems = db.GetSetting("LimitFilterLJK");
+}
+
+@inject BDA.DataModel.DataEntities db
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="card card-default">
+        @*filter*@
+        <div class="row filter-panel" style="padding-top:0px;">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-4 form-group">
+                        <label>Tanggal<span class="mandatory">*</span></label>
+                        @(Html.DevExtreme().DateBox()
+                            .ID("PeriodeAwal")
+                            .DisplayFormat("dd MMM yyyy")
+                            //.Value(periodeAwal1 == null ? DateTime.Now : periodeAwal1)
+                            .Value(DateTime.Now)
+                            .Max(DateTime.Now)
+                            .Width("100%"))
+                    </div>
+
+                    <div class="col-lg-4 form-group">
+                        <label>Nama PE</label>
+                        @(Html.DevExtreme().SelectBox()
+                            .ID("namaPEid")
+                            .DataSource(d => d.Mvc()
+                            .Controller("SegmentationSummaryClusterMKBD")
+                            .Area("BDAPM")
+                            .LoadAction("GetNamaPE")
+                            .Key("value"))
+                            .ValueExpr("value")
+                            .DisplayExpr("text")
+                            .SearchEnabled(true)
+                            .Width("100%")
+                            )
+                    </div>
+                </div>
+
+                <div class="float-left">
+                    @(Html.DevExtreme().Button()
+                        .ID("Filter")
+                        .Type(ButtonType.Default)
+                        .Text("Tampilkan")
+                        .OnClick("onButtonFilterClicked")
+                        .ValidationGroup("Filter"))
+                </div>
+
+
+
+            </div>
+        </div>
+        <div class="row filter-panel" style="padding-top:0px;">
+            <div class="card-body">
+                <div class="row">
+
+                    <div class="form-group">
+                        <button type="button" id="btnDetailCluster" class="btn btn-danger">Detail Cluster MKBD</button>
+                    </div>&nbsp;&nbsp;
+                    <div class="form-group">
+                        <button type="button" id="btnRincianPortofolio" class="btn btn-danger">Rincian Portofolio</button>
+                    </div>&nbsp;&nbsp;
+                    <div class="form-group">
+                        <button type="button" id="btnReksadana" class="btn btn-danger">Reksadana</button>
+                    </div>&nbsp;&nbsp;
+                    <div class="form-group">
+                        <button type="button" id="btnJaminanMargin" class="btn btn-danger">Jaminan Margin</button>
+                    </div>&nbsp;&nbsp;
+                    <div class="form-group">
+                        <button type="button" id="btnReverseRepo" class="btn btn-danger">Nilai Jamin Margin</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @*grid*@
+        <div>
+            <div class="float-right">
+                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                @*  @if (ViewBag.Export)
+            {
+            <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();"><span class="image fa fa-file-excel"></span> Export Excel</a>
+            <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+            } *@
+            </div>
+            <br />
+            <div class="gridview-div">
+                @*  @(Html.DevExtreme().DataGrid()
+            .ID("grid1")
+            .DataSource(d => d.Mvc()
+            .Controller("SegmentationSummaryClusterMKBD")
+            .LoadAction("GetGridDataDetail")
+            .Key("rowid")
+            .OnBeforeSend("onGridBeforeSend"))
+            .RemoteOperations(true)
+            .Width("100%")
+            .AllowColumnResizing(true)
+            .ColumnAutoWidth(true)
+            .Columns(columns =>
+            {
+            columns.Add().DataField("rowid").Visible(false);
+            columns.Add().DataField("calendardate").Caption("Tanggal").DataType(GridColumnDataType.DateTime).Format("MMM yyyy");
+            columns.Add().DataField("securitycompanycode").Caption("Kode PE");
+            columns.Add().DataField("securitycompanyname").Caption("Nama PE");
+            columns.Add().DataField("f_level_1").Caption("Konsentrasi Aset Lancar selain Kas dan Setara Kas");
+            columns.Add().DataField("total_balance").Caption("Total Balance");
+            columns.Add().DataField("total_aset_lancar").Caption("Total Aset Lancar");
+            columns.Add().DataField("persentase").Caption("Persentase");
+            columns.Add().DataField("fairmarketvalue").Caption("Nilai Jaminan Margin");
+            })
+            .ColumnResizingMode(ColumnResizingMode.Widget)
+            .FilterRow(f => f.Visible(true))
+            .ShowBorders(false)
+            // .RowAlternationEnabled(false)
+            .Paging(p =>
+            {
+            p.PageSize(20);
+            p.Enabled(true);
+            })
+            .Pager(p =>
+            {
+            p.ShowInfo(true);
+            })
+            ) *@
+
+                <table style="width:100%;border:1px solid black">
+                    <tr>
+                        <th>Tanggal</th>
+                        <th>Kode PE</th>
+                        <th>Nama PE</th>
+                        <th>Konsentrasi Aset Lancar selain Kas dan Setara Kas</th>
+                        <th>Total Balance</th>
+                        <th>Total Aset Lancar</th>
+                        <th>Persentase</th>
+                        <th>Nilai Jaminan Margin</th>
+                    </tr>
+                    <tr>
+                        <td>2024-07-22</td>
+                        <td>GA</td>
+                        <td>BNC SEKURITAS INDONESIA</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                    </tr>
+                    <tr>
+                        <td>2024-07-22</td>
+                        <td>GA</td>
+                        <td>BNC SEKURITAS INDONESIA</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                    </tr>
+                    <tr>
+                        <td>2024-07-22</td>
+                        <td>GA</td>
+                        <td>BNC SEKURITAS INDONESIA</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                    </tr>
+                    <tr>
+                        <td>2024-07-22</td>
+                        <td>GA</td>
+                        <td>BNC SEKURITAS INDONESIA</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                    </tr>
+                    <tr>
+                        <td>2024-07-22</td>
+                        <td>GA</td>
+                        <td>BNC SEKURITAS INDONESIA</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                    </tr>
+                </table>
+            </div>
+
+        </div>
+
+        <br />
+        <div>
+            <label>Rincian Portofolio Efek:</label>
+            <div class="float-right">
+                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                @*  @if (ViewBag.Export)
+            {
+            <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();"><span class="image fa fa-file-excel"></span> Export Excel</a>
+            <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+            } *@
+            </div><br />
+            <div class="gridview-div">
+                @*  @(Html.DevExtreme().DataGrid()
+            .ID("grid1")
+            .DataSource(d => d.Mvc()
+            .Controller("SegmentationSummaryClusterMKBD")
+            .LoadAction("GetGridDataDetail")
+            .Key("rowid")
+            .OnBeforeSend("onGridBeforeSend"))
+            .RemoteOperations(true)
+            .Width("100%")
+            .AllowColumnResizing(true)
+            .ColumnAutoWidth(true)
+            .Columns(columns =>
+            {
+            columns.Add().DataField("rowid").Visible(false);
+            columns.Add().DataField("calendardate").Caption("Tanggal").DataType(GridColumnDataType.DateTime).Format("MMM yyyy");
+            columns.Add().DataField("securitycompanycode").Caption("Kode PE");
+            columns.Add().DataField("securitycompanyname").Caption("Nama PE");
+            columns.Add().DataField("f_level_1").Caption("Konsentrasi Aset Lancar selain Kas dan Setara Kas");
+            columns.Add().DataField("total_balance").Caption("Total Balance");
+            columns.Add().DataField("total_aset_lancar").Caption("Total Aset Lancar");
+            columns.Add().DataField("persentase").Caption("Persentase");
+            columns.Add().DataField("fairmarketvalue").Caption("Nilai Jaminan Margin");
+            })
+            .ColumnResizingMode(ColumnResizingMode.Widget)
+            .FilterRow(f => f.Visible(true))
+            .ShowBorders(false)
+            // .RowAlternationEnabled(false)
+            .Paging(p =>
+            {
+            p.PageSize(20);
+            p.Enabled(true);
+            })
+            .Pager(p =>
+            {
+            p.ShowInfo(true);
+            })
+            ) *@
+
+                <table style="width:100%;border:1px solid black">
+                    <tr>
+                        <th>Nama Akun</th>
+                        <th>Total Balance</th>
+                        <th>Total Portofolio Efek</th>
+                        <th>Persentase</th>
+                        <th>Haircut</th>
+                    </tr>
+                    <tr>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                    </tr>
+                    <tr>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                    </tr>
+                    <tr>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                    </tr>
+                    <tr>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                    </tr>
+                    <tr>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+
+
+        <!-- The Modal  Detail-->
+        <div class="modal fade" id="ModalSimpanPenggunaanData" tabindex="-1" role="document" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color:#0066b2">
+                        @*<button type="button" class="close clear-validation" data-dismiss="modal" aria-hidden="true">&times;</button>*@
+                        <h4 class="modal-title" style="text-align:left">
+                            <font color="white">Pilih Penggunaan Data</font>
+                        </h4>
+                    </div><!--Modal Header-->
+                    <!-- Modal body -->
+                    <div class="modal-body">
+                        <form id="StrukturFormDetail" method="POST" action="" class="form-horizontal row-border">
+                            <div class="row" style="padding: 0 10px 0 10px;">
+                                @(Html.DevExtreme().SelectBox()
+                                    .ID("penggunaandataid")
+                                    .DataSource(d => d.Mvc()
+                                    .Controller("PenggunaanData")
+                                    .Area("Website")
+                                    .LoadAction("GetPenggunaanData")
+                                    .Key("value"))
+                                    .ValueExpr("value")
+                                    .DisplayExpr("text")
+                                    .SearchEnabled(true)
+                                    .Width("100%")
+                                    )
+                            </div>
+                        </form>
+                    </div>
+                    <!-- Modal footer -->
+                    <div class="modal-footer">
+                        <button type="button" id="btnSavePenggunaanData" class="btn btn-primary" data-bs-dismiss="modal"><i class='fa fa-save'></i> Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- The Modal  Detail-->
+    </div>
+}
+
+<script>
+    window.jsPDF = window.jspdf.jsPDF;
+    applyPlugin(window.jsPDF);
+</script>
+
+<script>
+
+    $(function () {
+        const startDate = $("#PeriodeAwal").dxDateBox({
+            onValueChanged: function (e) {
+                endDate.option("min", e.value);
+            }
+        }).dxDateBox("instance");
+
+        $("#PeriodeAwal").dxValidator({
+            validationGroup: "Filter",
+            validationRules: [{ type: "required", message: "[Tanggal] harus dipilih" }]
+        })
+    });
+
+    $(function () {
+        $("#penggunaandataid").dxValidator({
+            validationGroup: "Filter",
+            validationRules: [{ type: "required", message: "[Penggunaan Data] harus dipilih" }]
+        })
+    });
+
+    $(function () {
+        $("#namaPEid").dxValidator({
+            validationGroup: "Filter",
+            validationRules: [{ type: "required", message: "[Nama PE] harus dipilih" }]
+        })
+    });
+
+    $(window).on('load', function () {
+        $("#ModalSimpanPenggunaanData").modal("show");
+    });
+
+
+    $("#btnSavePenggunaanData").click(function () {
+        let penggunaandataid = $("#penggunaandataid").dxSelectBox("instance").option("value");
+
+        if (penggunaandataid == null) {
+            alert("Silahkan Pilih Tujuan Penggunaan Data");
+            return false;
+        } else {
+            $.ajax({
+                url: '@Url.Action("SimpanPenggunaanData", "SegmentationSummaryClusterMKBD")',
+                data: { id: penggunaandataid },
+                dataType: "json",
+                type: "POST",
+                beforeSend: function () {
+                    waitingDialog.show('Saving on progress....');
+                },
+                success: function (data) {
+                    if (data.success == true) {
+                        //alert(data.message);
+                        waitingDialog.hide();
+                        $('#ModalSimpanPenggunaanData').modal('hide');
+                        return "Saving Success !";
+                    }
+                    else if (data.success == false) {
+                        waitingDialog.hide();
+                        alert(data.message);
+                        $('#ModalSimpanPenggunaanData').modal('hide');
+                        return "Saving Failed !";
+                    }
+                }
+            });
+        }
+    });
+
+    function onSelectionChanged(e) {
+        if (e.addedItems.length > 0) {
+            e.component.field().val(""); // Clears the search text. However, search filter is only applied to the widget after focus is lost in the input element
+        }
+    }
+
+    function onButtonFilterClicked(e) {
+        const res = e.validationGroup.validate();
+        if (res.status === "valid") {
+            $("#grid1").dxDataGrid("instance").refresh();
+        }
+    }
+
+    function onGridBeforeSend(method, ajaxOptions) {
+        let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
+        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
+        let status = $("#Statusid").dxTagBox("instance").option("value");
+
+        let periodeAwal = null;
+        if (tempPeriodeAwal != null) {
+            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + (tempPeriodeAwal.getMonth() + 1) + '-' + tempPeriodeAwal.getDate();
+        }
+        ajaxOptions.data.namaPE = JSON.stringify(namaPE);
+        ajaxOptions.data.periodeAwal = periodeAwal;
+        ajaxOptions.data.status = JSON.stringify(status);
+    }
+
+    var waitingDialog = (function ($) {
+
+        // Creating modal dialog's DOM
+        var $dialog = $(
+            '<div class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">' +
+            '<div class="modal-dialog modal-m">' +
+            '<div class="modal-content">' +
+            '<div class="modal-header"><h3 style="margin:0;"></h3></div>' +
+            '<div class="modal-body">' +
+            '<div class="progress progress-striped active" style="margin-bottom:0;"><div class="progress-bar" style="width: 100%"></div></div>' +
+            '</div>' +
+            '</div></div></div>');
+
+        return {
+            show: function (message, options) {
+                // Assigning defaults
+                var settings = $.extend({
+                    dialogSize: 'm',
+                    progressType: ''
+                }, options);
+                if (typeof message === 'undefined') {
+                    message = 'Loading';
+                }
+                if (typeof options === 'undefined') {
+                    options = {};
+                }
+                // Configuring dialog
+                $dialog.find('.modal-dialog').attr('class', 'modal-dialog').addClass('modal-' + settings.dialogSize);
+                $dialog.find('.progress-bar').attr('class', 'progress-bar');
+                if (settings.progressType) {
+                    $dialog.find('.progress-bar').addClass('progress-bar-' + settings.progressType);
+                }
+                $dialog.find('h3').text(message);
+                // Opening dialog
+                $dialog.modal();
+            },
+            /**
+                * Closes dialog
+                */
+            hide: function () {
+                $dialog.modal('hide');
+            }
+        }
+    })(jQuery);
+
+</script>

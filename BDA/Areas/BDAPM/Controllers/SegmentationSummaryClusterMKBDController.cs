@@ -68,46 +68,19 @@ namespace BDA.Controllers
                 return false;
             }
         }
-        public object GetGridData(DataSourceLoadOptions loadOptions, string members, string periodeAwal, string namaPE, string status)
+        public object GetGridData(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE, string status)
         {
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
 
             TempData.Clear();
+            string[] NamaPE = JsonConvert.DeserializeObject<string[]>(namaPE);
 
-            string[] Members = JsonConvert.DeserializeObject<string[]>(members);
-            //string[] NamaPE = JsonConvert.DeserializeObject<string[]>(namaPE);
-            //string[] Status = JsonConvert.DeserializeObject<string[]>(status);
-
-            Members = Members.Select(x => x.Substring(x.IndexOf("- ") + 2, x.Length - (x.IndexOf("- ") + 2))).ToArray();
-
-            string stringMemberTypes = null;
-            string stringMembers = null;
             string stringPeriodeAwal = null;
             string stringPE = null;
             string stringStatus = null;
             string reportId = "pe_segmentation_sum_cluster_mkbd"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
 
-            var cekHive = Helper.WSQueryStore.IsPeriodInHive(
-                db, reportId);
-
-            /*check pengawas LJK*/
-            if (IsPengawasLJK())
-            {
-                var filter = GetFilteredMemberTypes(login);
-                var filter2 = GetFilteredMembers(login);
-
-
-                if (Members.Length == 0)
-                {
-                    stringMembers = string.Join(", ", filter2);
-                }
-            }
-
-            if (Members.Length > 0)
-            {
-                stringMembers = string.Join(", ", Members);
-                TempData["m"] = stringMembers;
-            }
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId);
 
             if (periodeAwal != null)
             {
@@ -115,23 +88,11 @@ namespace BDA.Controllers
                 TempData["pawal"] = stringPeriodeAwal;
             }
 
-            //if (NamaPE.Length > 0)
-            //{
-            //    stringPE = string.Join(", ", NamaPE);
-            //    TempData["jd"] = stringPE;
-            //}
-
-            //if (Status.Length > 0)
-            //{
-            //    stringStatus = string.Join(", ", Status);
-            //    TempData["c"] = stringStatus;
-            //}
-
             db.Database.CommandTimeout = 420;
 
             if (periodeAwal.Length > 0)
             {
-                var result = Helper.WSQueryStore.GetBDAPMQuery(db, loadOptions, reportId, stringMemberTypes, stringMembers, stringPeriodeAwal, stringPE, stringStatus, cekHive);
+                var result = Helper.WSQueryStore.GetBDAPMQuery(db, loadOptions, reportId, stringPeriodeAwal, stringPE, stringStatus, cekHive);
                 return JsonConvert.SerializeObject(result);
             }
             else
@@ -182,5 +143,144 @@ namespace BDA.Controllers
             }
             return Json(new { message, success = result }, new Newtonsoft.Json.JsonSerializerSettings());
         }
+
+        [HttpGet]
+        public object GetNamaPE(DataSourceLoadOptions loadOptions)
+        {
+            var userId = HttpContext.User.Identity.Name;
+            string strSQL = db.appSettings.DataConnString;
+            var list = new List<NamaPE>();
+
+            using (SqlConnection conn = new SqlConnection(strSQL))
+            {
+                conn.Open();
+                string strQuery = "Select [SecurityCompanySK],[SecurityCompanyCode],[SecurityCompanyName] from PM_dimSecurityCompanies where CurrentStatus='A' order by SecurityCompanyName asc ";
+                SqlDataAdapter da = new SqlDataAdapter(strQuery, conn);
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+                if (dt.Rows.Count > 0)
+                {
+                    for (int i = 0; i < dt.Rows.Count; i++)
+                    {
+                        string namakode = dt.Rows[i]["SecurityCompanyCode"].ToString() + " - " + dt.Rows[i]["SecurityCompanyName"].ToString();
+                        list.Add(new NamaPE() { value = dt.Rows[i]["SecurityCompanySK"].ToString(), text = namakode });
+                    }
+
+                    return Json(DataSourceLoader.Load(list, loadOptions));
+                }
+                conn.Close();
+                conn.Dispose();
+            }
+            return DataSourceLoader.Load(list, loadOptions);
+        }
+        public class NamaPE
+        {
+            public string value { get; set; }
+            public string text { get; set; }
+        }
+        [HttpPost]
+        public IActionResult LogExportIndex()
+        {
+            try
+            {
+                var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+                var currentNode = mdl.GetCurrentNode();
+
+                string pageTitle = currentNode != null ? currentNode.Title : "";
+
+                db.CheckPermission("Summary Cluster MKBD Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+                db.InsertAuditTrail("SegmentationSummaryClusterMKBD_Akses_Page", "Export Data", pageTitle);
+                return Json(new { result = "Success" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { result = db.ProcessExceptionMessage(ex) });
+            }
+        }
+        public IActionResult ExportPDF(IFormFile file)
+        {
+            try
+            {
+                var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+                var currentNode = mdl.GetCurrentNode();
+
+                string pageTitle = currentNode != null ? currentNode.Title : "";
+
+                db.CheckPermission("Summary Cluster MKBD Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+                db.InsertAuditTrail("SegmentationSummaryClusterMKBD_Akses_Page", "Export Data", pageTitle);
+
+                var directory = _env.WebRootPath;
+                var timeStamp = DateTime.Now.ToString();
+                Workbook workbook = new Workbook(file.OpenReadStream());
+
+                foreach (Worksheet worksheet in workbook.Worksheets)
+                {
+                    //prepare logo
+                    string logo_url = Path.Combine(directory, "assets_m\\img\\OJK_Logo.png");
+                    FileStream inFile;
+                    byte[] binaryData;
+                    inFile = new FileStream(logo_url, FileMode.Open, FileAccess.Read);
+                    binaryData = new Byte[inFile.Length];
+                    long bytesRead = inFile.Read(binaryData, 0, (int)inFile.Length);
+
+                    //apply format number
+                    Style textStyle = workbook.CreateStyle();
+                    textStyle.Number = 3;
+                    StyleFlag textFlag = new StyleFlag();
+                    textFlag.NumberFormat = true;
+
+                    worksheet.Cells.Columns[9].ApplyStyle(textStyle, textFlag);
+
+                    //page setup
+                    PageSetup pageSetup = worksheet.PageSetup;
+                    pageSetup.Orientation = PageOrientationType.Landscape;
+                    pageSetup.FitToPagesWide = 1;
+                    pageSetup.FitToPagesTall = 0;
+
+                    //set header
+                    pageSetup.SetHeaderPicture(0, binaryData);
+                    pageSetup.SetHeader(0, "&G");
+                    var img = pageSetup.GetPicture(true, 0);
+                    img.WidthScale = 10;
+                    img.HeightScale = 10;
+
+                    //set footer
+                    pageSetup.SetFooter(0, timeStamp);
+
+                    inFile.Close();
+                }
+
+                timeStamp = timeStamp.Replace('/', '-').Replace(" ", "_").Replace(":", "-");
+                TempData["timeStamp"] = timeStamp;
+                var fileName = "SegmentationSummaryClusterMKBD_" + timeStamp + ".pdf";
+                workbook.Save(Path.Combine(directory, fileName), SaveFormat.Pdf);
+                return new EmptyResult();
+            }
+            catch (Exception ex)
+            {
+                return Json(new { result = db.ProcessExceptionMessage(ex) });
+            }
+        }
+        //-----------------------------detail-----------------------------------//
+        public IActionResult Detail(long? id)
+        {
+            var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+            var currentNode = mdl.GetCurrentNode();
+
+            string pageTitle = currentNode != null ? currentNode.Title : "";
+
+            if (id == null) return BadRequest();
+
+            var obj = (dynamic)null;
+            //var obj = db.BDA_F01_MaxMinOverdue.Find(id);
+            //if (obj == null) return NotFound();
+
+            db.CheckPermission("Detil Cluster MKBD View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+            ViewBag.Export = db.CheckPermission("Detil Cluster MKBD Export", DataEntities.PermissionMessageType.NoMessage);
+
+            db.InsertAuditTrail("AksesPageDetilCluster_Akses_Page", "Akses Page Detil Cluster MKBD", pageTitle);
+            return View(obj);
+        }
+        //-----------------------------detail-----------------------------------//
     }
 }

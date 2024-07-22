@@ -4783,22 +4783,12 @@ namespace BDA.Helper
             return WSQueryHelper.DoQueryNL(db, props, isC, isHive);
         }
 
-        public static WSQueryReturns GetBDAPMQuery(DataEntities db, DataSourceLoadOptions loadOptions, string tableName,
-                    string memberTypes, string members, string periodes, string stringPE, string stringStatus, bool isHive = false)
+        public static WSQueryReturns GetBDAPMQuery(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string periodes, string stringPE, string stringStatus, bool isHive = false)
         {
             bool isC = false;
             var whereQuery = "1=1";
             //isHive = true;
-            if (memberTypes != null)
-            {
-                memberTypes = "'" + memberTypes.Replace("'", "").Replace("-", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND dm_jenis_ljk in (" + memberTypes + ")";
-            }
-            if (members != null)
-            {
-                members = "'" + members.Replace("'", "").Replace("-", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND x.dm_kode_ljk in (" + members + ")";
-            }
+            
             if (periodes != null)
             {
                 periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
