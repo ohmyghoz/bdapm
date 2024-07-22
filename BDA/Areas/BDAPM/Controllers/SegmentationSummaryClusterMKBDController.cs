@@ -261,15 +261,20 @@ namespace BDA.Controllers
                 return Json(new { result = db.ProcessExceptionMessage(ex) });
             }
         }
+
         //-----------------------------detail-----------------------------------//
         public IActionResult Detail(long? id)
         {
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
             var currentNode = mdl.GetCurrentNode();
 
-            string pageTitle = currentNode != null ? currentNode.Title : "";
+            string pageTitle = currentNode != null ? currentNode.Title : "Detil Cluster MKBD";
 
-            if (id == null) return BadRequest();
+            //if (id == null) return BadRequest();
+
+            if (id == null) {
+                id = 1;
+            }
 
             var obj = (dynamic)null;
             //var obj = db.BDA_F01_MaxMinOverdue.Find(id);
@@ -282,5 +287,114 @@ namespace BDA.Controllers
             return View(obj);
         }
         //-----------------------------detail-----------------------------------//
+
+        //-----------------------------Rincian Portofolio-----------------------------------//
+        public IActionResult RincianPortofolio(long? id)
+        {
+            var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+            var currentNode = mdl.GetCurrentNode();
+
+            string pageTitle = currentNode != null ? currentNode.Title : "Rincian Portofolio";
+
+            //if (id == null) return BadRequest();
+
+            if (id == null)
+            {
+                id = 1;
+            }
+
+            var obj = (dynamic)null;
+            //var obj = db.BDA_F01_MaxMinOverdue.Find(id);
+            //if (obj == null) return NotFound();
+
+            db.CheckPermission("Rincian Portofolio View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+            ViewBag.Export = db.CheckPermission("Rincian Portofolio Export", DataEntities.PermissionMessageType.NoMessage);
+
+            db.InsertAuditTrail("RincianPortofolio_Akses_Page", "Akses Page Rincian Portofolio", pageTitle);
+            return View(obj);
+        }
+        //-----------------------------Rincian Portofolio-----------------------------------//
+
+        //-----------------------------Reksadana-----------------------------------//
+        public IActionResult Reksadana(long? id)
+        {
+            var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+            var currentNode = mdl.GetCurrentNode();
+
+            string pageTitle = currentNode != null ? currentNode.Title : "Reksadana";
+
+            //if (id == null) return BadRequest();
+
+            if (id == null)
+            {
+                id = 1;
+            }
+
+            var obj = (dynamic)null;
+            //var obj = db.BDA_F01_MaxMinOverdue.Find(id);
+            //if (obj == null) return NotFound();
+
+            db.CheckPermission("Reksadana View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+            ViewBag.Export = db.CheckPermission("Reksadana Export", DataEntities.PermissionMessageType.NoMessage);
+
+            db.InsertAuditTrail("Reksadana_Akses_Page", "Akses Page Reksadana", pageTitle);
+            return View(obj);
+        }
+        //-----------------------------Reksadana-----------------------------------//
+
+        //-----------------------------JaminanMargin-----------------------------------//
+        public IActionResult JaminanMargin(long? id)
+        {
+            var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+            var currentNode = mdl.GetCurrentNode();
+
+            string pageTitle = currentNode != null ? currentNode.Title : "Jaminan Margin";
+
+            //if (id == null) return BadRequest();
+
+            if (id == null)
+            {
+                id = 1;
+            }
+
+            var obj = (dynamic)null;
+            //var obj = db.BDA_F01_MaxMinOverdue.Find(id);
+            //if (obj == null) return NotFound();
+
+            db.CheckPermission("Jaminan Margin View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+            ViewBag.Export = db.CheckPermission("Jaminan Margin Export", DataEntities.PermissionMessageType.NoMessage);
+
+            db.InsertAuditTrail("Jaminan_Margin_Akses_Page", "Akses Page Jaminan Margin", pageTitle);
+            return View(obj);
+        }
+        //-----------------------------JaminanMargin-----------------------------------//
+
+
+        //-----------------------------ReverseRepo-----------------------------------//
+        public IActionResult ReverseRepo(long? id)
+        {
+            var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+            var currentNode = mdl.GetCurrentNode();
+
+            string pageTitle = currentNode != null ? currentNode.Title : "Jaminan Margin";
+
+            //if (id == null) return BadRequest();
+
+            if (id == null)
+            {
+                id = 1;
+            }
+
+            var obj = (dynamic)null;
+            //var obj = db.BDA_F01_MaxMinOverdue.Find(id);
+            //if (obj == null) return NotFound();
+
+            db.CheckPermission("Reverse Repo View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+            ViewBag.Export = db.CheckPermission("Reverse Repo Export", DataEntities.PermissionMessageType.NoMessage);
+
+            db.InsertAuditTrail("Reverse_Repo_Akses_Page", "Akses Page Reverse Repo", pageTitle);
+            return View(obj);
+        }
+        //-----------------------------ReverseRepo-----------------------------------//
     }
 }

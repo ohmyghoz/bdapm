@@ -134,138 +134,23 @@
 
                 <table style="width:100%;border:1px solid black">
                     <tr>
-                        <th>Tanggal</th>
-                        <th>Kode PE</th>
-                        <th>Nama PE</th>
-                        <th>Konsentrasi Aset Lancar selain Kas dan Setara Kas</th>
-                        <th>Total Balance</th>
-                        <th>Total Aset Lancar</th>
-                        <th>Persentase</th>
-                        <th>Nilai Jaminan Margin</th>
+                        <th>Jenis Reverse Repo</th>
+                        <th>Penjual (Lawan Transaksi)</th>
+                        <th>Tanggal Pembelian</th>
+                        <th>Tanggal Penjualan Kembali</th>
+                        <th>Nilai Pembelian</th>
+                        <th>Nilai Penjualan Kembali</th>
+                        <th>Kode Efek Jaminan</th>
+                        <th>Jumlah Jaminan (Lembar/Nominal)</th>
+                        <th>Nilai Pasar Wajar Jaminan </th>
+                        <th>Nilai Rangking Liabilities </th>
                     </tr>
                     <tr>
-                        <td>2024-07-22</td>
-                        <td>GA</td>
-                        <td>BNC SEKURITAS INDONESIA</td>
                         <td>ABCDEFG</td>
                         <td>ABCDEFG</td>
                         <td>ABCDEFG</td>
                         <td>ABCDEFG</td>
                         <td>ABCDEFG</td>
-                    </tr>
-                    <tr>
-                        <td>2024-07-22</td>
-                        <td>GA</td>
-                        <td>BNC SEKURITAS INDONESIA</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                    </tr>
-                    <tr>
-                        <td>2024-07-22</td>
-                        <td>GA</td>
-                        <td>BNC SEKURITAS INDONESIA</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                    </tr>
-                    <tr>
-                        <td>2024-07-22</td>
-                        <td>GA</td>
-                        <td>BNC SEKURITAS INDONESIA</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                    </tr>
-                    <tr>
-                        <td>2024-07-22</td>
-                        <td>GA</td>
-                        <td>BNC SEKURITAS INDONESIA</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                    </tr>
-                </table>
-            </div>
-
-        </div>
-
-        <br />
-        <div>
-            <div class="row filter-panel" style="padding-top:0px;">
-                <div class="card-body">
-                    <div class="float-left">
-                        <div style="border-radius: 10px; background-color: white; padding: 3px">
-                                <span style="color: black; font-weight: bold">Rincian Portofolio Efek:</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="float-right">
-                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();"><span class="image fa fa-file-excel"></span> Export Excel</a>
-                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
-                @*  @if (ViewBag.Export)
-            {
-            <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();"><span class="image fa fa-file-excel"></span> Export Excel</a>
-            <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
-            } *@
-            </div><br />
-            <div class="gridview-div">
-                @*  @(Html.DevExtreme().DataGrid()
-            .ID("grid1")
-            .DataSource(d => d.Mvc()
-            .Controller("SegmentationSummaryClusterMKBD")
-            .LoadAction("GetGridDataDetail")
-            .Key("rowid")
-            .OnBeforeSend("onGridBeforeSend"))
-            .RemoteOperations(true)
-            .Width("100%")
-            .AllowColumnResizing(true)
-            .ColumnAutoWidth(true)
-            .Columns(columns =>
-            {
-            columns.Add().DataField("rowid").Visible(false);
-            columns.Add().DataField("calendardate").Caption("Tanggal").DataType(GridColumnDataType.DateTime).Format("MMM yyyy");
-            columns.Add().DataField("securitycompanycode").Caption("Kode PE");
-            columns.Add().DataField("securitycompanyname").Caption("Nama PE");
-            columns.Add().DataField("f_level_1").Caption("Konsentrasi Aset Lancar selain Kas dan Setara Kas");
-            columns.Add().DataField("total_balance").Caption("Total Balance");
-            columns.Add().DataField("total_aset_lancar").Caption("Total Aset Lancar");
-            columns.Add().DataField("persentase").Caption("Persentase");
-            columns.Add().DataField("fairmarketvalue").Caption("Nilai Jaminan Margin");
-            })
-            .ColumnResizingMode(ColumnResizingMode.Widget)
-            .FilterRow(f => f.Visible(true))
-            .ShowBorders(false)
-            // .RowAlternationEnabled(false)
-            .Paging(p =>
-            {
-            p.PageSize(20);
-            p.Enabled(true);
-            })
-            .Pager(p =>
-            {
-            p.ShowInfo(true);
-            })
-            ) *@
-
-                <table style="width:100%;border:1px solid black">
-                    <tr>
-                        <th>Nama Akun</th>
-                        <th>Total Balance</th>
-                        <th>Total Portofolio Efek</th>
-                        <th>Persentase</th>
-                        <th>Haircut</th>
-                    </tr>
-                    <tr>
                         <td>ABCDEFG</td>
                         <td>ABCDEFG</td>
                         <td>ABCDEFG</td>
@@ -278,8 +163,6 @@
                         <td>ABCDEFG</td>
                         <td>ABCDEFG</td>
                         <td>ABCDEFG</td>
-                    </tr>
-                    <tr>
                         <td>ABCDEFG</td>
                         <td>ABCDEFG</td>
                         <td>ABCDEFG</td>
@@ -292,8 +175,30 @@
                         <td>ABCDEFG</td>
                         <td>ABCDEFG</td>
                         <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
                     </tr>
                     <tr>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                    </tr>
+                    <tr>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
+                        <td>ABCDEFG</td>
                         <td>ABCDEFG</td>
                         <td>ABCDEFG</td>
                         <td>ABCDEFG</td>
@@ -303,8 +208,6 @@
                 </table>
             </div>
         </div>
-
-
 
         <!-- The Modal  Detail-->
         <div class="modal fade" id="ModalSimpanPenggunaanData" tabindex="-1" role="document" aria-hidden="true" data-backdrop="static" data-keyboard="false">
