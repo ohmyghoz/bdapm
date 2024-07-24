@@ -214,7 +214,6 @@
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header" style="background-color:#0066b2">
-                        @*<button type="button" class="close clear-validation" data-dismiss="modal" aria-hidden="true">&times;</button>*@
                         <h4 class="modal-title" style="text-align:left">
                             <font color="white">Pilih Penggunaan Data</font>
                         </h4>
@@ -286,7 +285,6 @@
     $(window).on('load', function () {
         $("#ModalSimpanPenggunaanData").modal("show");
     });
-
 
     $("#btnSavePenggunaanData").click(function () {
         let penggunaandataid = $("#penggunaandataid").dxSelectBox("instance").option("value");
