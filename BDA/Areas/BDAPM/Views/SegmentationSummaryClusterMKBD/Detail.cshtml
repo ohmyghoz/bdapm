@@ -5,7 +5,11 @@
     var p = (string[])ViewBag.period;
     var maxItems = db.GetSetting("LimitFilterLJK");
 }
-
+@section RightToolbar {
+        <div class="d-flex align-items-center">
+            <a class="nav-link btn btn-light-warning font-weight-bolder btn-sm mr-2" href="@Url.Action("Index")"><i class="fa fa-arrow-left"></i> Kembali Ke Daftar</a>
+        </div>
+}
 @inject BDA.DataModel.DataEntities db
 
 @using (Html.BeginForm())
