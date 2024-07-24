@@ -250,11 +250,11 @@ namespace BDA.Controllers
         {
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
             var currentNode = mdl.GetCurrentNode();
-            string pageTitle = currentNode != null ? currentNode.Title : "Detil Cluster MKBD";
+            string pageTitle = currentNode != null ? currentNode.Title : ""; //menampilkan data menu
 
-            db.CheckPermission("Detil Cluster MKBD View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-            ViewBag.Export = db.CheckPermission("Detil Cluster MKBD Export", DataEntities.PermissionMessageType.NoMessage);
-            db.InsertAuditTrail("AksesPageDetilCluster_Akses_Page", "Akses Page Detil Cluster MKBD", pageTitle);
+            db.CheckPermission("Detail Cluster MKBD View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+            ViewBag.Export = db.CheckPermission("Detail Cluster MKBD Export", DataEntities.PermissionMessageType.NoMessage);
+            db.InsertAuditTrail("AksesPageDetilCluster_Akses_Page", "Akses Page Detail Cluster MKBD", pageTitle);
 
             //if (id == null) return BadRequest(); //cek id itu menngarah ke mana
 
@@ -275,7 +275,7 @@ namespace BDA.Controllers
         {
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
             var currentNode = mdl.GetCurrentNode();
-            string pageTitle = currentNode != null ? currentNode.Title : "Rincian Portofolio";
+            string pageTitle = currentNode != null ? currentNode.Title : ""; //menampilkan data menu
 
             db.CheckPermission("Rincian Portofolio View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
             ViewBag.Export = db.CheckPermission("Rincian Portofolio Export", DataEntities.PermissionMessageType.NoMessage);
@@ -301,7 +301,7 @@ namespace BDA.Controllers
         {
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
             var currentNode = mdl.GetCurrentNode();
-            string pageTitle = currentNode != null ? currentNode.Title : "Reksadana";
+            string pageTitle = currentNode != null ? currentNode.Title : ""; //menampilkan data menu
 
             db.CheckPermission("Reksadana View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
             ViewBag.Export = db.CheckPermission("Reksadana Export", DataEntities.PermissionMessageType.NoMessage);
@@ -327,7 +327,7 @@ namespace BDA.Controllers
         {
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
             var currentNode = mdl.GetCurrentNode();
-            string pageTitle = currentNode != null ? currentNode.Title : "Jaminan Margin";
+            string pageTitle = currentNode != null ? currentNode.Title : ""; //menampilkan data menu
 
             db.CheckPermission("Jaminan Margin View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
             ViewBag.Export = db.CheckPermission("Jaminan Margin Export", DataEntities.PermissionMessageType.NoMessage);
@@ -354,7 +354,7 @@ namespace BDA.Controllers
         {
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
             var currentNode = mdl.GetCurrentNode();
-            string pageTitle = currentNode != null ? currentNode.Title : "Jaminan Margin";
+            string pageTitle = currentNode != null ? currentNode.Title : ""; //menampilkan data menu
 
             db.CheckPermission("Reverse Repo View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
             ViewBag.Export = db.CheckPermission("Reverse Repo Export", DataEntities.PermissionMessageType.NoMessage);
