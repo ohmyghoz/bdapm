@@ -1,4 +1,4 @@
-﻿// T4 code generation is enabled for model 'D:\DATA REZA\OJK\Source\2024\BDAPM\BDA-PM-2024\DataModelBDAPM\DataModel.edmx'. 
+﻿// T4 code generation is enabled for model 'D:\Download\BDAmasReza\DataModelBDAPM\DataModel.edmx'. 
 // To enable legacy code generation, change the value of the 'Code Generation Strategy' designer
 // property to 'Legacy ObjectContext'. This property is available in the Properties Window when the model
 // is open in the designer.
