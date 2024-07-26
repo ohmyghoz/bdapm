@@ -22,11 +22,12 @@ using static System.Net.Mime.MediaTypeNames;
 namespace BDA.Controllers
 {
     [Area("BDAPM")]
-    public class SegmentationSummaryClusterMKBDController : Controller
+    public class MendeteksiHutangSubordinasiController
+        : Controller
     {
         private DataEntities db;
         private IWebHostEnvironment _env;
-        public SegmentationSummaryClusterMKBDController(DataEntities db, IWebHostEnvironment env)
+        public MendeteksiHutangSubordinasiController(DataEntities db, IWebHostEnvironment env)
         {
             this.db = db;
             _env = env;
@@ -49,6 +50,7 @@ namespace BDA.Controllers
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
             var currentNode = mdl.GetCurrentNode();
             string pageTitle = currentNode != null ? currentNode.Title : ""; //menampilkan data menu
+            ViewBag.Hive = false;
 
             db.CheckPermission("Summary Cluster MKBD View", DataEntities.PermissionMessageType.ThrowInvalidOperationException); //check permission nya view/lihat nya
             ViewBag.Export = db.CheckPermission("Summary Cluster MKBD Export", DataEntities.PermissionMessageType.NoMessage); //check permission export
@@ -245,14 +247,151 @@ namespace BDA.Controllers
             }
         }
 
+        public object GetGridData(DataSourceLoadOptions loadOptions, string reportId, string memberTypes, string members, string kantorCabangs, string periode, bool chk100)
+        {
+            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+            string[] periodes = JsonConvert.DeserializeObject<string[]>(periode);
+            TempData["memberTypeValue"] = null;
+            TempData["memberValue"] = null;
+            TempData["periodeValue"] = null;
+            TempData["kcValue"] = null;
+            if (periodes.Length > 0)
+            {
+                string[] MemberTypes = JsonConvert.DeserializeObject<string[]>(memberTypes);
+                string[] Members1 = JsonConvert.DeserializeObject<string[]>(members);
+                string[] Members = JsonConvert.DeserializeObject<string[]>(members);
+                string[] KantorCabangs = null;
+                string[] KantorCabangs1 = null;
+                if (kantorCabangs != null)
+                {
+                    KantorCabangs = JsonConvert.DeserializeObject<string[]>(kantorCabangs);
+                    KantorCabangs1 = JsonConvert.DeserializeObject<string[]>(kantorCabangs);
+                    KantorCabangs = KantorCabangs.Select(x => x.Split('-').Last().TrimStart(' ')).ToArray();
+                }
+                Members = Members.Select(x => x.Substring(x.IndexOf("- ") + 2, x.Length - (x.IndexOf("- ") + 2))).ToArray();
+
+                List<DateTime> lp = new List<DateTime>();
+                foreach (var i in periodes)
+                {
+                    lp.Add(DateTime.Parse(i.Trim().Replace("'", "")));
+                }
+                if (members != null)
+                {
+                    members = members.Substring(members.IndexOf("- ") + 2, members.Length - (members.IndexOf("- ") + 2));
+                }
+                string stringMemberTypes = null;
+                string stringMembers = null;
+                string stringKantorCabangs = null;
+                string stringPeriode = null;
+                var timeNow = DateTime.Now;
+                var timeAftter = DateTime.Now;
+
+                var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId);
+                /*check pengawas LJK*/
+                if (RefController.IsPengawasLJK(db))
+                {
+                    var filter = RefController.GetFilteredMemberTypes(db, login);
+                    var filter2 = RefController.GetFilteredMembers(db, login);
+
+                    if (MemberTypes.Length == 0)
+                    {
+                        stringMemberTypes = string.Join(", ", filter);
+                    }
+
+                    if (Members.Length == 0)
+                    {
+                        stringMembers = string.Join(", ", filter2);
+                    }
+                }
+
+                if (MemberTypes.Length > 0)
+                {
+                    TempData["memberTypeValue"] = MemberTypes;
+                    var listOfJenis = db.master_ljk_type.ToList();
+                    // nih gara2 si data processing kaga pake kode di output nya -_-;
+                    stringMemberTypes = "";
+                    foreach (var m in MemberTypes)
+                    {
+                        var find = listOfJenis.Where(x => x.kode_jenis_ljk == m).FirstOrDefault();
+                        if (find != null)
+                        {
+                            if (stringMemberTypes != "") stringMemberTypes += ", ";
+                            stringMemberTypes += find.deskripsi_jenis_ljk;
+                        }
+                        TempData["mt"] = stringMemberTypes;
+                    }
+
+                }
+
+                if (Members.Length > 0)
+                {
+                    TempData["memberValue"] = Members1;
+                    stringMembers = string.Join(", ", Members);
+                    TempData["m"] = stringMembers;
+                }
+
+
+                if (periodes.Length > 0)
+                {
+                    TempData["periodeValue"] = periodes;
+                    if (cekHive == true)
+                    {
+                        foreach (var i in lp)
+                        {
+                            if (stringPeriode == null)
+                            {
+                                stringPeriode = string.Format("{0:yyyyMM}", i);
+                            }
+                            else
+                            {
+                                stringPeriode = stringPeriode + "," + string.Format("{0:yyyyMM}", i);
+                            }
+
+                        }
+                    }
+                    else
+                    {
+                        stringPeriode = string.Join(", ", periodes);
+                    }
+                    TempData["p"] = stringPeriode;
+                }
+                if (KantorCabangs != null)
+                {
+                    if (KantorCabangs.Length > 0)
+                    {
+                        TempData["kcValue"] = KantorCabangs1;
+                        stringKantorCabangs = string.Join(", ", KantorCabangs);
+                        TempData["kc"] = stringKantorCabangs;
+                    }
+                }
+                var timeResultBefore = DateTime.Now;
+                var result = Helper.WSQueryStore.GetOsida2023Query(db, loadOptions, reportId, stringMemberTypes, stringMembers, stringKantorCabangs, stringPeriode, chk100, cekHive);
+                var timeResultAfter = DateTime.Now;
+                timeAftter = DateTime.Now;
+                var proc = Process.GetCurrentProcess();
+                var mem = proc.WorkingSet64 / 1024.0;
+                TempData["PM"] = mem;
+                TempData["SG"] = (timeAftter - timeNow).TotalSeconds;
+                TempData["SD"] = (timeResultAfter - timeResultBefore).TotalSeconds;
+                return JsonConvert.SerializeObject(result);
+            }
+            else
+            {
+                loadOptions = new DataSourceLoadOptions();
+            }
+            return DataSourceLoader.Load(new List<string>(), loadOptions);
+        }
+
         //-----------------------------detail-----------------------------------//
         public IActionResult Detail(long? id)
         {
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
             var currentNode = mdl.GetCurrentNode();
-            string pageTitle = currentNode != null ? currentNode.Title : ""; //menampilkan data menu
+            string pageTitle = currentNode != null ? currentNode.Title : "Detil Cluster MKBD";
 
-            string pageTitle = currentNode != null ? currentNode.Title : "Detail Cluster MKBD";
+            db.CheckPermission("Detil Cluster MKBD View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+            ViewBag.Export = db.CheckPermission("Detil Cluster MKBD Export", DataEntities.PermissionMessageType.NoMessage);
+            db.InsertAuditTrail("AksesPageDetilCluster_Akses_Page", "Akses Page Detil Cluster MKBD", pageTitle);
 
             //if (id == null) return BadRequest(); //cek id itu menngarah ke mana
 
@@ -264,10 +403,6 @@ namespace BDA.Controllers
             //var obj = db.BDA_F01_MaxMinOverdue.Find(id);
             //if (obj == null) return NotFound();
 
-            db.CheckPermission("Detil Cluster MKBD View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-            ViewBag.Export = db.CheckPermission("Detil Cluster MKBD Export", DataEntities.PermissionMessageType.NoMessage);
-
-            db.InsertAuditTrail("AksesPageDetilCluster_Akses_Page", "Akses Page Detil Cluster MKBD", pageTitle);
             return View(obj);
         }
         //-----------------------------detail-----------------------------------//
@@ -277,7 +412,7 @@ namespace BDA.Controllers
         {
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
             var currentNode = mdl.GetCurrentNode();
-            string pageTitle = currentNode != null ? currentNode.Title : ""; //menampilkan data menu
+            string pageTitle = currentNode != null ? currentNode.Title : "Rincian Portofolio";
 
             db.CheckPermission("Rincian Portofolio View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
             ViewBag.Export = db.CheckPermission("Rincian Portofolio Export", DataEntities.PermissionMessageType.NoMessage);
@@ -303,7 +438,7 @@ namespace BDA.Controllers
         {
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
             var currentNode = mdl.GetCurrentNode();
-            string pageTitle = currentNode != null ? currentNode.Title : ""; //menampilkan data menu
+            string pageTitle = currentNode != null ? currentNode.Title : "Reksadana";
 
             db.CheckPermission("Reksadana View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
             ViewBag.Export = db.CheckPermission("Reksadana Export", DataEntities.PermissionMessageType.NoMessage);
@@ -329,7 +464,7 @@ namespace BDA.Controllers
         {
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
             var currentNode = mdl.GetCurrentNode();
-            string pageTitle = currentNode != null ? currentNode.Title : ""; //menampilkan data menu
+            string pageTitle = currentNode != null ? currentNode.Title : "Jaminan Margin";
 
             db.CheckPermission("Jaminan Margin View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
             ViewBag.Export = db.CheckPermission("Jaminan Margin Export", DataEntities.PermissionMessageType.NoMessage);
@@ -356,7 +491,7 @@ namespace BDA.Controllers
         {
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
             var currentNode = mdl.GetCurrentNode();
-            string pageTitle = currentNode != null ? currentNode.Title : ""; //menampilkan data menu
+            string pageTitle = currentNode != null ? currentNode.Title : "Jaminan Margin";
 
             db.CheckPermission("Reverse Repo View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
             ViewBag.Export = db.CheckPermission("Reverse Repo Export", DataEntities.PermissionMessageType.NoMessage);

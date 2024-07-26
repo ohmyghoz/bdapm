@@ -1,0 +1,315 @@
+﻿@using DevExtreme.AspNet.Mvc
+@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+    string reportId = "Hutang Subordinasi";
+    var p = (string[])ViewBag.period;
+    bool isHive = ViewBag.Hive;
+    var maxItems = db.GetSetting("LimitFilterLJK");
+    string lbl1 = " ";
+}
+
+@inject BDA.DataModel.DataEntities db
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="card card-default">
+        @*filter*@
+        <div class="row filter-panel" style="padding-top:0px;">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-4 form-group">
+                        <label>Tanggal<span class="mandatory">*</span></label>
+                        @(Html.DevExtreme().DateBox()
+                            .ID("PeriodeAwal")
+                            .DisplayFormat("dd MMM yyyy")
+                            .Value(DateTime.Now)
+                            .Max(DateTime.Now)
+                            .Width("100%"))
+                    </div>
+
+                    <div class="col-lg-4 form-group">
+                        <label>Nama PE</label>
+                        @(Html.DevExtreme().SelectBox()
+                            .ID("namaPEid")
+                            .DataSource(d => d.Mvc()
+                            .Controller("MendeteksiHutangSubOrdinasi")
+                            .Area("BDAPM")
+                            .LoadAction("GetNamaPE")
+                            .Key("value"))
+                            .ValueExpr("value")
+                            .DisplayExpr("text")
+                            .SearchEnabled(true)
+                            .Width("100%")
+                            )
+                    </div>
+                </div>
+
+                <div class="float-left">
+                    @(Html.DevExtreme().Button()
+                        .ID("Filter")
+                        .Type(ButtonType.Default)
+                        .Text("Tampilkan")
+                        .OnClick("onButtonFilterClicked")
+                        .ValidationGroup("Filter"))
+                </div>
+
+                <div class="float-right">
+                    <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                    <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                </div>
+
+            </div>
+        </div>        
+        @*grid*@
+        <div class="row">
+            <div class="column gridview-div" style="float: left;  width: 50%;">
+            @(Html.DevExtreme().DataGrid()
+                .ID("gridContainer")
+                .KeyExpr("ID")
+                .RemoteOperations(true)
+                .Width("100%")
+                .AllowColumnResizing(true)
+                .ColumnFixing(c => c.Enabled(true))
+                .Scrolling(s => s.ShowScrollbar(ShowScrollbarMode.Always))
+                .FilterRow(f => f.Visible(true))
+                .ShowBorders(false)
+                .Selection(c => c.Mode(SelectionMode.Single))
+                .Paging(p =>
+                {
+                    p.PageSize(15);
+                    p.Enabled(true);
+
+                })
+                .Pager(p =>
+                {
+                    p.Visible(true);
+                    p.ShowInfo(true);
+                })
+                .Columns(c =>
+                {
+                    c.Add().DataField("NamaPE");
+                    c.Add().DataField("TanggalHSO(T0)");
+                    c.Add().DataField("HSO");
+                })
+                    .DataSource(d => d.StaticJson().Url("~/js/sample1.json").Key("ID"))
+                )
+            </div>
+            <div class="column gridview-div" style="float: right;  width: 50%;">
+                @(Html.DevExtreme().DataGrid()
+                    .ID("gridContainer2")
+                    .KeyExpr("ID")
+                    .RemoteOperations(true)
+                    .Width("100%")
+                    .AllowColumnResizing(true)
+                    .ColumnFixing(c => c.Enabled(true))
+                    .Scrolling(s => s.ShowScrollbar(ShowScrollbarMode.Always))
+                    .FilterRow(f => f.Visible(true))
+                    .ShowBorders(false)
+                    .Selection(c => c.Mode(SelectionMode.Single))
+                    .Paging(p =>
+                    {
+                        p.PageSize(15);
+                        p.Enabled(true);
+
+                    })
+                    .Pager(p =>
+                    {
+                        p.Visible(true);
+                        p.ShowInfo(true);
+                    })
+                    .Columns(c =>
+                    {
+                        c.Add().DataField("LawanTransaksi");
+                        c.Add().DataField("BuyingDate");
+                        c.Add().DataField("ReverseRepo");
+                    })
+                    .DataSource(d => d.StaticJson().Url("~/js/sample2.json").Key("ID"))
+                    )
+            </div>
+        </div>
+
+
+
+        <!-- The Modal  Detail-->
+        <div class="modal fade" id="ModalSimpanPenggunaanData" tabindex="-1" role="document" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color:#0066b2">
+                        <h4 class="modal-title" style="text-align:left">
+                            <font color="white">Pilih Penggunaan Data</font>
+                        </h4>
+                    </div><!--Modal Header-->
+                    <!-- Modal body -->
+                    <div class="modal-body">
+                        <form id="StrukturFormDetail" method="POST" action="" class="form-horizontal row-border">
+                            <div class="row" style="padding: 0 10px 0 10px;">
+                                @(Html.DevExtreme().SelectBox()
+                                    .ID("penggunaandataid")
+                                    .DataSource(d => d.Mvc()
+                                    .Controller("PenggunaanData")
+                                    .Area("Website")
+                                    .LoadAction("GetPenggunaanData")
+                                    .Key("value"))
+                                    .ValueExpr("value")
+                                    .DisplayExpr("text")
+                                    .SearchEnabled(true)
+                                    .Width("100%")
+                                    )
+                            </div>
+                        </form>
+                    </div>
+                    <!-- Modal footer -->
+                    <div class="modal-footer">
+                        <button type="button" id="btnSavePenggunaanData" class="btn btn-primary" data-bs-dismiss="modal"><i class='fa fa-save'></i> Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- The Modal  Detail-->
+    </div>
+}
+
+<script>
+    window.jsPDF = window.jspdf.jsPDF;
+    applyPlugin(window.jsPDF);
+</script>
+
+<script type="text/javascript">
+
+    $(function () {
+        const startDate = $("#PeriodeAwal").dxDateBox({
+            onValueChanged: function (e) {
+                endDate.option("min", e.value);
+            }
+        }).dxDateBox("instance");
+
+        $("#PeriodeAwal").dxValidator({
+            validationGroup: "Filter",
+            validationRules: [{ type: "required", message: "[Tanggal] harus dipilih" }]
+        })
+    });
+
+    $(function () {
+        $("#penggunaandataid").dxValidator({
+            validationGroup: "Filter",
+            validationRules: [{ type: "required", message: "[Penggunaan Data] harus dipilih" }]
+        })
+    });
+
+    $(function () {
+        $("#namaPEid").dxValidator({
+            validationGroup: "Filter",
+            validationRules: [{ type: "required", message: "[Nama PE] harus dipilih" }]
+        })
+    });
+
+    $(window).on('load', function () {
+        $("#ModalSimpanPenggunaanData").modal("show");
+    });
+
+    $("#btnSavePenggunaanData").click(function () {
+        let penggunaandataid = $("#penggunaandataid").dxSelectBox("instance").option("value");
+
+        if (penggunaandataid == null) {
+            alert("Silahkan Pilih Tujuan Penggunaan Data");
+            return false;
+        } else {
+            $.ajax({
+                url: '@Url.Action("SimpanPenggunaanData", "SegmentationSummaryClusterMKBD")',
+                data: { id: penggunaandataid },
+                dataType: "json",
+                type: "POST",
+                success: function (data) {
+                    if (data.success == true) {
+                        //alert(data.message);
+    @* waitingDialog.hide(); *@
+                            $('#ModalSimpanPenggunaanData').modal('hide');
+                        return "Saving Success !";
+                    }
+                    else if (data.success == false) {
+    @*  waitingDialog.hide(); *@
+                            alert(data.message);
+                        $('#ModalSimpanPenggunaanData').modal('hide');
+                        return "Saving Failed !";
+                    }
+                }
+            });
+        }
+    });
+
+    function onSelectionChanged(e) {
+        if (e.addedItems.length > 0) {
+            e.component.field().val(""); // Clears the search text. However, search filter is only applied to the widget after focus is lost in the input element
+        }
+    }
+
+    function onButtonFilterClicked(e) {
+        const res = e.validationGroup.validate();
+        if (res.status === "valid") {
+            $("#grid1").dxDataGrid("instance").refresh();
+        }
+    }
+
+    function onGridBeforeSend(method, ajaxOptions) {
+        let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
+        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
+        let status = $("#Statusid").dxTagBox("instance").option("value");
+
+        let periodeAwal = null;
+        if (tempPeriodeAwal != null) {
+            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + (tempPeriodeAwal.getMonth() + 1) + '-' + tempPeriodeAwal.getDate();
+        }
+        ajaxOptions.data.namaPE = JSON.stringify(namaPE);
+        ajaxOptions.data.periodeAwal = periodeAwal;
+        ajaxOptions.data.status = JSON.stringify(status);
+    }
+
+    var waitingDialog = (function ($) {
+
+        // Creating modal dialog's DOM
+        var $dialog = $(
+            '<div class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">' +
+            '<div class="modal-dialog modal-m">' +
+            '<div class="modal-content">' +
+            '<div class="modal-header"><h3 style="margin:0;"></h3></div>' +
+            '<div class="modal-body">' +
+            '<div class="progress progress-striped active" style="margin-bottom:0;"><div class="progress-bar" style="width: 100%"></div></div>' +
+            '</div>' +
+            '</div></div></div>');
+
+        return {
+            show: function (message, options) {
+                // Assigning defaults
+                var settings = $.extend({
+                    dialogSize: 'm',
+                    progressType: ''
+                }, options);
+                if (typeof message === 'undefined') {
+                    message = 'Loading';
+                }
+                if (typeof options === 'undefined') {
+                    options = {};
+                }
+                // Configuring dialog
+                $dialog.find('.modal-dialog').attr('class', 'modal-dialog').addClass('modal-' + settings.dialogSize);
+                $dialog.find('.progress-bar').attr('class', 'progress-bar');
+                if (settings.progressType) {
+                    $dialog.find('.progress-bar').addClass('progress-bar-' + settings.progressType);
+                }
+                $dialog.find('h3').text(message);
+                // Opening dialog
+                $dialog.modal();
+            },
+            /**
+                * Closes dialog
+                */
+            hide: function () {
+                $dialog.modal('hide');
+            }
+        }
+    })(jQuery);
+
+</script>
