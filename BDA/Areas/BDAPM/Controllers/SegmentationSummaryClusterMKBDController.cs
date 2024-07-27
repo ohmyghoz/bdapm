@@ -250,13 +250,10 @@ namespace BDA.Controllers
         {
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
             var currentNode = mdl.GetCurrentNode();
-            string pageTitle = currentNode != null ? currentNode.Title : ""; //menampilkan data menu
+            string pageTitle = currentNode != null ? currentNode.Title : "Detail Cluster MKBD"; //menampilkan data menu
 
-            string pageTitle = currentNode != null ? currentNode.Title : "Detail Cluster MKBD";
-
-            //if (id == null) return BadRequest(); //cek id itu menngarah ke mana
-
-            if (id == null) {
+            if (id == null)
+            {
                 id = 1;
             }
 
