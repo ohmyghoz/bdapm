@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Data.SqlClient;
 using static System.Net.Mime.MediaTypeNames;
+using static BDA.Controllers.SampleGridController;
 
 namespace BDA.Controllers
 {
@@ -112,7 +113,7 @@ namespace BDA.Controllers
                     da.Fill(dt);
                     if (dt.Rows.Count > 0)
                     {
-                         Penggunaan_Data = dt.Rows[0]["Penggunaan_Data"].ToString();
+                        Penggunaan_Data = dt.Rows[0]["Penggunaan_Data"].ToString();
                     }
                     conn.Close();
                     conn.Dispose();
@@ -261,11 +262,136 @@ namespace BDA.Controllers
             //var obj = db.BDA_F01_MaxMinOverdue.Find(id);
             //if (obj == null) return NotFound();
 
-            db.CheckPermission("Detil Cluster MKBD View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-            ViewBag.Export = db.CheckPermission("Detil Cluster MKBD Export", DataEntities.PermissionMessageType.NoMessage);
+            db.CheckPermission("Detail Cluster MKBD View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+            ViewBag.Export = db.CheckPermission("Detail Cluster MKBD Export", DataEntities.PermissionMessageType.NoMessage);
 
-            db.InsertAuditTrail("AksesPageDetilCluster_Akses_Page", "Akses Page Detil Cluster MKBD", pageTitle);
-            return View(obj);
+            db.InsertAuditTrail("AksesPageDetailCluster_Akses_Page", "Akses Page Detail Cluster MKBD", pageTitle);
+            return View(SampleDataDetail.SimpleArrayCustomerDetail);
+        }
+
+        public partial class SampleDataDetail
+        {
+            public static readonly IEnumerable<ColumnDetail> SimpleArrayCustomerDetail = new[] {
+            new ColumnDetail {
+                Tanggal = "2024-07-30",
+                KodePE = "GA",
+                NamaPE = "BNC SEKURITAS INDONESIA",
+                KonsentrasiAsetLancarSelainKasDanSetaraKas = "ABCDEFG",
+                TotalBalance = 9999,
+                TotalAsetLancar = 72716,
+                Persentase = 100,
+                NilaiJaminanMargin = 90,
+                NamaAkun =  "ABCDEFG",
+                TotalPortofolioEfek =  "ABCDEFG",
+                Haircut =  "ABCDEFG"
+            },
+             new ColumnDetail {
+                Tanggal = "2024-07-30",
+                KodePE = "GA",
+                NamaPE = "BNC SEKURITAS INDONESIA",
+                KonsentrasiAsetLancarSelainKasDanSetaraKas = "ABCDEFG",
+                TotalBalance = 9999,
+                TotalAsetLancar = 72716,
+                Persentase = 100,
+                NilaiJaminanMargin = 90,
+                NamaAkun =  "ABCDEFG",
+                TotalPortofolioEfek =  "ABCDEFG",
+                Haircut =  "ABCDEFG"
+            },
+              new ColumnDetail {
+                Tanggal = "2024-07-30",
+                KodePE = "GA",
+                NamaPE = "BNC SEKURITAS INDONESIA",
+                KonsentrasiAsetLancarSelainKasDanSetaraKas = "ABCDEFG",
+                TotalBalance = 9999,
+                TotalAsetLancar = 72716,
+                Persentase = 100,
+                NilaiJaminanMargin = 90,
+                NamaAkun =  "ABCDEFG",
+                TotalPortofolioEfek =  "ABCDEFG",
+                Haircut =  "ABCDEFG"
+            },
+               new ColumnDetail {
+                Tanggal = "2024-07-30",
+                KodePE = "GA",
+                NamaPE = "BNC SEKURITAS INDONESIA",
+                KonsentrasiAsetLancarSelainKasDanSetaraKas = "ABCDEFG",
+                TotalBalance = 9999,
+                TotalAsetLancar = 72716,
+                Persentase = 100,
+                NilaiJaminanMargin = 90,
+                NamaAkun =  "ABCDEFG",
+                TotalPortofolioEfek =  "ABCDEFG",
+                Haircut =  "ABCDEFG"
+            },
+                new ColumnDetail {
+                Tanggal = "2024-07-30",
+                KodePE = "GA",
+                NamaPE = "BNC SEKURITAS INDONESIA",
+                KonsentrasiAsetLancarSelainKasDanSetaraKas = "ABCDEFG",
+                TotalBalance = 9999,
+                TotalAsetLancar = 72716,
+                Persentase = 100,
+                NilaiJaminanMargin = 90,
+                NamaAkun =  "ABCDEFG",
+                TotalPortofolioEfek =  "ABCDEFG",
+                Haircut =  "ABCDEFG"
+            },
+                 new ColumnDetail {
+                Tanggal = "2024-07-30",
+                KodePE = "GA",
+                NamaPE = "BNC SEKURITAS INDONESIA",
+                KonsentrasiAsetLancarSelainKasDanSetaraKas = "ABCDEFG",
+                TotalBalance = 9999,
+                TotalAsetLancar = 72716,
+                Persentase = 100,
+                NilaiJaminanMargin = 90,
+                NamaAkun =  "ABCDEFG",
+                TotalPortofolioEfek =  "ABCDEFG",
+                Haircut =  "ABCDEFG"
+            },
+                  new ColumnDetail {
+                Tanggal = "2024-07-30",
+                KodePE = "GA",
+                NamaPE = "BNC SEKURITAS INDONESIA",
+                KonsentrasiAsetLancarSelainKasDanSetaraKas = "ABCDEFG",
+                TotalBalance = 9999,
+                TotalAsetLancar = 72716,
+                Persentase = 100,
+                NilaiJaminanMargin = 90,
+                NamaAkun =  "ABCDEFG",
+                TotalPortofolioEfek =  "ABCDEFG",
+                Haircut =  "ABCDEFG"
+            },
+                   new ColumnDetail {
+                Tanggal = "2024-07-30",
+                KodePE = "GA",
+                NamaPE = "BNC SEKURITAS INDONESIA",
+                KonsentrasiAsetLancarSelainKasDanSetaraKas = "ABCDEFG",
+                TotalBalance = 9999,
+                TotalAsetLancar = 72716,
+                Persentase = 100,
+                NilaiJaminanMargin = 90,
+                NamaAkun =  "ABCDEFG",
+                TotalPortofolioEfek =  "ABCDEFG",
+                Haircut =  "ABCDEFG"
+            }
+        };
+        }
+        public class ColumnDetail
+        {
+            public string Tanggal { get; set; }
+            public string KodePE { get; set; }
+            public string NamaPE { get; set; }
+            public string KonsentrasiAsetLancarSelainKasDanSetaraKas { get; set; }
+            public int TotalBalance { get; set; }
+            public int TotalAsetLancar { get; set; }
+            public int Persentase { get; set; }
+            public int NilaiJaminanMargin { get; set; }
+
+            public string NamaAkun { get; set; }
+            public string TotalPortofolioEfek { get; set; }
+            public string Haircut { get; set; }
         }
         //-----------------------------detail-----------------------------------//
 
