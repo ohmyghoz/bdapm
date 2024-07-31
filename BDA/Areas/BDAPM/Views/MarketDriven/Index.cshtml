@@ -14,47 +14,71 @@
         <div class="row filter-panel" style="padding-top:0px;">
             <div class="card-body">
                 <div class="row">
-                    <div class="col-lg-4 form-group">
-                        <label>Tanggal<span class="mandatory">*</span></label>
-                        @(Html.DevExtreme().DateBox()
-                            .ID("PeriodeAwal")
-                            .DisplayFormat("dd MMM yyyy")
-                            //.Value(periodeAwal1 == null ? DateTime.Now : periodeAwal1)
-                            .Value(DateTime.Now)
-                            .Max(DateTime.Now)
-                            .Width("100%"))
-                    </div>
-
-                    <div class="col-lg-4 form-group">
-                        <label>Nama PE</label>
+                    <div class="col-lg-3 form-group">
+                        <label>Jenis Periode@*<span class="mandatory">*</span>*@</label>
                         @(Html.DevExtreme().SelectBox()
-                            .ID("namaPEid")
-                            .DataSource(d => d.Mvc()
-                            .Controller("SegmentationSummaryClusterMKBD")
-                            .Area("BDAPM")
-                            .LoadAction("GetNamaPE")
-                            .Key("value"))
-                            .ValueExpr("value")
-                            .DisplayExpr("text")
-                            .SearchEnabled(true)
+                            .ID("Periodid")
+                            .DataSource(new[] { "Daily", "Monthly", "Custom Date" })
                             .Width("100%")
-                            )
+                            .OnValueChanged("onPeriodChanged"))
                     </div>
-
-                    <div class="col-lg-4 form-group">
-                        <label>Status@*<span class="mandatory">*</span>*@</label>
-                        @(Html.DevExtreme().TagBox()
-                            .ID("Statusid")
-                            .DataSource(new[] { "Alert", "Normal" })
-                            .ShowSelectionControls(true)
-                            .MaxDisplayedTags(3)
-                            .SearchEnabled(true)
-                            .OnSelectionChanged("onSelectionChanged")
+                   
+                </div>
+                <div class="row">
+                    <div class="col-lg-3 form-group" id="datepickday">
+                        <label>Periode1@*<span class="mandatory">*</span>*@</label>
+                        @(Html.DevExtreme().DateBox()
+                            .ID("DatepickdID")
+                            .Type(DateBoxType.Date)
+                            .DisplayFormat("dd/MM/yyyy")
                             .Width("100%"))
                     </div>
+                    <div class="col-lg-3 form-group" id="datepickmonth">
+                        <label>Periode2@*<span class="mandatory">*</span>*@</label>
+                        @(Html.DevExtreme().DateBox()
+                            .ID("DatepickmID")
+                            .Type(DateBoxType.Date)
+                            .DisplayFormat("monthAndYear")
+                            .CalendarOptions(c => c
+                            .MaxZoomLevel(CalendarZoomLevel.Year)
+                            .MinZoomLevel(CalendarZoomLevel.Century))
+                            .Width("100%"))
+                    </div>
+                    <div class="col-lg-3 form-group" id="starttime">
+                        <label>Start Time@*<span class="mandatory">*</span>*@</label>
+                        @(Html.DevExtreme().SelectBox()
+                            .ID("StartTime")
+                            .DataSource(Enumerable.Range(9, 9).Select(h => new { Value = h.ToString("D2") + ":00", Text = h.ToString("D2") + ":00" }))
+                            .ValueExpr("Value")
+                            .DisplayExpr("Text")
+                            .SearchEnabled(true)
+                            .Width("100%"))
+
+                    </div>
+                    <div class="col-lg-3 form-group" id="endtime">
+                        <label>End Time@*<span class="mandatory">*</span>*@</label>
+                        @(Html.DevExtreme().SelectBox()
+                            .ID("EndTime")
+                            .DataSource(Enumerable.Range(9, 9).Select(h => new { Value = h.ToString("D2") + ":00", Text = h.ToString("D2") + ":00" }))
+                            .ValueExpr("Value")
+                            .DisplayExpr("Text")
+                            .SearchEnabled(true)
+                            .Width("100%"))
+
+                    </div>
+                    <div class="col-lg-3 form-group" id="topDiv">
+                        <label>Top@*<span class="mandatory">*</span>*@</label>
+                        @(Html.DevExtreme().SelectBox()
+                            .ID("ItemsPerPageSelectBox")
+                            .DataSource(new[] { "10", "25", "50", "100", "150", "200", "All" })
+                            .ValueExpr("this")
+                            .DisplayExpr("this")
+                            .SearchEnabled(true)
+                            .Width("100%"))
+                    </div>
+
 
                 </div>
-
                 <div class="float-left">
                     @(Html.DevExtreme().Button()
                         .ID("Filter")
@@ -226,6 +250,39 @@
 </script>
 
 <script>
+    function onPeriodChanged(e) {
+        const selectedValue = e.value;
+        const datepickdayDiv = document.getElementById("datepickday");
+        const datepickmonthDiv = document.getElementById("datepickmonth");
+        const asingDiv = document.getElementById("asingDiv");
+        const starttimeDiv = document.getElementById("starttime")
+        const endtimeDiv = document.getElementById("endtime")
+
+        if (selectedValue === "Daily") {
+            starttimeDiv.style.display = "block";
+            endtimeDiv.style.display = "block";
+            datepickdayDiv.style.display = "block";
+            datepickmonthDiv.style.display = "none";
+        } else if (selectedValue === "Monthly") {
+            datepickmonthDiv.style.display = "block";
+            starttimeDiv.style.display = "none";
+            endtimeDiv.style.display = "none";
+            datepickdayDiv.style.display = "none";
+        } else {
+            starttimeDiv.style.display = "none";
+            endtimeDiv.style.display = "none";
+            datepickdayDiv.style.display = "none";
+            datepickmonthDiv.style.display = "none";
+        }
+    }
+
+    $(document).ready(function () {
+        // Hide the confirmation and asing divs initially
+        document.getElementById("starttime").style.display = "none";
+        document.getElementById("endtime").style.display = "none";
+        document.getElementById("datepickday").style.display = "none";
+        document.getElementById("datepickmonth").style.display = "none";
+    });
 
     $(function () {
         const startDate = $("#PeriodeAwal").dxDateBox({
