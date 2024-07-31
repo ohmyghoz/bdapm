@@ -113,57 +113,7 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-lg-6">
-                @(Html.DevExtreme().PieChart()
-                    .ID("pie")
-                    .Type(PieChartType.Donut)
-                    .Palette(VizPalette.SoftPastel)
-                    .Title("Jumlah Cluster")
-                    .Legend(l => l
-                    .HorizontalAlignment(HorizontalAlignment.Right)
-                    .VerticalAlignment(VerticalEdge.Top)
-                    .Margin(0)
-                    )
-                    .Export(e => e.Enabled(true))
-                    .Series(s => s
-                    .Add()
-                    .ArgumentField("Country")
-                    .ValueField("Medals")
-                    .HoverStyle(h => h.Color("#ffd700"))
-                    )
-                    .OnPointClick(@<text>
-                function(arg) {
-                arg.target.select();
-                }
-            </text>)
-                    .DataSource(new[] {
-            new { Country = "Normal", Medals = 110 },
-            new { Country = "Alert", Medals = 100 },
-            })
-                    )
-            </div>
-
-            <div class="col-lg-6">
-                @(Html.DevExtreme().Chart()
-                    .ID("chart")
-                    .Title("Cluster PE Berdasarkan Persentase MKBD dibandingkan MKBD Dipersyaratkan")
-                    .Series(s => s
-                    .Add()
-                    .ArgumentField("Day")
-                    .ValueField("Oranges")
-                    .Name("My oranges")
-                    .Type(SeriesType.Bar)
-                    .Color("#ffaa66")
-                    )
-                    .DataSource(new[] {
-            new { Day = "< 100%", Oranges = 3 },
-            new { Day = "100% s/d 119%", Oranges = 2 },
-            new { Day = "200% s/d 499%", Oranges = 3 },
-            new { Day = "> 500%", Oranges = 4 }
-            })
-                    )
-
-            </div>
+            
         </div>
         <br />
         @*grid*@

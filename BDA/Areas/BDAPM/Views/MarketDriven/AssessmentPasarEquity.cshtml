@@ -13,6 +13,7 @@
         @*filter*@
         <div class="row filter-panel" style="padding-top:0px;">
             <div class="card-body">
+                <h1>Assessment Pasar Equity</h1>
                 <div class="row">
                     <div class="col-lg-3 form-group">
                         <label>Jenis Periode@*<span class="mandatory">*</span>*@</label>
@@ -82,6 +83,101 @@
                             .DisplayFormat("dd/MM/yyyy")
                             .Width("100%"))
                     </div>
+                    
+                    <div class="col-lg-3 form-group">
+                        <label>Lokal/Asing@*<span class="mandatory">*</span>*@</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("LokalAsingid")
+                            .DataSource(new[] { "Lokal", "Asing" })
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .Width("100%"))
+                    </div>
+
+                    <div class="col-lg-3 form-group">
+                        <label>Buy/Sell@*<span class="mandatory">*</span>*@</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("Buysellid")
+                            .DataSource(new[] { "Buy", "Sell" })
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .Width("100%"))
+                    </div>
+
+                    <div class="col-lg-3 form-group">
+                        <label>Board@*<span class="mandatory">*</span>*@</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("Boardid")
+                            .DataSource(new[] { "Tahap I", "Tahap II - Hybrid", "Tahap II - Full Call" })
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .Width("100%"))
+                    </div>
+
+                    <div class="col-lg-3 form-group">
+                        <label>Domestik/Foreign@*<span class="mandatory">*</span>*@</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("DomestikForeignid")
+                            .DataSource(new[] { "Domestik", "Foreign" })
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .Width("100%"))
+                    </div>
+                   
+                    <div class="col-lg-3 form-group">
+                        <label>Market@*<span class="mandatory">*</span>*@</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("Marketid")
+                            .DataSource(new[] { "Primary", "Secondary" })
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .Width("100%"))
+                    </div>
+                    
+                    <div class="col-lg-3 form-group">
+                        <label>Value/Volume/Market@*<span class="mandatory">*</span>*@</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("VVMid")
+                            .DataSource(new[] { "Value", "Volume","Market" })
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .Width("100%"))
+                    </div>
+
+                    <div class="col-lg-3 form-group">
+                        <label>Swap APE@*<span class="mandatory">*</span>*@</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("SwapAPEid")
+                            .DataSource(new[] { "Value", "Volume", "Market" })
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .Width("100%"))
+                    </div>
+                    <div class="col-lg-3 form-group">
+                        <label>Summarize/Netting@*<span class="mandatory">*</span>*@</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("SummarizeNettingid")
+                            .DataSource(new[] { "Summarize", "Netting" })
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .Width("100%"))
+                    </div>
                     <div class="col-lg-3 form-group" id="topDiv">
                         <label>Top@*<span class="mandatory">*</span>*@</label>
                         @(Html.DevExtreme().SelectBox()
@@ -113,57 +209,6 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-lg-6">
-                @(Html.DevExtreme().PieChart()
-                    .ID("pie")
-                    .Type(PieChartType.Donut)
-                    .Palette(VizPalette.SoftPastel)
-                    .Title("Jumlah Cluster")
-                    .Legend(l => l
-                    .HorizontalAlignment(HorizontalAlignment.Right)
-                    .VerticalAlignment(VerticalEdge.Top)
-                    .Margin(0)
-                    )
-                    .Export(e => e.Enabled(true))
-                    .Series(s => s
-                    .Add()
-                    .ArgumentField("Country")
-                    .ValueField("Medals")
-                    .HoverStyle(h => h.Color("#ffd700"))
-                    )
-                    .OnPointClick(@<text>
-                function(arg) {
-                arg.target.select();
-                }
-            </text>)
-                    .DataSource(new[] {
-            new { Country = "Normal", Medals = 110 },
-            new { Country = "Alert", Medals = 100 },
-            })
-                    )
-            </div>
-
-            <div class="col-lg-6">
-                @(Html.DevExtreme().Chart()
-                    .ID("chart")
-                    .Title("Cluster PE Berdasarkan Persentase MKBD dibandingkan MKBD Dipersyaratkan")
-                    .Series(s => s
-                    .Add()
-                    .ArgumentField("Day")
-                    .ValueField("Oranges")
-                    .Name("My oranges")
-                    .Type(SeriesType.Bar)
-                    .Color("#ffaa66")
-                    )
-                    .DataSource(new[] {
-            new { Day = "< 100%", Oranges = 3 },
-            new { Day = "100% s/d 119%", Oranges = 2 },
-            new { Day = "200% s/d 499%", Oranges = 3 },
-            new { Day = "> 500%", Oranges = 4 }
-            })
-                    )
-
-            </div>
         </div>
         <br />
         @*grid*@
