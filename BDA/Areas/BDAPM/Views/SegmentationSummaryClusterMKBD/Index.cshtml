@@ -150,9 +150,7 @@
                     columns.Add().DataField("securitycompanycode").Caption("Kode PE");
                     columns.Add().DataField("securitycompanyname").Caption("Nama PE");
                     columns.Add().DataField("simpanangiro").Caption("Simpanan Giro");
-
-                    columns.Add().DataField("cluster").Caption("Deposito < 3 Bulan");
-                    columns.Add().DataField("depositolt3bulan").Caption("Deposito > 3 Bulan");
+                    columns.Add().DataField("depositolt3bulan").Caption("Deposito < 3 Bulan");
                     columns.Add().DataField("depositogt3bulandijaminlps").Caption("Deposito > 3 Bulan Dijamin LPS");
                     columns.Add().DataField("uangjaminanlkp").Caption("Uang Jaminan LKP").Format("#,##0");
                     columns.Add().DataField("kasdansetarakas").Caption("Kas dan Setara Kas(Simpanan Giro + Deposito < 3 Bulan + Uang Jaminan LKP)").Format("#,##0");
@@ -351,16 +349,18 @@
     }
 
     function onGridBeforeSend(method, ajaxOptions) {
-        let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
         let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
+        let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
         let status = $("#Statusid").dxTagBox("instance").option("value");
+        
 
         let periodeAwal = null;
         if (tempPeriodeAwal != null) {
-            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + (tempPeriodeAwal.getMonth() + 1) + '-' + tempPeriodeAwal.getDate();
+            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
         }
-        ajaxOptions.data.namaPE = JSON.stringify(namaPE);
+        
         ajaxOptions.data.periodeAwal = periodeAwal;
+        ajaxOptions.data.namaPE = namaPE;
         ajaxOptions.data.status = JSON.stringify(status);
     }
 

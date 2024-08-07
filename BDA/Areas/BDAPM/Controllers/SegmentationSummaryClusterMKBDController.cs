@@ -61,10 +61,10 @@ namespace BDA.Controllers
         {
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
             TempData.Clear(); //membersihkan data filtering
-            string[] NamaPE = JsonConvert.DeserializeObject<string[]>(namaPE);
+            string[] StatusPE = JsonConvert.DeserializeObject<string[]>(status);
 
             string stringPeriodeAwal = null;
-            string stringPE = null;
+            string stringNamaPE = null;
             string stringStatus = null;
             string reportId = "pe_segmentation_sum_cluster_mkbd"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
 
@@ -75,11 +75,23 @@ namespace BDA.Controllers
                 stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
                 TempData["pawal"] = stringPeriodeAwal;
             }
+            if (namaPE != null)
+            {
+                stringNamaPE = namaPE;
+                //string result = stringNamaPE.Replace("\",\"", "");
+                TempData["pe"] = stringNamaPE;
+            }
+            
+            if (StatusPE.Length > 0)
+            {
+                stringStatus = string.Join(", ", StatusPE);
+                TempData["sts"] = stringStatus;
+            }
 
             db.Database.CommandTimeout = 420;
             if (periodeAwal.Length > 0) //jika ada parameter nya
             {
-                var result = Helper.WSQueryStore.GetBDAPMQuery(db, loadOptions, reportId, stringPeriodeAwal, stringPE, stringStatus, cekHive);
+                var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQuery(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, stringStatus, cekHive);
                 return JsonConvert.SerializeObject(result);
             }
             else
@@ -147,7 +159,7 @@ namespace BDA.Controllers
                     for (int i = 0; i < dt.Rows.Count; i++)
                     {
                         string namakode = dt.Rows[i]["SecurityCompanyCode"].ToString() + " - " + dt.Rows[i]["SecurityCompanyName"].ToString();
-                        list.Add(new NamaPE() { value = dt.Rows[i]["SecurityCompanySK"].ToString(), text = namakode });
+                        list.Add(new NamaPE() { value = dt.Rows[i]["SecurityCompanyCode"].ToString(), text = namakode });
                     }
 
                     return Json(DataSourceLoader.Load(list, loadOptions));

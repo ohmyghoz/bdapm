@@ -4783,7 +4783,7 @@ namespace BDA.Helper
             return WSQueryHelper.DoQueryNL(db, props, isC, isHive);
         }
 
-        public static WSQueryReturns GetBDAPMQuery(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string periodes, string stringPE, string stringStatus, bool isHive = false)
+        public static WSQueryReturns GetBDAPMSegmentationSummaryClusterMKBDQuery(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string periodes, string stringPE, string stringStatus, bool isHive = false)
         {
             bool isC = false;
             var whereQuery = "1=1";
@@ -4794,6 +4794,17 @@ namespace BDA.Helper
                 periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
                 whereQuery = whereQuery += " AND calendardate in (" + periodes + ")";
             }
+            if (stringPE != null)
+            {
+                stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND securitycompanycode in (" + stringPE + ")";
+            }
+            
+            //if (stringStatus != null)
+            //{
+            //    stringStatus = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+            //    whereQuery = whereQuery += " AND securitycompanycode in (" + periodes + ")";
+            //}
             var props = new WSQueryProperties();
             if (isHive == true)
             {
