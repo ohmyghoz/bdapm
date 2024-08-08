@@ -11,8 +11,8 @@
     </div>
 }
 @inject BDA.DataModel.DataEntities db
-@model IEnumerable<BDA.Controllers.SegmentationSummaryClusterMKBDController.ColumnDetail>
-
+@* @model IEnumerable<BDA.Controllers.SegmentationSummaryClusterMKBDController.ColumnDetail>
+ *@
 @using (Html.BeginForm())
 {
     @Html.AntiForgeryToken()
@@ -130,7 +130,7 @@
                                 .ID("grid1")
                                 .DataSource(d => d.Mvc()
                                 .Controller("SegmentationSummaryClusterMKBD")
-                                .LoadAction("GetDetailData"))
+                                .LoadAction("GetGridDataDetail"))
                                 .RemoteOperations(false)
                                 .Width("100%")
                                 .AllowColumnResizing(true)
@@ -188,7 +188,7 @@
             <br />
             <br />
             <div class="gridview-div">
-                @(Html.DevExtreme().DataGrid()
+                @* @(Html.DevExtreme().DataGrid()
                     .ID("grid3")
                     .DataSource(Model)
                     .KeyExpr("NamaAkun")
@@ -211,7 +211,7 @@
                     .Pager(p =>
                     {
                         p.ShowInfo(true);
-                    }))
+                    })) *@
             </div>
         </div>
 

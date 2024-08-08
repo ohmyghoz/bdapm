@@ -376,10 +376,15 @@
         if (tempPeriodeAwal != null) {
             periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
         }
-
+        
         var keys = e.row.key;
         if (typeof (keys) !== "undefined" && typeof (keys) !== null) {
-            window.open('@Url.Action("Detail", "SegmentationSummaryClusterMKBD")?id=' + keys.toString() + '&periodeAwal=' + periodeAwal + '&namaPE=' + namaPE);
+            if(namaPE == null){
+                window.open('@Url.Action("Detail", "SegmentationSummaryClusterMKBD")?id=' + keys.toString() + '&periodeAwal=' + periodeAwal);
+            }else{
+                window.open('@Url.Action("Detail", "SegmentationSummaryClusterMKBD")?id=' + keys.toString() + '&periodeAwal=' + periodeAwal + '&namaPE=' + namaPE);
+            }
+            
         }
     }
 

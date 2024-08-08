@@ -103,6 +103,42 @@ namespace BDA.Controllers
             }
             return DataSourceLoader.Load(new List<string>(), loadOptions);
         }
+        public object GetGridDataDetail(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE)
+        {
+            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+            TempData.Clear(); //membersihkan data filtering
+
+            string stringPeriodeAwal = null;
+            string stringNamaPE = null;
+            string stringStatus = null;
+            string reportId = "pe_segmentation_bridging_detail"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+
+            if (periodeAwal != null)
+            {
+                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
+                TempData["pawal"] = stringPeriodeAwal;
+            }
+            if (namaPE != null)
+            {
+                stringNamaPE = namaPE;
+                //string result = stringNamaPE.Replace("\",\"", "");
+                TempData["pe"] = stringNamaPE;
+            }
+
+            db.Database.CommandTimeout = 420;
+            if (periodeAwal.Length > 0) //jika ada parameter nya
+            {
+                var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryDetail(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, cekHive);
+                return JsonConvert.SerializeObject(result);
+            }
+            else
+            {
+                loadOptions = new DataSourceLoadOptions();
+            }
+            return DataSourceLoader.Load(new List<string>(), loadOptions);
+        }
         [HttpPost]
         public ActionResult SimpanPenggunaanData(string id)
         {
@@ -292,7 +328,7 @@ namespace BDA.Controllers
             var obj = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryDetail(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, cekHive);
             if (obj == null) return NotFound();
 
-            
+            GetGridDataDetail(loadOptions, stringPeriodeAwal, stringNamaPE);
 
             db.CheckPermission("Detail Cluster MKBD View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
             ViewBag.Export = db.CheckPermission("Detail Cluster MKBD Export", DataEntities.PermissionMessageType.NoMessage);
