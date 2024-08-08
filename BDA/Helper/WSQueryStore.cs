@@ -4828,5 +4828,45 @@ namespace BDA.Helper
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
         }
+        public static WSQueryReturns GetBDAPMSegmentationSummaryClusterMKBDQueryDetail(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string periodes, string stringPE, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            //isHive = true;
+
+            if (periodes != null)
+            {
+                periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND calendardate in (" + periodes + ")";
+            }
+            if (stringPE != null)
+            {
+                stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND securitycompanycode in (" + stringPE + ")";
+            }
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "pe_segmentation_bridging_detail")
+                {
+                    props.Query = @"
+                        select  concat_ws('~', cast(dm_periode as string), regexp_replace(dm_jenis_ljk,'/','>'), dm_kode_ljk,'',dm_cif) AS lem,concat_ws('~','n', cast(dm_periode as string), regexp_replace(dm_jenis_ljk,'/','>'), dm_kode_ljk,'',dm_cif) AS idcif,concat_ws('~','p', cast(dm_periode as string), regexp_replace(dm_jenis_ljk,'/','>'), dm_kode_ljk,'',dm_id_pengurus_pemilik) AS idpeng,* from dbo." + tableName + @" x
+                        WHERE " + whereQuery + @"	                
+                        ";
+                }
+            }
+            else
+            {
+                if (tableName == "pe_segmentation_bridging_detail")
+                {
+                    props.Query = @"
+                        select * from dbo." + tableName + @" x
+                        WHERE " + whereQuery + @"";
+                }
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
     }
 }

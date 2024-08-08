@@ -98,24 +98,58 @@
                     <div class="row">
                         @*grid*@
                         <div class="gridview-div">
+                            @*  @(Html.DevExtreme().DataGrid()
+                        .ID("grid2")
+                        .DataSource(Model)
+                        .KeyExpr("Tanggal")
+                        .ShowBorders(true)
+                        .Columns(c =>
+                        {
+                        c.Add().DataField("Tanggal");
+                        c.Add().DataField("KodePE");
+                        c.Add().DataField("NamaPE");
+                        c.Add().DataField("KonsentrasiAsetLancarSelainKasDanSetaraKas");
+                        c.Add().DataField("TotalBalance");
+                        c.Add().DataField("TotalAsetLancar");
+                        c.Add().DataField("Persentase");
+                        c.Add().DataField("NilaiJaminanMargin");
+                        })
+                        .FilterRow(f => f.Visible(true))
+                        .ShowBorders(true)
+                        .Paging(p =>
+                        {
+                        p.PageSize(20);
+                        p.Enabled(true);
+                        })
+                        .Pager(p =>
+                        {
+                        p.ShowInfo(true);
+                        })) *@
+
                             @(Html.DevExtreme().DataGrid()
-                                .ID("grid2")
-                                .DataSource(Model)
-                                .KeyExpr("Tanggal")
-                                .ShowBorders(true)
-                                .Columns(c =>
+                                .ID("grid1")
+                                .DataSource(d => d.Mvc()
+                                .Controller("SegmentationSummaryClusterMKBD")
+                                .LoadAction("GetDetailData"))
+                                .RemoteOperations(false)
+                                .Width("100%")
+                                .AllowColumnResizing(true)
+                                .ColumnAutoWidth(true)
+                                .Columns(columns =>
                                 {
-                                    c.Add().DataField("Tanggal");
-                                    c.Add().DataField("KodePE");
-                                    c.Add().DataField("NamaPE");
-                                    c.Add().DataField("KonsentrasiAsetLancarSelainKasDanSetaraKas");
-                                    c.Add().DataField("TotalBalance");
-                                    c.Add().DataField("TotalAsetLancar");
-                                    c.Add().DataField("Persentase");
-                                    c.Add().DataField("NilaiJaminanMargin");
+                                    columns.Add().DataField("periode").Caption("Tanggal").DataType(GridColumnDataType.DateTime).Format("MMM yyyy");
+                                    columns.Add().DataField("securitycompanycode").Caption("Kode PE");
+                                    columns.Add().DataField("securitycompanyname").Caption("Nama PE");
+                                    columns.Add().DataField("f_level_1").Caption("Konsentrasi Aset Lancar Selain Kas Dan Setara Kas");
+                                    columns.Add().DataField("total_balance").Caption("Total Balance").Format("#,##0");
+                                    columns.Add().DataField("total_aset_lancar").Caption("Total Aset Lancar").Format("#,##0");
+                                    columns.Add().DataField("persentase").Caption("Persentase");
+                                    columns.Add().DataField("fairmarketvalue").Caption("Nilai Jaminan Margin").Format("#,##0");
                                 })
+                                .ColumnResizingMode(ColumnResizingMode.Widget)
                                 .FilterRow(f => f.Visible(true))
-                                .ShowBorders(true)
+                                .ShowBorders(false)
+                                // .RowAlternationEnabled(false)
                                 .Paging(p =>
                                 {
                                     p.PageSize(20);
@@ -124,7 +158,8 @@
                                 .Pager(p =>
                                 {
                                     p.ShowInfo(true);
-                                }))
+                                })
+                                )
                         </div>
                     </div>
                 </div>

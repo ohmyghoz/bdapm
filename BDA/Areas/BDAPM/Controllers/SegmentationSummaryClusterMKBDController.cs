@@ -19,6 +19,9 @@ using Newtonsoft.Json;
 using System.Data.SqlClient;
 using static System.Net.Mime.MediaTypeNames;
 using static BDA.Controllers.SampleGridController;
+using System.Xml.Linq;
+using static DevExpress.Xpo.Helpers.AssociatedCollectionCriteriaHelper;
+using Ionic.Zip;
 
 namespace BDA.Controllers
 {
@@ -259,26 +262,44 @@ namespace BDA.Controllers
         }
 
         //-----------------------------detail-----------------------------------//
-        public IActionResult Detail(long? id)
+        public IActionResult Detail(DataSourceLoadOptions loadOptions, long? id, string periodeAwal, string namaPE)
         {
+            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
             var currentNode = mdl.GetCurrentNode();
             string pageTitle = currentNode != null ? currentNode.Title : "Detail Cluster MKBD"; //menampilkan data menu
 
-            if (id == null)
-            {
-                id = 1;
-            }
+            string stringPeriodeAwal = null;
+            string stringNamaPE = null;
+            string reportId = "pe_segmentation_bridging_detail"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
 
-            var obj = (dynamic)null;
-            //var obj = db.BDA_F01_MaxMinOverdue.Find(id);
-            //if (obj == null) return NotFound();
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+
+            if (id == null) return BadRequest();
+
+            if (periodeAwal != null)
+            {
+                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
+                TempData["pawal"] = stringPeriodeAwal;
+            }
+            if (namaPE != null)
+            {
+                stringNamaPE = namaPE;
+                TempData["pe"] = stringNamaPE;
+            }
+            db.Database.CommandTimeout = 420;
+
+            var obj = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryDetail(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, cekHive);
+            if (obj == null) return NotFound();
+
+            
 
             db.CheckPermission("Detail Cluster MKBD View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
             ViewBag.Export = db.CheckPermission("Detail Cluster MKBD Export", DataEntities.PermissionMessageType.NoMessage);
 
             db.InsertAuditTrail("AksesPageDetailCluster_Akses_Page", "Akses Page Detail Cluster MKBD", pageTitle);
-            return View(SampleDataDetail.SimpleArrayCustomerDetail);
+            //return View(SampleDataDetail.SimpleArrayCustomerDetail);
+            return View(obj);
         }
 
         public partial class SampleDataDetail

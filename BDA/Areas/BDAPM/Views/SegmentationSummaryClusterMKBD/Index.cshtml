@@ -244,12 +244,12 @@
         })
     });
 
-    $(function () {
+    @* $(function () {
         $("#namaPEid").dxValidator({
             validationGroup: "Filter",
             validationRules: [{ type: "required", message: "[Nama PE] harus dipilih" }]
         })
-    });
+    }); *@
 
     $(window).on('load', function () {
         $("#ModalSimpanPenggunaanData").modal("show");
@@ -369,9 +369,17 @@
     }
 
     function Detail(e) {
+        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
+        let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
+
+        let periodeAwal = null;
+        if (tempPeriodeAwal != null) {
+            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
+        }
+
         var keys = e.row.key;
         if (typeof (keys) !== "undefined" && typeof (keys) !== null) {
-            window.open('@Url.Action("Detail", "SegmentationSummaryClusterMKBD")?id=' + keys.toString());
+            window.open('@Url.Action("Detail", "SegmentationSummaryClusterMKBD")?id=' + keys.toString() + '&periodeAwal=' + periodeAwal + '&namaPE=' + namaPE);
         }
     }
 
