@@ -3,7 +3,7 @@
     Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
     string reportId = "pe_segmentation_bridging_detail";
     var p = ViewBag.period;
-    var pe =  ViewBag.namape;
+    var pe = ViewBag.namape;
     var maxItems = db.GetSetting("LimitFilterLJK");
 }
 @section RightToolbar {
@@ -60,110 +60,87 @@
             </div>
         </div>
 
+        <div class="row">
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <table>
+                <tr>
+                    <td>
+                        <div class="form-group">
+                            <input type="button" id="btnDetailCluster" class="btn btn-danger" value="Detail Cluster MKB" onclick="location.href='@Url.Action("Detail", "SegmentationSummaryClusterMKBD")'" />
+                        </div>
+                    </td>
+                    <td>
+                        <div class="form-group">
+                            <input type="button" id="btnRincianPortofolio" class="btn btn-danger" value="Rincian Portofolio" onclick="location.href='@Url.Action("RincianPortofolio", "SegmentationSummaryClusterMKBD")'" />
+                        </div>
+                    </td>
+                    <td>
+                        <div class="form-group">
+                            <input type="button" id="btnReksadana" class="btn btn-danger" value="Reksadana" onclick="location.href='@Url.Action("Reksadana", "SegmentationSummaryClusterMKBD")'" />
+                        </div>
+                    </td>
+                    <td>
+                        <div class="form-group">
+                            <input type="button" id="btnJaminanMargin" class="btn btn-danger" value="Jaminan Margin" onclick="location.href='@Url.Action("JaminanMargin", "SegmentationSummaryClusterMKBD")'" />
+                        </div>
+                    </td>
+                    <td>
+                        <div class="form-group">
+                            <input type="button" id="btnReverseRepo" class="btn btn-danger" value="Reverse Repo" onclick="location.href='@Url.Action("ReverseRepo", "SegmentationSummaryClusterMKBD")'" />
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
         <div class="row filter-panel" style="padding-top:0px;">
             <div class="card-body">
-                <div class="row">
-                    <div class="form-group">
-                        <input type="button" id="btnDetailCluster" class="btn btn-danger" value="Detail Cluster MKB" onclick="location.href='@Url.Action("Detail", "SegmentationSummaryClusterMKBD")'" />
-                    </div>&nbsp;&nbsp;
-                    <div class="form-group">
-                        <input type="button" id="btnRincianPortofolio" class="btn btn-danger" value="Rincian Portofolio" onclick="location.href='@Url.Action("RincianPortofolio", "SegmentationSummaryClusterMKBD")'" />
-                    </div>&nbsp;&nbsp;
-                    <div class="form-group">
-                        <input type="button" id="btnReksadana" class="btn btn-danger" value="Reksadana" onclick="location.href='@Url.Action("Reksadana", "SegmentationSummaryClusterMKBD")'" />
-                    </div>&nbsp;&nbsp;
-                    <div class="form-group">
-                        <input type="button" id="btnJaminanMargin" class="btn btn-danger" value="Jaminan Margin" onclick="location.href='@Url.Action("JaminanMargin", "SegmentationSummaryClusterMKBD")'" />
-                    </div>&nbsp;&nbsp;
-                    <div class="form-group">
-                        <input type="button" id="btnReverseRepo" class="btn btn-danger" value="Reverse Repo" onclick="location.href='@Url.Action("ReverseRepo", "SegmentationSummaryClusterMKBD")'" />
-                    </div>
+                <div class="float-right">
+                    @if (ViewBag.Export)
+                    {
+                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                    }
                 </div>
             </div>
         </div>
-        <div>
-            <div class="float-right">
-                @if (ViewBag.Export)
-                {
-                    <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();"><span class="image fa fa-file-excel"></span> Export Excel</a>
-                    <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
-                }
-            </div>
-            <br />
-            <br />
-            <br />
-            <div class="row filter-panel" style="padding-top:0px;">
-                <div class="card-body">
-                    <div class="row">
-                        @*grid*@
-                        <div class="gridview-div">
-                            @*  @(Html.DevExtreme().DataGrid()
-                        .ID("grid2")
-                        .DataSource(Model)
-                        .KeyExpr("Tanggal")
-                        .ShowBorders(true)
-                        .Columns(c =>
-                        {
-                        c.Add().DataField("Tanggal");
-                        c.Add().DataField("KodePE");
-                        c.Add().DataField("NamaPE");
-                        c.Add().DataField("KonsentrasiAsetLancarSelainKasDanSetaraKas");
-                        c.Add().DataField("TotalBalance");
-                        c.Add().DataField("TotalAsetLancar");
-                        c.Add().DataField("Persentase");
-                        c.Add().DataField("NilaiJaminanMargin");
-                        })
-                        .FilterRow(f => f.Visible(true))
-                        .ShowBorders(true)
-                        .Paging(p =>
-                        {
-                        p.PageSize(20);
-                        p.Enabled(true);
-                        })
-                        .Pager(p =>
-                        {
-                        p.ShowInfo(true);
-                        })) *@
 
-                            @(Html.DevExtreme().DataGrid()
-                                .ID("grid1")
-                                .DataSource(d => d.Mvc()
-                                .Controller("SegmentationSummaryClusterMKBD")
-                                .LoadAction("GetGridDataDetail")
-                                .LoadParams(new { periodeAwal = p, namaPE = pe }))
-                                .RemoteOperations(false)
-                                .Width("100%")
-                                .AllowColumnResizing(true)
-                                .ColumnAutoWidth(true)
-                                .Columns(columns =>
-                                {
-                                    columns.Add().DataField("periode").Caption("Tanggal").DataType(GridColumnDataType.DateTime).Format("MMM yyyy");
-                                    columns.Add().DataField("securitycompanycode").Caption("Kode PE");
-                                    columns.Add().DataField("securitycompanyname").Caption("Nama PE");
-                                    columns.Add().DataField("f_level_1").Caption("Konsentrasi Aset Lancar Selain Kas Dan Setara Kas");
-                                    columns.Add().DataField("total_balance").Caption("Total Balance").Format("#,##0");
-                                    columns.Add().DataField("total_aset_lancar").Caption("Total Aset Lancar").Format("#,##0");
-                                    columns.Add().DataField("persentase").Caption("Persentase");
-                                    columns.Add().DataField("fairmarketvalue").Caption("Nilai Jaminan Margin").Format("#,##0");
-                                })
-                                .ColumnResizingMode(ColumnResizingMode.Widget)
-                                .FilterRow(f => f.Visible(true))
-                                .ShowBorders(false)
-                                // .RowAlternationEnabled(false)
-                                .Paging(p =>
-                                {
-                                    p.PageSize(20);
-                                    p.Enabled(true);
-                                })
-                                .Pager(p =>
-                                {
-                                    p.ShowInfo(true);
-                                })
-                                )
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="gridview-div">
+            @(Html.DevExtreme().DataGrid()
+                .ID("grid1")
+                .DataSource(d => d.Mvc()
+                .Controller("SegmentationSummaryClusterMKBD")
+                .LoadAction("GetGridDataDetail")
+                .LoadParams(new { periodeAwal = p, namaPE = pe }))
+                .RemoteOperations(false)
+                .Width("100%")
+                .AllowColumnResizing(true)
+                .ColumnAutoWidth(true)
+                .WordWrapEnabled(true)
+                .Columns(columns =>
+                {
+                    columns.Add().DataField("periode").Caption("Tanggal").DataType(GridColumnDataType.DateTime).Format("MMM yyyy");
+                    columns.Add().DataField("securitycompanycode").Caption("Kode PE");
+                    columns.Add().DataField("securitycompanyname").Caption("Nama PE");
+                    columns.Add().DataField("f_level_1").Caption("Konsentrasi Aset Lancar Selain Kas Dan Setara Kas");
+                    columns.Add().DataField("total_balance").Caption("Total Balance").Format("#,##0");
+                    columns.Add().DataField("total_aset_lancar").Caption("Total Aset Lancar").Format("#,##0");
+                    columns.Add().DataField("persentase").Caption("Persentase");
+                    columns.Add().DataField("fairmarketvalue").Caption("Nilai Jaminan Margin").Format("#,##0");
+                })
+                .ColumnResizingMode(ColumnResizingMode.Widget)
+                .FilterRow(f => f.Visible(true))
+                .ShowBorders(false)
+                .Paging(p =>
+                {
+                    p.PageSize(20);
+                    p.Enabled(true);
+                })
+                .Pager(p =>
+                {
+                    p.ShowInfo(true);
+                })
+                )
         </div>
 
         <br />
@@ -189,29 +166,29 @@
             <br />
             <div class="gridview-div">
                 @* @(Html.DevExtreme().DataGrid()
-                    .ID("grid3")
-                    .DataSource(Model)
-                    .KeyExpr("NamaAkun")
-                    .ShowBorders(true)
-                    .Columns(c =>
-                    {
-                        c.Add().DataField("NamaAkun");
-                        c.Add().DataField("TotalBalance");
-                        c.Add().DataField("TotalPortofolioEfek");
-                        c.Add().DataField("Persentase");
-                        c.Add().DataField("Haircut");
-                    })
-                    .FilterRow(f => f.Visible(true))
-                    .ShowBorders(true)
-                    .Paging(p =>
-                    {
-                        p.PageSize(20);
-                        p.Enabled(true);
-                    })
-                    .Pager(p =>
-                    {
-                        p.ShowInfo(true);
-                    })) *@
+            .ID("grid3")
+            .DataSource(Model)
+            .KeyExpr("NamaAkun")
+            .ShowBorders(true)
+            .Columns(c =>
+            {
+            c.Add().DataField("NamaAkun");
+            c.Add().DataField("TotalBalance");
+            c.Add().DataField("TotalPortofolioEfek");
+            c.Add().DataField("Persentase");
+            c.Add().DataField("Haircut");
+            })
+            .FilterRow(f => f.Visible(true))
+            .ShowBorders(true)
+            .Paging(p =>
+            {
+            p.PageSize(20);
+            p.Enabled(true);
+            })
+            .Pager(p =>
+            {
+            p.ShowInfo(true);
+            })) *@
             </div>
         </div>
 

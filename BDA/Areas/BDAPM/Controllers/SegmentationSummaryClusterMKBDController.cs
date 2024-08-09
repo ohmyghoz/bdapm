@@ -296,13 +296,14 @@ namespace BDA.Controllers
         }
 
         //-----------------------------detail-----------------------------------//
-        public IActionResult Detail(DataSourceLoadOptions loadOptions, long? id, string periodeAwal, string namaPE)
+        public IActionResult Detail(DataSourceLoadOptions loadOptions, string id, string periodeAwal)
         {
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
             var currentNode = mdl.GetCurrentNode();
             string pageTitle = currentNode != null ? currentNode.Title : "Detail Cluster MKBD"; //menampilkan data menu
 
+            string namaPE = id;
             string stringPeriodeAwal = null;
             string stringNamaPE = null;
             string reportId = "pe_segmentation_bridging_detail"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table

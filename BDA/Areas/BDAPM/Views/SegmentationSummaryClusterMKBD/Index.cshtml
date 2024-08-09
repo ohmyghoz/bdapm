@@ -138,12 +138,13 @@
                 .DataSource(d => d.Mvc()
                 .Controller("SegmentationSummaryClusterMKBD")
                 .LoadAction("GetGridData")
-                .Key("rowid")
+                .Key("securitycompanycode")
                 .OnBeforeSend("onGridBeforeSend"))
                 .RemoteOperations(true)
                 .Width("100%")
                 .AllowColumnResizing(true)
                 .ColumnAutoWidth(true)
+                .WordWrapEnabled(true)
                 .Columns(columns =>
                 {
                     columns.Add().DataField("rowid").Visible(false);
@@ -153,7 +154,7 @@
                     columns.Add().DataField("depositolt3bulan").Caption("Deposito < 3 Bulan");
                     columns.Add().DataField("depositogt3bulandijaminlps").Caption("Deposito > 3 Bulan Dijamin LPS");
                     columns.Add().DataField("uangjaminanlkp").Caption("Uang Jaminan LKP").Format("#,##0");
-                    columns.Add().DataField("kasdansetarakas").Caption("Kas dan Setara Kas(Simpanan Giro + Deposito < 3 Bulan + Uang Jaminan LKP)").Format("#,##0");
+                    columns.Add().DataField("kasdansetarakas").Caption("Kas dan Setara Kas (Simpanan Giro + Deposito < 3 Bulan + Uang Jaminan LKP)").Format("#,##0");
                     columns.Add().DataField("mkbd").Caption("MKBD").Format("#,##0");
                     columns.Add().DataField("mkbdminimum").Caption("MKBD Minimum").Format("#,##0");
                     columns.Add().DataField("mkbdpermkbdminimum").Caption("MKBD Terhadap MKBD Minimum");
@@ -376,15 +377,11 @@
         if (tempPeriodeAwal != null) {
             periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
         }
+
         
         var keys = e.row.key;
         if (typeof (keys) !== "undefined" && typeof (keys) !== null) {
-            if(namaPE == null){
-                window.open('@Url.Action("Detail", "SegmentationSummaryClusterMKBD")?id=' + keys.toString() + '&periodeAwal=' + periodeAwal);
-            }else{
-                window.open('@Url.Action("Detail", "SegmentationSummaryClusterMKBD")?id=' + keys.toString() + '&periodeAwal=' + periodeAwal + '&namaPE=' + namaPE);
-            }
-            
+            window.open('@Url.Action("Detail", "SegmentationSummaryClusterMKBD")?id=' + keys.toString() + '&periodeAwal=' + periodeAwal);            
         }
     }
 
