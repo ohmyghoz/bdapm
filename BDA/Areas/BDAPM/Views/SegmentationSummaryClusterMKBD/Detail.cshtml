@@ -2,7 +2,8 @@
 @{
     Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
     string reportId = "pe_segmentation_bridging_detail";
-    var p = (string[])ViewBag.period;
+    var p = ViewBag.period;
+    var pe =  ViewBag.namape;
     var maxItems = db.GetSetting("LimitFilterLJK");
 }
 @section RightToolbar {
@@ -27,7 +28,6 @@
                         @(Html.DevExtreme().DateBox()
                             .ID("PeriodeAwal")
                             .DisplayFormat("dd MMM yyyy")
-                            //.Value(periodeAwal1 == null ? DateTime.Now : periodeAwal1)
                             .Value(DateTime.Now)
                             .Max(DateTime.Now)
                             .Width("100%"))
@@ -64,7 +64,6 @@
             <div class="card-body">
                 <div class="row">
                     <div class="form-group">
-                        @* <button type="button" id="btnDetailCluster" class="btn btn-danger">Detail Cluster MKBD</button> *@
                         <input type="button" id="btnDetailCluster" class="btn btn-danger" value="Detail Cluster MKB" onclick="location.href='@Url.Action("Detail", "SegmentationSummaryClusterMKBD")'" />
                     </div>&nbsp;&nbsp;
                     <div class="form-group">
@@ -130,7 +129,8 @@
                                 .ID("grid1")
                                 .DataSource(d => d.Mvc()
                                 .Controller("SegmentationSummaryClusterMKBD")
-                                .LoadAction("GetGridDataDetail"))
+                                .LoadAction("GetGridDataDetail")
+                                .LoadParams(new { periodeAwal = p, namaPE = pe }))
                                 .RemoteOperations(false)
                                 .Width("100%")
                                 .AllowColumnResizing(true)

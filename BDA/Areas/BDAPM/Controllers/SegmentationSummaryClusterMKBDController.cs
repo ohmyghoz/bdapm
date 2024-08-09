@@ -110,7 +110,6 @@ namespace BDA.Controllers
 
             string stringPeriodeAwal = null;
             string stringNamaPE = null;
-            string stringStatus = null;
             string reportId = "pe_segmentation_bridging_detail"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
 
             var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
@@ -123,7 +122,6 @@ namespace BDA.Controllers
             if (namaPE != null)
             {
                 stringNamaPE = namaPE;
-                //string result = stringNamaPE.Replace("\",\"", "");
                 TempData["pe"] = stringNamaPE;
             }
 
@@ -335,6 +333,10 @@ namespace BDA.Controllers
 
             db.InsertAuditTrail("AksesPageDetailCluster_Akses_Page", "Akses Page Detail Cluster MKBD", pageTitle);
             //return View(SampleDataDetail.SimpleArrayCustomerDetail);
+
+            ViewBag.period = stringPeriodeAwal;
+            ViewBag.namape = namaPE;
+
             return View(obj);
         }
 
