@@ -18,6 +18,10 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Data.SqlClient;
 using static System.Net.Mime.MediaTypeNames;
+using static BDA.Controllers.SampleGridController;
+using System.Xml.Linq;
+using static DevExpress.Xpo.Helpers.AssociatedCollectionCriteriaHelper;
+using Ionic.Zip;
 
 namespace BDA.Controllers
 {
@@ -60,10 +64,10 @@ namespace BDA.Controllers
         {
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
             TempData.Clear(); //membersihkan data filtering
-            string[] NamaPE = JsonConvert.DeserializeObject<string[]>(namaPE);
+            string[] StatusPE = JsonConvert.DeserializeObject<string[]>(status);
 
             string stringPeriodeAwal = null;
-            string stringPE = null;
+            string stringNamaPE = null;
             string stringStatus = null;
             string reportId = "pe_segmentation_sum_cluster_mkbd"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
 
@@ -74,11 +78,57 @@ namespace BDA.Controllers
                 stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
                 TempData["pawal"] = stringPeriodeAwal;
             }
+            if (namaPE != null)
+            {
+                stringNamaPE = namaPE;
+                //string result = stringNamaPE.Replace("\",\"", "");
+                TempData["pe"] = stringNamaPE;
+            }
+            
+            if (StatusPE.Length > 0)
+            {
+                stringStatus = string.Join(", ", StatusPE);
+                TempData["sts"] = stringStatus;
+            }
 
             db.Database.CommandTimeout = 420;
             if (periodeAwal.Length > 0) //jika ada parameter nya
             {
-                var result = Helper.WSQueryStore.GetBDAPMQuery(db, loadOptions, reportId, stringPeriodeAwal, stringPE, stringStatus, cekHive);
+                var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQuery(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, stringStatus, cekHive);
+                return JsonConvert.SerializeObject(result);
+            }
+            else
+            {
+                loadOptions = new DataSourceLoadOptions();
+            }
+            return DataSourceLoader.Load(new List<string>(), loadOptions);
+        }
+        public object GetGridDataDetail(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE)
+        {
+            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+            TempData.Clear(); //membersihkan data filtering
+
+            string stringPeriodeAwal = null;
+            string stringNamaPE = null;
+            string reportId = "pe_segmentation_bridging_detail"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+
+            if (periodeAwal != null)
+            {
+                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
+                TempData["pawal"] = stringPeriodeAwal;
+            }
+            if (namaPE != null)
+            {
+                stringNamaPE = namaPE;
+                TempData["pe"] = stringNamaPE;
+            }
+
+            db.Database.CommandTimeout = 420;
+            if (periodeAwal.Length > 0) //jika ada parameter nya
+            {
+                var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryDetail(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, cekHive);
                 return JsonConvert.SerializeObject(result);
             }
             else
@@ -112,7 +162,7 @@ namespace BDA.Controllers
                     da.Fill(dt);
                     if (dt.Rows.Count > 0)
                     {
-                         Penggunaan_Data = dt.Rows[0]["Penggunaan_Data"].ToString();
+                        Penggunaan_Data = dt.Rows[0]["Penggunaan_Data"].ToString();
                     }
                     conn.Close();
                     conn.Dispose();
@@ -146,7 +196,7 @@ namespace BDA.Controllers
                     for (int i = 0; i < dt.Rows.Count; i++)
                     {
                         string namakode = dt.Rows[i]["SecurityCompanyCode"].ToString() + " - " + dt.Rows[i]["SecurityCompanyName"].ToString();
-                        list.Add(new NamaPE() { value = dt.Rows[i]["SecurityCompanySK"].ToString(), text = namakode });
+                        list.Add(new NamaPE() { value = dt.Rows[i]["SecurityCompanyCode"].ToString(), text = namakode });
                     }
 
                     return Json(DataSourceLoader.Load(list, loadOptions));
@@ -246,26 +296,174 @@ namespace BDA.Controllers
         }
 
         //-----------------------------detail-----------------------------------//
-        public IActionResult Detail(long? id)
+        public IActionResult Detail(DataSourceLoadOptions loadOptions, string id, string periodeAwal)
         {
+            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
             var currentNode = mdl.GetCurrentNode();
             string pageTitle = currentNode != null ? currentNode.Title : "Detail Cluster MKBD"; //menampilkan data menu
 
-            if (id == null)
+            string namaPE = id;
+            string stringPeriodeAwal = null;
+            string stringNamaPE = null;
+            string reportId = "pe_segmentation_bridging_detail"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+
+            if (id == null) return BadRequest();
+
+            if (periodeAwal != null)
             {
-                id = 1;
+                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
+                TempData["pawal"] = stringPeriodeAwal;
             }
+            if (namaPE != null)
+            {
+                stringNamaPE = namaPE;
+                TempData["pe"] = stringNamaPE;
+            }
+            db.Database.CommandTimeout = 420;
 
-            var obj = (dynamic)null;
-            //var obj = db.BDA_F01_MaxMinOverdue.Find(id);
-            //if (obj == null) return NotFound();
+            var obj = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryDetail(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, cekHive);
+            if (obj == null) return NotFound();
 
-            db.CheckPermission("Detil Cluster MKBD View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-            ViewBag.Export = db.CheckPermission("Detil Cluster MKBD Export", DataEntities.PermissionMessageType.NoMessage);
+            GetGridDataDetail(loadOptions, stringPeriodeAwal, stringNamaPE);
 
-            db.InsertAuditTrail("AksesPageDetilCluster_Akses_Page", "Akses Page Detil Cluster MKBD", pageTitle);
+            db.CheckPermission("Detail Cluster MKBD View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+            ViewBag.Export = db.CheckPermission("Detail Cluster MKBD Export", DataEntities.PermissionMessageType.NoMessage);
+
+            db.InsertAuditTrail("AksesPageDetailCluster_Akses_Page", "Akses Page Detail Cluster MKBD", pageTitle);
+            //return View(SampleDataDetail.SimpleArrayCustomerDetail);
+
+            ViewBag.period = stringPeriodeAwal;
+            ViewBag.namape = namaPE;
+
             return View(obj);
+        }
+
+        public partial class SampleDataDetail
+        {
+            public static readonly IEnumerable<ColumnDetail> SimpleArrayCustomerDetail = new[] {
+            new ColumnDetail {
+                Tanggal = "2024-07-30",
+                KodePE = "GA",
+                NamaPE = "BNC SEKURITAS INDONESIA",
+                KonsentrasiAsetLancarSelainKasDanSetaraKas = "ABCDEFG",
+                TotalBalance = 9999,
+                TotalAsetLancar = 72716,
+                Persentase = 100,
+                NilaiJaminanMargin = 90,
+                NamaAkun =  "ABCDEFG",
+                TotalPortofolioEfek =  "ABCDEFG",
+                Haircut =  "ABCDEFG"
+            },
+             new ColumnDetail {
+                Tanggal = "2024-07-30",
+                KodePE = "GA",
+                NamaPE = "BNC SEKURITAS INDONESIA",
+                KonsentrasiAsetLancarSelainKasDanSetaraKas = "ABCDEFG",
+                TotalBalance = 9999,
+                TotalAsetLancar = 72716,
+                Persentase = 100,
+                NilaiJaminanMargin = 90,
+                NamaAkun =  "ABCDEFG",
+                TotalPortofolioEfek =  "ABCDEFG",
+                Haircut =  "ABCDEFG"
+            },
+              new ColumnDetail {
+                Tanggal = "2024-07-30",
+                KodePE = "GA",
+                NamaPE = "BNC SEKURITAS INDONESIA",
+                KonsentrasiAsetLancarSelainKasDanSetaraKas = "ABCDEFG",
+                TotalBalance = 9999,
+                TotalAsetLancar = 72716,
+                Persentase = 100,
+                NilaiJaminanMargin = 90,
+                NamaAkun =  "ABCDEFG",
+                TotalPortofolioEfek =  "ABCDEFG",
+                Haircut =  "ABCDEFG"
+            },
+               new ColumnDetail {
+                Tanggal = "2024-07-30",
+                KodePE = "GA",
+                NamaPE = "BNC SEKURITAS INDONESIA",
+                KonsentrasiAsetLancarSelainKasDanSetaraKas = "ABCDEFG",
+                TotalBalance = 9999,
+                TotalAsetLancar = 72716,
+                Persentase = 100,
+                NilaiJaminanMargin = 90,
+                NamaAkun =  "ABCDEFG",
+                TotalPortofolioEfek =  "ABCDEFG",
+                Haircut =  "ABCDEFG"
+            },
+                new ColumnDetail {
+                Tanggal = "2024-07-30",
+                KodePE = "GA",
+                NamaPE = "BNC SEKURITAS INDONESIA",
+                KonsentrasiAsetLancarSelainKasDanSetaraKas = "ABCDEFG",
+                TotalBalance = 9999,
+                TotalAsetLancar = 72716,
+                Persentase = 100,
+                NilaiJaminanMargin = 90,
+                NamaAkun =  "ABCDEFG",
+                TotalPortofolioEfek =  "ABCDEFG",
+                Haircut =  "ABCDEFG"
+            },
+                 new ColumnDetail {
+                Tanggal = "2024-07-30",
+                KodePE = "GA",
+                NamaPE = "BNC SEKURITAS INDONESIA",
+                KonsentrasiAsetLancarSelainKasDanSetaraKas = "ABCDEFG",
+                TotalBalance = 9999,
+                TotalAsetLancar = 72716,
+                Persentase = 100,
+                NilaiJaminanMargin = 90,
+                NamaAkun =  "ABCDEFG",
+                TotalPortofolioEfek =  "ABCDEFG",
+                Haircut =  "ABCDEFG"
+            },
+                  new ColumnDetail {
+                Tanggal = "2024-07-30",
+                KodePE = "GA",
+                NamaPE = "BNC SEKURITAS INDONESIA",
+                KonsentrasiAsetLancarSelainKasDanSetaraKas = "ABCDEFG",
+                TotalBalance = 9999,
+                TotalAsetLancar = 72716,
+                Persentase = 100,
+                NilaiJaminanMargin = 90,
+                NamaAkun =  "ABCDEFG",
+                TotalPortofolioEfek =  "ABCDEFG",
+                Haircut =  "ABCDEFG"
+            },
+                   new ColumnDetail {
+                Tanggal = "2024-07-30",
+                KodePE = "GA",
+                NamaPE = "BNC SEKURITAS INDONESIA",
+                KonsentrasiAsetLancarSelainKasDanSetaraKas = "ABCDEFG",
+                TotalBalance = 9999,
+                TotalAsetLancar = 72716,
+                Persentase = 100,
+                NilaiJaminanMargin = 90,
+                NamaAkun =  "ABCDEFG",
+                TotalPortofolioEfek =  "ABCDEFG",
+                Haircut =  "ABCDEFG"
+            }
+        };
+        }
+        public class ColumnDetail
+        {
+            public string Tanggal { get; set; }
+            public string KodePE { get; set; }
+            public string NamaPE { get; set; }
+            public string KonsentrasiAsetLancarSelainKasDanSetaraKas { get; set; }
+            public int TotalBalance { get; set; }
+            public int TotalAsetLancar { get; set; }
+            public int Persentase { get; set; }
+            public int NilaiJaminanMargin { get; set; }
+
+            public string NamaAkun { get; set; }
+            public string TotalPortofolioEfek { get; set; }
+            public string Haircut { get; set; }
         }
         //-----------------------------detail-----------------------------------//
 

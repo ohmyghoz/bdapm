@@ -1,13 +1,9 @@
 ﻿@using DevExtreme.AspNet.Mvc
 @{
     Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
-    string reportId = "Segmentation_Summary_Cluster_MKBD";
-    var p = (string[])ViewBag.period;
-    var maxItems = db.GetSetting("LimitFilterLJK");
 }
 
 @inject BDA.DataModel.DataEntities db
-
 
 @using (Html.BeginForm())
 {
@@ -17,48 +13,45 @@
         @*filter*@
         <div class="row filter-panel" style="padding-top:0px;">
             <div class="card-body">
+                <h1>STP Processing</h1>
+
                 <div class="row">
-                    <div class="col-lg-4 form-group">
-                        <label>Tanggal<span class="mandatory">*</span></label>
+                    <div class="col-lg-3 form-group">
+                        <label>Periode Awal@*<span class="mandatory">*</span>*@</label>
                         @(Html.DevExtreme().DateBox()
-                            .ID("PeriodeAwal")
-                            .DisplayFormat("dd MMM yyyy")
-                            //.Value(periodeAwal1 == null ? DateTime.Now : periodeAwal1)
-                            .Value(DateTime.Now)
-                            .Max(DateTime.Now)
+                            .ID("PeriodeAwalID")
+                            .Type(DateBoxType.Date)
+                            .DisplayFormat("dd/MM/yyyy")
+                            .Width("100%"))
+                    </div>
+                    <div class="col-lg-3 form-group">
+                        <label>Periode Akhir@*<span class="mandatory">*</span>*@</label>
+                        @(Html.DevExtreme().DateBox()
+                            .ID("PeriodeAkhirID")
+                            .Type(DateBoxType.Date)
+                            .DisplayFormat("dd/MM/yyyy")
+                            .Width("100%"))
+                    </div>
+                    <div class="col-lg-3 form-group">
+                        <label>SID@*<span class="mandatory">*</span>*@</label>
+                        @(Html.DevExtreme().TextBox()
+                            .ID("SID")
+                            .Placeholder("Enter SID here...")
+                            .InputAttr("aria-label", "SID")
                             .Width("100%"))
                     </div>
 
-                    <div class="col-lg-4 form-group">
-                        <label>Nama PE</label>
+                    <div class="col-lg-3 form-group" id="topDiv">
+                        <label>Efek@*<span class="mandatory">*</span>*@</label>
                         @(Html.DevExtreme().SelectBox()
-                            .ID("namaPEid")
-                            .DataSource(d => d.Mvc()
-                            .Controller("SegmentationSummaryClusterMKBD")
-                            .Area("BDAPM")
-                            .LoadAction("GetNamaPE")
-                            .Key("value"))
-                            .ValueExpr("value")
-                            .DisplayExpr("text")
+                            .ID("EfekID")
+                            .DataSource(new[] { "AALI", "TLKM", "BBRI", "BMRI" })
+                            .ValueExpr("this")
+                            .DisplayExpr("this")
                             .SearchEnabled(true)
-                            .Width("100%")
-                            )
-                    </div>
-
-                    <div class="col-lg-4 form-group">
-                        <label>Status@*<span class="mandatory">*</span>*@</label>
-                        @(Html.DevExtreme().TagBox()
-                            .ID("Statusid")
-                            .DataSource(new[] { "Alert", "Normal" })
-                            .ShowSelectionControls(true)
-                            .MaxDisplayedTags(3)
-                            .SearchEnabled(true)
-                            .OnSelectionChanged("onSelectionChanged")
                             .Width("100%"))
                     </div>
-
                 </div>
-
                 <div class="float-left">
                     @(Html.DevExtreme().Button()
                         .ID("Filter")
@@ -68,67 +61,16 @@
                         .ValidationGroup("Filter"))
                 </div>
 
-@*                 <div class="float-right">
-                    @if (ViewBag.Export)
-                    {
-                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();"><span class="image fa fa-file-excel"></span> Export Excel</a>
-                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
-                    }
-                </div> *@
+                @*                 <div class="float-right">
+            @if (ViewBag.Export)
+            {
+            <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();"><span class="image fa fa-file-excel"></span> Export Excel</a>
+            <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+            }
+            </div> *@
             </div>
         </div>
         <div class="row">
-            <div class="col-lg-6">
-                @(Html.DevExtreme().PieChart()
-                    .ID("pie")
-                    .Type(PieChartType.Donut)
-                    .Palette(VizPalette.SoftPastel)
-                    .Title("Jumlah Cluster")
-                    .Legend(l => l
-                    .HorizontalAlignment(HorizontalAlignment.Right)
-                    .VerticalAlignment(VerticalEdge.Top)
-                    .Margin(0)
-                    )
-                    .Export(e => e.Enabled(true))
-                    .Series(s => s
-                    .Add()
-                    .ArgumentField("Country")
-                    .ValueField("Medals")
-                    .HoverStyle(h => h.Color("#ffd700"))
-                    )
-                    .OnPointClick(@<text>
-                function(arg) {
-                arg.target.select();
-                }
-            </text>)
-                    .DataSource(new[] {
-            new { Country = "Normal", Medals = 110 },
-            new { Country = "Alert", Medals = 100 },
-            })
-                    )
-            </div>
-
-            <div class="col-lg-6">
-                @(Html.DevExtreme().Chart()
-                    .ID("chart")
-                    .Title("Cluster PE Berdasarkan Persentase MKBD dibandingkan MKBD Dipersyaratkan")
-                    .Series(s => s
-                    .Add()
-                    .ArgumentField("Day")
-                    .ValueField("Oranges")
-                    .Name("My oranges")
-                    .Type(SeriesType.Bar)
-                    .Color("#ffaa66")
-                    )
-                    .DataSource(new[] {
-            new { Day = "< 100%", Oranges = 3 },
-            new { Day = "100% s/d 119%", Oranges = 2 },
-            new { Day = "200% s/d 499%", Oranges = 3 },
-            new { Day = "> 500%", Oranges = 4 }
-            })
-                    )
-
-            </div>
         </div>
         <br />
         @*grid*@
@@ -138,23 +80,24 @@
                 .DataSource(d => d.Mvc()
                 .Controller("SegmentationSummaryClusterMKBD")
                 .LoadAction("GetGridData")
-                .Key("securitycompanycode")
+                .Key("rowid")
                 .OnBeforeSend("onGridBeforeSend"))
                 .RemoteOperations(true)
                 .Width("100%")
                 .AllowColumnResizing(true)
                 .ColumnAutoWidth(true)
-                .WordWrapEnabled(true)
                 .Columns(columns =>
                 {
                     columns.Add().DataField("rowid").Visible(false);
                     columns.Add().DataField("securitycompanycode").Caption("Kode PE");
                     columns.Add().DataField("securitycompanyname").Caption("Nama PE");
                     columns.Add().DataField("simpanangiro").Caption("Simpanan Giro");
-                    columns.Add().DataField("depositolt3bulan").Caption("Deposito < 3 Bulan");
+
+                    columns.Add().DataField("cluster").Caption("Deposito < 3 Bulan");
+                    columns.Add().DataField("depositolt3bulan").Caption("Deposito > 3 Bulan");
                     columns.Add().DataField("depositogt3bulandijaminlps").Caption("Deposito > 3 Bulan Dijamin LPS");
                     columns.Add().DataField("uangjaminanlkp").Caption("Uang Jaminan LKP").Format("#,##0");
-                    columns.Add().DataField("kasdansetarakas").Caption("Kas dan Setara Kas (Simpanan Giro + Deposito < 3 Bulan + Uang Jaminan LKP)").Format("#,##0");
+                    columns.Add().DataField("kasdansetarakas").Caption("Kas dan Setara Kas(Simpanan Giro + Deposito < 3 Bulan + Uang Jaminan LKP)").Format("#,##0");
                     columns.Add().DataField("mkbd").Caption("MKBD").Format("#,##0");
                     columns.Add().DataField("mkbdminimum").Caption("MKBD Minimum").Format("#,##0");
                     columns.Add().DataField("mkbdpermkbdminimum").Caption("MKBD Terhadap MKBD Minimum");
@@ -178,45 +121,44 @@
                     p.ShowInfo(true);
                 }))
         </div>
-
-        <!-- The Modal  Detail-->
-        <div class="modal fade" id="ModalSimpanPenggunaanData" tabindex="-1" role="document" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header" style="background-color:#0066b2">
-                        <h4 class="modal-title" style="text-align:left">
-                            <font color="white">Pilih Penggunaan Data</font>
-                        </h4>
-                    </div><!--Modal Header-->
-                    <!-- Modal body -->
-                    <div class="modal-body">
-                        <form id="StrukturFormDetail" method="POST" action="" class="form-horizontal row-border">
-                            <div class="row" style="padding: 0 10px 0 10px;">
-                                @(Html.DevExtreme().SelectBox()
-                                    .ID("penggunaandataid")
-                                    .DataSource(d => d.Mvc()
-                                    .Controller("PenggunaanData")
-                                    .Area("Website")
-                                    .LoadAction("GetPenggunaanData")
-                                    .Key("value"))
-                                    .ValueExpr("value")
-                                    .DisplayExpr("text")
-                                    .SearchEnabled(true)
-                                    .Width("100%")
-                                    )
-                            </div>
-                        </form>
-                    </div>
-                    <!-- Modal footer -->
-                    <div class="modal-footer">
-                        <button type="button" id="btnSavePenggunaanData" class="btn btn-primary" data-bs-dismiss="modal"><i class='fa fa-save'></i> Save</button>
-                    </div>
+    </div> <!-- Closing the card div -->
+    <!-- The Modal  Detail-->
+    <div class="modal fade" id="ModalSimpanPenggunaanData" tabindex="-1" role="document" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color:#0066b2">
+                    <h4 class="modal-title" style="text-align:left">
+                        <font color="white">Pilih Penggunaan Data</font>
+                    </h4>
+                </div><!--Modal Header-->
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <form id="StrukturFormDetail" method="POST" action="" class="form-horizontal row-border">
+                        <div class="row" style="padding: 0 10px 0 10px;">
+                            @(Html.DevExtreme().SelectBox()
+                                .ID("penggunaandataid")
+                                .DataSource(d => d.Mvc()
+                                .Controller("PenggunaanData")
+                                .Area("Website")
+                                .LoadAction("GetPenggunaanData")
+                                .Key("value"))
+                                .ValueExpr("value")
+                                .DisplayExpr("text")
+                                .SearchEnabled(true)
+                                .Width("100%")
+                                )
+                        </div>
+                    </form>
+                </div>
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="button" id="btnSavePenggunaanData" class="btn btn-primary" data-bs-dismiss="modal"><i class='fa fa-save'></i> Save</button>
                 </div>
             </div>
         </div>
-        <!-- The Modal  Detail-->
     </div>
-}
+    <!-- The Modal  Detail-->
+} <!-- Closing the using block -->
 
 <script>
     window.jsPDF = window.jspdf.jsPDF;
@@ -224,7 +166,6 @@
 </script>
 
 <script>
-
     $(function () {
         const startDate = $("#PeriodeAwal").dxDateBox({
             onValueChanged: function (e) {
@@ -245,12 +186,12 @@
         })
     });
 
-    @* $(function () {
+    $(function () {
         $("#namaPEid").dxValidator({
             validationGroup: "Filter",
             validationRules: [{ type: "required", message: "[Nama PE] harus dipilih" }]
         })
-    }); *@
+    });
 
     $(window).on('load', function () {
         $("#ModalSimpanPenggunaanData").modal("show");
@@ -271,13 +212,13 @@
                 success: function (data) {
                     if (data.success == true) {
                         //alert(data.message);
-                        @* waitingDialog.hide(); *@
-                        $('#ModalSimpanPenggunaanData').modal('hide');
+    @* waitingDialog.hide(); *@
+                            $('#ModalSimpanPenggunaanData').modal('hide');
                         return "Saving Success !";
                     }
                     else if (data.success == false) {
-                       @*  waitingDialog.hide(); *@
-                        alert(data.message);
+    @*  waitingDialog.hide(); *@
+                            alert(data.message);
                         $('#ModalSimpanPenggunaanData').modal('hide');
                         return "Saving Failed !";
                     }
@@ -334,7 +275,7 @@
         });
 
         dataGrid.exportToExcel();
-    }  
+    }
 
     function onSelectionChanged(e) {
         if (e.addedItems.length > 0) {
@@ -350,18 +291,16 @@
     }
 
     function onGridBeforeSend(method, ajaxOptions) {
-        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
         let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
+        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
         let status = $("#Statusid").dxTagBox("instance").option("value");
-        
 
         let periodeAwal = null;
         if (tempPeriodeAwal != null) {
-            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
+            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + (tempPeriodeAwal.getMonth() + 1) + '-' + tempPeriodeAwal.getDate();
         }
-        
+        ajaxOptions.data.namaPE = JSON.stringify(namaPE);
         ajaxOptions.data.periodeAwal = periodeAwal;
-        ajaxOptions.data.namaPE = namaPE;
         ajaxOptions.data.status = JSON.stringify(status);
     }
 
@@ -370,18 +309,9 @@
     }
 
     function Detail(e) {
-        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
-        let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
-
-        let periodeAwal = null;
-        if (tempPeriodeAwal != null) {
-            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
-        }
-
-        
         var keys = e.row.key;
         if (typeof (keys) !== "undefined" && typeof (keys) !== null) {
-            window.open('@Url.Action("Detail", "SegmentationSummaryClusterMKBD")?id=' + keys.toString() + '&periodeAwal=' + periodeAwal);            
+            window.open('@Url.Action("Detail", "SegmentationSummaryClusterMKBD")?id=' + keys.toString());
         }
     }
 
@@ -395,8 +325,7 @@
             '<div class="modal-header"><h3 style="margin:0;"></h3></div>' +
             '<div class="modal-body">' +
             '<div class="progress progress-striped active" style="margin-bottom:0;"><div class="progress-bar" style="width: 100%"></div></div>' +
-            '</div>' +
-            '</div></div></div>');
+            '</div></div></div></div>');
 
         return {
             show: function (message, options) {
