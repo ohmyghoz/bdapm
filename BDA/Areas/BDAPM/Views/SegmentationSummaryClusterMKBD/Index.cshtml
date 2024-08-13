@@ -147,9 +147,9 @@
                 .WordWrapEnabled(true)
                 .Columns(columns =>
                 {
-                    columns.Add().DataField("rowid").Visible(false);
+                    columns.Add().DataField("no").Caption("No.");
                     columns.Add().DataField("securitycompanycode").Caption("Kode PE");
-                    columns.Add().DataField("securitycompanyname").Caption("Nama PE");
+                    columns.Add().DataField("securitycompanyname").Caption("Nama PE").Width(300); 
                     columns.Add().DataField("simpanangiro").Caption("Simpanan Giro");
                     columns.Add().DataField("depositolt3bulan").Caption("Deposito < 3 Bulan");
                     columns.Add().DataField("depositogt3bulandijaminlps").Caption("Deposito > 3 Bulan Dijamin LPS");
@@ -158,6 +158,7 @@
                     columns.Add().DataField("mkbd").Caption("MKBD").Format("#,##0");
                     columns.Add().DataField("mkbdminimum").Caption("MKBD Minimum").Format("#,##0");
                     columns.Add().DataField("mkbdpermkbdminimum").Caption("MKBD Terhadap MKBD Minimum");
+                    columns.Add().DataField("status").Visible(false);
                     columns.Add().Type(GridCommandColumnType.Buttons).Caption("Action").Buttons(b =>
                     {
                         b.Add()

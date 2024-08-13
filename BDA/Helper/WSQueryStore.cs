@@ -4788,7 +4788,7 @@ namespace BDA.Helper
             bool isC = false;
             var whereQuery = "1=1";
             //isHive = true;
-            
+
             if (periodes != null)
             {
                 periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
@@ -4799,21 +4799,31 @@ namespace BDA.Helper
                 stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
                 whereQuery = whereQuery += " AND securitycompanycode in (" + stringPE + ")";
             }
-            
-            //if (stringStatus != null)
-            //{
-            //    stringStatus = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-            //    whereQuery = whereQuery += " AND securitycompanycode in (" + periodes + ")";
-            //}
+            if (stringStatus != null)
+            {
+                stringStatus = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND Status in (" + stringStatus + ")";
+            }
             var props = new WSQueryProperties();
             if (isHive == true)
             {
                 if (tableName == "pe_segmentation_sum_cluster_mkbd")
                 {
                     props.Query = @"
-                        select  concat_ws('~', cast(dm_periode as string), regexp_replace(dm_jenis_ljk,'/','>'), dm_kode_ljk,'',dm_cif) AS lem,concat_ws('~','n', cast(dm_periode as string), regexp_replace(dm_jenis_ljk,'/','>'), dm_kode_ljk,'',dm_cif) AS idcif,concat_ws('~','p', cast(dm_periode as string), regexp_replace(dm_jenis_ljk,'/','>'), dm_kode_ljk,'',dm_id_pengurus_pemilik) AS idpeng,* from dbo." + tableName + @" x
-                        WHERE " + whereQuery + @"	                
-                        ";
+            select calendardate,securitycompanycode,securitycompanyname,
+                cast(cast(simpanangiro as BIGINT)  as string) as simpanangiro,
+                cast(cast(depositolt3bulan as BIGINT)  as string) as depositolt3bulan,
+                cast(cast(depositogt3bulandijaminlps as BIGINT)  as string) as depositogt3bulandijaminlps,
+                cast(cast(uangjaminanlkp as BIGINT)  as string) as uangjaminanlkp,
+                cast(cast(kasdansetarakas as BIGINT)  as string) as kasdansetarakas,
+                cast(cast(mkbd as BIGINT)  as string) as mkbd,
+                cast(cast(mkbdminimum as BIGINT)  as string) as mkbdminimum,mkbdpermkbdminimum,
+                case 
+                    when cast(cast(kasdansetarakas as BIGINT)  as string) < cast(cast(mkbdminimum as BIGINT)  as string) then 'Alert'
+                    when cast(cast(kasdansetarakas as BIGINT)  as string) > cast(cast(mkbdminimum as BIGINT)  as string) then 'Normal'
+                END AS status,periode
+                From pasarmodal.pe_segmentation_sum_cluster_mkbd
+            WHERE " + whereQuery + @"";
                 }
             }
             else
@@ -4821,8 +4831,13 @@ namespace BDA.Helper
                 if (tableName == "pe_segmentation_sum_cluster_mkbd")
                 {
                     props.Query = @"
-                        select * from dbo." + tableName + @" x
-                        WHERE " + whereQuery + @"";
+            select row_number() over(order by securitycompanycode) as no,calendardate,securitycompanycode,securitycompanyname,simpanangiro,depositolt3bulan,depositogt3bulandijaminlps,uangjaminanlkp,kasdansetarakas,mkbd,mkbdminimum,mkbdpermkbdminimum,
+            case 
+                when kasdansetarakas < mkbdminimum then 'Alert'
+                when kasdansetarakas > mkbdminimum then 'Normal'
+            END AS status,periode
+            From dbo." + tableName + @" x
+            WHERE " + whereQuery + @"";
                 }
             }
 

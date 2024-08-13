@@ -103,7 +103,55 @@ namespace BDA.Controllers
             }
             return DataSourceLoader.Load(new List<string>(), loadOptions);
         }
+
         public object GetGridDataDetail(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE)
+        {
+            //string PRF_ID = Request.QueryString["UID"].ToString();
+
+            string[] commands = Request.Query
+                                .Where(m => string.IsNullOrEmpty(m.Value))
+                                .Select(m => m.Key).ToArray();
+            string id = HttpContext.Request.Query["id"].ToString();
+            string tanggal = HttpContext.Request.Query["periodeAwal"].ToString();
+
+            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+            TempData.Clear(); //membersihkan data filtering
+
+            string stringPeriodeAwal = null;
+            string stringNamaPE = null;
+            string reportId = "pe_segmentation_bridging_detail"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+
+            if (periodeAwal != null)
+            {
+                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
+                TempData["pawal"] = stringPeriodeAwal;
+            }
+            else
+            {
+                stringPeriodeAwal = Convert.ToDateTime(DateTime.Now).ToString("yyyy-MM-dd");
+                TempData["pawal"] = stringPeriodeAwal;
+            }
+            if (namaPE != null)
+            {
+                stringNamaPE = namaPE;
+                TempData["pe"] = stringNamaPE;
+            }
+
+            db.Database.CommandTimeout = 420;
+            if (stringPeriodeAwal != null) //jika ada parameter nya
+            {
+                var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryDetail(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, cekHive);
+                return JsonConvert.SerializeObject(result);
+            }
+            else
+            {
+                var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryDetail(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, cekHive);
+                return JsonConvert.SerializeObject(result);
+            }   
+        }
+        public object GetGridDataDetailRincian(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE)
         {
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
             TempData.Clear(); //membersihkan data filtering
@@ -119,6 +167,12 @@ namespace BDA.Controllers
                 stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
                 TempData["pawal"] = stringPeriodeAwal;
             }
+            else
+            {
+                stringPeriodeAwal = Convert.ToDateTime(DateTime.Now).ToString("yyyy-MM-dd");
+                TempData["pawal"] = stringPeriodeAwal;
+            }
+
             if (namaPE != null)
             {
                 stringNamaPE = namaPE;
@@ -126,16 +180,16 @@ namespace BDA.Controllers
             }
 
             db.Database.CommandTimeout = 420;
-            if (periodeAwal.Length > 0) //jika ada parameter nya
+            if (periodeAwal != null) //jika ada parameter nya
             {
                 var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryDetail(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, cekHive);
                 return JsonConvert.SerializeObject(result);
             }
             else
             {
-                loadOptions = new DataSourceLoadOptions();
+                var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryDetail(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, cekHive);
+                return JsonConvert.SerializeObject(result);
             }
-            return DataSourceLoader.Load(new List<string>(), loadOptions);
         }
         [HttpPost]
         public ActionResult SimpanPenggunaanData(string id)
@@ -310,8 +364,6 @@ namespace BDA.Controllers
 
             var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
 
-            if (id == null) return BadRequest();
-
             if (periodeAwal != null)
             {
                 stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
@@ -322,12 +374,12 @@ namespace BDA.Controllers
                 stringNamaPE = namaPE;
                 TempData["pe"] = stringNamaPE;
             }
-            db.Database.CommandTimeout = 420;
+            //db.Database.CommandTimeout = 420;
 
-            var obj = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryDetail(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, cekHive);
-            if (obj == null) return NotFound();
+            //var obj = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryDetail(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, cekHive);
+            //if (obj == null) return NotFound();
 
-            GetGridDataDetail(loadOptions, stringPeriodeAwal, stringNamaPE);
+            //GetGridDataDetail(loadOptions, stringPeriodeAwal, stringNamaPE);
 
             db.CheckPermission("Detail Cluster MKBD View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
             ViewBag.Export = db.CheckPermission("Detail Cluster MKBD Export", DataEntities.PermissionMessageType.NoMessage);
@@ -338,7 +390,7 @@ namespace BDA.Controllers
             ViewBag.period = stringPeriodeAwal;
             ViewBag.namape = namaPE;
 
-            return View(obj);
+            return View();
         }
 
         public partial class SampleDataDetail
