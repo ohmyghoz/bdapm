@@ -4456,7 +4456,7 @@ namespace BDA.Helper
         }
 
         public static WSQueryReturns GetOsida2023Query(DataEntities db, DataSourceLoadOptions loadOptions, string tableName,
-            string memberTypes, string members, string kantorCabangs, string periodes,bool chk100=false, bool isHive = false)
+            string memberTypes, string members, string kantorCabangs, string periodes, bool chk100 = false, bool isHive = false)
         {
             bool isC = false;
             var whereQuery = "1=1";
@@ -4607,7 +4607,7 @@ namespace BDA.Helper
             //isHive = true;
             if (memberTypes != null)
             {
-                if (tableName != "osida_potensi_konversi_kur_deb_noneligible_det" && tableName != "osida_pemberian_kur_deb_noneligible_det" && tableName!= "osida_pengurus_pemilik_kredit_bermasalah_det_pengurus")
+                if (tableName != "osida_potensi_konversi_kur_deb_noneligible_det" && tableName != "osida_pemberian_kur_deb_noneligible_det" && tableName != "osida_pengurus_pemilik_kredit_bermasalah_det_pengurus")
                 {
                     memberTypes = "'" + memberTypes.Replace("'", "").Replace("-", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
                     whereQuery = whereQuery += " AND dm_jenis_ljk in (" + memberTypes + ")";
@@ -4801,8 +4801,8 @@ namespace BDA.Helper
             }
             if (stringStatus != null)
             {
-                stringStatus = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND Status in (" + stringStatus + ")";
+                stringStatus = "'" + stringStatus.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND status in (" + stringStatus + ")";
             }
             var props = new WSQueryProperties();
             if (isHive == true)
@@ -4831,13 +4831,14 @@ namespace BDA.Helper
                 if (tableName == "pe_segmentation_sum_cluster_mkbd")
                 {
                     props.Query = @"
-            select row_number() over(order by securitycompanycode) as no,calendardate,securitycompanycode,securitycompanyname,simpanangiro,depositolt3bulan,depositogt3bulandijaminlps,uangjaminanlkp,kasdansetarakas,mkbd,mkbdminimum,mkbdpermkbdminimum,
-            case 
-                when kasdansetarakas < mkbdminimum then 'Alert'
-                when kasdansetarakas > mkbdminimum then 'Normal'
-            END AS status,periode
-            From dbo." + tableName + @" x
-            WHERE " + whereQuery + @"";
+                                    Select row_number() over(order by securitycompanycode) as no,* from (
+                                    select calendardate,securitycompanycode,securitycompanyname,simpanangiro,depositolt3bulan,depositogt3bulandijaminlps,uangjaminanlkp,kasdansetarakas,mkbd,mkbdminimum,mkbdpermkbdminimum,
+                                        case 
+                                            when kasdansetarakas < mkbdminimum then 'Alert'
+                                            when kasdansetarakas > mkbdminimum then 'Normal'
+                                        END AS Status,periode
+                                        From dbo." + tableName + @") as x
+                                    WHERE " + whereQuery + @"";
                 }
             }
 

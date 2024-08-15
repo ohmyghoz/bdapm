@@ -111,9 +111,9 @@
                 .DataSource(d => d.Mvc()
                 .Controller("SegmentationSummaryClusterMKBD")
                 .LoadAction("GetGridDataDetail")
-                .Key("rowid")
+                .Key("securitycompanycode")
 @*                 .OnBeforeSend("onGridBeforeSend") *@
-                @* .LoadParams(new { periodeAwal = p, namaPE = pe }) *@)
+                .LoadParams(new { periodeAwal = new JS("getperiodeAwalIdValue"), namaPE = new JS("getIdValue") }))
                 .RemoteOperations(true)
                 .Width("100%")
                 .AllowColumnResizing(true)
@@ -165,7 +165,7 @@
                 .DataSource(d => d.Mvc()
                 .Controller("SegmentationSummaryClusterMKBD")
                 .LoadAction("GetGridDataDetailRincian")
-                .Key("rowid")
+                .Key("securitycompanycode")
 @*                 .OnBeforeSend("onGridBeforeSend") *@
                 .LoadParams(new { periodeAwal = p, namaPE = pe }))
                 .RemoteOperations(false)
@@ -241,7 +241,18 @@
 </script>
 
 <script>
-
+    function getperiodeAwalIdValue() {
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const periodeAwal = urlParams.get('periodeAwal');
+        return periodeAwal
+    }
+    function getIdValue() {
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const id = urlParams.get('id');
+        return id
+    }
     $(function () {
         const startDate = $("#PeriodeAwal").dxDateBox({
             onValueChanged: function (e) {
@@ -317,16 +328,44 @@
                 periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
             }
 
-            $.ajax({
-                url: '@Url.Action("GetGridDataDetail", "SegmentationSummaryClusterMKBD")',
-                data: { periodeAwal: periodeAwal, namaPE: namaPE },
-                dataType: "json",
-                type: "POST",
-                success: function (response) {
-                    $("#grid1").dxDataGrid("instance").refresh();
-                    $("#grid2").dxDataGrid("instance").refresh();
-                }
-            });
+            if(namaPE == null){
+                $.ajax({
+                    url: '@Url.Action("GetGridDataDetail", "SegmentationSummaryClusterMKBD")',
+                    data: { periodeAwal: periodeAwal },
+                    dataType: "json",
+                    type: "POST",
+                    success: function (response) {
+
+                        window.history.pushState('', 'My Page', 'Detail?periodeAwal=' + periodeAwal + '');
+                        $("#grid1").dxDataGrid("instance").refresh();
+                        $("#grid2").dxDataGrid("instance").refresh();
+
+                        @* var my_url = location.replace('@Url.Action("Detail", "SegmentationSummaryClusterMKBD")?periodeAwal=' + periodeAwal);
+                        my_url.hash;  *@
+                        
+                        @* location.replace('@Url.Action("Detail", "SegmentationSummaryClusterMKBD")?periodeAwal=' + periodeAwal); *@
+                        $('#ModalSimpanPenggunaanData').modal('hide');
+                    }
+                });
+            }else{
+                $.ajax({
+                    url: '@Url.Action("GetGridDataDetail", "SegmentationSummaryClusterMKBD")',
+                    data: { periodeAwal: periodeAwal, namaPE: namaPE },
+                    dataType: "json",
+                    type: "POST",
+                    success: function (response) {
+
+                        window.history.pushState('', 'My Page', 'Detail?id=' + namaPE + '&periodeAwal=' + periodeAwal + '');
+                        $("#grid1").dxDataGrid("instance").refresh();
+                        $("#grid2").dxDataGrid("instance").refresh();
+                        @* var my_url = location.replace('@Url.Action("Detail", "SegmentationSummaryClusterMKBD")?periodeAwal=' + periodeAwal);
+                        my_url.hash;  *@
+
+                        @* location.replace('@Url.Action("Detail", "SegmentationSummaryClusterMKBD")?id=' + namaPE + '&periodeAwal=' + periodeAwal); *@
+                        $('#ModalSimpanPenggunaanData').modal('hide');
+                    }
+                });
+            }
         }
     }
 

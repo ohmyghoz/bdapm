@@ -22,6 +22,7 @@ using static BDA.Controllers.SampleGridController;
 using System.Xml.Linq;
 using static DevExpress.Xpo.Helpers.AssociatedCollectionCriteriaHelper;
 using Ionic.Zip;
+using System.Web;
 
 namespace BDA.Controllers
 {
@@ -106,7 +107,17 @@ namespace BDA.Controllers
 
         public object GetGridDataDetail(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE)
         {
-            //string PRF_ID = Request.QueryString["UID"].ToString();
+            var qs = HttpUtility.ParseQueryString(Request.QueryString.ToString());
+            qs.Set("id", namaPE);
+            qs.Set("periodeAwal", periodeAwal);
+            Console.WriteLine(qs.ToString());
+
+
+            //string url = HttpContext.Request.Url.AbsolutePath;
+            //Response.Redirect(url + "?" + nameValues); // ToString() is called implicitly
+
+            //var uri = new Uri(context.RedirectUri);
+            //var queryDictionary = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
 
             string[] commands = Request.Query
                                 .Where(m => string.IsNullOrEmpty(m.Value))
@@ -138,6 +149,9 @@ namespace BDA.Controllers
                 stringNamaPE = namaPE;
                 TempData["pe"] = stringNamaPE;
             }
+
+            ViewBag.period = stringPeriodeAwal;
+            ViewBag.namape = namaPE;
 
             db.Database.CommandTimeout = 420;
             if (stringPeriodeAwal != null) //jika ada parameter nya
@@ -374,18 +388,11 @@ namespace BDA.Controllers
                 stringNamaPE = namaPE;
                 TempData["pe"] = stringNamaPE;
             }
-            //db.Database.CommandTimeout = 420;
 
-            //var obj = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryDetail(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, cekHive);
-            //if (obj == null) return NotFound();
-
-            //GetGridDataDetail(loadOptions, stringPeriodeAwal, stringNamaPE);
-
+            db.Database.CommandTimeout = 420;
             db.CheckPermission("Detail Cluster MKBD View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
             ViewBag.Export = db.CheckPermission("Detail Cluster MKBD Export", DataEntities.PermissionMessageType.NoMessage);
-
             db.InsertAuditTrail("AksesPageDetailCluster_Akses_Page", "Akses Page Detail Cluster MKBD", pageTitle);
-            //return View(SampleDataDetail.SimpleArrayCustomerDetail);
 
             ViewBag.period = stringPeriodeAwal;
             ViewBag.namape = namaPE;
