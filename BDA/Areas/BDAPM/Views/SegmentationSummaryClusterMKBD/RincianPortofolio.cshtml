@@ -1,9 +1,6 @@
 ﻿@using DevExtreme.AspNet.Mvc
 @{
     Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
-    string reportId = "pe_segmentation_bridging_detail";
-    var p = (string[])ViewBag.period;
-    var maxItems = db.GetSetting("LimitFilterLJK");
 }
 @section RightToolbar {
     <div class="d-flex align-items-center">
@@ -26,7 +23,6 @@
                         @(Html.DevExtreme().DateBox()
                             .ID("PeriodeAwal")
                             .DisplayFormat("dd MMM yyyy")
-                            //.Value(periodeAwal1 == null ? DateTime.Now : periodeAwal1)
                             .Value(DateTime.Now)
                             .Max(DateTime.Now)
                             .Width("100%"))
@@ -47,277 +43,158 @@
                             .Width("100%")
                             )
                     </div>
-                </div>
-
-                <div class="float-left">
-                    @(Html.DevExtreme().Button()
-                        .ID("Filter")
-                        .Type(ButtonType.Default)
-                        .Text("Tampilkan")
-                        .OnClick("onButtonFilterClicked")
-                        .ValidationGroup("Filter"))
-                </div>
-
-
-
-            </div>
-        </div>
-        <div class="row filter-panel" style="padding-top:0px;">
-            <div class="card-body">
-                <div class="row">
-
-                    <div class="form-group">
-                        @* <button type="button" id="btnDetailCluster" class="btn btn-danger">Detail Cluster MKBD</button> *@
-                        <input type="button" id="btnDetailCluster" class="btn btn-danger" value="Detail Cluster MKB" onclick="location.href='@Url.Action("Detail", "SegmentationSummaryClusterMKBD")'" />
-                    </div>&nbsp;&nbsp;
-                    <div class="form-group">
-                        <input type="button" id="btnRincianPortofolio" class="btn btn-danger" value="Rincian Portofolio" onclick="location.href='@Url.Action("RincianPortofolio", "SegmentationSummaryClusterMKBD")'" />
-                    </div>&nbsp;&nbsp;
-                    <div class="form-group">
-                        <input type="button" id="btnReksadana" class="btn btn-danger" value="Reksadana" onclick="location.href='@Url.Action("Reksadana", "SegmentationSummaryClusterMKBD")'" />
-                    </div>&nbsp;&nbsp;
-                    <div class="form-group">
-                        <input type="button" id="btnJaminanMargin" class="btn btn-danger" value="Jaminan Margin" onclick="location.href='@Url.Action("JaminanMargin", "SegmentationSummaryClusterMKBD")'" />
-                    </div>&nbsp;&nbsp;
-                    <div class="form-group">
-                        <input type="button" id="btnReverseRepo" class="btn btn-danger" value="Reverse Repo" onclick="location.href='@Url.Action("ReverseRepo", "SegmentationSummaryClusterMKBD")'" />
+                    <div class="col-lg-4 form-group" style="padding-top:25px;">
+                        <label></label>
+                        @(Html.DevExtreme().Button()
+                            .ID("Filter")
+                            .Type(ButtonType.Default)
+                            .Text("Tampilkan")
+                            .OnClick("onButtonFilterClicked")
+                            .ValidationGroup("Filter"))
                     </div>
                 </div>
             </div>
         </div>
-        @*grid*@
-        <div>
-            <div class="float-right">
-                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();"><span class="image fa fa-file-excel"></span> Export Excel</a>
-                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
-                @*  @if (ViewBag.Export)
-            {
-            <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();"><span class="image fa fa-file-excel"></span> Export Excel</a>
-            <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
-            } *@
-            </div>
-            <br />
-            <div class="gridview-div">
-                @*  @(Html.DevExtreme().DataGrid()
-            .ID("grid1")
-            .DataSource(d => d.Mvc()
-            .Controller("SegmentationSummaryClusterMKBD")
-            .LoadAction("GetGridDataDetail")
-            .Key("rowid")
-            .OnBeforeSend("onGridBeforeSend"))
-            .RemoteOperations(true)
-            .Width("100%")
-            .AllowColumnResizing(true)
-            .ColumnAutoWidth(true)
-            .Columns(columns =>
-            {
-            columns.Add().DataField("rowid").Visible(false);
-            columns.Add().DataField("calendardate").Caption("Tanggal").DataType(GridColumnDataType.DateTime).Format("MMM yyyy");
-            columns.Add().DataField("securitycompanycode").Caption("Kode PE");
-            columns.Add().DataField("securitycompanyname").Caption("Nama PE");
-            columns.Add().DataField("f_level_1").Caption("Konsentrasi Aset Lancar selain Kas dan Setara Kas");
-            columns.Add().DataField("total_balance").Caption("Total Balance");
-            columns.Add().DataField("total_aset_lancar").Caption("Total Aset Lancar");
-            columns.Add().DataField("persentase").Caption("Persentase");
-            columns.Add().DataField("fairmarketvalue").Caption("Nilai Jaminan Margin");
-            })
-            .ColumnResizingMode(ColumnResizingMode.Widget)
-            .FilterRow(f => f.Visible(true))
-            .ShowBorders(false)
-            // .RowAlternationEnabled(false)
-            .Paging(p =>
-            {
-            p.PageSize(20);
-            p.Enabled(true);
-            })
-            .Pager(p =>
-            {
-            p.ShowInfo(true);
-            })
-            ) *@
 
-                <table style="width:100%;border:1px solid black">
-                    <tr>
-                        <th>Jenis Efek*</th>
-                        <th>No.</th>
-                        <th>Kode Efek</th>
-                        <th>Terafiliasi /Tidak Terafiliasi</th>
-                        <th>Grup Emiten</th>
-                        <th>Lembar/ Nominal</th>
-                        <th>Harga Perolehan (A)</th>
-                        <th>Harga Pasar Wajar (B)</th>
-                        <th>Nilai Pasar Wajar</th>
-                        <th>Perhitungan Gain/Loss (B-A) * C</th>
-                        <th>% dari Total Portofolio (NPW / Total Porto)</th>
-                        <th>Persentase Nilai Pasar Wajar Terhadap Total Modal Sendiri</th>
-                        <th>Nilai Ranking Liabilities</th>
-                    </tr>
-                    <tr>
-                        <td>ABCDEFG</td>
-                        <td>1</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                    </tr>
-                    <tr>
-                        <td>ABCDEFG</td>
-                        <td>2</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                    </tr>
-                    <tr>
-                        <td>ABCDEFG</td>
-                        <td>3</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                    </tr>
-                    <tr>
-                        <td>ABCDEFG</td>
-                        <td>4</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                    </tr>
-                    <tr>
-                        <td>ABCDEFG</td>
-                        <td>5</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                    </tr>
-                </table>
+        <div class="row">
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <table>
+                <tr>
+                    <td>
+                        <div class="form-group">
+                            <input type="button" id="btnDetailCluster" class="btn btn-danger" value="Detail Cluster MKB" onclick="location.href='@Url.Action("Detail", "SegmentationSummaryClusterMKBD")'" />
+                        </div>
+                    </td>
+                    <td></td>
+                    <td>
+                        <div class="form-group">
+                            <input type="button" id="btnRincianPortofolio" class="btn btn-danger" value="Rincian Portofolio" onclick="location.href='@Url.Action("RincianPortofolio", "SegmentationSummaryClusterMKBD")'" />
+                        </div>
+                    </td>
+                    <td></td>
+                    <td>
+                        <div class="form-group">
+                            <input type="button" id="btnReksadana" class="btn btn-danger" value="Reksadana" onclick="location.href='@Url.Action("Reksadana", "SegmentationSummaryClusterMKBD")'" />
+                        </div>
+                    </td>
+                    <td></td>
+                    <td>
+                        <div class="form-group">
+                            <input type="button" id="btnJaminanMargin" class="btn btn-danger" value="Jaminan Margin" onclick="location.href='@Url.Action("JaminanMargin", "SegmentationSummaryClusterMKBD")'" />
+                        </div>
+                    </td>
+                    <td></td>
+                    <td>
+                        <div class="form-group">
+                            <input type="button" id="btnReverseRepo" class="btn btn-danger" value="Reverse Repo" onclick="location.href='@Url.Action("ReverseRepo", "SegmentationSummaryClusterMKBD")'" />
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="row filter-panel" style="padding-top:0px;">
+            <div class="card-body">
+                <div class="float-right">
+                    @if (ViewBag.Export)
+                    {
+                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcelRincianPortofolio();"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdfRincianPortofolio();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                    }
+                </div>
             </div>
         </div>
 
-        <br />
-        <div>
-
-            <div class="float-right">
-                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();"><span class="image fa fa-file-excel"></span> Export Excel</a>
-                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
-                @*  @if (ViewBag.Export)
-            {
-            <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();"><span class="image fa fa-file-excel"></span> Export Excel</a>
-            <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
-            } *@
-            </div><br />
-            <div class="gridview-div">
-                @*  @(Html.DevExtreme().DataGrid()
-            .ID("grid1")
-            .DataSource(d => d.Mvc()
-            .Controller("SegmentationSummaryClusterMKBD")
-            .LoadAction("GetGridDataDetail")
-            .Key("rowid")
-            .OnBeforeSend("onGridBeforeSend"))
-            .RemoteOperations(true)
-            .Width("100%")
-            .AllowColumnResizing(true)
-            .ColumnAutoWidth(true)
-            .Columns(columns =>
-            {
-            columns.Add().DataField("rowid").Visible(false);
-            columns.Add().DataField("calendardate").Caption("Tanggal").DataType(GridColumnDataType.DateTime).Format("MMM yyyy");
-            columns.Add().DataField("securitycompanycode").Caption("Kode PE");
-            columns.Add().DataField("securitycompanyname").Caption("Nama PE");
-            columns.Add().DataField("f_level_1").Caption("Konsentrasi Aset Lancar selain Kas dan Setara Kas");
-            columns.Add().DataField("total_balance").Caption("Total Balance");
-            columns.Add().DataField("total_aset_lancar").Caption("Total Aset Lancar");
-            columns.Add().DataField("persentase").Caption("Persentase");
-            columns.Add().DataField("fairmarketvalue").Caption("Nilai Jaminan Margin");
-            })
-            .ColumnResizingMode(ColumnResizingMode.Widget)
-            .FilterRow(f => f.Visible(true))
-            .ShowBorders(false)
-            // .RowAlternationEnabled(false)
-            .Paging(p =>
-            {
-            p.PageSize(20);
-            p.Enabled(true);
-            })
-            .Pager(p =>
-            {
-            p.ShowInfo(true);
-            })
-            ) *@
-
-                <table style="width:100%;border:1px solid black">
-                    <tr>
-                        <th>Detail Summary</th>
-                        <th>Nilai Pasar Wajar</th>
-                        <th>Nilai Ranking Liabilities</th>
-                    </tr>
-                    <tr>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                    </tr>
-                    <tr>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                    </tr>
-                    <tr>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                    </tr>
-                    <tr>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                    </tr>
-                    <tr>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                        <td>ABCDEFG</td>
-                    </tr>
-                </table>
-            </div>
+        <div class="gridview-div">
+            @(Html.DevExtreme().DataGrid()
+                .ID("grid1")
+                .ShowBorders(true).Width("100%").ShowColumnLines(true).ShowRowLines(true)
+                .DataSource(d => d.Mvc()
+                .Controller("SegmentationSummaryClusterMKBD")
+                .LoadAction("GetGridDataRincianPortofolio")
+                .Key("securitycompanycode")
+                .LoadParams(new { periodeAwal = new JS("getperiodeAwalIdValue"), namaPE = new JS("getIdValue") }))
+                .RemoteOperations(true)
+                .Width("100%")
+                .AllowColumnResizing(true)
+                .ColumnAutoWidth(true)
+                .WordWrapEnabled(true)
+                .Columns(columns =>
+                {
+                    columns.Add().DataField("securitytypename").Caption("Jenis Efek*").Width(300);
+                    columns.Add().DataField("no").Caption("No.").Alignment(HorizontalAlignment.Center);
+                    columns.Add().DataField("securitycode").Caption("Kode Efek");
+                    columns.Add().DataField("affiliated").Caption("Terafiliasi/Tidak Terafiliasi");
+                    columns.Add().DataField("entitygroup").Caption("Grup Emiten");
+                    columns.Add().DataField("nominalsheet").Caption("Lembar/Nominal (C)").Format("#,##0");
+                    columns.Add().DataField("acquisitionprice").Caption("Harga Perolehan (A)").Format("#,##0");
+                    columns.Add().DataField("fairmarketprice").Caption("Harga Pasar Wajar (B)").Format("#,##0");
+                    columns.Add().DataField("fairmarketvalue").Caption("Nilai Pasar Wajar").Format("#,##0");
+                    columns.Add().DataField("gainperloss").Caption("Perhitungan Gain/Loss (B-A) * C").Format("#,##0").Width(130);
+                    columns.Add().DataField("fairmarketvaluepertotalporto").Caption("% dari Total Portofolio (NPW / Total Porto)").Format("#,##0").Width(130);
+                    columns.Add().DataField("marketvaluepercentage").Caption("Persentase Nilai Pasar Wajar Terhadap Total Modal Sendiri").Format("#,##0").Width(130).Alignment(HorizontalAlignment.Right); ;
+                    columns.Add().DataField("liabilitiesrankingvalue").Caption("Nilai Ranking Liabilities").Format("#,##0").Width(150);
+                })
+                .ColumnResizingMode(ColumnResizingMode.Widget)
+                .FilterRow(f => f.Visible(true))
+                .ShowBorders(false)
+                .Paging(p =>
+                {
+                    p.PageSize(20);
+                    p.Enabled(true);
+                })
+                .Pager(p =>
+                {
+                    p.ShowInfo(true);
+                })
+                )
         </div>
 
-
+        <div class="row filter-panel" style="padding-top:0px;">
+            <div class="card-body">
+                <div class="float-right">
+                    @if (ViewBag.Export)
+                    {
+                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcelRincianPortofolioDetailSummary();"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdfRincianPortofolioDetailSummary();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="gridview-div">
+            @(Html.DevExtreme().DataGrid()
+                .ID("grid2")
+                .ShowBorders(true).Width("100%").ShowColumnLines(true).ShowRowLines(true)
+                .DataSource(d => d.Mvc()
+                .Controller("SegmentationSummaryClusterMKBD")
+                .LoadAction("GetGridDataRincianPortofolioDetailSummary")
+                .Key("securitycompanycode")
+                .LoadParams(new { periodeAwal = new JS("getperiodeAwalIdValue"), namaPE = new JS("getIdValue") }))
+                .RemoteOperations(false)
+                .Width("100%")
+                .AllowColumnResizing(true)
+                .ColumnAutoWidth(true)
+                .WordWrapEnabled(true)
+                .Columns(columns =>
+                {
+                    columns.Add().DataField("mkbdvd510description").Caption("Detail Summary").Width(1250);
+                    columns.Add().DataField("fairmarketvalue").Caption("Nilai Pasar Wajar").Format("#,##0").Width(150);
+                    columns.Add().DataField("liabilitiesrankingvalue").Caption("Nilai Ranking Liabilities").Format("#,##0").Width(150);
+                })
+                .ColumnResizingMode(ColumnResizingMode.Widget)
+                .FilterRow(f => f.Visible(true))
+                .ShowBorders(false)
+                .Paging(p =>
+                {
+                    p.PageSize(20);
+                    p.Enabled(true);
+                })
+                .Pager(p =>
+                {
+                    p.ShowInfo(true);
+                })
+                )
+        </div>
 
         <!-- The Modal  Detail-->
         <div class="modal fade" id="ModalSimpanPenggunaanData" tabindex="-1" role="document" aria-hidden="true" data-backdrop="static" data-keyboard="false">
@@ -365,6 +242,96 @@
 
 <script>
 
+    function ExportToExcelRincianPortofolio() {
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("LogExportIndexRincianPortofolio", "SegmentationSummaryClusterMKBD")",
+            success: function (response) {
+                if (response.result == "Success") {
+                    var grid = $("#grid1").dxDataGrid("instance");
+                    grid.option("onExporting", function (e) {
+                        e.fileName = "RincianPortofolio_" + new Date().toISOString().slice(0, 10);
+                    });
+                    grid.option("onFileSaving", function (e) { });
+                    grid.exportToExcel();
+                }
+            }
+        });
+    }
+
+    function ExportToPdfRincianPortofolio() {
+        var dataGrid = $("#grid1").dxDataGrid("instance");
+        dataGrid.option("onExporting", function (e) { });
+        dataGrid.option("onFileSaving", function (e) {
+            var fd = new FormData();
+            fd.append("file", e.data);
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("LogExportPDFRincianPortofolio", "SegmentationSummaryClusterMKBD")",
+                data: fd,
+                processData: false,
+                contentType: false
+            }).done(function (data) {
+                window.location = "@Url.Action("FileRincianPortofolio", "SegmentationSummaryClusterMKBD")"
+            });
+            e.cancel = true;
+        });
+        dataGrid.exportToExcel();
+    }
+
+    function ExportToExcelRincianPortofolioDetailSummary() {
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("LogExportIndexRincianPortofolioDetailSummary", "SegmentationSummaryClusterMKBD")",
+            success: function (response) {
+                if (response.result == "Success") {
+                    var grid = $("#grid2").dxDataGrid("instance");
+                    grid.option("onExporting", function (e) {
+                        e.fileName = "RincianPortofolioDetailSummary_" + new Date().toISOString().slice(0, 10);
+                    });
+                    grid.option("onFileSaving", function (e) { });
+                    grid.exportToExcel();
+                }
+            }
+        });
+    }
+
+    function ExportToPdfRincianPortofolioDetailSummary() {
+        var dataGrid = $("#grid2").dxDataGrid("instance");
+        dataGrid.option("onExporting", function (e) { });
+        dataGrid.option("onFileSaving", function (e) {
+            var fd = new FormData();
+            fd.append("file", e.data);
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("LogExportPDFRincianPortofolioDetailSummary", "SegmentationSummaryClusterMKBD")",
+                data: fd,
+                processData: false,
+                contentType: false
+            }).done(function (data) {
+                window.location = "@Url.Action("FileRincianPortofolioDetailSummary", "SegmentationSummaryClusterMKBD")"
+            });
+            e.cancel = true;
+        });
+        dataGrid.exportToExcel();
+    }
+
+
+
+    function getperiodeAwalIdValue() {
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const periodeAwal = urlParams.get('periodeAwal');
+        return periodeAwal
+    }
+
+    function getIdValue() {
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const id = urlParams.get('id');
+        return id
+    }
+
     $(function () {
         const startDate = $("#PeriodeAwal").dxDateBox({
             onValueChanged: function (e) {
@@ -385,16 +352,16 @@
         })
     });
 
-    $(function () {
+    @* $(function () {
         $("#namaPEid").dxValidator({
-            validationGroup: "Filter",
-            validationRules: [{ type: "required", message: "[Nama PE] harus dipilih" }]
+        validationGroup: "Filter",
+        validationRules: [{ type: "required", message: "[Nama PE] harus dipilih" }]
         })
-    });
+        }); *@
 
-    $(window).on('load', function () {
-        $("#ModalSimpanPenggunaanData").modal("show");
-    });
+        $(window).on('load', function () {
+            $("#ModalSimpanPenggunaanData").modal("show");
+        });
 
     $("#btnSavePenggunaanData").click(function () {
         let penggunaandataid = $("#penggunaandataid").dxSelectBox("instance").option("value");
@@ -410,14 +377,11 @@
                 type: "POST",
                 success: function (data) {
                     if (data.success == true) {
-                        //alert(data.message);
-    @* waitingDialog.hide(); *@
-                            $('#ModalSimpanPenggunaanData').modal('hide');
+                        $('#ModalSimpanPenggunaanData').modal('hide');
                         return "Saving Success !";
                     }
                     else if (data.success == false) {
-    @*  waitingDialog.hide(); *@
-                            alert(data.message);
+                        alert(data.message);
                         $('#ModalSimpanPenggunaanData').modal('hide');
                         return "Saving Failed !";
                     }
@@ -435,67 +399,67 @@
     function onButtonFilterClicked(e) {
         const res = e.validationGroup.validate();
         if (res.status === "valid") {
-            $("#grid1").dxDataGrid("instance").refresh();
-        }
-    }
+            let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
+            let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
 
-    function onGridBeforeSend(method, ajaxOptions) {
-        let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
-        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
-        let status = $("#Statusid").dxTagBox("instance").option("value");
+            let periodeAwal = null;
+            if (tempPeriodeAwal != null) {
+                periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
+            }
 
-        let periodeAwal = null;
-        if (tempPeriodeAwal != null) {
-            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + (tempPeriodeAwal.getMonth() + 1) + '-' + tempPeriodeAwal.getDate();
-        }
-        ajaxOptions.data.namaPE = JSON.stringify(namaPE);
-        ajaxOptions.data.periodeAwal = periodeAwal;
-        ajaxOptions.data.status = JSON.stringify(status);
-    }
+            if (namaPE == null) {
+                $.ajax({
+                    url: '@Url.Action("GetGridDataRincianPortofolio", "SegmentationSummaryClusterMKBD")',
+                    data: { periodeAwal: periodeAwal },
+                    dataType: "json",
+                    type: "POST",
+                    success: function (response) {
 
-    var waitingDialog = (function ($) {
+                        window.history.pushState('', 'My Page', 'RincianPortofolio?periodeAwal=' + periodeAwal + '');
+                        $("#grid1").dxDataGrid("refresh");
+                        $('#ModalSimpanPenggunaanData').modal('hide');
+                    }
+                });
 
-        // Creating modal dialog's DOM
-        var $dialog = $(
-            '<div class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">' +
-            '<div class="modal-dialog modal-m">' +
-            '<div class="modal-content">' +
-            '<div class="modal-header"><h3 style="margin:0;"></h3></div>' +
-            '<div class="modal-body">' +
-            '<div class="progress progress-striped active" style="margin-bottom:0;"><div class="progress-bar" style="width: 100%"></div></div>' +
-            '</div>' +
-            '</div></div></div>');
+                $.ajax({
+                    url: '@Url.Action("GetGridDataRincianPortofolioDetailSummary", "SegmentationSummaryClusterMKBD")',
+                    data: { periodeAwal: periodeAwal },
+                    dataType: "json",
+                    type: "POST",
+                    success: function (response) {
 
-        return {
-            show: function (message, options) {
-                // Assigning defaults
-                var settings = $.extend({
-                    dialogSize: 'm',
-                    progressType: ''
-                }, options);
-                if (typeof message === 'undefined') {
-                    message = 'Loading';
-                }
-                if (typeof options === 'undefined') {
-                    options = {};
-                }
-                // Configuring dialog
-                $dialog.find('.modal-dialog').attr('class', 'modal-dialog').addClass('modal-' + settings.dialogSize);
-                $dialog.find('.progress-bar').attr('class', 'progress-bar');
-                if (settings.progressType) {
-                    $dialog.find('.progress-bar').addClass('progress-bar-' + settings.progressType);
-                }
-                $dialog.find('h3').text(message);
-                // Opening dialog
-                $dialog.modal();
-            },
-            /**
-                * Closes dialog
-                */
-            hide: function () {
-                $dialog.modal('hide');
+                        window.history.pushState('', 'My Page', 'RincianPortofolio?periodeAwal=' + periodeAwal + '');
+                        $("#grid2").dxDataGrid("refresh");
+                        $('#ModalSimpanPenggunaanData').modal('hide');
+                    }
+                });
+            } else {
+                $.ajax({
+                    url: '@Url.Action("GetGridDataRincianPortofolio", "SegmentationSummaryClusterMKBD")',
+                    data: { periodeAwal: periodeAwal, namaPE: namaPE },
+                    dataType: "json",
+                    type: "POST",
+                    success: function (response) {
+
+                        window.history.pushState('', 'My Page', 'RincianPortofolio?id=' + namaPE + '&periodeAwal=' + periodeAwal + '');
+                        $("#grid1").dxDataGrid("refresh");
+                        $('#ModalSimpanPenggunaanData').modal('hide');
+                    }
+                });
+
+                $.ajax({
+                    url: '@Url.Action("GetGridDataRincianPortofolioDetailSummary", "SegmentationSummaryClusterMKBD")',
+                    data: { periodeAwal: periodeAwal, namaPE: namaPE },
+                    dataType: "json",
+                    type: "POST",
+                    success: function (response) {
+
+                        window.history.pushState('', 'My Page', 'RincianPortofolio?id=' + namaPE + '&periodeAwal=' + periodeAwal + '');
+                        $("#grid2").dxDataGrid("refresh");
+                        $('#ModalSimpanPenggunaanData').modal('hide');
+                    }
+                });
             }
         }
-    })(jQuery);
-
+    }
 </script>

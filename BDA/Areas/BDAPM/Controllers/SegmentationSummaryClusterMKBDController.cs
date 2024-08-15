@@ -184,6 +184,86 @@ namespace BDA.Controllers
                 return JsonConvert.SerializeObject(result);
             }
         }
+        public object GetGridDataRincianPortofolio(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE)
+        {
+            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+            TempData.Clear(); //membersihkan data filtering
+
+            string stringPeriodeAwal = null;
+            string stringNamaPE = null;
+            string reportId = "pe_segmentation_det_portofolio_saham"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+
+            if (periodeAwal != null)
+            {
+                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
+                TempData["pawal"] = stringPeriodeAwal;
+            }
+            else
+            {
+                stringPeriodeAwal = Convert.ToDateTime(DateTime.Now).ToString("yyyy-MM-dd");
+                TempData["pawal"] = stringPeriodeAwal;
+            }
+
+            if (namaPE != null)
+            {
+                stringNamaPE = namaPE;
+                TempData["pe"] = stringNamaPE;
+            }
+
+            db.Database.CommandTimeout = 420;
+            if (periodeAwal != null) //jika ada parameter nya
+            {
+                var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryRincianPortofolio(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, cekHive);
+                return JsonConvert.SerializeObject(result);
+            }
+            else
+            {
+                var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryRincianPortofolio(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, cekHive);
+                return JsonConvert.SerializeObject(result);
+            }
+        }
+        public object GetGridDataRincianPortofolioDetailSummary(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE)
+        {
+            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+            TempData.Clear(); //membersihkan data filtering
+
+            string stringPeriodeAwal = null;
+            string stringNamaPE = null;
+            string reportId = "pe_segmentation_det_portofolio_saham_sum"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+
+            if (periodeAwal != null)
+            {
+                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
+                TempData["pawal"] = stringPeriodeAwal;
+            }
+            else
+            {
+                stringPeriodeAwal = Convert.ToDateTime(DateTime.Now).ToString("yyyy-MM-dd");
+                TempData["pawal"] = stringPeriodeAwal;
+            }
+
+            if (namaPE != null)
+            {
+                stringNamaPE = namaPE;
+                TempData["pe"] = stringNamaPE;
+            }
+
+            db.Database.CommandTimeout = 420;
+            if (periodeAwal != null) //jika ada parameter nya
+            {
+                var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryRincianPortofolioDetailSummary(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, cekHive);
+                return JsonConvert.SerializeObject(result);
+            }
+            else
+            {
+                var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryRincianPortofolioDetailSummary(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, cekHive);
+                return JsonConvert.SerializeObject(result);
+            }
+        }
         [HttpPost]
         public ActionResult SimpanPenggunaanData(string id)
         {
@@ -270,9 +350,6 @@ namespace BDA.Controllers
             string namaPE = id;
             string stringPeriodeAwal = null;
             string stringNamaPE = null;
-            string reportId = "pe_segmentation_bridging_detail"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
-
-            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
 
             if (periodeAwal != null)
             {
@@ -293,155 +370,37 @@ namespace BDA.Controllers
             return View();
         }
 
-        public partial class SampleDataDetail
-        {
-            public static readonly IEnumerable<ColumnDetail> SimpleArrayCustomerDetail = new[] {
-            new ColumnDetail {
-                Tanggal = "2024-07-30",
-                KodePE = "GA",
-                NamaPE = "BNC SEKURITAS INDONESIA",
-                KonsentrasiAsetLancarSelainKasDanSetaraKas = "ABCDEFG",
-                TotalBalance = 9999,
-                TotalAsetLancar = 72716,
-                Persentase = 100,
-                NilaiJaminanMargin = 90,
-                NamaAkun =  "ABCDEFG",
-                TotalPortofolioEfek =  "ABCDEFG",
-                Haircut =  "ABCDEFG"
-            },
-             new ColumnDetail {
-                Tanggal = "2024-07-30",
-                KodePE = "GA",
-                NamaPE = "BNC SEKURITAS INDONESIA",
-                KonsentrasiAsetLancarSelainKasDanSetaraKas = "ABCDEFG",
-                TotalBalance = 9999,
-                TotalAsetLancar = 72716,
-                Persentase = 100,
-                NilaiJaminanMargin = 90,
-                NamaAkun =  "ABCDEFG",
-                TotalPortofolioEfek =  "ABCDEFG",
-                Haircut =  "ABCDEFG"
-            },
-              new ColumnDetail {
-                Tanggal = "2024-07-30",
-                KodePE = "GA",
-                NamaPE = "BNC SEKURITAS INDONESIA",
-                KonsentrasiAsetLancarSelainKasDanSetaraKas = "ABCDEFG",
-                TotalBalance = 9999,
-                TotalAsetLancar = 72716,
-                Persentase = 100,
-                NilaiJaminanMargin = 90,
-                NamaAkun =  "ABCDEFG",
-                TotalPortofolioEfek =  "ABCDEFG",
-                Haircut =  "ABCDEFG"
-            },
-               new ColumnDetail {
-                Tanggal = "2024-07-30",
-                KodePE = "GA",
-                NamaPE = "BNC SEKURITAS INDONESIA",
-                KonsentrasiAsetLancarSelainKasDanSetaraKas = "ABCDEFG",
-                TotalBalance = 9999,
-                TotalAsetLancar = 72716,
-                Persentase = 100,
-                NilaiJaminanMargin = 90,
-                NamaAkun =  "ABCDEFG",
-                TotalPortofolioEfek =  "ABCDEFG",
-                Haircut =  "ABCDEFG"
-            },
-                new ColumnDetail {
-                Tanggal = "2024-07-30",
-                KodePE = "GA",
-                NamaPE = "BNC SEKURITAS INDONESIA",
-                KonsentrasiAsetLancarSelainKasDanSetaraKas = "ABCDEFG",
-                TotalBalance = 9999,
-                TotalAsetLancar = 72716,
-                Persentase = 100,
-                NilaiJaminanMargin = 90,
-                NamaAkun =  "ABCDEFG",
-                TotalPortofolioEfek =  "ABCDEFG",
-                Haircut =  "ABCDEFG"
-            },
-                 new ColumnDetail {
-                Tanggal = "2024-07-30",
-                KodePE = "GA",
-                NamaPE = "BNC SEKURITAS INDONESIA",
-                KonsentrasiAsetLancarSelainKasDanSetaraKas = "ABCDEFG",
-                TotalBalance = 9999,
-                TotalAsetLancar = 72716,
-                Persentase = 100,
-                NilaiJaminanMargin = 90,
-                NamaAkun =  "ABCDEFG",
-                TotalPortofolioEfek =  "ABCDEFG",
-                Haircut =  "ABCDEFG"
-            },
-                  new ColumnDetail {
-                Tanggal = "2024-07-30",
-                KodePE = "GA",
-                NamaPE = "BNC SEKURITAS INDONESIA",
-                KonsentrasiAsetLancarSelainKasDanSetaraKas = "ABCDEFG",
-                TotalBalance = 9999,
-                TotalAsetLancar = 72716,
-                Persentase = 100,
-                NilaiJaminanMargin = 90,
-                NamaAkun =  "ABCDEFG",
-                TotalPortofolioEfek =  "ABCDEFG",
-                Haircut =  "ABCDEFG"
-            },
-                   new ColumnDetail {
-                Tanggal = "2024-07-30",
-                KodePE = "GA",
-                NamaPE = "BNC SEKURITAS INDONESIA",
-                KonsentrasiAsetLancarSelainKasDanSetaraKas = "ABCDEFG",
-                TotalBalance = 9999,
-                TotalAsetLancar = 72716,
-                Persentase = 100,
-                NilaiJaminanMargin = 90,
-                NamaAkun =  "ABCDEFG",
-                TotalPortofolioEfek =  "ABCDEFG",
-                Haircut =  "ABCDEFG"
-            }
-        };
-        }
-        public class ColumnDetail
-        {
-            public string Tanggal { get; set; }
-            public string KodePE { get; set; }
-            public string NamaPE { get; set; }
-            public string KonsentrasiAsetLancarSelainKasDanSetaraKas { get; set; }
-            public int TotalBalance { get; set; }
-            public int TotalAsetLancar { get; set; }
-            public int Persentase { get; set; }
-            public int NilaiJaminanMargin { get; set; }
-
-            public string NamaAkun { get; set; }
-            public string TotalPortofolioEfek { get; set; }
-            public string Haircut { get; set; }
-        }
         //-----------------------------detail-----------------------------------//
 
         //-----------------------------Rincian Portofolio-----------------------------------//
-        public IActionResult RincianPortofolio(long? id)
+        public IActionResult RincianPortofolio(DataSourceLoadOptions loadOptions, string id, string periodeAwal)
         {
+            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
             var currentNode = mdl.GetCurrentNode();
-            string pageTitle = currentNode != null ? currentNode.Title : ""; //menampilkan data menu
+            string pageTitle = currentNode != null ? currentNode.Title : "Rincian Portofolio"; //menampilkan data menu
 
+            string namaPE = id;
+            string stringPeriodeAwal = null;
+            string stringNamaPE = null;
+
+            if (periodeAwal != null)
+            {
+                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
+                TempData["pawal"] = stringPeriodeAwal;
+            }
+            if (namaPE != null)
+            {
+                stringNamaPE = namaPE;
+                TempData["pe"] = stringNamaPE;
+            }
+
+            db.Database.CommandTimeout = 420;
             db.CheckPermission("Rincian Portofolio View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
             ViewBag.Export = db.CheckPermission("Rincian Portofolio Export", DataEntities.PermissionMessageType.NoMessage);
             db.InsertAuditTrail("RincianPortofolio_Akses_Page", "Akses Page Rincian Portofolio", pageTitle);
 
-            //if (id == null) return BadRequest();
-
-            if (id == null)
-            {
-                id = 1;
-            }
-
-            var obj = (dynamic)null;
-            //var obj = db.BDA_F01_MaxMinOverdue.Find(id);
-            //if (obj == null) return NotFound();
-
-            return View(obj);
+            return View();
         }
         //-----------------------------Rincian Portofolio-----------------------------------//
 
@@ -706,6 +665,195 @@ namespace BDA.Controllers
                 timeStamp = timeStamp.Replace('/', '-').Replace(" ", "_").Replace(":", "-");
                 TempData["timeStamp"] = timeStamp;
                 var fileName = "RincianPortofolioEfek_" + timeStamp + ".pdf";
+                workbook.Save(Path.Combine(directory, fileName), SaveFormat.Pdf);
+                return new EmptyResult();
+            }
+            catch (Exception ex)
+            {
+                return Json(new { result = db.ProcessExceptionMessage(ex) });
+            }
+        }
+
+
+        public FileResult FileRincianPortofolio()
+        {
+            var directory = _env.WebRootPath;
+            var timeStamp = TempData.Peek("timeStamp").ToString();
+            var fileName = "RincianPortofolio_" + timeStamp + ".pdf";
+            var filePath = Path.Combine(directory, fileName);
+            var fileByte = System.IO.File.ReadAllBytes(filePath);
+            System.IO.File.Delete(filePath);
+            return File(fileByte, "application/pdf", fileName);
+        }
+        [HttpPost]
+        public IActionResult LogExportIndexRincianPortofolio()
+        {
+            try
+            {
+                var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+                var currentNode = mdl.GetCurrentNode();
+
+                string pageTitle = currentNode != null ? currentNode.Title : "";
+
+                db.CheckPermission("Rincian Portofolio Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+                db.InsertAuditTrail("RincianPortofolio_Akses_Page", "Export Data", pageTitle);
+                return Json(new { result = "Success" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { result = db.ProcessExceptionMessage(ex) });
+            }
+        }
+        public IActionResult LogExportPDFRincianPortofolio(IFormFile file)
+        {
+            try
+            {
+                var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+                var currentNode = mdl.GetCurrentNode();
+
+                string pageTitle = currentNode != null ? currentNode.Title : "";
+
+                db.CheckPermission("Rincian Portofolio Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+                db.InsertAuditTrail("RincianPortofolio_Akses_Page", "Export Data", pageTitle);
+
+                var directory = _env.WebRootPath;
+                var timeStamp = DateTime.Now.ToString();
+                Workbook workbook = new Workbook(file.OpenReadStream());
+
+                foreach (Worksheet worksheet in workbook.Worksheets)
+                {
+                    //prepare logo
+                    string logo_url = Path.Combine(directory, "assets_m\\img\\OJK_Logo.png");
+                    FileStream inFile;
+                    byte[] binaryData;
+                    inFile = new FileStream(logo_url, FileMode.Open, FileAccess.Read);
+                    binaryData = new Byte[inFile.Length];
+                    long bytesRead = inFile.Read(binaryData, 0, (int)inFile.Length);
+
+                    //apply format number
+                    Style textStyle = workbook.CreateStyle();
+                    textStyle.Number = 3;
+                    StyleFlag textFlag = new StyleFlag();
+                    textFlag.NumberFormat = true;
+
+                    worksheet.Cells.Columns[9].ApplyStyle(textStyle, textFlag);
+
+                    //page setup
+                    PageSetup pageSetup = worksheet.PageSetup;
+                    pageSetup.Orientation = PageOrientationType.Landscape;
+                    pageSetup.FitToPagesWide = 1;
+                    pageSetup.FitToPagesTall = 0;
+
+                    //set header
+                    pageSetup.SetHeaderPicture(0, binaryData);
+                    pageSetup.SetHeader(0, "&G");
+                    var img = pageSetup.GetPicture(true, 0);
+                    img.WidthScale = 10;
+                    img.HeightScale = 10;
+
+                    //set footer
+                    pageSetup.SetFooter(0, timeStamp);
+
+                    inFile.Close();
+                }
+
+                timeStamp = timeStamp.Replace('/', '-').Replace(" ", "_").Replace(":", "-");
+                TempData["timeStamp"] = timeStamp;
+                var fileName = "RincianPortofolio_" + timeStamp + ".pdf";
+                workbook.Save(Path.Combine(directory, fileName), SaveFormat.Pdf);
+                return new EmptyResult();
+            }
+            catch (Exception ex)
+            {
+                return Json(new { result = db.ProcessExceptionMessage(ex) });
+            }
+        }
+
+        public FileResult FileRincianPortofolioDetailSummary()
+        {
+            var directory = _env.WebRootPath;
+            var timeStamp = TempData.Peek("timeStamp").ToString();
+            var fileName = "RincianPortofolioDetailSummary_" + timeStamp + ".pdf";
+            var filePath = Path.Combine(directory, fileName);
+            var fileByte = System.IO.File.ReadAllBytes(filePath);
+            System.IO.File.Delete(filePath);
+            return File(fileByte, "application/pdf", fileName);
+        }
+        [HttpPost]
+        public IActionResult LogExportIndexRincianPortofolioDetailSummary()
+        {
+            try
+            {
+                var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+                var currentNode = mdl.GetCurrentNode();
+
+                string pageTitle = currentNode != null ? currentNode.Title : "";
+
+                db.CheckPermission("Rincian Portofolio Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+                db.InsertAuditTrail("RincianPortofolio_Akses_Page", "Export Data", pageTitle);
+                return Json(new { result = "Success" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { result = db.ProcessExceptionMessage(ex) });
+            }
+        }
+        public IActionResult LogExportPDFRincianPortofolioDetailSummary(IFormFile file)
+        {
+            try
+            {
+                var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+                var currentNode = mdl.GetCurrentNode();
+
+                string pageTitle = currentNode != null ? currentNode.Title : "";
+
+                db.CheckPermission("Rincian Portofolio Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+                db.InsertAuditTrail("RincianPortofolio_Akses_Page", "Export Data", pageTitle);
+
+                var directory = _env.WebRootPath;
+                var timeStamp = DateTime.Now.ToString();
+                Workbook workbook = new Workbook(file.OpenReadStream());
+
+                foreach (Worksheet worksheet in workbook.Worksheets)
+                {
+                    //prepare logo
+                    string logo_url = Path.Combine(directory, "assets_m\\img\\OJK_Logo.png");
+                    FileStream inFile;
+                    byte[] binaryData;
+                    inFile = new FileStream(logo_url, FileMode.Open, FileAccess.Read);
+                    binaryData = new Byte[inFile.Length];
+                    long bytesRead = inFile.Read(binaryData, 0, (int)inFile.Length);
+
+                    //apply format number
+                    Style textStyle = workbook.CreateStyle();
+                    textStyle.Number = 3;
+                    StyleFlag textFlag = new StyleFlag();
+                    textFlag.NumberFormat = true;
+
+                    worksheet.Cells.Columns[9].ApplyStyle(textStyle, textFlag);
+
+                    //page setup
+                    PageSetup pageSetup = worksheet.PageSetup;
+                    pageSetup.Orientation = PageOrientationType.Landscape;
+                    pageSetup.FitToPagesWide = 1;
+                    pageSetup.FitToPagesTall = 0;
+
+                    //set header
+                    pageSetup.SetHeaderPicture(0, binaryData);
+                    pageSetup.SetHeader(0, "&G");
+                    var img = pageSetup.GetPicture(true, 0);
+                    img.WidthScale = 10;
+                    img.HeightScale = 10;
+
+                    //set footer
+                    pageSetup.SetFooter(0, timeStamp);
+
+                    inFile.Close();
+                }
+
+                timeStamp = timeStamp.Replace('/', '-').Replace(" ", "_").Replace(":", "-");
+                TempData["timeStamp"] = timeStamp;
+                var fileName = "RincianPortofolioDetailSummary_" + timeStamp + ".pdf";
                 workbook.Save(Path.Combine(directory, fileName), SaveFormat.Pdf);
                 return new EmptyResult();
             }

@@ -250,7 +250,7 @@
                 if (response.result == "Success") {
                     var grid = $("#grid1").dxDataGrid("instance");
                     grid.option("onExporting", function (e) {
-                        e.fileName = "DetilClusterMKBD_" + new Date().toISOString().slice(0, 10);
+                        e.fileName = "DetailClusterMKBD_" + new Date().toISOString().slice(0, 10);
                     });
                     grid.option("onFileSaving", function (e) { });
                     grid.exportToExcel();
@@ -436,18 +436,4 @@
             }
         }
     }
-
-    function onGridBeforeSend(method, ajaxOptions) {
-        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
-        let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
-
-        let periodeAwal = null;
-        if (tempPeriodeAwal != null) {
-            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
-        }
-
-        ajaxOptions.data.periodeAwal = periodeAwal;
-        ajaxOptions.data.namaPE = namaPE;
-    }
-
 </script>
