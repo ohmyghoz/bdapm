@@ -107,24 +107,6 @@ namespace BDA.Controllers
 
         public object GetGridDataDetail(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE)
         {
-            var qs = HttpUtility.ParseQueryString(Request.QueryString.ToString());
-            qs.Set("id", namaPE);
-            qs.Set("periodeAwal", periodeAwal);
-            Console.WriteLine(qs.ToString());
-
-
-            //string url = HttpContext.Request.Url.AbsolutePath;
-            //Response.Redirect(url + "?" + nameValues); // ToString() is called implicitly
-
-            //var uri = new Uri(context.RedirectUri);
-            //var queryDictionary = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
-
-            string[] commands = Request.Query
-                                .Where(m => string.IsNullOrEmpty(m.Value))
-                                .Select(m => m.Key).ToArray();
-            string id = HttpContext.Request.Query["id"].ToString();
-            string tanggal = HttpContext.Request.Query["periodeAwal"].ToString();
-
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
             TempData.Clear(); //membersihkan data filtering
 
@@ -149,9 +131,6 @@ namespace BDA.Controllers
                 stringNamaPE = namaPE;
                 TempData["pe"] = stringNamaPE;
             }
-
-            ViewBag.period = stringPeriodeAwal;
-            ViewBag.namape = namaPE;
 
             db.Database.CommandTimeout = 420;
             if (stringPeriodeAwal != null) //jika ada parameter nya
@@ -393,9 +372,6 @@ namespace BDA.Controllers
             db.CheckPermission("Detail Cluster MKBD View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
             ViewBag.Export = db.CheckPermission("Detail Cluster MKBD Export", DataEntities.PermissionMessageType.NoMessage);
             db.InsertAuditTrail("AksesPageDetailCluster_Akses_Page", "Akses Page Detail Cluster MKBD", pageTitle);
-
-            ViewBag.period = stringPeriodeAwal;
-            ViewBag.namape = namaPE;
 
             return View();
         }

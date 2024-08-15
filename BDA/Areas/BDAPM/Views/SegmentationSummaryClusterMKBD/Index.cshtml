@@ -135,6 +135,7 @@
         <div class="gridview-div">
             @(Html.DevExtreme().DataGrid()
                 .ID("grid1")
+                .ShowBorders(true).Width("100%").ShowColumnLines(true).ShowRowLines(true)
                 .DataSource(d => d.Mvc()
                 .Controller("SegmentationSummaryClusterMKBD")
                 .LoadAction("GetGridData")
