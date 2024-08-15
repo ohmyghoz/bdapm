@@ -258,89 +258,6 @@ namespace BDA.Controllers
             public string value { get; set; }
             public string text { get; set; }
         }
-        [HttpPost]
-        public IActionResult LogExportIndex()
-        {
-            try
-            {
-                var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
-                var currentNode = mdl.GetCurrentNode();
-
-                string pageTitle = currentNode != null ? currentNode.Title : "";
-
-                db.CheckPermission("Summary Cluster MKBD Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-                db.InsertAuditTrail("SegmentationSummaryClusterMKBD_Akses_Page", "Export Data", pageTitle);
-                return Json(new { result = "Success" });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { result = db.ProcessExceptionMessage(ex) });
-            }
-        }
-        public IActionResult ExportPDF(IFormFile file)
-        {
-            try
-            {
-                var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
-                var currentNode = mdl.GetCurrentNode();
-
-                string pageTitle = currentNode != null ? currentNode.Title : "";
-
-                db.CheckPermission("Summary Cluster MKBD Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-                db.InsertAuditTrail("SegmentationSummaryClusterMKBD_Akses_Page", "Export Data", pageTitle);
-
-                var directory = _env.WebRootPath;
-                var timeStamp = DateTime.Now.ToString();
-                Workbook workbook = new Workbook(file.OpenReadStream());
-
-                foreach (Worksheet worksheet in workbook.Worksheets)
-                {
-                    //prepare logo
-                    string logo_url = Path.Combine(directory, "assets_m\\img\\OJK_Logo.png");
-                    FileStream inFile;
-                    byte[] binaryData;
-                    inFile = new FileStream(logo_url, FileMode.Open, FileAccess.Read);
-                    binaryData = new Byte[inFile.Length];
-                    long bytesRead = inFile.Read(binaryData, 0, (int)inFile.Length);
-
-                    //apply format number
-                    Style textStyle = workbook.CreateStyle();
-                    textStyle.Number = 3;
-                    StyleFlag textFlag = new StyleFlag();
-                    textFlag.NumberFormat = true;
-
-                    worksheet.Cells.Columns[9].ApplyStyle(textStyle, textFlag);
-
-                    //page setup
-                    PageSetup pageSetup = worksheet.PageSetup;
-                    pageSetup.Orientation = PageOrientationType.Landscape;
-                    pageSetup.FitToPagesWide = 1;
-                    pageSetup.FitToPagesTall = 0;
-
-                    //set header
-                    pageSetup.SetHeaderPicture(0, binaryData);
-                    pageSetup.SetHeader(0, "&G");
-                    var img = pageSetup.GetPicture(true, 0);
-                    img.WidthScale = 10;
-                    img.HeightScale = 10;
-
-                    //set footer
-                    pageSetup.SetFooter(0, timeStamp);
-
-                    inFile.Close();
-                }
-
-                timeStamp = timeStamp.Replace('/', '-').Replace(" ", "_").Replace(":", "-");
-                TempData["timeStamp"] = timeStamp;
-                var fileName = "SegmentationSummaryClusterMKBD_" + timeStamp + ".pdf";
-                workbook.Save(Path.Combine(directory, fileName), SaveFormat.Pdf);
-                return new EmptyResult();
-            }
-            catch (Exception ex)
-            {
-                return Json(new { result = db.ProcessExceptionMessage(ex) });
-            }
-        }
 
         //-----------------------------detail-----------------------------------//
         public IActionResult Detail(DataSourceLoadOptions loadOptions, string id, string periodeAwal)
@@ -606,5 +523,197 @@ namespace BDA.Controllers
             return View(obj);
         }
         //-----------------------------ReverseRepo-----------------------------------//
+
+        #region Export
+        public FileResult FileDetail()
+        {
+            var directory = _env.WebRootPath;
+            var timeStamp = TempData.Peek("timeStamp").ToString();
+            var fileName = "DetailClusterMKBD_" + timeStamp + ".pdf";
+            var filePath = Path.Combine(directory, fileName);
+            var fileByte = System.IO.File.ReadAllBytes(filePath);
+            System.IO.File.Delete(filePath);
+            return File(fileByte, "application/pdf", fileName);
+        }
+        [HttpPost]
+        public IActionResult LogExportIndexDetail()
+        {
+            try
+            {
+                var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+                var currentNode = mdl.GetCurrentNode();
+
+                string pageTitle = currentNode != null ? currentNode.Title : "";
+
+                db.CheckPermission("Detail Cluster MKBD Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+                db.InsertAuditTrail("DetailClusterMKBD_Akses_Page", "Export Data", pageTitle);
+                return Json(new { result = "Success" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { result = db.ProcessExceptionMessage(ex) });
+            }
+        }
+        public IActionResult LogExportPDFDetail(IFormFile file)
+        {
+            try
+            {
+                var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+                var currentNode = mdl.GetCurrentNode();
+
+                string pageTitle = currentNode != null ? currentNode.Title : "";
+
+                db.CheckPermission("Detail Cluster MKBD Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+                db.InsertAuditTrail("DetailClusterMKBD_Akses_Page", "Export Data", pageTitle);
+
+                var directory = _env.WebRootPath;
+                var timeStamp = DateTime.Now.ToString();
+                Workbook workbook = new Workbook(file.OpenReadStream());
+
+                foreach (Worksheet worksheet in workbook.Worksheets)
+                {
+                    //prepare logo
+                    string logo_url = Path.Combine(directory, "assets_m\\img\\OJK_Logo.png");
+                    FileStream inFile;
+                    byte[] binaryData;
+                    inFile = new FileStream(logo_url, FileMode.Open, FileAccess.Read);
+                    binaryData = new Byte[inFile.Length];
+                    long bytesRead = inFile.Read(binaryData, 0, (int)inFile.Length);
+
+                    //apply format number
+                    Style textStyle = workbook.CreateStyle();
+                    textStyle.Number = 3;
+                    StyleFlag textFlag = new StyleFlag();
+                    textFlag.NumberFormat = true;
+
+                    worksheet.Cells.Columns[9].ApplyStyle(textStyle, textFlag);
+
+                    //page setup
+                    PageSetup pageSetup = worksheet.PageSetup;
+                    pageSetup.Orientation = PageOrientationType.Landscape;
+                    pageSetup.FitToPagesWide = 1;
+                    pageSetup.FitToPagesTall = 0;
+
+                    //set header
+                    pageSetup.SetHeaderPicture(0, binaryData);
+                    pageSetup.SetHeader(0, "&G");
+                    var img = pageSetup.GetPicture(true, 0);
+                    img.WidthScale = 10;
+                    img.HeightScale = 10;
+
+                    //set footer
+                    pageSetup.SetFooter(0, timeStamp);
+
+                    inFile.Close();
+                }
+
+                timeStamp = timeStamp.Replace('/', '-').Replace(" ", "_").Replace(":", "-");
+                TempData["timeStamp"] = timeStamp;
+                var fileName = "DetailClusterMKBD_" + timeStamp + ".pdf";
+                workbook.Save(Path.Combine(directory, fileName), SaveFormat.Pdf);
+                return new EmptyResult();
+            }
+            catch (Exception ex)
+            {
+                return Json(new { result = db.ProcessExceptionMessage(ex) });
+            }
+        }
+
+
+
+        public FileResult FileRincianPortofolioEfek()
+        {
+            var directory = _env.WebRootPath;
+            var timeStamp = TempData.Peek("timeStamp").ToString();
+            var fileName = "RincianPortofolioEfek_" + timeStamp + ".pdf";
+            var filePath = Path.Combine(directory, fileName);
+            var fileByte = System.IO.File.ReadAllBytes(filePath);
+            System.IO.File.Delete(filePath);
+            return File(fileByte, "application/pdf", fileName);
+        }
+        [HttpPost]
+        public IActionResult LogExportIndexRincianPortofolioEfek()
+        {
+            try
+            {
+                var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+                var currentNode = mdl.GetCurrentNode();
+
+                string pageTitle = currentNode != null ? currentNode.Title : "";
+
+                db.CheckPermission("Detail Cluster MKBD Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+                db.InsertAuditTrail("DetailClusterMKBD_Akses_Page", "Export Data", pageTitle);
+                return Json(new { result = "Success" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { result = db.ProcessExceptionMessage(ex) });
+            }
+        }
+        public IActionResult LogExportPDFRincianPortofolioEfek(IFormFile file)
+        {
+            try
+            {
+                var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+                var currentNode = mdl.GetCurrentNode();
+
+                string pageTitle = currentNode != null ? currentNode.Title : "";
+
+                db.CheckPermission("Detail Cluster MKBD Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+                db.InsertAuditTrail("DetailClusterMKBD_Akses_Page", "Export Data", pageTitle);
+
+                var directory = _env.WebRootPath;
+                var timeStamp = DateTime.Now.ToString();
+                Workbook workbook = new Workbook(file.OpenReadStream());
+
+                foreach (Worksheet worksheet in workbook.Worksheets)
+                {
+                    //prepare logo
+                    string logo_url = Path.Combine(directory, "assets_m\\img\\OJK_Logo.png");
+                    FileStream inFile;
+                    byte[] binaryData;
+                    inFile = new FileStream(logo_url, FileMode.Open, FileAccess.Read);
+                    binaryData = new Byte[inFile.Length];
+                    long bytesRead = inFile.Read(binaryData, 0, (int)inFile.Length);
+
+                    //apply format number
+                    Style textStyle = workbook.CreateStyle();
+                    textStyle.Number = 3;
+                    StyleFlag textFlag = new StyleFlag();
+                    textFlag.NumberFormat = true;
+
+                    worksheet.Cells.Columns[9].ApplyStyle(textStyle, textFlag);
+
+                    //page setup
+                    PageSetup pageSetup = worksheet.PageSetup;
+                    pageSetup.Orientation = PageOrientationType.Landscape;
+                    pageSetup.FitToPagesWide = 1;
+                    pageSetup.FitToPagesTall = 0;
+
+                    //set header
+                    pageSetup.SetHeaderPicture(0, binaryData);
+                    pageSetup.SetHeader(0, "&G");
+                    var img = pageSetup.GetPicture(true, 0);
+                    img.WidthScale = 10;
+                    img.HeightScale = 10;
+
+                    //set footer
+                    pageSetup.SetFooter(0, timeStamp);
+
+                    inFile.Close();
+                }
+
+                timeStamp = timeStamp.Replace('/', '-').Replace(" ", "_").Replace(":", "-");
+                TempData["timeStamp"] = timeStamp;
+                var fileName = "RincianPortofolioEfek_" + timeStamp + ".pdf";
+                workbook.Save(Path.Combine(directory, fileName), SaveFormat.Pdf);
+                return new EmptyResult();
+            }
+            catch (Exception ex)
+            {
+                return Json(new { result = db.ProcessExceptionMessage(ex) });
+            }
+        }
+        #endregion
     }
 }

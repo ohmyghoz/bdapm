@@ -98,8 +98,8 @@
                 <div class="float-right">
                     @if (ViewBag.Export)
                     {
-                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel1();"><span class="image fa fa-file-excel"></span> Export Excel</a>
-                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf1();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcelDetail();"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdfDetail();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
                     }
                 </div>
             </div>
@@ -150,8 +150,8 @@
                 <div class="float-right">
                     @if (ViewBag.Export)
                     {
-                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel2();"><span class="image fa fa-file-excel"></span> Export Excel</a>
-                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcelRincianPortofolioEfek();"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdfRincianPortofolioEfek();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
                     }
                 </div>
             </div>
@@ -241,15 +241,16 @@
 </script>
 
 <script>
-    function ExportToExcel1() {
+
+    function ExportToExcelDetail() {
         $.ajax({
             type: "POST",
-            url: "@Url.Action("LogExportIndex", "SegmentationSummaryClusterMKBD")",
+            url: "@Url.Action("LogExportIndexDetail", "SegmentationSummaryClusterMKBD")",
             success: function (response) {
                 if (response.result == "Success") {
                     var grid = $("#grid1").dxDataGrid("instance");
                     grid.option("onExporting", function (e) {
-                        e.fileName = "MaxMinOverdue_" + new Date().toISOString().slice(0, 10);
+                        e.fileName = "DetilClusterMKBD_" + new Date().toISOString().slice(0, 10);
                     });
                     grid.option("onFileSaving", function (e) { });
                     grid.exportToExcel();
@@ -258,7 +259,7 @@
         });
     }
 
-    function ExportToPdf1() {
+    function ExportToPdfDetail() {
         var dataGrid = $("#grid1").dxDataGrid("instance");
         dataGrid.option("onExporting", function (e) { });
         dataGrid.option("onFileSaving", function (e) {
@@ -266,28 +267,27 @@
             fd.append("file", e.data);
             $.ajax({
                 type: "POST",
-                url: "@Url.Action("ExportPDF", "SegmentationSummaryClusterMKBD")",
+                url: "@Url.Action("LogExportPDFDetail", "SegmentationSummaryClusterMKBD")",
                 data: fd,
                 processData: false,
                 contentType: false
             }).done(function (data) {
-                window.location = "@Url.Action("File", "SegmentationSummaryClusterMKBD")"
+                window.location = "@Url.Action("FileDetail", "SegmentationSummaryClusterMKBD")"
             });
             e.cancel = true;
         });
-
         dataGrid.exportToExcel();
     }
 
-    function ExportToExcel2() {
+    function ExportToExcelRincianPortofolioEfek() {
         $.ajax({
             type: "POST",
-            url: "@Url.Action("LogExportIndex", "SegmentationSummaryClusterMKBD")",
+            url: "@Url.Action("LogExportIndexRincianPortofolioEfek", "SegmentationSummaryClusterMKBD")",
             success: function (response) {
                 if (response.result == "Success") {
                     var grid = $("#grid2").dxDataGrid("instance");
                     grid.option("onExporting", function (e) {
-                        e.fileName = "MaxMinOverdue_" + new Date().toISOString().slice(0, 10);
+                        e.fileName = "RincianPortofolioEfek_" + new Date().toISOString().slice(0, 10);
                     });
                     grid.option("onFileSaving", function (e) { });
                     grid.exportToExcel();
@@ -296,7 +296,7 @@
         });
     }
 
-    function ExportToPdf2() {
+    function ExportToPdfRincianPortofolioEfek() {
         var dataGrid = $("#grid2").dxDataGrid("instance");
         dataGrid.option("onExporting", function (e) { });
         dataGrid.option("onFileSaving", function (e) {
@@ -304,16 +304,15 @@
             fd.append("file", e.data);
             $.ajax({
                 type: "POST",
-                url: "@Url.Action("ExportPDF", "SegmentationSummaryClusterMKBD")",
+                url: "@Url.Action("LogExportPDFRincianPortofolioEfek", "SegmentationSummaryClusterMKBD")",
                 data: fd,
                 processData: false,
                 contentType: false
             }).done(function (data) {
-                window.location = "@Url.Action("File", "SegmentationSummaryClusterMKBD")"
+                window.location = "@Url.Action("FileRincianPortofolioEfek", "SegmentationSummaryClusterMKBD")"
             });
             e.cancel = true;
         });
-
         dataGrid.exportToExcel();
     }
 
@@ -323,6 +322,7 @@
         const periodeAwal = urlParams.get('periodeAwal');
         return periodeAwal
     }
+
     function getIdValue() {
         const queryString = window.location.search;
         const urlParams = new URLSearchParams(queryString);
