@@ -405,28 +405,34 @@ namespace BDA.Controllers
         //-----------------------------Rincian Portofolio-----------------------------------//
 
         //-----------------------------Reksadana-----------------------------------//
-        public IActionResult Reksadana(long? id)
+        public IActionResult Reksadana(DataSourceLoadOptions loadOptions, string id, string periodeAwal)
         {
+            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
             var currentNode = mdl.GetCurrentNode();
-            string pageTitle = currentNode != null ? currentNode.Title : ""; //menampilkan data menu
+            string pageTitle = currentNode != null ? currentNode.Title : "Reksadana"; //menampilkan data menu
 
+            string namaPE = id;
+            string stringPeriodeAwal = null;
+            string stringNamaPE = null;
+
+            if (periodeAwal != null)
+            {
+                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
+                TempData["pawal"] = stringPeriodeAwal;
+            }
+            if (namaPE != null)
+            {
+                stringNamaPE = namaPE;
+                TempData["pe"] = stringNamaPE;
+            }
+
+            db.Database.CommandTimeout = 420;
             db.CheckPermission("Reksadana View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
             ViewBag.Export = db.CheckPermission("Reksadana Export", DataEntities.PermissionMessageType.NoMessage);
             db.InsertAuditTrail("Reksadana_Akses_Page", "Akses Page Reksadana", pageTitle);
 
-            //if (id == null) return BadRequest();
-
-            if (id == null)
-            {
-                id = 1;
-            }
-
-            var obj = (dynamic)null;
-            //var obj = db.BDA_F01_MaxMinOverdue.Find(id);
-            //if (obj == null) return NotFound();
-
-            return View(obj);
+            return View();
         }
         //-----------------------------Reksadana-----------------------------------//
 

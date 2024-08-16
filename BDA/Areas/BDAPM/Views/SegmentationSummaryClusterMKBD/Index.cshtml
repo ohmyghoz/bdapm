@@ -227,6 +227,24 @@
 
 <script>
 
+    $(function() {
+         $("#grid1").dxDataGrid({
+            onCellPrepared: function(e) {
+                if (e.rowType === "data") 
+                {
+                    if (e.data.status === 'Alert') 
+                    {
+                        e.cellElement.css({"color":"white", "background-color":"red"});
+                    }
+                    else if (e.data.status === 'Normal') 
+                    {
+                        e.cellElement.css({"color":"white", "background-color":"green"});
+                    }
+                }
+            }
+        });
+    });
+
     $(function () {
         const startDate = $("#PeriodeAwal").dxDateBox({
             onValueChanged: function (e) {

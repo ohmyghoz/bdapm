@@ -4810,20 +4810,21 @@ namespace BDA.Helper
                 if (tableName == "pe_segmentation_sum_cluster_mkbd")
                 {
                     props.Query = @"
-            select calendardate,securitycompanycode,securitycompanyname,
-                cast(cast(simpanangiro as BIGINT)  as string) as simpanangiro,
-                cast(cast(depositolt3bulan as BIGINT)  as string) as depositolt3bulan,
-                cast(cast(depositogt3bulandijaminlps as BIGINT)  as string) as depositogt3bulandijaminlps,
-                cast(cast(uangjaminanlkp as BIGINT)  as string) as uangjaminanlkp,
-                cast(cast(kasdansetarakas as BIGINT)  as string) as kasdansetarakas,
-                cast(cast(mkbd as BIGINT)  as string) as mkbd,
-                cast(cast(mkbdminimum as BIGINT)  as string) as mkbdminimum,mkbdpermkbdminimum,
-                case 
-                    when cast(cast(kasdansetarakas as BIGINT)  as string) < cast(cast(mkbdminimum as BIGINT)  as string) then 'Alert'
-                    when cast(cast(kasdansetarakas as BIGINT)  as string) > cast(cast(mkbdminimum as BIGINT)  as string) then 'Normal'
-                END AS status,periode
-                From pasarmodal.pe_segmentation_sum_cluster_mkbd
-            WHERE " + whereQuery + @"";
+                    Select row_number() over(partition by securitycompanycode order by securitycompanycode asc) as no,* from (
+                    select calendardate,securitycompanycode,securitycompanyname,
+                        cast(cast(simpanangiro as BIGINT)  as string) as simpanangiro,
+                        cast(cast(depositolt3bulan as BIGINT)  as string) as depositolt3bulan,
+                        cast(cast(depositogt3bulandijaminlps as BIGINT)  as string) as depositogt3bulandijaminlps,
+                        cast(cast(uangjaminanlkp as BIGINT)  as string) as uangjaminanlkp,
+                        cast(cast(kasdansetarakas as BIGINT)  as string) as kasdansetarakas,
+                        cast(cast(mkbd as BIGINT)  as string) as mkbd,
+                        cast(cast(mkbdminimum as BIGINT)  as string) as mkbdminimum,mkbdpermkbdminimum,
+                        case 
+                            when cast(cast(kasdansetarakas as BIGINT)  as string) < cast(cast(mkbdminimum as BIGINT)  as string) then 'Alert'
+                            when cast(cast(kasdansetarakas as BIGINT)  as string) > cast(cast(mkbdminimum as BIGINT)  as string) then 'Normal'
+                        END AS status,periode
+                        From dbo." + tableName + @") as x
+                WHERE " + whereQuery + @"";
                 }
             }
             else
@@ -4831,14 +4832,14 @@ namespace BDA.Helper
                 if (tableName == "pe_segmentation_sum_cluster_mkbd")
                 {
                     props.Query = @"
-                                    Select row_number() over(order by securitycompanycode) as no,* from (
-                                    select calendardate,securitycompanycode,securitycompanyname,simpanangiro,depositolt3bulan,depositogt3bulandijaminlps,uangjaminanlkp,kasdansetarakas,mkbd,mkbdminimum,mkbdpermkbdminimum,
-                                        case 
-                                            when kasdansetarakas < mkbdminimum then 'Alert'
-                                            when kasdansetarakas > mkbdminimum then 'Normal'
-                                        END AS Status,periode
-                                        From dbo." + tableName + @") as x
-                                    WHERE " + whereQuery + @"";
+                    Select row_number() over(order by securitycompanycode) as no,* from (
+                    select calendardate,securitycompanycode,securitycompanyname,simpanangiro,depositolt3bulan,depositogt3bulandijaminlps,uangjaminanlkp,kasdansetarakas,mkbd,mkbdminimum,mkbdpermkbdminimum,
+                        case 
+                            when kasdansetarakas < mkbdminimum then 'Alert'
+                            when kasdansetarakas > mkbdminimum then 'Normal'
+                        END AS Status,periode
+                        From dbo." + tableName + @") as x
+                    WHERE " + whereQuery + @"";
                 }
             }
 
@@ -4867,9 +4868,8 @@ namespace BDA.Helper
                 if (tableName == "pe_segmentation_bridging_detail")
                 {
                     props.Query = @"
-                        select  concat_ws('~', cast(dm_periode as string), regexp_replace(dm_jenis_ljk,'/','>'), dm_kode_ljk,'',dm_cif) AS lem,concat_ws('~','n', cast(dm_periode as string), regexp_replace(dm_jenis_ljk,'/','>'), dm_kode_ljk,'',dm_cif) AS idcif,concat_ws('~','p', cast(dm_periode as string), regexp_replace(dm_jenis_ljk,'/','>'), dm_kode_ljk,'',dm_id_pengurus_pemilik) AS idpeng,* from dbo." + tableName + @" x
-                        WHERE " + whereQuery + @"	                
-                        ";
+                        select * from dbo." + tableName + @" x
+                        WHERE " + whereQuery + @"";
                 }
             }
             else
@@ -4907,9 +4907,8 @@ namespace BDA.Helper
                 if (tableName == "pe_segmentation_det_portofolio_saham")
                 {
                     props.Query = @"
-                        select  concat_ws('~', cast(dm_periode as string), regexp_replace(dm_jenis_ljk,'/','>'), dm_kode_ljk,'',dm_cif) AS lem,concat_ws('~','n', cast(dm_periode as string), regexp_replace(dm_jenis_ljk,'/','>'), dm_kode_ljk,'',dm_cif) AS idcif,concat_ws('~','p', cast(dm_periode as string), regexp_replace(dm_jenis_ljk,'/','>'), dm_kode_ljk,'',dm_id_pengurus_pemilik) AS idpeng,* from dbo." + tableName + @" x
-                        WHERE " + whereQuery + @"	                
-                        ";
+                        select row_number() over(partition by securitycompanycode order by securitycompanycode asc) as no, * from dbo." + tableName + @" x
+                        WHERE " + whereQuery + @"";
                 }
             }
             else
@@ -4947,9 +4946,8 @@ namespace BDA.Helper
                 if (tableName == "pe_segmentation_det_portofolio_saham_sum")
                 {
                     props.Query = @"
-                        select  concat_ws('~', cast(dm_periode as string), regexp_replace(dm_jenis_ljk,'/','>'), dm_kode_ljk,'',dm_cif) AS lem,concat_ws('~','n', cast(dm_periode as string), regexp_replace(dm_jenis_ljk,'/','>'), dm_kode_ljk,'',dm_cif) AS idcif,concat_ws('~','p', cast(dm_periode as string), regexp_replace(dm_jenis_ljk,'/','>'), dm_kode_ljk,'',dm_id_pengurus_pemilik) AS idpeng,* from dbo." + tableName + @" x
-                        WHERE " + whereQuery + @"	                
-                        ";
+                        select * from dbo." + tableName + @" x
+                        WHERE " + whereQuery + @"";
                 }
             }
             else
