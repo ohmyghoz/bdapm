@@ -131,6 +131,7 @@
             </div>
         </div>
         <br />
+        <br />
         @*grid*@
         <div class="gridview-div">
             @(Html.DevExtreme().DataGrid()
@@ -149,16 +150,17 @@
                 .Columns(columns =>
                 {
                     columns.Add().DataField("no").Caption("No.").Alignment(HorizontalAlignment.Center);
-                    columns.Add().DataField("securitycompanycode").Caption("Kode PE");
-                    columns.Add().DataField("securitycompanyname").Caption("Nama PE").Width(300); 
-                    columns.Add().DataField("simpanangiro").Caption("Simpanan Giro");
-                    columns.Add().DataField("depositolt3bulan").Caption("Deposito < 3 Bulan");
-                    columns.Add().DataField("depositogt3bulandijaminlps").Caption("Deposito > 3 Bulan Dijamin LPS");
-                    columns.Add().DataField("uangjaminanlkp").Caption("Uang Jaminan LKP").Format("#,##0");
-                    columns.Add().DataField("kasdansetarakas").Caption("Kas dan Setara Kas (Simpanan Giro + Deposito < 3 Bulan + Uang Jaminan LKP)").Format("#,##0");
-                    columns.Add().DataField("mkbd").Caption("MKBD").Format("#,##0");
-                    columns.Add().DataField("mkbdminimum").Caption("MKBD Minimum").Format("#,##0");
-                    columns.Add().DataField("mkbdpermkbdminimum").Caption("MKBD Terhadap MKBD Minimum");
+                    columns.Add().DataField("securitycompanycode").Caption("Kode PE").Alignment(HorizontalAlignment.Center);
+                    columns.Add().DataField("securitycompanyname").Caption("Nama PE").Width(300);
+                    columns.Add().DataField("simpanangiro").Caption("Simpanan Giro").Alignment(HorizontalAlignment.Right).Format("#,##0");
+                    columns.Add().DataField("depositolt3bulan").Caption("Deposito < 3 Bulan").Alignment(HorizontalAlignment.Right).Format("#,##0");
+                    columns.Add().DataField("depositogt3bulandijaminlps").Caption("Deposito > 3 Bulan Dijamin LPS").Alignment(HorizontalAlignment.Right).Format("#,##0");
+                    columns.Add().DataField("uangjaminanlkp").Caption("Uang Jaminan LKP").Format("#,##0").Alignment(HorizontalAlignment.Right);
+                    columns.Add().DataField("kasdansetarakas").Caption("Kas dan Setara Kas (Simpanan Giro + Deposito < 3 Bulan + Uang Jaminan LKP)").Format("#,##0").Alignment(HorizontalAlignment.Right);
+                    columns.Add().DataField("mkbd").Caption("MKBD").Format("#,##0").Alignment(HorizontalAlignment.Right);
+                    columns.Add().DataField("mkbdminimum").Caption("MKBD Minimum").Format("#,##0").Alignment(HorizontalAlignment.Right);
+                    columns.Add().DataField("mkbdpermkbdminimum").Caption("MKBD Terhadap MKBD Minimum").Alignment(HorizontalAlignment.Right).Format("#,##0");
+                    @* columns.Add().DataField("status").Caption("Status"); *@
                     columns.Add().DataField("status").Visible(false);
                     columns.Add().Type(GridCommandColumnType.Buttons).Caption("Action").Buttons(b =>
                     {
@@ -226,24 +228,39 @@
 </script>
 
 <script>
-
-    $(function() {
-         $("#grid1").dxDataGrid({
-            onCellPrepared: function(e) {
-                if (e.rowType === "data") 
-                {
-                    if (e.data.status === 'Alert') 
-                    {
-                        e.cellElement.css({"color":"white", "background-color":"red"});
+    $(function () {
+        $("#grid1").dxDataGrid({
+            onCellPrepared: function (e) {
+                if (e.rowType === "data") {
+                    if (e.column.dataField === "no") {
+                        e.cellElement.css({ "color": "black", "background-color": "white" });
                     }
-                    else if (e.data.status === 'Normal') 
-                    {
-                        e.cellElement.css({"color":"white", "background-color":"green"});
+                    if (e.column.dataField === "securitycompanycode") {
+                        e.cellElement.css({ "color": "black", "background-color": "white" });
+                    }
+                    if (e.column.dataField === "securitycompanyname") {
+                        e.cellElement.css({ "color": "black", "background-color": "white" });
                     }
                 }
             }
         });
     });
+
+    $(function () {
+        $("#grid1").dxDataGrid({
+            onRowPrepared: function (e) {
+                if (e.rowType === "data") {
+                    if (e.data.status === "Alert") {
+                        e.rowElement.css({ "color": "black", "background-color": "red" });
+                    }else{
+                        e.rowElement.css({ "color": "black", "background-color": "green" });
+                    }
+                }
+            }
+        });
+    });
+
+    
 
     $(function () {
         const startDate = $("#PeriodeAwal").dxDateBox({

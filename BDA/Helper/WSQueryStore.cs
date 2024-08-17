@@ -4837,7 +4837,7 @@ namespace BDA.Helper
                         case 
                             when kasdansetarakas < mkbdminimum then 'Alert'
                             when kasdansetarakas > mkbdminimum then 'Normal'
-                        END AS Status,periode
+                        END AS status,periode
                         From dbo." + tableName + @") as x
                     WHERE " + whereQuery + @"";
                 }
@@ -4953,6 +4953,84 @@ namespace BDA.Helper
             else
             {
                 if (tableName == "pe_segmentation_det_portofolio_saham_sum")
+                {
+                    props.Query = @"
+                        select * from dbo." + tableName + @" x
+                        WHERE " + whereQuery + @"";
+                }
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMSegmentationSummaryClusterMKBDQueryReksadana(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string periodes, string stringPE, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            //isHive = true;
+
+            if (periodes != null)
+            {
+                periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND calendardate in (" + periodes + ")";
+            }
+            if (stringPE != null)
+            {
+                stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND securitycompanycode in (" + stringPE + ")";
+            }
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "pe_segmentation_det_reksa_dana")
+                {
+                    props.Query = @"
+                        select * from dbo." + tableName + @" x
+                        WHERE " + whereQuery + @"";
+                }
+            }
+            else
+            {
+                if (tableName == "pe_segmentation_det_reksa_dana")
+                {
+                    props.Query = @"
+                        select * from dbo." + tableName + @" x
+                        WHERE " + whereQuery + @"";
+                }
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMSegmentationSummaryClusterMKBDQueryReksadanaDetailSummary(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string periodes, string stringPE, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            //isHive = true;
+
+            if (periodes != null)
+            {
+                periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND calendardate in (" + periodes + ")";
+            }
+            if (stringPE != null)
+            {
+                stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND securitycompanycode in (" + stringPE + ")";
+            }
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "pe_segmentation_det_reksa_dana_sum")
+                {
+                    props.Query = @"
+                        select * from dbo." + tableName + @" x
+                        WHERE " + whereQuery + @"";
+                }
+            }
+            else
+            {
+                if (tableName == "pe_segmentation_det_reksa_dana_sum")
                 {
                     props.Query = @"
                         select * from dbo." + tableName + @" x
