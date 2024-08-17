@@ -104,7 +104,40 @@ namespace BDA.Controllers
             }
             return DataSourceLoader.Load(new List<string>(), loadOptions);
         }
+        public object GetChartCluster(DataSourceLoadOptions loadOptions)
+        {
+            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+            TempData.Clear(); //membersihkan data filtering
+           
+            string stringPeriodeAwal = null;
+            string reportId = "pe_segmentation_sum_cluster_mkbd"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
 
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+
+            stringPeriodeAwal = Convert.ToDateTime(DateTime.Now).ToString("yyyy-MM-dd");
+            TempData["pawal"] = stringPeriodeAwal;
+
+            db.Database.CommandTimeout = 420;
+            var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryGetChartCluster(db, loadOptions, reportId, stringPeriodeAwal, cekHive);
+            return JsonConvert.SerializeObject(result);
+        }
+        public object GetChartClusterBar(DataSourceLoadOptions loadOptions)
+        {
+            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+            TempData.Clear(); //membersihkan data filtering
+
+            string stringPeriodeAwal = null;
+            string reportId = "pe_segmentation_sum_cluster_mkbd"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+
+            stringPeriodeAwal = Convert.ToDateTime(DateTime.Now).ToString("yyyy-MM-dd");
+            TempData["pawal"] = stringPeriodeAwal;
+
+            db.Database.CommandTimeout = 420;
+            var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryGetChartClusterBar(db, loadOptions, reportId, stringPeriodeAwal, cekHive);
+            return JsonConvert.SerializeObject(result);
+        }
         public object GetGridDataDetail(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE)
         {
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;

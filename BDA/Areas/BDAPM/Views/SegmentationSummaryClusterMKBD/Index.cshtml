@@ -84,6 +84,17 @@
                     .Type(PieChartType.Donut)
                     .Palette(VizPalette.SoftPastel)
                     .Title("Jumlah Cluster")
+                    .Tooltip(t => t
+                    .Enabled(true)
+                    .Format(Format.Millions)
+                    .CustomizeTooltip(@<text>
+                    function(arg) {
+                    return {
+                    text: arg.valueText + " - " + (arg.percent * 100).toFixed(2) + "%"
+                    };
+                }
+            </text>)
+                    )
                     .Legend(l => l
                     .HorizontalAlignment(HorizontalAlignment.Right)
                     .VerticalAlignment(VerticalEdge.Top)
@@ -92,19 +103,21 @@
                     .Export(e => e.Enabled(true))
                     .Series(s => s
                     .Add()
-                    .ArgumentField("Country")
-                    .ValueField("Medals")
-                    .HoverStyle(h => h.Color("#ffd700"))
-                    )
+                    .ArgumentField("status")
+                    .ValueField("Total")
+                    .Label(l => l
+                    .Visible(true)
+                    .Format(Format.Millions)
+                    .Connector(c => c.Visible(true))
+                    ))
                     .OnPointClick(@<text>
                 function(arg) {
                 arg.target.select();
                 }
             </text>)
-                    .DataSource(new[] {
-            new { Country = "Normal", Medals = 110 },
-            new { Country = "Alert", Medals = 100 },
-            })
+                    .DataSource(d => d.Mvc()
+                    .Controller("SegmentationSummaryClusterMKBD")
+                    .LoadAction("GetChartCluster"))
                     )
             </div>
 
@@ -114,18 +127,15 @@
                     .Title("Cluster PE Berdasarkan Persentase MKBD dibandingkan MKBD Dipersyaratkan")
                     .Series(s => s
                     .Add()
-                    .ArgumentField("Day")
-                    .ValueField("Oranges")
-                    .Name("My oranges")
+                    .ArgumentField("cluster")
+                    .ValueField("Total")
+                    .Name("Cluster PE")
                     .Type(SeriesType.Bar)
                     .Color("#ffaa66")
                     )
-                    .DataSource(new[] {
-            new { Day = "< 100%", Oranges = 3 },
-            new { Day = "100% s/d 119%", Oranges = 2 },
-            new { Day = "200% s/d 499%", Oranges = 3 },
-            new { Day = "> 500%", Oranges = 4 }
-            })
+                    .DataSource(d => d.Mvc()
+                    .Controller("SegmentationSummaryClusterMKBD")
+                    .LoadAction("GetChartClusterBar"))
                     )
 
             </div>
