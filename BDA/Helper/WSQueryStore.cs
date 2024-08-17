@@ -5040,5 +5040,83 @@ namespace BDA.Helper
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
         }
+        public static WSQueryReturns GetBDAPMSegmentationSummaryClusterMKBDQueryJaminanMargin(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string periodes, string stringPE, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            //isHive = true;
+
+            if (periodes != null)
+            {
+                periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND calendardate in (" + periodes + ")";
+            }
+            if (stringPE != null)
+            {
+                stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND securitycompanycode in (" + stringPE + ")";
+            }
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "pe_segmentation_det_jaminan_margin")
+                {
+                    props.Query = @"
+                        Select row_number() over(partition by securitycompanycode order by securitycompanycode asc) as no, * from dbo." + tableName + @" x
+                        WHERE " + whereQuery + @"";
+                }
+            }
+            else
+            {
+                if (tableName == "pe_segmentation_det_jaminan_margin")
+                {
+                    props.Query = @"
+                        Select row_number() over(order by securitycompanycode) as no, * from dbo." + tableName + @" x
+                        WHERE " + whereQuery + @"";
+                }
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMSegmentationSummaryClusterMKBDQueryJaminanMarginDetailSummary(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string periodes, string stringPE, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            //isHive = true;
+
+            if (periodes != null)
+            {
+                periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND calendardate in (" + periodes + ")";
+            }
+            if (stringPE != null)
+            {
+                stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND securitycompanycode in (" + stringPE + ")";
+            }
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "pe_segmentation_det_jaminan_margin_sum")
+                {
+                    props.Query = @"
+                        select * from dbo." + tableName + @" x
+                        WHERE " + whereQuery + @"";
+                }
+            }
+            else
+            {
+                if (tableName == "pe_segmentation_det_jaminan_margin_sum")
+                {
+                    props.Query = @"
+                        select * from dbo." + tableName + @" x
+                        WHERE " + whereQuery + @"";
+                }
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
     }
 }

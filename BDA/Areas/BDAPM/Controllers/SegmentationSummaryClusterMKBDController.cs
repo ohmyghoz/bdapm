@@ -344,6 +344,86 @@ namespace BDA.Controllers
                 return JsonConvert.SerializeObject(result);
             }
         }
+        public object GetGridDataJaminanMargin(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE)
+        {
+            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+            TempData.Clear(); //membersihkan data filtering
+
+            string stringPeriodeAwal = null;
+            string stringNamaPE = null;
+            string reportId = "pe_segmentation_det_jaminan_margin"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+
+            if (periodeAwal != null)
+            {
+                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
+                TempData["pawal"] = stringPeriodeAwal;
+            }
+            else
+            {
+                stringPeriodeAwal = Convert.ToDateTime(DateTime.Now).ToString("yyyy-MM-dd");
+                TempData["pawal"] = stringPeriodeAwal;
+            }
+
+            if (namaPE != null)
+            {
+                stringNamaPE = namaPE;
+                TempData["pe"] = stringNamaPE;
+            }
+
+            db.Database.CommandTimeout = 420;
+            if (periodeAwal != null) //jika ada parameter nya
+            {
+                var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryJaminanMargin(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, cekHive);
+                return JsonConvert.SerializeObject(result);
+            }
+            else
+            {
+                var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryJaminanMargin(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, cekHive);
+                return JsonConvert.SerializeObject(result);
+            }
+        }
+        public object GetGridDataJaminanMarginDetailSummary(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE)
+        {
+            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+            TempData.Clear(); //membersihkan data filtering
+
+            string stringPeriodeAwal = null;
+            string stringNamaPE = null;
+            string reportId = "pe_segmentation_det_jaminan_margin_sum"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+
+            if (periodeAwal != null)
+            {
+                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
+                TempData["pawal"] = stringPeriodeAwal;
+            }
+            else
+            {
+                stringPeriodeAwal = Convert.ToDateTime(DateTime.Now).ToString("yyyy-MM-dd");
+                TempData["pawal"] = stringPeriodeAwal;
+            }
+
+            if (namaPE != null)
+            {
+                stringNamaPE = namaPE;
+                TempData["pe"] = stringNamaPE;
+            }
+
+            db.Database.CommandTimeout = 420;
+            if (periodeAwal != null) //jika ada parameter nya
+            {
+                var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryJaminanMarginDetailSummary(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, cekHive);
+                return JsonConvert.SerializeObject(result);
+            }
+            else
+            {
+                var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryJaminanMarginDetailSummary(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, cekHive);
+                return JsonConvert.SerializeObject(result);
+            }
+        }
         [HttpPost]
         public ActionResult SimpanPenggunaanData(string id)
         {
@@ -517,28 +597,34 @@ namespace BDA.Controllers
         //-----------------------------Reksadana-----------------------------------//
 
         //-----------------------------JaminanMargin-----------------------------------//
-        public IActionResult JaminanMargin(long? id)
+        public IActionResult JaminanMargin(DataSourceLoadOptions loadOptions, string id, string periodeAwal)
         {
+            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
             var currentNode = mdl.GetCurrentNode();
-            string pageTitle = currentNode != null ? currentNode.Title : ""; //menampilkan data menu
+            string pageTitle = currentNode != null ? currentNode.Title : "Jaminan Margin"; //menampilkan data menu
 
+            string namaPE = id;
+            string stringPeriodeAwal = null;
+            string stringNamaPE = null;
+
+            if (periodeAwal != null)
+            {
+                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
+                TempData["pawal"] = stringPeriodeAwal;
+            }
+            if (namaPE != null)
+            {
+                stringNamaPE = namaPE;
+                TempData["pe"] = stringNamaPE;
+            }
+
+            db.Database.CommandTimeout = 420;
             db.CheckPermission("Jaminan Margin View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
             ViewBag.Export = db.CheckPermission("Jaminan Margin Export", DataEntities.PermissionMessageType.NoMessage);
             db.InsertAuditTrail("Jaminan_Margin_Akses_Page", "Akses Page Jaminan Margin", pageTitle);
 
-            //if (id == null) return BadRequest();
-
-            if (id == null)
-            {
-                id = 1;
-            }
-
-            var obj = (dynamic)null;
-            //var obj = db.BDA_F01_MaxMinOverdue.Find(id);
-            //if (obj == null) return NotFound();
-
-            return View(obj);
+            return View();
         }
         //-----------------------------JaminanMargin-----------------------------------//
 
@@ -1137,6 +1223,198 @@ namespace BDA.Controllers
                 return Json(new { result = db.ProcessExceptionMessage(ex) });
             }
         }
+
+
+
+        public FileResult FileJaminanMargin()
+        {
+            var directory = _env.WebRootPath;
+            var timeStamp = TempData.Peek("timeStamp").ToString();
+            var fileName = "JaminanMargin_" + timeStamp + ".pdf";
+            var filePath = Path.Combine(directory, fileName);
+            var fileByte = System.IO.File.ReadAllBytes(filePath);
+            System.IO.File.Delete(filePath);
+            return File(fileByte, "application/pdf", fileName);
+        }
+        [HttpPost]
+        public IActionResult LogExportIndexJaminanMargin()
+        {
+            try
+            {
+                var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+                var currentNode = mdl.GetCurrentNode();
+
+                string pageTitle = currentNode != null ? currentNode.Title : "";
+
+                db.CheckPermission("Jaminan Margin Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+                db.InsertAuditTrail("JaminanMargin_Akses_Page", "Export Data", pageTitle);
+                return Json(new { result = "Success" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { result = db.ProcessExceptionMessage(ex) });
+            }
+        }
+        public IActionResult LogExportPDFJaminanMargin(IFormFile file)
+        {
+            try
+            {
+                var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+                var currentNode = mdl.GetCurrentNode();
+
+                string pageTitle = currentNode != null ? currentNode.Title : "";
+
+                db.CheckPermission("Jaminan Margin Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+                db.InsertAuditTrail("JaminanMargin_Akses_Page", "Export Data", pageTitle);
+
+                var directory = _env.WebRootPath;
+                var timeStamp = DateTime.Now.ToString();
+                Workbook workbook = new Workbook(file.OpenReadStream());
+
+                foreach (Worksheet worksheet in workbook.Worksheets)
+                {
+                    //prepare logo
+                    string logo_url = Path.Combine(directory, "assets_m\\img\\OJK_Logo.png");
+                    FileStream inFile;
+                    byte[] binaryData;
+                    inFile = new FileStream(logo_url, FileMode.Open, FileAccess.Read);
+                    binaryData = new Byte[inFile.Length];
+                    long bytesRead = inFile.Read(binaryData, 0, (int)inFile.Length);
+
+                    //apply format number
+                    Style textStyle = workbook.CreateStyle();
+                    textStyle.Number = 3;
+                    StyleFlag textFlag = new StyleFlag();
+                    textFlag.NumberFormat = true;
+
+                    worksheet.Cells.Columns[9].ApplyStyle(textStyle, textFlag);
+
+                    //page setup
+                    PageSetup pageSetup = worksheet.PageSetup;
+                    pageSetup.Orientation = PageOrientationType.Landscape;
+                    pageSetup.FitToPagesWide = 1;
+                    pageSetup.FitToPagesTall = 0;
+
+                    //set header
+                    pageSetup.SetHeaderPicture(0, binaryData);
+                    pageSetup.SetHeader(0, "&G");
+                    var img = pageSetup.GetPicture(true, 0);
+                    img.WidthScale = 10;
+                    img.HeightScale = 10;
+
+                    //set footer
+                    pageSetup.SetFooter(0, timeStamp);
+
+                    inFile.Close();
+                }
+
+                timeStamp = timeStamp.Replace('/', '-').Replace(" ", "_").Replace(":", "-");
+                TempData["timeStamp"] = timeStamp;
+                var fileName = "JaminanMargin_" + timeStamp + ".pdf";
+                workbook.Save(Path.Combine(directory, fileName), SaveFormat.Pdf);
+                return new EmptyResult();
+            }
+            catch (Exception ex)
+            {
+                return Json(new { result = db.ProcessExceptionMessage(ex) });
+            }
+        }
+
+        public FileResult FileJaminanMarginDetailSummary()
+        {
+            var directory = _env.WebRootPath;
+            var timeStamp = TempData.Peek("timeStamp").ToString();
+            var fileName = "JaminanMarginDetailSummary_" + timeStamp + ".pdf";
+            var filePath = Path.Combine(directory, fileName);
+            var fileByte = System.IO.File.ReadAllBytes(filePath);
+            System.IO.File.Delete(filePath);
+            return File(fileByte, "application/pdf", fileName);
+        }
+        [HttpPost]
+        public IActionResult LogExportIndexJaminanMarginDetailSummary()
+        {
+            try
+            {
+                var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+                var currentNode = mdl.GetCurrentNode();
+
+                string pageTitle = currentNode != null ? currentNode.Title : "";
+
+                db.CheckPermission("Jaminan Margin Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+                db.InsertAuditTrail("JaminanMargin_Akses_Page", "Export Data", pageTitle);
+                return Json(new { result = "Success" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { result = db.ProcessExceptionMessage(ex) });
+            }
+        }
+        public IActionResult LogExportPDFJaminanMarginDetailSummary(IFormFile file)
+        {
+            try
+            {
+                var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+                var currentNode = mdl.GetCurrentNode();
+
+                string pageTitle = currentNode != null ? currentNode.Title : "";
+
+                db.CheckPermission("Jaminan Margin Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+                db.InsertAuditTrail("JaminanMargin_Akses_Page", "Export Data", pageTitle);
+
+                var directory = _env.WebRootPath;
+                var timeStamp = DateTime.Now.ToString();
+                Workbook workbook = new Workbook(file.OpenReadStream());
+
+                foreach (Worksheet worksheet in workbook.Worksheets)
+                {
+                    //prepare logo
+                    string logo_url = Path.Combine(directory, "assets_m\\img\\OJK_Logo.png");
+                    FileStream inFile;
+                    byte[] binaryData;
+                    inFile = new FileStream(logo_url, FileMode.Open, FileAccess.Read);
+                    binaryData = new Byte[inFile.Length];
+                    long bytesRead = inFile.Read(binaryData, 0, (int)inFile.Length);
+
+                    //apply format number
+                    Style textStyle = workbook.CreateStyle();
+                    textStyle.Number = 3;
+                    StyleFlag textFlag = new StyleFlag();
+                    textFlag.NumberFormat = true;
+
+                    worksheet.Cells.Columns[9].ApplyStyle(textStyle, textFlag);
+
+                    //page setup
+                    PageSetup pageSetup = worksheet.PageSetup;
+                    pageSetup.Orientation = PageOrientationType.Landscape;
+                    pageSetup.FitToPagesWide = 1;
+                    pageSetup.FitToPagesTall = 0;
+
+                    //set header
+                    pageSetup.SetHeaderPicture(0, binaryData);
+                    pageSetup.SetHeader(0, "&G");
+                    var img = pageSetup.GetPicture(true, 0);
+                    img.WidthScale = 10;
+                    img.HeightScale = 10;
+
+                    //set footer
+                    pageSetup.SetFooter(0, timeStamp);
+
+                    inFile.Close();
+                }
+
+                timeStamp = timeStamp.Replace('/', '-').Replace(" ", "_").Replace(":", "-");
+                TempData["timeStamp"] = timeStamp;
+                var fileName = "JaminanMarginDetailSummary_" + timeStamp + ".pdf";
+                workbook.Save(Path.Combine(directory, fileName), SaveFormat.Pdf);
+                return new EmptyResult();
+            }
+            catch (Exception ex)
+            {
+                return Json(new { result = db.ProcessExceptionMessage(ex) });
+            }
+        }
+
+
 
         #endregion
     }
