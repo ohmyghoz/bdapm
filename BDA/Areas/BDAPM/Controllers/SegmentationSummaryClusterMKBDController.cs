@@ -149,7 +149,6 @@ namespace BDA.Controllers
                                 }).OrderBy(bs => bs.urut).ToList();
             return JsonConvert.SerializeObject(varDataList);
         }
-
         public object GetGridDataDetail(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE)
         {
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
@@ -786,7 +785,7 @@ namespace BDA.Controllers
         }
         //-----------------------------ReverseRepo-----------------------------------//
 
-        #region Export
+        #region Export Detail
         public FileResult FileDetail()
         {
             var directory = _env.WebRootPath;
@@ -882,7 +881,6 @@ namespace BDA.Controllers
         }
 
 
-
         public FileResult FileRincianPortofolioEfek()
         {
             var directory = _env.WebRootPath;
@@ -976,8 +974,9 @@ namespace BDA.Controllers
                 return Json(new { result = db.ProcessExceptionMessage(ex) });
             }
         }
+        #endregion
 
-
+        #region Export Rincian Portofolio
         public FileResult FileRincianPortofolio()
         {
             var directory = _env.WebRootPath;
@@ -1165,8 +1164,9 @@ namespace BDA.Controllers
                 return Json(new { result = db.ProcessExceptionMessage(ex) });
             }
         }
+        #endregion
 
-
+        #region Export Reksadana
         public FileResult FileReksadana()
         {
             var directory = _env.WebRootPath;
@@ -1354,9 +1354,9 @@ namespace BDA.Controllers
                 return Json(new { result = db.ProcessExceptionMessage(ex) });
             }
         }
+        #endregion
 
-
-
+        #region Export Jaminan Margin
         public FileResult FileJaminanMargin()
         {
             var directory = _env.WebRootPath;
@@ -1544,9 +1544,9 @@ namespace BDA.Controllers
                 return Json(new { result = db.ProcessExceptionMessage(ex) });
             }
         }
+        #endregion
 
-
-
+        #region Export Reverse Repo
         public FileResult FileReverseRepo()
         {
             var directory = _env.WebRootPath;
@@ -1734,9 +1734,6 @@ namespace BDA.Controllers
                 return Json(new { result = db.ProcessExceptionMessage(ex) });
             }
         }
-
-
-
         #endregion
     }
 }
