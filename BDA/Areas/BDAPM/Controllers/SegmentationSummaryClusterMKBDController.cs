@@ -23,6 +23,9 @@ using System.Xml.Linq;
 using static DevExpress.Xpo.Helpers.AssociatedCollectionCriteriaHelper;
 using Ionic.Zip;
 using System.Web;
+using System.Reflection;
+using DevExpress.Xpo.DB;
+using DevExpress.Charts.Native;
 
 namespace BDA.Controllers
 {
@@ -136,8 +139,17 @@ namespace BDA.Controllers
 
             db.Database.CommandTimeout = 420;
             var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryGetChartClusterBar(db, loadOptions, reportId, stringPeriodeAwal, cekHive);
-            return JsonConvert.SerializeObject(result);
+            var varDataList = (dynamic)null;
+            varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                                select new
+                                {
+                                    cluster = bs.Field<string>("cluster").ToString(),
+                                    total = bs.Field<Int32>("total").ToString(),
+                                    urut = bs.Field<string>("urut").ToString(),
+                                }).OrderBy(bs => bs.urut).ToList();
+            return JsonConvert.SerializeObject(varDataList);
         }
+
         public object GetGridDataDetail(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE)
         {
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;

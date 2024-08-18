@@ -82,19 +82,8 @@
                 @(Html.DevExtreme().PieChart()
                     .ID("pie")
                     .Type(PieChartType.Donut)
-                    .Palette(VizPalette.SoftPastel)
+                    .Palette(VizPalette.Carmine)
                     .Title("Jumlah Cluster")
-                    .Tooltip(t => t
-                    .Enabled(true)
-                    .Format(Format.Millions)
-                    .CustomizeTooltip(@<text>
-                    function(arg) {
-                    return {
-                    text: arg.valueText + " - " + (arg.percent * 100).toFixed(2) + "%"
-                    };
-                }
-            </text>)
-                    )
                     .Legend(l => l
                     .HorizontalAlignment(HorizontalAlignment.Right)
                     .VerticalAlignment(VerticalEdge.Top)
@@ -104,17 +93,11 @@
                     .Series(s => s
                     .Add()
                     .ArgumentField("status")
-                    .ValueField("Total")
+                    .ValueField("total")
                     .Label(l => l
-                    .Visible(true)
-                    .Format(Format.Millions)
+                    .Visible(true)                   
                     .Connector(c => c.Visible(true))
                     ))
-                    .OnPointClick(@<text>
-                function(arg) {
-                arg.target.select();
-                }
-            </text>)
                     .DataSource(d => d.Mvc()
                     .Controller("SegmentationSummaryClusterMKBD")
                     .LoadAction("GetChartCluster"))
@@ -128,16 +111,20 @@
                     .Series(s => s
                     .Add()
                     .ArgumentField("cluster")
-                    .ValueField("Total")
+                    .ValueField("total")
                     .Name("Cluster PE")
                     .Type(SeriesType.Bar)
-                    .Color("#ffaa66")
-                    )
+                    .Color("#f5403d")
+                    .Label(l => l
+                    .Visible(true)
+                    .Format(f => f
+                    .Type(Format.FixedPoint)
+                    .Precision(0)
+                    )))
                     .DataSource(d => d.Mvc()
                     .Controller("SegmentationSummaryClusterMKBD")
                     .LoadAction("GetChartClusterBar"))
                     )
-
             </div>
         </div>
         <br />
@@ -261,9 +248,9 @@
             onRowPrepared: function (e) {
                 if (e.rowType === "data") {
                     if (e.data.status === "Alert") {
-                        e.rowElement.css({ "color": "black", "background-color": "red" });
+                        e.rowElement.css({ "color": "black", "background-color": "#fb7764" });
                     }else{
-                        e.rowElement.css({ "color": "black", "background-color": "green" });
+                        e.rowElement.css({ "color": "black", "background-color": "#73d47f" });
                     }
                 }
             }

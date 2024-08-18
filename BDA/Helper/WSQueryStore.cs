@@ -3,9 +3,11 @@ using BDA.Helper.FW;
 using DevExtreme.AspNet.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 
 namespace BDA.Helper
 {
@@ -4885,7 +4887,7 @@ namespace BDA.Helper
                 if (tableName == "pe_segmentation_sum_cluster_mkbd")
                 {
                     props.Query = @"
-                   Select status,COUNT(status) Total from (
+                   Select status,COUNT(status) total from (
                     select calendardate,securitycompanycode,securitycompanyname,simpanangiro,depositolt3bulan,depositogt3bulandijaminlps,uangjaminanlkp,kasdansetarakas,mkbd,mkbdminimum,mkbdpermkbdminimum,
                         case 
                             when kasdansetarakas < mkbdminimum then 'Alert'
@@ -4938,18 +4940,65 @@ namespace BDA.Helper
                 if (tableName == "pe_segmentation_sum_cluster_mkbd")
                 {
                     props.Query = @"
-                   Select cluster,COUNT(status) Total from (
-                    select calendardate,securitycompanycode,securitycompanyname,simpanangiro,depositolt3bulan,depositogt3bulandijaminlps,uangjaminanlkp,kasdansetarakas,mkbd,mkbdminimum,mkbdpermkbdminimum,
-                        case 
-                            when kasdansetarakas < mkbdminimum then 'Alert'
-                            when kasdansetarakas > mkbdminimum then 'Normal'
-                        END AS status,periode,cluster
-                        From dbo." + tableName + @") as x
-                    WHERE " + whereQuery + @" group by cluster";
+                    SELECT cluster,COUNT(status) total,urut from (
+                    SELECT calendardate,securitycompanycode,
+                    	CASE 
+                    		WHEN kasdansetarakas < mkbdminimum then 'Alert'
+                    		WHEN kasdansetarakas > mkbdminimum then 'Normal'
+                    	END AS status,cluster,
+                       CASE 
+                    	   WHEN cluster ='100% s.d. <120%'  then '1'
+                    	   WHEN cluster ='120% s.d. <200%'  then '2'
+                    	   WHEN cluster ='200% s.d. <500%'  then '3'
+                    	   WHEN cluster ='>=500%'  then '4'
+                       END AS urut
+                    FROM dbo." + tableName + @"
+                    WHERE " + whereQuery + @") AS t 						
+                    GROUP BY urut,cluster";
                 }
             }
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+        public static DataTable LINQResultToDataTable<T>(IEnumerable<T> Linqlist)
+        {
+            DataTable dt = new DataTable();
+
+            PropertyInfo[] columns = null;
+
+            if (Linqlist == null) return dt;
+
+            foreach (T Record in Linqlist)
+            {
+
+                if (columns == null)
+                {
+                    columns = ((Type)Record.GetType()).GetProperties();
+                    foreach (PropertyInfo GetProperty in columns)
+                    {
+                        Type colType = GetProperty.PropertyType;
+
+                        if ((colType.IsGenericType) && (colType.GetGenericTypeDefinition()
+                        == typeof(Nullable<>)))
+                        {
+                            colType = colType.GetGenericArguments()[0];
+                        }
+
+                        dt.Columns.Add(new DataColumn(GetProperty.Name, colType));
+                    }
+                }
+
+                DataRow dr = dt.NewRow();
+
+                foreach (PropertyInfo pinfo in columns)
+                {
+                    dr[pinfo.Name] = pinfo.GetValue(Record, null) == null ? DBNull.Value : pinfo.GetValue
+                    (Record, null);
+                }
+
+                dt.Rows.Add(dr);
+            }
+            return dt;
         }
         public static WSQueryReturns GetBDAPMSegmentationSummaryClusterMKBDQueryDetail(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string periodes, string stringPE, bool isHive = false)
         {
