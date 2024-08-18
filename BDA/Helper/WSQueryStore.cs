@@ -4900,6 +4900,69 @@ namespace BDA.Helper
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
         }
+        public static WSQueryReturns GetBDAPMSegmentationSummaryClusterMKBDQueryGetChartClusterSearch(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string periodes, string stringPE, string stringStatus, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            //isHive = true;
+
+            if (periodes != null)
+            {
+                periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND calendardate in (" + periodes + ")";
+            }
+
+            if (stringPE != null)
+            {
+                stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND securitycompanycode in (" + stringPE + ")";
+            }
+            if (stringStatus != null)
+            {
+                stringStatus = "'" + stringStatus.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND status in (" + stringStatus + ")";
+            }
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "pe_segmentation_sum_cluster_mkbd")
+                {
+                    props.Query = @"
+                    Select status,COUNT(status) Total from (
+                    select calendardate,securitycompanycode,securitycompanyname,
+                        cast(cast(simpanangiro as BIGINT)  as string) as simpanangiro,
+                        cast(cast(depositolt3bulan as BIGINT)  as string) as depositolt3bulan,
+                        cast(cast(depositogt3bulandijaminlps as BIGINT)  as string) as depositogt3bulandijaminlps,
+                        cast(cast(uangjaminanlkp as BIGINT)  as string) as uangjaminanlkp,
+                        cast(cast(kasdansetarakas as BIGINT)  as string) as kasdansetarakas,
+                        cast(cast(mkbd as BIGINT)  as string) as mkbd,
+                        cast(cast(mkbdminimum as BIGINT)  as string) as mkbdminimum,mkbdpermkbdminimum,
+                        case 
+                            when cast(cast(kasdansetarakas as BIGINT)  as string) < cast(cast(mkbdminimum as BIGINT)  as string) then 'Alert'
+                            when cast(cast(kasdansetarakas as BIGINT)  as string) > cast(cast(mkbdminimum as BIGINT)  as string) then 'Normal'
+                        END AS status,periode
+                        From dbo." + tableName + @") as x
+                WHERE " + whereQuery + @" group by status";
+                }
+            }
+            else
+            {
+                if (tableName == "pe_segmentation_sum_cluster_mkbd")
+                {
+                    props.Query = @"
+                   Select status,COUNT(status) total from (
+                    select calendardate,securitycompanycode,securitycompanyname,simpanangiro,depositolt3bulan,depositogt3bulandijaminlps,uangjaminanlkp,kasdansetarakas,mkbd,mkbdminimum,mkbdpermkbdminimum,
+                        case 
+                            when kasdansetarakas < mkbdminimum then 'Alert'
+                            when kasdansetarakas > mkbdminimum then 'Normal'
+                        END AS status,periode
+                        From dbo." + tableName + @") as x
+                    WHERE " + whereQuery + @" group by status";
+                }
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
         public static WSQueryReturns GetBDAPMSegmentationSummaryClusterMKBDQueryGetChartClusterBar(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string periodes, bool isHive = false)
         {
             bool isC = false;
@@ -4941,18 +5004,90 @@ namespace BDA.Helper
                 {
                     props.Query = @"
                     SELECT cluster,COUNT(status) total,urut from (
+                    SELECT * FROM (                    
                     SELECT calendardate,securitycompanycode,
                     	CASE 
                     		WHEN kasdansetarakas < mkbdminimum then 'Alert'
                     		WHEN kasdansetarakas > mkbdminimum then 'Normal'
                     	END AS status,cluster,
-                       CASE 
-                    	   WHEN cluster ='100% s.d. <120%'  then '1'
-                    	   WHEN cluster ='120% s.d. <200%'  then '2'
-                    	   WHEN cluster ='200% s.d. <500%'  then '3'
-                    	   WHEN cluster ='>=500%'  then '4'
-                       END AS urut
-                    FROM dbo." + tableName + @"
+                        CASE 
+                    	    WHEN cluster ='100% s.d. <120%'  then '1'
+                    	    WHEN cluster ='120% s.d. <200%'  then '2'
+                    	    WHEN cluster ='200% s.d. <500%'  then '3'
+                    	    WHEN cluster ='>=500%'  then '4'
+                        END AS urut
+                    FROM dbo." + tableName + @") as x  
+                    WHERE " + whereQuery + @") AS t 						
+                    GROUP BY urut,cluster";
+                }
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMSegmentationSummaryClusterMKBDQueryGetChartClusterBarSearch(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string periodes, string stringPE, string stringStatus, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            //isHive = true;
+
+            if (periodes != null)
+            {
+                periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND calendardate in (" + periodes + ")";
+            }
+
+            if (stringPE != null)
+            {
+                stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND securitycompanycode in (" + stringPE + ")";
+            }
+            if (stringStatus != null)
+            {
+                stringStatus = "'" + stringStatus.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND status in (" + stringStatus + ")";
+            }
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "pe_segmentation_sum_cluster_mkbd")
+                {
+                    props.Query = @"
+                    Select status,COUNT(status) Total from (
+                    select calendardate,securitycompanycode,securitycompanyname,
+                        cast(cast(simpanangiro as BIGINT)  as string) as simpanangiro,
+                        cast(cast(depositolt3bulan as BIGINT)  as string) as depositolt3bulan,
+                        cast(cast(depositogt3bulandijaminlps as BIGINT)  as string) as depositogt3bulandijaminlps,
+                        cast(cast(uangjaminanlkp as BIGINT)  as string) as uangjaminanlkp,
+                        cast(cast(kasdansetarakas as BIGINT)  as string) as kasdansetarakas,
+                        cast(cast(mkbd as BIGINT)  as string) as mkbd,
+                        cast(cast(mkbdminimum as BIGINT)  as string) as mkbdminimum,mkbdpermkbdminimum,
+                        case 
+                            when cast(cast(kasdansetarakas as BIGINT)  as string) < cast(cast(mkbdminimum as BIGINT)  as string) then 'Alert'
+                            when cast(cast(kasdansetarakas as BIGINT)  as string) > cast(cast(mkbdminimum as BIGINT)  as string) then 'Normal'
+                        END AS status,periode
+                        From dbo." + tableName + @") as x
+                WHERE " + whereQuery + @" group by status";
+                }
+            }
+            else
+            {
+                if (tableName == "pe_segmentation_sum_cluster_mkbd")
+                {
+                    props.Query = @"
+                    SELECT cluster,COUNT(status) total,urut from (
+                    SELECT * FROM (                    
+                    SELECT calendardate,securitycompanycode,
+                    	CASE 
+                    		WHEN kasdansetarakas < mkbdminimum then 'Alert'
+                    		WHEN kasdansetarakas > mkbdminimum then 'Normal'
+                    	END AS status,cluster,
+                        CASE 
+                    	    WHEN cluster ='100% s.d. <120%'  then '1'
+                    	    WHEN cluster ='120% s.d. <200%'  then '2'
+                    	    WHEN cluster ='200% s.d. <500%'  then '3'
+                    	    WHEN cluster ='>=500%'  then '4'
+                        END AS urut
+                    FROM dbo." + tableName + @") as x  
                     WHERE " + whereQuery + @") AS t 						
                     GROUP BY urut,cluster";
                 }

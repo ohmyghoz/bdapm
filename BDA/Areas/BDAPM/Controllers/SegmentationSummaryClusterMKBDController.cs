@@ -107,12 +107,15 @@ namespace BDA.Controllers
             }
             return DataSourceLoader.Load(new List<string>(), loadOptions);
         }
-        public object GetChartCluster(DataSourceLoadOptions loadOptions)
+        public object GetChartClusterSearch(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE, string status)
         {
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
             TempData.Clear(); //membersihkan data filtering
-           
+            string[] StatusPE = JsonConvert.DeserializeObject<string[]>(status);
+
             string stringPeriodeAwal = null;
+            string stringNamaPE = null;
+            string stringStatus = null;
             string reportId = "pe_segmentation_sum_cluster_mkbd"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
 
             var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
@@ -120,16 +123,37 @@ namespace BDA.Controllers
             stringPeriodeAwal = Convert.ToDateTime(DateTime.Now).ToString("yyyy-MM-dd");
             TempData["pawal"] = stringPeriodeAwal;
 
+            if (periodeAwal != null)
+            {
+                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
+                TempData["pawal"] = stringPeriodeAwal;
+            }
+            if (namaPE != null)
+            {
+                stringNamaPE = namaPE;
+                //string result = stringNamaPE.Replace("\",\"", "");
+                TempData["pe"] = stringNamaPE;
+            }
+
+            if (StatusPE.Length > 0)
+            {
+                stringStatus = string.Join(", ", StatusPE);
+                TempData["sts"] = stringStatus;
+            }
+
             db.Database.CommandTimeout = 420;
-            var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryGetChartCluster(db, loadOptions, reportId, stringPeriodeAwal, cekHive);
+            var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryGetChartClusterSearch(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, stringStatus, cekHive);
             return JsonConvert.SerializeObject(result);
-        }
-        public object GetChartClusterBar(DataSourceLoadOptions loadOptions)
+        }     
+        public object GetChartClusterBarSearch(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE, string status)
         {
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
             TempData.Clear(); //membersihkan data filtering
+            string[] StatusPE = JsonConvert.DeserializeObject<string[]>(status);
 
             string stringPeriodeAwal = null;
+            string stringNamaPE = null;
+            string stringStatus = null;
             string reportId = "pe_segmentation_sum_cluster_mkbd"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
 
             var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
@@ -137,16 +161,34 @@ namespace BDA.Controllers
             stringPeriodeAwal = Convert.ToDateTime(DateTime.Now).ToString("yyyy-MM-dd");
             TempData["pawal"] = stringPeriodeAwal;
 
+            if (periodeAwal != null)
+            {
+                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
+                TempData["pawal"] = stringPeriodeAwal;
+            }
+            if (namaPE != null)
+            {
+                stringNamaPE = namaPE;
+                //string result = stringNamaPE.Replace("\",\"", "");
+                TempData["pe"] = stringNamaPE;
+            }
+
+            if (StatusPE.Length > 0)
+            {
+                stringStatus = string.Join(", ", StatusPE);
+                TempData["sts"] = stringStatus;
+            }
+
             db.Database.CommandTimeout = 420;
-            var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryGetChartClusterBar(db, loadOptions, reportId, stringPeriodeAwal, cekHive);
+            var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryGetChartClusterBarSearch(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, stringStatus, cekHive);
             var varDataList = (dynamic)null;
             varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
-                                select new
-                                {
-                                    cluster = bs.Field<string>("cluster").ToString(),
-                                    total = bs.Field<Int32>("total").ToString(),
-                                    urut = bs.Field<string>("urut").ToString(),
-                                }).OrderBy(bs => bs.urut).ToList();
+                           select new
+                           {
+                               cluster = bs.Field<string>("cluster").ToString(),
+                               total = bs.Field<Int32>("total").ToString(),
+                               urut = bs.Field<string>("urut").ToString(),
+                           }).OrderBy(bs => bs.urut).ToList();
             return JsonConvert.SerializeObject(varDataList);
         }
         public object GetGridDataDetail(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE)
@@ -784,6 +826,104 @@ namespace BDA.Controllers
             return View();
         }
         //-----------------------------ReverseRepo-----------------------------------//
+
+
+        #region Export Index
+        public FileResult FileIndex()
+        {
+            var directory = _env.WebRootPath;
+            var timeStamp = TempData.Peek("timeStamp").ToString();
+            var fileName = "SummaryClusterMKBD_" + timeStamp + ".pdf";
+            var filePath = Path.Combine(directory, fileName);
+            var fileByte = System.IO.File.ReadAllBytes(filePath);
+            System.IO.File.Delete(filePath);
+            return File(fileByte, "application/pdf", fileName);
+        }
+        [HttpPost]
+        public IActionResult LogExportIndex()
+        {
+            try
+            {
+                var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+                var currentNode = mdl.GetCurrentNode();
+
+                string pageTitle = currentNode != null ? currentNode.Title : "";
+
+                db.CheckPermission("Summary Cluster MKBD Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+                db.InsertAuditTrail("SummaryClusterMKBD_Akses_Page", "Export Data", pageTitle);
+                return Json(new { result = "Success" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { result = db.ProcessExceptionMessage(ex) });
+            }
+        }
+        public IActionResult LogExportPDFIndex(IFormFile file)
+        {
+            try
+            {
+                var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+                var currentNode = mdl.GetCurrentNode();
+
+                string pageTitle = currentNode != null ? currentNode.Title : "";
+
+                db.CheckPermission("Summary Cluster MKBD Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+                db.InsertAuditTrail("SummaryClusterMKBD_Akses_Page", "Export Data", pageTitle);
+
+                var directory = _env.WebRootPath;
+                var timeStamp = DateTime.Now.ToString();
+                Workbook workbook = new Workbook(file.OpenReadStream());
+
+                foreach (Worksheet worksheet in workbook.Worksheets)
+                {
+                    //prepare logo
+                    string logo_url = Path.Combine(directory, "assets_m\\img\\OJK_Logo.png");
+                    FileStream inFile;
+                    byte[] binaryData;
+                    inFile = new FileStream(logo_url, FileMode.Open, FileAccess.Read);
+                    binaryData = new Byte[inFile.Length];
+                    long bytesRead = inFile.Read(binaryData, 0, (int)inFile.Length);
+
+                    //apply format number
+                    Style textStyle = workbook.CreateStyle();
+                    textStyle.Number = 3;
+                    StyleFlag textFlag = new StyleFlag();
+                    textFlag.NumberFormat = true;
+
+                    worksheet.Cells.Columns[9].ApplyStyle(textStyle, textFlag);
+
+                    //page setup
+                    PageSetup pageSetup = worksheet.PageSetup;
+                    pageSetup.Orientation = PageOrientationType.Landscape;
+                    pageSetup.FitToPagesWide = 1;
+                    pageSetup.FitToPagesTall = 0;
+
+                    //set header
+                    pageSetup.SetHeaderPicture(0, binaryData);
+                    pageSetup.SetHeader(0, "&G");
+                    var img = pageSetup.GetPicture(true, 0);
+                    img.WidthScale = 10;
+                    img.HeightScale = 10;
+
+                    //set footer
+                    pageSetup.SetFooter(0, timeStamp);
+
+                    inFile.Close();
+                }
+
+                timeStamp = timeStamp.Replace('/', '-').Replace(" ", "_").Replace(":", "-");
+                TempData["timeStamp"] = timeStamp;
+                var fileName = "SummaryClusterMKBD_" + timeStamp + ".pdf";
+                workbook.Save(Path.Combine(directory, fileName), SaveFormat.Pdf);
+                return new EmptyResult();
+            }
+            catch (Exception ex)
+            {
+                return Json(new { result = db.ProcessExceptionMessage(ex) });
+            }
+        }
+        #endregion
+
 
         #region Export Detail
         public FileResult FileDetail()
