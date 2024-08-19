@@ -24,6 +24,7 @@
     <Compile Remove="Areas\Master\Views\Master_SLA_Notice\**" />
     <Compile Remove="Areas\Website\Models\**" />
     <Compile Remove="Controllers\**" />
+    <Compile Remove="Helper\WSQueryStore.cs\**" />
     <Compile Remove="Views\Login\**" />
     <Content Remove="Areas\BDA2\Views\DNA\**" />
     <Content Remove="Areas\BDA2\Views\Osint\**" />
@@ -34,6 +35,7 @@
     <Content Remove="Areas\Master\Views\Master_SLA_Notice\**" />
     <Content Remove="Areas\Website\Models\**" />
     <Content Remove="Controllers\**" />
+    <Content Remove="Helper\WSQueryStore.cs\**" />
     <Content Remove="Views\Login\**" />
     <EmbeddedResource Remove="Areas\BDA2\Views\DNA\**" />
     <EmbeddedResource Remove="Areas\BDA2\Views\Osint\**" />
@@ -44,6 +46,7 @@
     <EmbeddedResource Remove="Areas\Master\Views\Master_SLA_Notice\**" />
     <EmbeddedResource Remove="Areas\Website\Models\**" />
     <EmbeddedResource Remove="Controllers\**" />
+    <EmbeddedResource Remove="Helper\WSQueryStore.cs\**" />
     <EmbeddedResource Remove="Views\Login\**" />
     <None Remove="Areas\BDA2\Views\DNA\**" />
     <None Remove="Areas\BDA2\Views\Osint\**" />
@@ -54,12 +57,14 @@
     <None Remove="Areas\Master\Views\Master_SLA_Notice\**" />
     <None Remove="Areas\Website\Models\**" />
     <None Remove="Controllers\**" />
+    <None Remove="Helper\WSQueryStore.cs\**" />
     <None Remove="Views\Login\**" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Areas\BDA2\Controllers\DNAController.cs" />
     <Compile Remove="Areas\BDA2\Controllers\OsintController.cs" />
     <Compile Remove="Areas\Master\Controllers\MasterThresholdController.cs" />
+    <Compile Remove="Helper\CAMHelper.cs" />
     <Compile Remove="Helper\FW\CAMHelper.cs" />
     <Compile Remove="Helper\FW\MenuModels.cs" />
     <Compile Remove="Helper\FW\WSReportStorageWebExtensions - Copy.cs" />

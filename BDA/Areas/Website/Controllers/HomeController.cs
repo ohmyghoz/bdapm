@@ -87,9 +87,9 @@ namespace BDA.Controllers
                 //challenge cam dolo kalo gagal baru login db normal
                 bool isUsingCam = db.GetSetting("CamLogin");
                 if (isUsingCam)
-                {   
+                {
                     //Helper.CAMHelper camHelp = new Helper.CAMHelper(db);
-                   // dataUser = camHelp.CAMLoginChallenge(user_id, user_password);
+                    //dataUser = camHelp.CAMLoginChallenge(user_id, user_password);
                 }
                 if (dataUser == null)
                 {
