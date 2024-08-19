@@ -15,6 +15,9 @@ using System.Security.Cryptography;
 using System.IO;
 using System.Text;
 using Microsoft.AspNetCore.Http.Features;
+using DevExpress.Map.Kml.Model;
+using DevExpress.Office.NumberConverters;
+using DNTCaptcha.Core;
 
 namespace BDA.Controllers
 {
@@ -62,6 +65,7 @@ namespace BDA.Controllers
         }
         [AllowAnonymous]
         [HttpPost]
+        [ValidateDNTCaptcha(ErrorMessage = "Masukkan kode captcha di atas")]
         public async Task<IActionResult> Login(string user_id, string user_password, string ReturnUrl)
         {
             //var isDelegate = false;
@@ -73,6 +77,11 @@ namespace BDA.Controllers
 
             try
             {
+                if (!ModelState.IsValid) // If `ValidateDNTCaptcha` fails, it will set a `ModelState.AddModelError`.
+                {
+                    throw new InvalidOperationException("Captcha tidak valid");
+                }
+
                 UserMaster dataUser = null;
 
                 //challenge cam dolo kalo gagal baru login db normal
