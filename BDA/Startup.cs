@@ -33,6 +33,9 @@ using DevExpress.DashboardCommon;
 using DevExpress.DataAccess.ConnectionParameters;
 using DevExpress.XtraReports.Web.Extensions;
 
+//Captcha
+using DNTCaptcha.Core;
+
 namespace BDA
 {
     public class Startup
@@ -158,8 +161,37 @@ namespace BDA
                 });
             });
 
+            // Captcha
+
+            services.AddDNTCaptcha(options =>
+            {
+                // options.UseSessionStorageProvider() // -> It doesn't rely on the server or client's times. Also it's the safest one.
+                // options.UseMemoryCacheStorageProvider() // -> It relies on the server's times. It's safer than the CookieStorageProvider.
+                options.UseCookieStorageProvider(SameSiteMode.Strict) // -> It relies on the server and client's times. It's ideal for scalability, because it doesn't save anything in the server's memory.
+                                                                      // .UseDistributedCacheStorageProvider() // --> It's ideal for scalability using `services.AddStackExchangeRedisCache()` for instance.
+                                                                      // .UseDistributedSerializationProvider()
+
+                // Don't set this line (remove it) to use the installed system's fonts (FontName = "Tahoma").
+                // Or if you want to use a custom font, make sure that font is present in the wwwroot/fonts folder and also use a good and complete font!
+                .AbsoluteExpiration(minutes: 7)
+                .RateLimiterPermitLimit(10) // for .NET 7x+, Also you need to call app.UseRateLimiter() after calling app.UseRouting().
+                .ShowThousandsSeparators(false)
+                .WithNoise(0.015f, 0.015f, 1, 0.0f)
+                .WithEncryptionKey("73zT!nG")
+                .InputNames(// This is optional. Change it if you don't like the default names.
+                    new DNTCaptchaComponent
+                    {
+                        CaptchaHiddenInputName = "DNTCaptchaBDAText",
+                        CaptchaHiddenTokenName = "DNTCaptchaBDAToken",
+                        CaptchaInputName = "DNTCaptchaBDAInputText"
+                    })
+                .Identifier("dntCaptchaBDA")// This is optional. Change it if you don't like its default name.
+                ;
+            });
+
+
             //services.AddScoped<ReportStorageWebExtension, WSReportStorageWebExtension>();
-            
+
             ////dashboard
             //services.AddMvc().AddDefaultDashboardController((configurator, serviceProvider) => {
             //    //configurator.SetDataSourceStorage(new DataSourceInMemoryStorage());
