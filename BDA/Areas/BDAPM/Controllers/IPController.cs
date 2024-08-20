@@ -1,0 +1,368 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Diagnostics;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Net;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using Aspose.Cells;
+using BDA.DataModel;
+using BDA.Helper;
+using DevExtreme.AspNet.Data;
+using DevExtreme.AspNet.Mvc;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using System.Data.SqlClient;
+
+// For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+
+namespace BDA.Controllers
+{
+    [Area("BDAPM")]
+    public class IPController : Controller
+    {
+        private DataEntities db;
+        private IWebHostEnvironment _env;
+
+        public IPController(DataEntities db, IWebHostEnvironment env)
+        {
+            this.db = db;
+            _env = env;
+        }
+        
+        public IActionResult Index(string id,string period,string sid,string tradeid,string namasid,string ktp,string npwp)
+        {
+            var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+            var currentNode = mdl.GetCurrentNode();
+            
+            string pageTitle = currentNode != null ? currentNode.Title : "";
+            TempData["pageTitle"] = pageTitle;
+            ViewBag.FullFilter = true;
+            ViewBag.Export = false; // TODO ubah disini
+            var obj = db.osida_master.Find(id);
+            db.InsertAuditTrail("PM_" + id + "_Akses_Page", "Akses Page Dashboard " + obj.menu_nama, pageTitle);
+            db.CheckPermission(obj.menu_nama + " View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+            //ViewBag.Export = db.CheckPermission(obj.menu_nama + " Export", DataEntities.PermissionMessageType.NoMessage);
+            ViewBag.Export = true;
+            var isHive = Helper.WSQueryStore.IsPeriodInHive(db, id);
+            ViewBag.Hive = isHive;
+            
+            if (obj == null) return NoContent();
+            
+            if (period == null)
+            {
+                //ViewBag.period = string.Format("{0:yyyy-MM-01}", DateTime.Now.AddMonths(-1));
+                ViewBag.period = null;
+            }
+            else
+            {
+                DateTime p = Convert.ToDateTime(period);
+                //ViewBag.period = string.Format("{0:yyyy-MM-01}", p);
+                string[] p1= new string[]{ string.Format("{0:yyyy-MM-01}", p) };
+                ViewBag.period = p1;
+            }
+            if (sid == null)
+            {
+                ViewBag.sid = null;
+            }
+            else
+            {
+                ViewBag.sid = sid;
+                //string[] j1= new string[]{ jljk };
+                //ViewBag.jljk = j1;
+            }
+            ViewBag.tradeid = (tradeid == null) ? null : tradeid;
+            ViewBag.namasid = (namasid == null) ? null : namasid;
+            ViewBag.ktp = (ktp == null) ? null : ktp;
+            ViewBag.npwp = (npwp == null) ? null : npwp;
+
+
+            TempData["kodeReport"] = obj.kode;
+            
+            if (obj.kode == "HALT")
+            {
+                return View("index2",obj);
+            }
+            else {
+                return View(obj);
+            }
+            
+        }
+
+
+        [HttpPost]
+        public ActionResult SimpanPenggunaanData(string id)
+        {
+            string message = "";
+            string Penggunaan_Data = "";
+            bool result = true;
+            var userId = HttpContext.User.Identity.Name;
+
+            var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+            var currentNode = mdl.GetCurrentNode();
+            string pageTitle = currentNode != null ? currentNode.Title : "";
+            db.InsertAuditTrail("IP_Akses_Page", "user " + userId + " mengakases halaman Investor Profile untuk digunakan sebagai " + Penggunaan_Data + "", pageTitle);
+
+            try
+            {
+                string strSQL = db.appSettings.DataConnString;
+                using (SqlConnection conn = new SqlConnection(strSQL))
+                {
+                    conn.Open();
+                    string strQuery = "Select * from MasterPenggunaanData where id=" + id + " order by id asc ";
+                    SqlDataAdapter da = new SqlDataAdapter(strQuery, conn);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+                    if (dt.Rows.Count > 0)
+                    {
+                        Penggunaan_Data = dt.Rows[0]["Penggunaan_Data"].ToString();
+                    }
+                    conn.Close();
+                    conn.Dispose();
+                }
+                result = true;
+            }
+            catch (Exception ex)
+            {
+                string errMsg = ex.Message;
+                message = "Saving Failed !, " + " " + errMsg;
+                result = false;
+            }
+            return Json(new { message, success = result }, new Newtonsoft.Json.JsonSerializerSettings());
+        }
+
+        [HttpPost]
+        public IActionResult LogExportIndex(string reportId)
+        {
+            try
+            {
+                var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+                var currentNode = mdl.GetCurrentNode();
+
+                string pageTitle = currentNode != null ? currentNode.Title : "";
+                pageTitle = TempData.Peek("pageTitle").ToString();
+                //TODO : tambah permission
+                //db.CheckPermission("OSIDA Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+                var obj = db.osida_master.Find(reportId);
+                db.CheckPermission(obj.menu_nama + " Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+
+                db.InsertAuditTrail("ExportIndex_PM_" + reportId, "Export Data", pageTitle);
+                return Json(new { result = "Success" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { result = db.ProcessExceptionMessage(ex) });
+            }
+        }
+
+        public IActionResult ExportPDF(string reportId,IFormFile file)
+        {
+            try
+            {
+                var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+                var currentNode = mdl.GetCurrentNode();
+
+                string pageTitle = currentNode != null ? currentNode.Title : "";
+                pageTitle = TempData.Peek("pageTitle").ToString();
+                //TODO : tambah permission
+                //db.CheckPermission("OSIDA Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+                var obj = db.osida_master.Find(reportId);
+                db.CheckPermission(obj.menu_nama + " Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+
+                db.InsertAuditTrail("ExportIndex_PM_" + reportId, "Export Data", pageTitle);
+
+                var directory = _env.WebRootPath;
+
+                var timeStamp = DateTime.Now.ToString();
+
+                //Workbook workbook = new Workbook();
+                //workbook.Open(file.OpenReadStream(), FileFormatType.Xlsx);
+                Workbook workbook = new Workbook(file.OpenReadStream());
+
+                if (reportId == "osida_pengurus_pemilik_kredit_bermasalah_mst")
+                {
+                    Worksheet worksheet2 = workbook.Worksheets[0];
+                    var columns1 = worksheet2.Cells.Columns.Count;
+                    var rows1 = worksheet2.Cells.Rows.Count;
+                    var style = workbook.CreateStyle();
+                    style.SetBorder(BorderType.TopBorder, CellBorderType.Thick, Color.Black);
+                    style.SetBorder(BorderType.BottomBorder, CellBorderType.Thick, Color.Black);
+                    style.SetBorder(BorderType.LeftBorder, CellBorderType.Thick, Color.Black);
+                    style.SetBorder(BorderType.RightBorder, CellBorderType.Thick, Color.Black);
+                    //Apply bottom borders from cell F4 till K4
+                    for (int r = 0; r <= rows1 - 1; r++)
+                    {
+                        for (int col = 0; col <= columns1 - 1; col++)
+                        {
+                            Cell cell = worksheet2.Cells[r, col];
+
+                            cell.SetStyle(style);
+                        }
+                    }
+                }
+                foreach (Worksheet worksheet in workbook.Worksheets)
+                {
+                    //prepare logo
+                    string logo_url = Path.Combine(directory, "assets_m\\img\\OJK_Logo.png");
+                    FileStream inFile;
+                    byte[] binaryData;
+                    inFile = new FileStream(logo_url, FileMode.Open, FileAccess.Read);
+                    binaryData = new Byte[inFile.Length];
+                    long bytesRead = inFile.Read(binaryData, 0, (int)inFile.Length);
+
+                    //apply format number
+                    Style numericStyle = workbook.CreateStyle();
+                    numericStyle.Custom = "#,##0.00";
+                    numericStyle.HorizontalAlignment = TextAlignmentType.Right;
+                    StyleFlag numericFlag = new StyleFlag();
+                    numericFlag.NumberFormat = true;
+                    numericFlag.HorizontalAlignment = true;
+
+
+                    foreach (Cell cell in worksheet.Cells)
+                    {
+                        if (cell.Type == CellValueType.IsNumeric)
+                        {
+                            cell.SetStyle(numericStyle);
+                        }
+                    }
+
+                    //page setup
+                    PageSetup pageSetup = worksheet.PageSetup;
+                    pageSetup.Orientation = PageOrientationType.Landscape;
+                    pageSetup.FitToPagesWide = 1;
+                    pageSetup.FitToPagesTall = 0;
+
+                    //set header
+                    pageSetup.SetHeaderPicture(0, binaryData);
+                    pageSetup.SetHeader(0, "&G");
+                    var img = pageSetup.GetPicture(true, 0);
+                    img.WidthScale = 10;
+                    img.HeightScale = 10;
+
+                    //set footer
+                    pageSetup.SetFooter(0, timeStamp);
+
+                    inFile.Close();
+                }
+
+                timeStamp = timeStamp.Replace('/', '-').Replace(" ", "_").Replace(":", "-");
+                TempData["timeStamp"] = timeStamp;
+                var fileName = "OSIDA_" + reportId + "_" + timeStamp + ".pdf";
+                workbook.Save(Path.Combine(directory, fileName), SaveFormat.Pdf);
+                return new EmptyResult();
+            }
+            catch (Exception ex)
+            {
+                return Json(new { result = db.ProcessExceptionMessage(ex) });
+            }
+        }
+
+        public FileResult File(string reportId)
+        {
+            var directory = _env.WebRootPath;
+            var timeStamp = TempData.Peek("timeStamp").ToString();
+            var fileName = "PM_" + reportId + "_" + timeStamp + ".pdf";
+            var filePath = Path.Combine(directory, fileName);
+            var fileByte = System.IO.File.ReadAllBytes(filePath);
+            System.IO.File.Delete(filePath);
+            return File(fileByte, "application/pdf", fileName);
+        }
+
+        public JsonResult getTime()
+        {
+            string se1 = "Waktu Proses : " + TempData.Peek("SG").ToString() + " detik \nWaktu tunggu Hive / SQL : " + TempData.Peek("SD").ToString() + " detik \nPenggunaan Memory Webserver: " + TempData.Peek("PM").ToString() + "KB";
+            return Json(se1);
+        }
+        #region "GetGridData"
+        public object GetGridData(DataSourceLoadOptions loadOptions, string reportId, string SID, string tradeId, string namaSID, string nomorKTP, string nomorNPWP, string startPeriode, string endPeriode, bool chk100)
+        {
+            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+            TempData.Clear();
+            //string[] periodes = JsonConvert.DeserializeObject<string[]>(periode);
+            TempData["SID"] = null;
+            TempData["tradeId"] = null;
+            TempData["namaSID"] = null;
+            TempData["nomorKTP"] = null;
+            TempData["nomorNPWP"] = null;
+            TempData["sistem"] = null;
+            TempData["periodeValue"] = null;
+
+            string stringStartPeriode = null;
+
+            if (startPeriode != null)
+            {
+                stringStartPeriode = Convert.ToDateTime(startPeriode).ToString("yyyy-MM-dd");
+                TempData["sPeriod"] = stringStartPeriode;
+            }
+            
+            
+            
+            if (startPeriode != null)
+                {
+                var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId);
+
+                //if (PMRefController.IsPengawasLJK(db))
+                //{
+
+                //}
+
+                
+                var result = Helper.WSQueryStore.GetPMIPQuery(db, loadOptions, reportId, stringStartPeriode, chk100, cekHive);
+                return JsonConvert.SerializeObject(result);
+
+                
+
+            }
+            else {
+                loadOptions = new DataSourceLoadOptions();
+            }
+            return DataSourceLoader.Load(new List<string>(), loadOptions);
+        }
+
+        
+        #endregion
+
+        #region popup
+        
+        public IActionResult IPPopup(string? kode, string? sid)
+        {
+            //if (HttpContext.User.FindFirst(ClaimTypes.Role) != null)
+            //{
+            //    ViewBag.roleId = HttpContext.User.FindFirst(ClaimTypes.Role).Value;
+            //}
+            //else {
+            //    ViewBag.ClosePopup = "Session already finished";
+            //}
+            return View();
+            //return View();
+        }
+
+        
+
+        [HttpPost]
+        public IActionResult Edit(string kode, string lem, string? suspectNote1, string? suspectNote2, string? suspectNote3, string? relationshipPeriod, string? relationshipGroup)
+        {
+            var test = "";
+            test = "here";
+
+            try
+            {                
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                
+            }
+            return View();
+        }
+
+        #endregion
+    }
+}
