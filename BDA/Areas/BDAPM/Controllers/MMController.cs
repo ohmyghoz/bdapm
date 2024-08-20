@@ -1,0 +1,175 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Diagnostics;
+using System.Drawing;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Net;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using Aspose.Cells;
+using BDA.DataModel;
+using BDA.Helper;
+using DevExtreme.AspNet.Data;
+using DevExtreme.AspNet.Mvc;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using static System.Net.WebRequestMethods;
+
+// For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+
+namespace BDA.Controllers
+{
+    [Area("BDAPM")]
+    public class MMController : Controller
+    {
+        private DataEntities db;
+        private IWebHostEnvironment _env;
+
+        public MMController(DataEntities db, IWebHostEnvironment env)
+        {
+            this.db = db;
+            _env = env;
+        }
+        
+        public IActionResult Index(string id,string startPeriod,string endPeriod)
+        {
+            var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+            var currentNode = mdl.GetCurrentNode();
+
+            string pageTitle = currentNode != null ? currentNode.Title : "";
+            TempData["pageTitle"] = pageTitle;
+            ViewBag.FullFilter = true;
+            ViewBag.Export = false; // TODO ubah disini
+            var obj = db.osida_master.Find(id);
+            db.InsertAuditTrail("Market_Manipulation_" + id + "_Akses_Page", "Akses Page Dashboard " + obj.menu_nama, pageTitle);
+            db.CheckPermission(obj.menu_nama + " View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+            //ViewBag.Export = db.CheckPermission(obj.menu_nama + " Export", DataEntities.PermissionMessageType.NoMessage);
+            var isHive = Helper.WSQueryStore.IsPeriodInHive(db, id);
+            ViewBag.Hive = isHive;
+
+            if (obj == null) return NoContent();
+
+            if (startPeriod == null)
+            {
+                //ViewBag.period = string.Format("{0:yyyy-MM-01}", DateTime.Now.AddMonths(-1));
+                ViewBag.startPeriod = null;
+            }
+            else
+            {
+                DateTime p = Convert.ToDateTime(startPeriod);
+                //ViewBag.period = string.Format("{0:yyyy-MM-01}", p);
+                string[] p1 = new string[] { string.Format("{0:yyyy-MM-01}", p) };
+                ViewBag.startPeriod = p1;
+            }
+            
+            TempData["kodeReport"] = obj.kode;
+
+            return View(obj);
+
+        }
+        
+        
+        [HttpPost]
+        public IActionResult LogExportIndex(string reportId)
+        {
+            try
+            {
+                var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+                var currentNode = mdl.GetCurrentNode();
+
+                string pageTitle = currentNode != null ? currentNode.Title : "";
+                pageTitle = TempData.Peek("pageTitle").ToString();
+                //TODO : tambah permission
+                //db.CheckPermission("OSIDA Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+                var obj = db.osida_master.Find(reportId);
+                db.CheckPermission(obj.menu_nama + " Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+
+                db.InsertAuditTrail("ExportIndex_PM_" + reportId, "Export Data", pageTitle);
+                return Json(new { result = "Success" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { result = db.ProcessExceptionMessage(ex) });
+            }
+        }
+
+        public IActionResult ExportPDF(string reportId,IFormFile file)
+        {
+            return View();
+        }
+
+        public FileResult File(string reportId)
+        {
+            var directory = _env.WebRootPath;
+            var timeStamp = TempData.Peek("timeStamp").ToString();
+            var fileName = "PM_" + reportId + "_" + timeStamp + ".pdf";
+            var filePath = Path.Combine(directory, fileName);
+            var fileByte = System.IO.File.ReadAllBytes(filePath);
+            System.IO.File.Delete(filePath);
+            return File(fileByte, "application/pdf", fileName);
+        }
+
+        public JsonResult getTime()
+        {
+            string se1 = "Waktu Proses : " + TempData.Peek("SG").ToString() + " detik \nWaktu tunggu Hive / SQL : " + TempData.Peek("SD").ToString() + " detik \nPenggunaan Memory Webserver: " + TempData.Peek("PM").ToString() + "KB";
+            return Json(se1);
+        }
+        #region "GetGridData"
+        public object GetGridData(DataSourceLoadOptions loadOptions, string reportId, string startPeriode, string endPeriode)
+        {
+            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+            TempData.Clear();
+            string[] periodes = JsonConvert.DeserializeObject<string[]>(startPeriode);
+            
+            TempData["ePeriod"] = null;
+            TempData["sPeriod"] = null;
+
+            string stringStartPeriode = null;
+            string stringEndPeriode = null;
+
+            if (startPeriode != null)
+            {
+                stringStartPeriode = Convert.ToDateTime(startPeriode).ToString("yyyy-MM-dd");
+                TempData["sPeriod"] = stringStartPeriode;
+            }
+
+            if (endPeriode != null)
+            {
+                stringEndPeriode = Convert.ToDateTime(endPeriode).ToString("yyyy-MM-dd");
+                TempData["ePeriod"] = stringEndPeriode;
+            }
+
+
+            if (startPeriode != null)
+            {
+                var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId);
+
+                
+
+
+                var result = Helper.WSQueryStore.GetPMMMQuery(db, loadOptions, reportId, stringStartPeriode, stringEndPeriode, cekHive);
+                return JsonConvert.SerializeObject(result);
+
+
+
+            }
+            else
+            {
+                loadOptions = new DataSourceLoadOptions();
+            }
+            return DataSourceLoader.Load(new List<string>(), loadOptions);
+        }
+
+        
+
+
+        #endregion
+
+        
+    }
+}

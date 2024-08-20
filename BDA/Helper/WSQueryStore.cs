@@ -5446,5 +5446,36 @@ namespace BDA.Helper
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
         }
+
+        public static WSQueryReturns GetPMMMQuery(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string startPeriod, string endPeriod, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            isHive = false;
+
+            if (startPeriod != null)
+            {
+                string periodes = "'" + startPeriod.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND dm_periode in (" + periodes + ")";
+            }
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                props.Query = @"";
+
+            }
+            else
+            {
+                if (tableName == "mm_spv")
+                {
+                    props.Query += @"
+                        CAST(dm_periode AS VARCHAR(20)) + '~' + sid AS lem, * from pasarmodal." + tableName + @" x WHERE " + whereQuery;
+                }
+
+
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
     }
 }
