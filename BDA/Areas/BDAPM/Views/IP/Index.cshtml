@@ -2,7 +2,7 @@
 @using DevExtreme.AspNet.Mvc
 @{
     Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
-    string reportId = "Segmentation_Summary_Cluster_MKBD";
+    
     var p = (string[])ViewBag.period;
     var maxItems = db.GetSetting("LimitFilterLJK");
     var maxExport = db.GetSetting("LimitExportExcelPDF");

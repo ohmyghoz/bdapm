@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using static System.Net.WebRequestMethods;
+using System.Data.SqlClient;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -72,8 +73,49 @@ namespace BDA.Controllers
             return View(obj);
 
         }
-        
-        
+
+        [HttpPost]
+        public ActionResult SimpanPenggunaanData(string id)
+        {
+            string message = "";
+            string Penggunaan_Data = "";
+            bool result = true;
+            var userId = HttpContext.User.Identity.Name;
+
+            var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+            var currentNode = mdl.GetCurrentNode();
+            string pageTitle = currentNode != null ? currentNode.Title : "";
+            db.InsertAuditTrail("IP_Akses_Page", "user " + userId + " mengakases halaman Investor Profile untuk digunakan sebagai " + Penggunaan_Data + "", pageTitle);
+
+            try
+            {
+                string strSQL = db.appSettings.DataConnString;
+                using (SqlConnection conn = new SqlConnection(strSQL))
+                {
+                    conn.Open();
+                    string strQuery = "Select * from MasterPenggunaanData where id=" + id + " order by id asc ";
+                    SqlDataAdapter da = new SqlDataAdapter(strQuery, conn);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+                    if (dt.Rows.Count > 0)
+                    {
+                        Penggunaan_Data = dt.Rows[0]["Penggunaan_Data"].ToString();
+                    }
+                    conn.Close();
+                    conn.Dispose();
+                }
+                result = true;
+            }
+            catch (Exception ex)
+            {
+                string errMsg = ex.Message;
+                message = "Saving Failed !, " + " " + errMsg;
+                result = false;
+            }
+            return Json(new { message, success = result }, new Newtonsoft.Json.JsonSerializerSettings());
+        }
+
+
         [HttpPost]
         public IActionResult LogExportIndex(string reportId)
         {
