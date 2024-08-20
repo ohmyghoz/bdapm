@@ -5401,5 +5401,81 @@ namespace BDA.Helper
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
         }
+
+        public static WSQueryReturns GetPMIPQuery(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string startPeriod, bool chk100 = false, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            isHive = false;
+
+            if (startPeriod != null)
+            {
+                string periodes = "'" + startPeriod.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND dm_periode in (" + periodes + ")";
+            }
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                props.Query = @"";
+
+            }
+            else
+            {
+                props.Query = (chk100 == true) ? @"select top 100 " : @"select ";
+                if (tableName == "ip_sid")
+                {
+                    props.Query += @"
+                        CAST(dm_periode AS VARCHAR(20)) + '~' + sid AS lem, * from pasarmodal." + tableName + @" x WHERE " + whereQuery;
+                    props.Query += (chk100 == true) ? @" order by x.is_active desc" : @"";
+                }
+                else if (tableName == "ip_ownership" || tableName == "ip_transaction")
+                {            
+                    props.Query += @"
+                        CAST(dm_periode AS VARCHAR(20)) + '~' + sid AS lem, * from pasarmodal." + tableName + @" x WHERE " + whereQuery;
+                    props.Query += (chk100 == true) ? @" order by x.periode" : @"";
+                }
+                else
+                {
+                    props.Query += @"
+                        CAST(dm_periode AS VARCHAR(20)) + '~' + sid AS lem, * from pasarmodal." + tableName + @" x WHERE " + whereQuery;
+                    props.Query += (chk100 == true) ? @" order by x.isdirect" : @"";
+
+                }
+
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+
+        public static WSQueryReturns GetPMMMQuery(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string startPeriod, string endPeriod, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            isHive = false;
+
+            if (startPeriod != null)
+            {
+                string periodes = "'" + startPeriod.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND dm_periode in (" + periodes + ")";
+            }
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                props.Query = @"";
+
+            }
+            else
+            {
+                if (tableName == "mm_spv")
+                {
+                    props.Query += @"
+                        CAST(dm_periode AS VARCHAR(20)) + '~' + sid AS lem, * from pasarmodal." + tableName + @" x WHERE " + whereQuery;
+                }
+
+
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
     }
 }
