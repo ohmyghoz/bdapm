@@ -5346,7 +5346,7 @@ namespace BDA.Helper
                 if (tableName == "pe_segmentation_det_reverse_repo")
                 {
                     props.Query = @"
-                        Select row_number() over(order by securitycompanycode) as no, * from dbo." + tableName + @" x
+                        Select row_number() over(order by securitycompanycode) as no, * from pasarmodal." + tableName + @" x
                         WHERE " + whereQuery + @"";
                 }
             }
@@ -5385,7 +5385,7 @@ namespace BDA.Helper
                 if (tableName == "pe_segmentation_det_reverse_repo_sum")
                 {
                     props.Query = @"
-                        select * from dbo." + tableName + @" x
+                        select * from pasarmodal." + tableName + @" x
                         WHERE " + whereQuery + @"";
                 }
             }

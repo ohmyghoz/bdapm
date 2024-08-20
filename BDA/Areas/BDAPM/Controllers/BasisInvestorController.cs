@@ -88,8 +88,8 @@ namespace BDA.Controllers
             db.Database.CommandTimeout = 420;
             if (periodeAwal.Length > 0) //jika ada parameter nya
             {
-                var result = Helper.WSQueryStore.GetBDAPMQuery(db, loadOptions, reportId, stringPeriodeAwal, stringPE, stringStatus, cekHive);
-                return JsonConvert.SerializeObject(result);
+                //var result = Helper.WSQueryStore.GetBDAPMQuery(db, loadOptions, reportId, stringPeriodeAwal, stringPE, stringStatus, cekHive);
+                //return JsonConvert.SerializeObject(result);
             }
             else
             {
