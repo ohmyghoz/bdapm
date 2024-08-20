@@ -126,14 +126,14 @@
                     columns.Add().DataField("securitycode").Caption("Kode Efek");
                     columns.Add().DataField("affiliated").Caption("Terafiliasi/Tidak Terafiliasi");
                     columns.Add().DataField("entitygroup").Caption("Grup Emiten");
-                    columns.Add().DataField("nominalsheet").Caption("Lembar/Nominal (C)").Format("#,##0");
-                    columns.Add().DataField("acquisitionprice").Caption("Harga Perolehan (A)").Format("#,##0");
-                    columns.Add().DataField("fairmarketprice").Caption("Harga Pasar Wajar (B)").Format("#,##0");
-                    columns.Add().DataField("fairmarketvalue").Caption("Nilai Pasar Wajar").Format("#,##0");
-                    columns.Add().DataField("gainperloss").Caption("Perhitungan Gain/Loss (B-A) * C").Format("#,##0").Width(130);
-                    columns.Add().DataField("fairmarketvaluepertotalporto").Caption("% dari Total Portofolio (NPW / Total Porto)").Format("#,##0").Width(130);
+                    columns.Add().DataField("nominalsheet").Caption("Lembar/Nominal (C)").Alignment(HorizontalAlignment.Right).Format("#,##0");
+                    columns.Add().DataField("acquisitionprice").Caption("Harga Perolehan (A)").Alignment(HorizontalAlignment.Right).Format("#,##0");
+                    columns.Add().DataField("fairmarketprice").Caption("Harga Pasar Wajar (B)").Alignment(HorizontalAlignment.Right).Format("#,##0");
+                    columns.Add().DataField("fairmarketvalue").Caption("Nilai Pasar Wajar").Alignment(HorizontalAlignment.Right).Format("#,##0");
+                    columns.Add().DataField("gainperloss").Caption("Perhitungan Gain/Loss (B-A) * C").Alignment(HorizontalAlignment.Right).Format("#,##0").Width(130);
+                    columns.Add().DataField("fairmarketvaluepertotalporto").Caption("% dari Total Portofolio (NPW / Total Porto)").Alignment(HorizontalAlignment.Right).Format("#,##0").Width(130);
                     columns.Add().DataField("marketvaluepercentage").Caption("Persentase Nilai Pasar Wajar Terhadap Total Modal Sendiri").Format("#,##0").Width(130).Alignment(HorizontalAlignment.Right); ;
-                    columns.Add().DataField("liabilitiesrankingvalue").Caption("Nilai Ranking Liabilities").Format("#,##0").Width(150);
+                    columns.Add().DataField("liabilitiesrankingvalue").Caption("Nilai Ranking Liabilities").Alignment(HorizontalAlignment.Right).Format("#,##0").Width(150);
                 })
                 .ColumnResizingMode(ColumnResizingMode.Widget)
                 .FilterRow(f => f.Visible(true))
@@ -178,8 +178,8 @@
                 .Columns(columns =>
                 {
                     columns.Add().DataField("mkbdvd510description").Caption("Detail Summary").Width(1250);
-                    columns.Add().DataField("fairmarketvalue").Caption("Nilai Pasar Wajar").Format("#,##0").Width(150);
-                    columns.Add().DataField("liabilitiesrankingvalue").Caption("Nilai Ranking Liabilities").Format("#,##0").Width(150);
+                    columns.Add().DataField("fairmarketvalue").Caption("Nilai Pasar Wajar").Alignment(HorizontalAlignment.Right).Format("#,##0").Width(150);
+                    columns.Add().DataField("liabilitiesrankingvalue").Caption("Nilai Ranking Liabilities").Alignment(HorizontalAlignment.Right).Format("#,##0").Width(150);
                 })
                 .ColumnResizingMode(ColumnResizingMode.Widget)
                 .FilterRow(f => f.Visible(true))

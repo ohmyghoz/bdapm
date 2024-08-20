@@ -1,0 +1,395 @@
+﻿@using DevExtreme.AspNet.Mvc
+@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+    string reportId = "pe_segmentation_bridging_detail";
+    var p = (string[])ViewBag.period;
+    var maxItems = db.GetSetting("LimitFilterLJK");
+}
+@section RightToolbar {
+    <div class="d-flex align-items-center">
+        <a class="nav-link btn btn-light-warning font-weight-bolder btn-sm mr-2" href="@Url.Action("Index")"><i class="fa fa-arrow-left"></i> Kembali Ke Daftar</a>
+    </div>
+}
+@inject BDA.DataModel.DataEntities db
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="card card-default">
+        @*filter*@
+        <div class="row filter-panel" style="padding-top:0px;">
+            <div class="card-body">
+                <div class="row">
+                    <div class="form-group ml-3">
+                        @* <button type="button" id="btnDetailCluster" class="btn btn-danger">Detail Cluster MKBD</button> *@
+                        <input type="button" id="btnBasisInvestor" class="btn btn-danger" value="Basis Investor" onclick="location.href='@Url.Action("/", "BasisInvestor")'" />
+                    </div>&nbsp;&nbsp;
+                    <div class="form-group">
+                        <input type="button" id="btnDetailBI" class="btn btn-danger" value="Detail Basis Investor" onclick="location.href='@Url.Action("Detail", "BasisInvestor")'" />
+                    </div>&nbsp;&nbsp;
+                    <div class="form-group">
+                        <input type="button" id="btnSumTxSID" class="btn btn-danger" value="Summary Transaction SID" onclick="location.href='@Url.Action("SumTxSID", "BasisInvestor")'" />
+                    </div>&nbsp;&nbsp;
+                </div>
+                <div class="row">
+
+                    <div class="col-lg-2 form-group">
+                        <label>Periode<span class="mandatory">*</span></label>
+                        @(Html.DevExtreme().DateBox()
+                            .ID("Periode")
+                            .DisplayFormat("MMM yyyy")
+                            //.Value(periodeAwal1 == null ? DateTime.Now : periodeAwal1)
+                            .Value(DateTime.Now)
+                            .Max(DateTime.Now)
+                            .Width("100%"))
+                    </div>
+
+                    <div class="col-lg-2 form-group">
+                        <label>PE<span class="mandatory">*</span></label>
+                        @(Html.DevExtreme().SelectBox()
+                            .ID("namaPEid")
+                            .DataSource(d => d.Mvc()
+                            .Controller("BasisInvestor")
+                            .Area("BDAPM")
+                            .LoadAction("GetNamaPE")
+                            .Key("value"))
+                            .ValueExpr("value")
+                            .DisplayExpr("text")
+                            .SearchEnabled(true)
+                            .Width("100%")
+                            )
+                    </div>
+
+                    <div class="col-lg-2 form-group">
+                        <label>SID@*<span class="mandatory">*</span>*@</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("SID")
+                            .DataSource(new[] { "(All)", "SID1", "SID2", "SID3" })
+                            .SearchEnabled(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .Width("100%"))
+                    </div>
+
+                    <div class="col-lg-2 form-group">
+                        <label>Investor Code@*<span class="mandatory">*</span>*@</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("InvstCode")
+                            .DataSource(new[] { "(All)", "A", "B", "C" })
+                            .SearchEnabled(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .Width("100%"))
+                    </div>
+
+                    <div class="col-lg-2 form-group">
+                        <label>Security Code@*<span class="mandatory">*</span>*@</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("SecCode")
+                            .DataSource(new[] { "SC1", "SC2", "SC3" })
+                            .SearchEnabled(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .Width("100%"))
+                    </div>
+
+                    <div class="col-lg-2 form-group">
+                        <label>Market@*<span class="mandatory">*</span>*@</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("Market")
+                            .DataSource(new[] { "Bursa" })
+                            .SearchEnabled(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .Width("100%"))
+                    </div>
+
+                </div>
+
+                <div class="float-left">
+                    @(Html.DevExtreme().Button()
+                        .ID("Filter")
+                        .Type(ButtonType.Default)
+                        .Text("Tampilkan")
+                        .OnClick("onButtonFilterClicked")
+                        .ValidationGroup("Filter"))
+                </div>
+            </div>
+        </div>
+
+        @*grid*@
+        <div>
+            <div class="float-right">
+                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                <br /> <br />
+            </div>
+            <br />
+
+            <div class="gridview-div">
+                <header class="bg-danger"><h5 class="text-white">&nbsp;Transaction Summary</h5></header>
+                @(Html.DevExtreme().DataGrid()
+                    .ID("gridtrx")
+                    //.DataSource(d => d.Mvc()
+                    //.Controller("SegmentationSummaryClusterMKBD")
+                    //.LoadAction("GetGridDataDetail")
+                    //.Key("rowid")
+                    //.OnBeforeSend("onGridBeforeSend"))
+                    .RemoteOperations(true)
+                    .Width("100%")
+                    .AllowColumnResizing(true)
+                    .ColumnAutoWidth(true)
+                    .Columns(columns =>
+                    {
+                        columns.Add().DataField("pe").Caption("PE");
+                        columns.Add().DataField("sid").Caption("SID");
+                        columns.Add().DataField("invcode").Caption("Investor Code");
+                        columns.Add().DataField("seccode").Caption("Security Code");
+                        columns.Add().DataField("trxsys").Caption("Transaction System");
+                        columns.Add().DataField("ttltrxpreq").Caption("Total Transaction Frequency");
+                        columns.Add().DataField("ttltrxvol").Caption("Total Transaction Volume");
+                        columns.Add().DataField("ttltrxval").Caption("Total Transaction Value");
+                    })
+                    .ColumnResizingMode(ColumnResizingMode.Widget)
+                    .FilterRow(f => f.Visible(true))
+                    .ShowBorders(false)
+                    //.RowAlternationEnabled(false)
+                    .Paging(p =>
+                    {
+                        p.PageSize(20);
+                        p.Enabled(true);
+                    })
+                    .Pager(p =>
+                    {
+                        p.ShowInfo(true);
+                    })
+                    )
+            </div>
+        </div>
+
+        @*grid*@
+        <div>
+            <div class="float-right">
+                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                <br /> <br />
+            </div>
+            <br />
+            <div class="gridview-div">
+                <header class="bg-danger"><h5 class="text-white">&nbsp;SRE Summary</h5></header>
+                @(Html.DevExtreme().DataGrid()
+                    .ID("gridsre")
+                    //.DataSource(d => d.Mvc()
+                    //.Controller("SegmentationSummaryClusterMKBD")
+                    //.LoadAction("GetGridDataDetail")
+                    //.Key("rowid")
+                    //.OnBeforeSend("onGridBeforeSend"))
+                    .RemoteOperations(true)
+                    .Width("100%")
+                    .AllowColumnResizing(true)
+                    .ColumnAutoWidth(true)
+                    .Columns(columns =>
+                    {
+                        columns.Add().DataField("pe").Caption("PE");
+                        columns.Add().DataField("sid").Caption("SID");
+                        columns.Add().DataField("secphytcode").Caption("Security Physical Type Code");
+                        columns.Add().DataField("stlactowntcode").Caption("Settlement Account Owner Type Code");
+                        columns.Add().DataField("stlacttcode").Caption("Settlement Account Type Code");
+                        columns.Add().DataField("actblcstscode").Caption("Account Balance Status Code");
+                        columns.Add().DataField("portoamount").Caption("Portofolio Amount");
+                        columns.Add().DataField("portoqty").Caption("Portofolio Quatity");
+                    })
+                    .ColumnResizingMode(ColumnResizingMode.Widget)
+                    .FilterRow(f => f.Visible(true))
+                    .ShowBorders(false)
+                    //.RowAlternationEnabled(false)
+                    .Paging(p =>
+                    {
+                        p.PageSize(20);
+                        p.Enabled(true);
+                    })
+                    .Pager(p =>
+                    {
+                        p.ShowInfo(true);
+                    })
+                    )
+            </div>
+        </div>
+
+        <!-- The Modal  Detail-->
+        <div class="modal fade" id="ModalSimpanPenggunaanData" tabindex="-1" role="document" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color:#0066b2">
+                        <h4 class="modal-title" style="text-align:left">
+                            <font color="white">Pilih Penggunaan Data</font>
+                        </h4>
+                    </div><!--Modal Header-->
+                    <!-- Modal body -->
+                    <div class="modal-body">
+                        <form id="StrukturFormDetail" method="POST" action="" class="form-horizontal row-border">
+                            <div class="row" style="padding: 0 10px 0 10px;">
+                                @(Html.DevExtreme().SelectBox()
+                                    .ID("penggunaandataid")
+                                    .DataSource(d => d.Mvc()
+                                    .Controller("PenggunaanData")
+                                    .Area("Website")
+                                    .LoadAction("GetPenggunaanData")
+                                    .Key("value"))
+                                    .ValueExpr("value")
+                                    .DisplayExpr("text")
+                                    .SearchEnabled(true)
+                                    .Width("100%")
+                                    )
+                            </div>
+                        </form>
+                    </div>
+                    <!-- Modal footer -->
+                    <div class="modal-footer">
+                        <button type="button" id="btnSavePenggunaanData" class="btn btn-primary" data-bs-dismiss="modal"><i class='fa fa-save'></i> Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- The Modal  Detail-->
+    </div>
+}
+
+<script>
+    window.jsPDF = window.jspdf.jsPDF;
+    applyPlugin(window.jsPDF);
+</script>
+
+<script>
+
+    $(function () {
+        const startDate = $("#PeriodeAwal").dxDateBox({
+            onValueChanged: function (e) {
+                endDate.option("min", e.value);
+            }
+        }).dxDateBox("instance");
+
+        $("#PeriodeAwal").dxValidator({
+            validationGroup: "Filter",
+            validationRules: [{ type: "required", message: "[Tanggal] harus dipilih" }]
+        })
+    });
+
+    $(function () {
+        $("#penggunaandataid").dxValidator({
+            validationGroup: "Filter",
+            validationRules: [{ type: "required", message: "[Penggunaan Data] harus dipilih" }]
+        })
+    });
+
+    $(function () {
+        $("#namaPEid").dxValidator({
+            validationGroup: "Filter",
+            validationRules: [{ type: "required", message: "[Nama PE] harus dipilih" }]
+        })
+    });
+
+    $(window).on('load', function () {
+        $("#ModalSimpanPenggunaanData").modal("show");
+    });
+
+    $("#btnSavePenggunaanData").click(function () {
+        let penggunaandataid = $("#penggunaandataid").dxSelectBox("instance").option("value");
+
+        if (penggunaandataid == null) {
+            alert("Silahkan Pilih Tujuan Penggunaan Data");
+            return false;
+        } else {
+            $.ajax({
+                url: '@Url.Action("SimpanPenggunaanData", "SegmentationSummaryClusterMKBD")',
+                data: { id: penggunaandataid },
+                dataType: "json",
+                type: "POST",
+                success: function (data) {
+                    if (data.success == true) {
+                        //alert(data.message);
+    @* waitingDialog.hide(); *@
+                            $('#ModalSimpanPenggunaanData').modal('hide');
+                        return "Saving Success !";
+                    }
+                    else if (data.success == false) {
+    @*  waitingDialog.hide(); *@
+                            alert(data.message);
+                        $('#ModalSimpanPenggunaanData').modal('hide');
+                        return "Saving Failed !";
+                    }
+                }
+            });
+        }
+    });
+
+    function onSelectionChanged(e) {
+        if (e.addedItems.length > 0) {
+            e.component.field().val(""); // Clears the search text. However, search filter is only applied to the widget after focus is lost in the input element
+        }
+    }
+
+    function onButtonFilterClicked(e) {
+        const res = e.validationGroup.validate();
+        if (res.status === "valid") {
+            $("#grid1").dxDataGrid("instance").refresh();
+        }
+    }
+
+    function onGridBeforeSend(method, ajaxOptions) {
+        let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
+        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
+        let status = $("#Statusid").dxTagBox("instance").option("value");
+
+        let periodeAwal = null;
+        if (tempPeriodeAwal != null) {
+            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + (tempPeriodeAwal.getMonth() + 1) + '-' + tempPeriodeAwal.getDate();
+        }
+        ajaxOptions.data.namaPE = JSON.stringify(namaPE);
+        ajaxOptions.data.periodeAwal = periodeAwal;
+        ajaxOptions.data.status = JSON.stringify(status);
+    }
+
+    var waitingDialog = (function ($) {
+
+        // Creating modal dialog's DOM
+        var $dialog = $(
+            '<div class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">' +
+            '<div class="modal-dialog modal-m">' +
+            '<div class="modal-content">' +
+            '<div class="modal-header"><h3 style="margin:0;"></h3></div>' +
+            '<div class="modal-body">' +
+            '<div class="progress progress-striped active" style="margin-bottom:0;"><div class="progress-bar" style="width: 100%"></div></div>' +
+            '</div>' +
+            '</div></div></div>');
+
+        return {
+            show: function (message, options) {
+                // Assigning defaults
+                var settings = $.extend({
+                    dialogSize: 'm',
+                    progressType: ''
+                }, options);
+                if (typeof message === 'undefined') {
+                    message = 'Loading';
+                }
+                if (typeof options === 'undefined') {
+                    options = {};
+                }
+                // Configuring dialog
+                $dialog.find('.modal-dialog').attr('class', 'modal-dialog').addClass('modal-' + settings.dialogSize);
+                $dialog.find('.progress-bar').attr('class', 'progress-bar');
+                if (settings.progressType) {
+                    $dialog.find('.progress-bar').addClass('progress-bar-' + settings.progressType);
+                }
+                $dialog.find('h3').text(message);
+                // Opening dialog
+                $dialog.modal();
+            },
+            /**
+                * Closes dialog
+                */
+            hide: function () {
+                $dialog.modal('hide');
+            }
+        }
+    })(jQuery);
+
+</script>
