@@ -517,7 +517,7 @@ namespace BDA.Controllers
 
             string stringPeriodeAwal = null;
             string stringNamaPE = null;
-            string reportId = "pe_segmentation_det_reverse_repo"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+            string reportId = "pe_segmentation_det_reverse_repo_new"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
 
             var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
 
@@ -557,7 +557,7 @@ namespace BDA.Controllers
 
             string stringPeriodeAwal = null;
             string stringNamaPE = null;
-            string reportId = "pe_segmentation_det_reverse_repo_sum"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+            string reportId = "pe_segmentation_det_reverse_repo_sum_new"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
 
             var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
 

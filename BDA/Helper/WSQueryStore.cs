@@ -4785,6 +4785,46 @@ namespace BDA.Helper
             return WSQueryHelper.DoQueryNL(db, props, isC, isHive);
         }
 
+        public static DataTable LINQResultToDataTable<T>(IEnumerable<T> Linqlist)
+        {
+            DataTable dt = new DataTable();
+
+            PropertyInfo[] columns = null;
+
+            if (Linqlist == null) return dt;
+
+            foreach (T Record in Linqlist)
+            {
+
+                if (columns == null)
+                {
+                    columns = ((Type)Record.GetType()).GetProperties();
+                    foreach (PropertyInfo GetProperty in columns)
+                    {
+                        Type colType = GetProperty.PropertyType;
+
+                        if ((colType.IsGenericType) && (colType.GetGenericTypeDefinition()
+                        == typeof(Nullable<>)))
+                        {
+                            colType = colType.GetGenericArguments()[0];
+                        }
+
+                        dt.Columns.Add(new DataColumn(GetProperty.Name, colType));
+                    }
+                }
+
+                DataRow dr = dt.NewRow();
+
+                foreach (PropertyInfo pinfo in columns)
+                {
+                    dr[pinfo.Name] = pinfo.GetValue(Record, null) == null ? DBNull.Value : pinfo.GetValue
+                    (Record, null);
+                }
+
+                dt.Rows.Add(dr);
+            }
+            return dt;
+        }
         public static WSQueryReturns GetBDAPMSegmentationSummaryClusterMKBDQuery(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string periodes, string stringPE, string stringStatus, bool isHive = false)
         {
             bool isC = false;
@@ -4841,7 +4881,7 @@ namespace BDA.Helper
                             when kasdansetarakas < mkbdminimum then 'Alert'
                             when kasdansetarakas > mkbdminimum then 'Normal'
                         END AS status,periode
-                        From dbo." + tableName + @") as x
+                        From pasarmodal." + tableName + @") as x
                     WHERE " + whereQuery + @"";
                 }
             }
@@ -4905,7 +4945,7 @@ namespace BDA.Helper
                             when kasdansetarakas < mkbdminimum then 'Alert'
                             when kasdansetarakas > mkbdminimum then 'Normal'
                         END AS status,periode
-                        From dbo." + tableName + @") as x
+                        From pasarmodal." + tableName + @") as x
                     WHERE " + whereQuery + @" group by status";
                 }
             }
@@ -4978,53 +5018,13 @@ namespace BDA.Helper
    	                        WHEN cluster ='200% s.d. <500%'  then '4'
    	                        WHEN cluster ='>=500%'  then '5'
                         END AS urut
-                    FROM dbo." + tableName + @") as x  
+                    FROM pasarmodal." + tableName + @") as x  
                     WHERE " + whereQuery + @") AS t 						
                     GROUP BY urut,cluster";
                 }
             }
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
-        }
-        public static DataTable LINQResultToDataTable<T>(IEnumerable<T> Linqlist)
-        {
-            DataTable dt = new DataTable();
-
-            PropertyInfo[] columns = null;
-
-            if (Linqlist == null) return dt;
-
-            foreach (T Record in Linqlist)
-            {
-
-                if (columns == null)
-                {
-                    columns = ((Type)Record.GetType()).GetProperties();
-                    foreach (PropertyInfo GetProperty in columns)
-                    {
-                        Type colType = GetProperty.PropertyType;
-
-                        if ((colType.IsGenericType) && (colType.GetGenericTypeDefinition()
-                        == typeof(Nullable<>)))
-                        {
-                            colType = colType.GetGenericArguments()[0];
-                        }
-
-                        dt.Columns.Add(new DataColumn(GetProperty.Name, colType));
-                    }
-                }
-
-                DataRow dr = dt.NewRow();
-
-                foreach (PropertyInfo pinfo in columns)
-                {
-                    dr[pinfo.Name] = pinfo.GetValue(Record, null) == null ? DBNull.Value : pinfo.GetValue
-                    (Record, null);
-                }
-
-                dt.Rows.Add(dr);
-            }
-            return dt;
         }
         public static WSQueryReturns GetBDAPMSegmentationSummaryClusterMKBDQueryDetail(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string periodes, string stringPE, bool isHive = false)
         {
@@ -5063,7 +5063,8 @@ namespace BDA.Helper
                 if (tableName == "pe_segmentation_bridging_detail")
                 {
                     props.Query = @"
-                        select * from dbo." + tableName + @" x
+                        select * 
+                        from pasarmodal." + tableName + @" x
                         WHERE " + whereQuery + @"";
                 }
             }
@@ -5098,7 +5099,8 @@ namespace BDA.Helper
                             affiliated,nominalsheet,acquisitionprice,fairmarketprice,
                             cast(cast(fairmarketvalue as BIGINT)  as string) as fairmarketvalue,gainperloss,
                             cast(cast(fairmarketvaluepertotalporto as BIGINT)  as string) as fairmarketvaluepertotalporto,entitygroup,marketvaluepercentage,
-                            cast(cast(liabilitiesrankingvalue as BIGINT)  as string) as liabilitiesrankingvalue,periode from pasarmodal." + tableName + @" x
+                            cast(cast(liabilitiesrankingvalue as BIGINT)  as string) as liabilitiesrankingvalue,periode 
+                        from pasarmodal." + tableName + @" x
                         WHERE " + whereQuery + @"";
                 }
             }
@@ -5107,7 +5109,8 @@ namespace BDA.Helper
                 if (tableName == "pe_segmentation_det_portofolio_saham")
                 {
                     props.Query = @"
-                        select row_number() over(order by securitycompanycode) as no, * from dbo." + tableName + @" x
+                        select row_number() over(order by securitycompanycode) as no, * 
+                        from pasarmodal." + tableName + @" x
                         WHERE " + whereQuery + @"";
                 }
             }
@@ -5150,7 +5153,7 @@ namespace BDA.Helper
                 if (tableName == "pe_segmentation_det_portofolio_saham_sum")
                 {
                     props.Query = @"
-                        select * from dbo." + tableName + @" x
+                        select * from pasarmodal." + tableName + @" x
                         WHERE " + whereQuery + @"";
                 }
             }
@@ -5194,7 +5197,7 @@ namespace BDA.Helper
                 if (tableName == "pe_segmentation_det_reksa_dana")
                 {
                     props.Query = @"
-                        select * from dbo." + tableName + @" x
+                        select * from pasarmodal." + tableName + @" x
                         WHERE " + whereQuery + @"";
                 }
             }
@@ -5235,7 +5238,7 @@ namespace BDA.Helper
                 if (tableName == "pe_segmentation_det_reksa_dana_sum")
                 {
                     props.Query = @"
-                        select * from dbo." + tableName + @" x
+                        select * from pasarmodal." + tableName + @" x
                         WHERE " + whereQuery + @"";
                 }
             }
@@ -5266,7 +5269,8 @@ namespace BDA.Helper
                 {
                     props.Query = @"
                         Select row_number() over(order by securitycompanycode) as no,calendardate,securitycompanysk,securitycompanycode,securitycompanyname,securitysk,securitycode,securityname,volume,price,
-                            cast(cast(fairmarketvalue as BIGINT)  as string) as fairmarketvalue,periode * from pasarmodal." + tableName + @" x
+                            cast(cast(fairmarketvalue as BIGINT)  as string) as fairmarketvalue,periode 
+                        from pasarmodal." + tableName + @" x
                         WHERE " + whereQuery + @"";
                 }
             }
@@ -5275,7 +5279,7 @@ namespace BDA.Helper
                 if (tableName == "pe_segmentation_det_jaminan_margin")
                 {
                     props.Query = @"
-                        Select row_number() over(order by securitycompanycode) as no, * from dbo." + tableName + @" x
+                        Select row_number() over(order by securitycompanycode) as no, * from pasarmodal." + tableName + @" x
                         WHERE " + whereQuery + @"";
                 }
             }
@@ -5316,7 +5320,7 @@ namespace BDA.Helper
                 if (tableName == "pe_segmentation_det_jaminan_margin_sum")
                 {
                     props.Query = @"
-                        select * from dbo." + tableName + @" x
+                        select * from pasarmodal." + tableName + @" x
                         WHERE " + whereQuery + @"";
                 }
             }
@@ -5343,19 +5347,26 @@ namespace BDA.Helper
             var props = new WSQueryProperties();
             if (isHive == true)
             {
-                if (tableName == "pe_segmentation_det_reverse_repo")
+                if (tableName == "pe_segmentation_det_reverse_repo_new")
                 {
                     props.Query = @"
-                        Select row_number() over(order by securitycompanycode) as no, * from pasarmodal." + tableName + @" x
+                        SELECT  row_number() over(order by securitycompanycode) as no,calendardate,securitycompanysk,securitycompanycode,securitycompanyname,securitycode,sellername,buyingdate,sellingdate,
+                            cast(cast(buyingamount as BIGINT)  as string) as buyingamount,
+                            cast(cast(sellingamount as BIGINT)  as string) as sellingamount,collateralsecuritycode,
+                            cast(cast(collateralamount as BIGINT)  as string) as collateralamount,
+                            cast(cast(fairmarketvalue as BIGINT)  as string) as fairmarketvalue,
+                            cast(cast(liabilitiesrankingvalue as BIGINT)  as string) as liabilitiesrankingvalue,
+                            cast(cast(rasio as BIGINT)  as string) as rasio,periode 
+                        FROM pasarmodal." + tableName + @" x
                         WHERE " + whereQuery + @"";
                 }
             }
             else
             {
-                if (tableName == "pe_segmentation_det_reverse_repo")
+                if (tableName == "pe_segmentation_det_reverse_repo_new")
                 {
                     props.Query = @"
-                        Select row_number() over(order by securitycompanycode) as no, * from dbo." + tableName + @" x
+                        Select row_number() over(order by securitycompanycode) as no, * from pasarmodal." + tableName + @" x
                         WHERE " + whereQuery + @"";
                 }
             }
@@ -5382,19 +5393,24 @@ namespace BDA.Helper
             var props = new WSQueryProperties();
             if (isHive == true)
             {
-                if (tableName == "pe_segmentation_det_reverse_repo_sum")
+                if (tableName == "pe_segmentation_det_reverse_repo_sum_new")
                 {
                     props.Query = @"
-                        select * from pasarmodal." + tableName + @" x
+                        SELECT calendardate,securitycompanysk,securitycompanycode,securitycompanyname,mkbdvd510accountsk,mkbdvd510accountcode,mkbdvd510description,
+                        cast(cast(buyingamount as BIGINT)  as string) as buyingamount,
+                        cast(cast(sellingamount as BIGINT)  as string) as sellingamount,
+                        cast(cast(fairmarketvalue as BIGINT)  as string) as fairmarketvalue,
+                        cast(cast(liabilitiesrankingvalue as BIGINT)  as string) as liabilitiesrankingvalue,periode 
+                        FROM pasarmodal." + tableName + @" x
                         WHERE " + whereQuery + @"";
                 }
             }
             else
             {
-                if (tableName == "pe_segmentation_det_reverse_repo_sum")
+                if (tableName == "pe_segmentation_det_reverse_repo_sum_new")
                 {
                     props.Query = @"
-                        select * from dbo." + tableName + @" x
+                        select * from pasarmodal." + tableName + @" x
                         WHERE " + whereQuery + @"";
                 }
             }
