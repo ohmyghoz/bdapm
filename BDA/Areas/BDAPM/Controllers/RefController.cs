@@ -17,7 +17,7 @@ using Newtonsoft.Json;
 
 namespace BDA.Controllers
 {
-    [Area("BDA2")]
+    [Area("BDAPM")]
     public class RefController : Controller
     {
         private DataEntities db;
