@@ -26,6 +26,7 @@ using System.Web;
 using System.Reflection;
 using DevExpress.Xpo.DB;
 using DevExpress.Charts.Native;
+using static DevExpress.Data.ODataLinq.Helpers.ODataLinqHelpers;
 
 namespace BDA.Controllers
 {
@@ -88,7 +89,7 @@ namespace BDA.Controllers
                 //string result = stringNamaPE.Replace("\",\"", "");
                 TempData["pe"] = stringNamaPE;
             }
-            
+
             if (StatusPE.Length > 0)
             {
                 stringStatus = string.Join(", ", StatusPE);
@@ -144,7 +145,7 @@ namespace BDA.Controllers
             db.Database.CommandTimeout = 420;
             var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryGetChartClusterSearch(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, stringStatus, cekHive);
             return JsonConvert.SerializeObject(result);
-        }     
+        }
         public object GetChartClusterBarSearch(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE, string status)
         {
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
@@ -228,7 +229,7 @@ namespace BDA.Controllers
             {
                 var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryDetail(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, cekHive);
                 return JsonConvert.SerializeObject(result);
-            }   
+            }
         }
         public object GetGridDataDetailRincian(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE)
         {
@@ -637,10 +638,40 @@ namespace BDA.Controllers
             string strSQL = db.appSettings.DataConnString;
             var list = new List<NamaPE>();
 
+            string reportId = "dim_exchange_members"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+            var result = Helper.WSQueryStore.GetBDAPMNamaPE(db, loadOptions, reportId, cekHive);
+            var varDataList = (dynamic)null;
+            varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                           select new
+                           {
+                               exchangemembercode = bs.Field<string>("exchangemembercode").ToString(),
+                               exchangemembername = bs.Field<string>("exchangemembername").ToString(),
+                           }).OrderBy(bs => bs.exchangemembername).ToList();
+            DataTable dtList = new DataTable();
+            dtList = Helper.WSQueryStore.LINQResultToDataTable(varDataList);
+
+            if (dtList.Rows.Count > 0)
+            {
+                for (int i = 0; i < dtList.Rows.Count; i++)
+                {
+                    string namakode = dtList.Rows[i]["exchangemembercode"].ToString() + " - " + dtList.Rows[i]["exchangemembername"].ToString();
+                    list.Add(new NamaPE() { value = dtList.Rows[i]["exchangemembercode"].ToString(), text = namakode });
+                }
+            }
+            return Json(DataSourceLoader.Load(list, loadOptions));
+        }
+        [HttpGet]
+        public object GetNamaPE_Old(DataSourceLoadOptions loadOptions)
+        {
+            var userId = HttpContext.User.Identity.Name;
+            string strSQL = db.appSettings.DataConnString;
+            var list = new List<NamaPE>();
+
             using (SqlConnection conn = new SqlConnection(strSQL))
             {
                 conn.Open();
-                string strQuery = "Select [SecurityCompanySK],[SecurityCompanyCode],[SecurityCompanyName] from PM_dimSecurityCompanies where CurrentStatus='A' order by SecurityCompanyName asc ";
+                string strQuery = "Select exchangemembercode,exchangemembername from pasarmodal.dim_exchange_members where currentstatus='A' order by exchangemembername asc ";
                 SqlDataAdapter da = new SqlDataAdapter(strQuery, conn);
                 DataTable dt = new DataTable();
                 da.Fill(dt);
@@ -648,8 +679,8 @@ namespace BDA.Controllers
                 {
                     for (int i = 0; i < dt.Rows.Count; i++)
                     {
-                        string namakode = dt.Rows[i]["SecurityCompanyCode"].ToString() + " - " + dt.Rows[i]["SecurityCompanyName"].ToString();
-                        list.Add(new NamaPE() { value = dt.Rows[i]["SecurityCompanyCode"].ToString(), text = namakode });
+                        string namakode = dt.Rows[i]["exchangemembercode"].ToString() + " - " + dt.Rows[i]["exchangemembername"].ToString();
+                        list.Add(new NamaPE() { value = dt.Rows[i]["exchangemembercode"].ToString(), text = namakode });
                     }
 
                     return Json(DataSourceLoader.Load(list, loadOptions));

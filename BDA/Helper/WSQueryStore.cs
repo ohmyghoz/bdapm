@@ -5417,6 +5417,30 @@ namespace BDA.Helper
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
         }
+        public static WSQueryReturns GetBDAPMNamaPE(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, bool isHive = false)
+        {
+            bool isC = false;
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "dim_exchange_members")
+                {
+                    props.Query = @"
+                        SELECT exchangemembercode,exchangemembername from pasarmodal." + tableName + @" where currentstatus='A'";
+                }
+            }
+            else
+            {
+                if (tableName == "dim_exchange_members")
+                {
+                    props.Query = @"
+                        SELECT exchangemembercode,exchangemembername from pasarmodal." + tableName + @" where currentstatus='A'";
+                }
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
 
         public static WSQueryReturns GetPMIPQuery(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string startPeriod, bool chk100 = false, bool isHive = false)
         {
@@ -5445,7 +5469,7 @@ namespace BDA.Helper
                     props.Query += (chk100 == true) ? @" order by x.is_active desc" : @"";
                 }
                 else if (tableName == "ip_ownership" || tableName == "ip_transaction")
-                {            
+                {
                     props.Query += @"
                         CAST(dm_periode AS VARCHAR(20)) + '~' + sid AS lem, * from pasarmodal." + tableName + @" x WHERE " + whereQuery;
                     props.Query += (chk100 == true) ? @" order by x.periode" : @"";
