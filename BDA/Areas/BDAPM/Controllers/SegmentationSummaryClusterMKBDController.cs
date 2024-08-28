@@ -183,13 +183,28 @@ namespace BDA.Controllers
             db.Database.CommandTimeout = 420;
             var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryGetChartClusterBarSearch(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, stringStatus, cekHive);
             var varDataList = (dynamic)null;
-            varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
-                           select new
-                           {
-                               cluster = bs.Field<string>("cluster").ToString(),
-                               total = bs.Field<Int32>("total").ToString(),
-                               urut = bs.Field<string>("urut").ToString(),
-                           }).OrderBy(bs => bs.urut).ToList();
+
+            if(cekHive == true)
+            {
+                varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                               select new
+                               {
+                                   cluster = bs.Field<string>("cluster").ToString(),
+                                   total = bs.Field<Int64>("total").ToString(),
+                                   urut = bs.Field<string>("urut").ToString(),
+                               }).OrderBy(bs => bs.urut).ToList();
+            }
+            else
+            {
+                varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                               select new
+                               {
+                                   cluster = bs.Field<string>("cluster").ToString(),
+                                   total = bs.Field<Int32>("total").ToString(),
+                                   urut = bs.Field<string>("urut").ToString(),
+                               }).OrderBy(bs => bs.urut).ToList();
+            }
+
             return JsonConvert.SerializeObject(varDataList);
         }
         public object GetGridDataDetail(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE)

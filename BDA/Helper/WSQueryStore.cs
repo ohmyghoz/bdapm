@@ -4834,7 +4834,7 @@ namespace BDA.Helper
             if (periodes != null)
             {
                 periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND calendardate in (" + periodes + ")";
+                whereQuery = whereQuery += " AND periode in (" + periodes.Replace("-","") + ")";
             }
             if (stringPE != null)
             {
@@ -4862,7 +4862,7 @@ namespace BDA.Helper
                         cast(cast(mkbd as BIGINT)  as string) as mkbd,
                         cast(cast(mkbdminimum as BIGINT)  as string) as mkbdminimum,
                         cast(cast(mkbdminimum as BIGINT)  as string) as mkbdpermkbdminimum,
-                        case 
+                        CASE 
                             when cast(cast(kasdansetarakas as BIGINT)  as string) < cast(cast(mkbdminimum as BIGINT)  as string) then 'Alert'
                             when cast(cast(kasdansetarakas as BIGINT)  as string) > cast(cast(mkbdminimum as BIGINT)  as string) then 'Normal'
                         END AS status,periode
@@ -4877,7 +4877,7 @@ namespace BDA.Helper
                     props.Query = @"
                     SELECT row_number() over(order by securitycompanycode) as no,* from (
                     SELECT calendardate,securitycompanycode,securitycompanyname,simpanangiro,depositolt3bulan,depositogt3bulandijaminlps,uangjaminanlkp,kasdansetarakas,mkbd,mkbdminimum,mkbdpermkbdminimum,
-                        case 
+                        CASE 
                             when kasdansetarakas < mkbdminimum then 'Alert'
                             when kasdansetarakas > mkbdminimum then 'Normal'
                         END AS status,periode
@@ -4897,7 +4897,7 @@ namespace BDA.Helper
             if (periodes != null)
             {
                 periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND calendardate in (" + periodes + ")";
+                whereQuery = whereQuery += " AND periode in (" + periodes.Replace("-", "") + ")";
             }
 
             if (stringPE != null)
@@ -4926,9 +4926,9 @@ namespace BDA.Helper
                         cast(cast(mkbd as BIGINT)  as string) as mkbd,
                         cast(cast(mkbdminimum as BIGINT)  as string) as mkbdminimum,
                         cast(cast(mkbdminimum as BIGINT)  as string) as mkbdpermkbdminimum,
-                        case 
-                            when kasdansetarakas < mkbdminimum then 'Alert'
-                            when kasdansetarakas > mkbdminimum then 'Normal'
+                        CASE 
+                            when cast(cast(kasdansetarakas as BIGINT)  as string) < cast(cast(mkbdminimum as BIGINT)  as string) then 'Alert'
+                            when cast(cast(kasdansetarakas as BIGINT)  as string) > cast(cast(mkbdminimum as BIGINT)  as string) then 'Normal'
                         END AS status,periode
                         From pasarmodal." + tableName + @") as x
                     WHERE " + whereQuery + @" group by status";
@@ -4941,7 +4941,7 @@ namespace BDA.Helper
                     props.Query = @"
                     SELECT status,COUNT(status) total from (
                     SELECT calendardate,securitycompanycode,securitycompanyname,simpanangiro,depositolt3bulan,depositogt3bulandijaminlps,uangjaminanlkp,kasdansetarakas,mkbd,mkbdminimum,mkbdpermkbdminimum,
-                        case 
+                        CASE 
                             when kasdansetarakas < mkbdminimum then 'Alert'
                             when kasdansetarakas > mkbdminimum then 'Normal'
                         END AS status,periode
@@ -4961,7 +4961,7 @@ namespace BDA.Helper
             if (periodes != null)
             {
                 periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND calendardate in (" + periodes + ")";
+                whereQuery = whereQuery += " AND periode in (" + periodes.Replace("-", "") + ")";
             }
 
             if (stringPE != null)
@@ -4980,24 +4980,23 @@ namespace BDA.Helper
                 if (tableName == "pe_segmentation_sum_cluster_mkbd")
                 {
                     props.Query = @"
-                    SELECT * FROM (
                     SELECT cluster,COUNT(status) total,urut from (
                     SELECT * FROM (                    
                     SELECT calendardate,securitycompanycode,
-                    	CASE 
-                    		WHEN kasdansetarakas < mkbdminimum then 'Alert'
-                    		WHEN kasdansetarakas > mkbdminimum then 'Normal'
-                    	END AS status,cluster,
+                        CASE 
+                            when cast(cast(kasdansetarakas as BIGINT)  as string) < cast(cast(mkbdminimum as BIGINT)  as string) then 'Alert'
+                            when cast(cast(kasdansetarakas as BIGINT)  as string) > cast(cast(mkbdminimum as BIGINT)  as string) then 'Normal'
+                        END AS status,cluster,
                         CASE 
                            WHEN cluster ='<100%'  then '1'
                            WHEN cluster ='100% s.d. <120%'  then '2'
                            WHEN cluster ='120% s.d. <200%'  then '3'
                            WHEN cluster ='200% s.d. <500%'  then '4'
                            WHEN cluster ='>=500%'  then '5'
-                        END AS urut
+                        END AS urut,periode
                     FROM pasarmodal." + tableName + @") as x  
                     WHERE " + whereQuery + @") AS t 						
-                    GROUP BY urut,cluster) AS z";
+                    GROUP BY urut,cluster";
                 }
             }
             else
@@ -5005,7 +5004,6 @@ namespace BDA.Helper
                 if (tableName == "pe_segmentation_sum_cluster_mkbd")
                 {
                     props.Query = @"
-                    SELECT * FROM (
                     SELECT cluster,COUNT(status) total,urut from (
                     SELECT * FROM (                    
                     SELECT calendardate,securitycompanycode,
@@ -5019,10 +5017,10 @@ namespace BDA.Helper
                            WHEN cluster ='120% s.d. <200%'  then '3'
                            WHEN cluster ='200% s.d. <500%'  then '4'
                            WHEN cluster ='>=500%'  then '5'
-                        END AS urut
+                        END AS urut,periode
                     FROM pasarmodal." + tableName + @") as x  
                     WHERE " + whereQuery + @") AS t 						
-                    GROUP BY urut,cluster) AS z";
+                    GROUP BY urut,cluster";
                 }
             }
 
@@ -5037,7 +5035,7 @@ namespace BDA.Helper
             if (periodes != null)
             {
                 periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND calendardate in (" + periodes + ")";
+                whereQuery = whereQuery += " AND periode in (" + periodes.Replace("-", "") + ")";
             }
             if (stringPE != null)
             {
@@ -5082,7 +5080,7 @@ namespace BDA.Helper
             if (periodes != null)
             {
                 periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND calendardate in (" + periodes + ")";
+                whereQuery = whereQuery += " AND periode in (" + periodes.Replace("-", "") + ")";
             }
             if (stringPE != null)
             {
@@ -5128,7 +5126,7 @@ namespace BDA.Helper
             if (periodes != null)
             {
                 periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND calendardate in (" + periodes + ")";
+                whereQuery = whereQuery += " AND periode in (" + periodes.Replace("-", "") + ")";
             }
             if (stringPE != null)
             {
@@ -5171,7 +5169,7 @@ namespace BDA.Helper
             if (periodes != null)
             {
                 periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND calendardate in (" + periodes + ")";
+                whereQuery = whereQuery += " AND periode in (" + periodes.Replace("-", "") + ")";
             }
             if (stringPE != null)
             {
@@ -5215,7 +5213,7 @@ namespace BDA.Helper
             if (periodes != null)
             {
                 periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND calendardate in (" + periodes + ")";
+                whereQuery = whereQuery += " AND periode in (" + periodes.Replace("-", "") + ")";
             }
             if (stringPE != null)
             {
@@ -5256,7 +5254,7 @@ namespace BDA.Helper
             if (periodes != null)
             {
                 periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND calendardate in (" + periodes + ")";
+                whereQuery = whereQuery += " AND periode in (" + periodes.Replace("-", "") + ")";
             }
             if (stringPE != null)
             {
@@ -5297,7 +5295,7 @@ namespace BDA.Helper
             if (periodes != null)
             {
                 periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND calendardate in (" + periodes + ")";
+                whereQuery = whereQuery += " AND periode in (" + periodes.Replace("-", "") + ")";
             }
             if (stringPE != null)
             {
@@ -5338,7 +5336,7 @@ namespace BDA.Helper
             if (periodes != null)
             {
                 periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND calendardate in (" + periodes + ")";
+                whereQuery = whereQuery += " AND periode in (" + periodes.Replace("-", "") + ")";
             }
             if (stringPE != null)
             {
@@ -5384,7 +5382,7 @@ namespace BDA.Helper
             if (periodes != null)
             {
                 periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND calendardate in (" + periodes + ")";
+                whereQuery = whereQuery += " AND periode in (" + periodes.Replace("-", "") + ")";
             }
             if (stringPE != null)
             {
