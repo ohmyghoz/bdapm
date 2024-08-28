@@ -243,17 +243,31 @@
 <script>
 
     function ExportToExcelDetail() {
-        $.ajax({
+         $.ajax({
             type: "POST",
             url: "@Url.Action("LogExportIndexDetail", "SegmentationSummaryClusterMKBD")",
             success: function (response) {
                 if (response.result == "Success") {
-                    var grid = $("#grid1").dxDataGrid("instance");
-                    grid.option("onExporting", function (e) {
-                        e.fileName = "DetailClusterMKBD_" + new Date().toISOString().slice(0, 10);
+                    var workbook = new ExcelJS.Workbook();
+                    var worksheet = workbook.addWorksheet('Main sheet');
+
+                    DevExpress.excelExporter.exportDataGrid({
+                        component: $("#grid1").dxDataGrid("instance"),
+                        worksheet: worksheet,
+                        customizeCell: function (options) {
+                            var { gridCell, excelCell } = options;
+
+                            if (gridCell.rowType === 'data') {
+                                if (options.gridCell.column.dataType === 'number') {
+                                    excelCell.numFmt = '#,##0.00';
+                                }
+                            }
+                        }
+                    }).then(function () {
+                        workbook.xlsx.writeBuffer().then(function (buffer) {
+                            saveAs(new Blob([buffer], { type: "application/octet-stream" }), "DetailClusterMKBD_" + new Date().toISOString().slice(0, 10) + ".xlsx");
+                        });
                     });
-                    grid.option("onFileSaving", function (e) { });
-                    grid.exportToExcel();
                 }
             }
         });
@@ -285,12 +299,26 @@
             url: "@Url.Action("LogExportIndexRincianPortofolioEfek", "SegmentationSummaryClusterMKBD")",
             success: function (response) {
                 if (response.result == "Success") {
-                    var grid = $("#grid2").dxDataGrid("instance");
-                    grid.option("onExporting", function (e) {
-                        e.fileName = "RincianPortofolioEfek_" + new Date().toISOString().slice(0, 10);
+                    var workbook = new ExcelJS.Workbook();
+                    var worksheet = workbook.addWorksheet('Main sheet');
+
+                    DevExpress.excelExporter.exportDataGrid({
+                        component: $("#grid2").dxDataGrid("instance"),
+                        worksheet: worksheet,
+                        customizeCell: function (options) {
+                            var { gridCell, excelCell } = options;
+
+                            if (gridCell.rowType === 'data') {
+                                if (options.gridCell.column.dataType === 'number') {
+                                    excelCell.numFmt = '#,##0.00';
+                                }
+                            }
+                        }
+                    }).then(function () {
+                        workbook.xlsx.writeBuffer().then(function (buffer) {
+                            saveAs(new Blob([buffer], { type: "application/octet-stream" }), "RincianPortofolioEfek_" + new Date().toISOString().slice(0, 10) + ".xlsx");
+                        });
                     });
-                    grid.option("onFileSaving", function (e) { });
-                    grid.exportToExcel();
                 }
             }
         });
