@@ -125,10 +125,10 @@
                     columns.Add().DataField("securitycompanycode").Caption("Kode PE");
                     columns.Add().DataField("securitycompanyname").Caption("Nama PE").Width(300);
                     columns.Add().DataField("f_level_1").Caption("Konsentrasi Aset Lancar Selain Kas Dan Setara Kas").Width(150);
-                    columns.Add().DataField("total_balance").Caption("Total Balance").Format("#,##0");
-                    columns.Add().DataField("total_aset_lancar").Caption("Total Aset Lancar").Format("#,##0");
+                    columns.Add().DataField("total_balance").Caption("Total Balance").DataType(GridColumnDataType.Number).Format(",##0");
+                    columns.Add().DataField("total_aset_lancar").Caption("Total Aset Lancar").DataType(GridColumnDataType.Number).Format(",##0");
                     columns.Add().DataField("persentase").Caption("Persentase");
-                    columns.Add().DataField("fairmarketvalue").Caption("Nilai Jaminan Margin").Format("#,##0").Width(150);
+                    columns.Add().DataField("fairmarketvalue").Caption("Nilai Jaminan Margin").Width(150).DataType(GridColumnDataType.Number).Format(",##0");
                 })
                 .ColumnResizingMode(ColumnResizingMode.Widget)
                 .FilterRow(f => f.Visible(true))
@@ -176,10 +176,10 @@
                 .Columns(columns =>
                 {
                     columns.Add().DataField("f_level_2").Caption("Nama Akun").Width(300);
-                    columns.Add().DataField("total_balance").Caption("Total Balance").Format("#,##0");
-                    columns.Add().DataField("total_aset_lancar").Caption("Total Portofolio Efek").Format("#,##0");
+                    columns.Add().DataField("total_balance").Caption("Total Balance").DataType(GridColumnDataType.Number).Format(",##0");
+                    columns.Add().DataField("total_aset_lancar").Caption("Total Portofolio Efek").DataType(GridColumnDataType.Number).Format(",##0");
                     columns.Add().DataField("persentase").Caption("Persentase");
-                    columns.Add().DataField("fairmarketvalue").Caption("Haircut").Format("#,##0").Width(150);
+                    columns.Add().DataField("fairmarketvalue").Caption("Haircut").Width(150).DataType(GridColumnDataType.Number).Format(",##0");
                 })
                 .ColumnResizingMode(ColumnResizingMode.Widget)
                 .FilterRow(f => f.Visible(true))

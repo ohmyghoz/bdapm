@@ -4980,6 +4980,7 @@ namespace BDA.Helper
                 if (tableName == "pe_segmentation_sum_cluster_mkbd")
                 {
                     props.Query = @"
+                    SELECT * FROM (
                     SELECT cluster,COUNT(status) total,urut from (
                     SELECT * FROM (                    
                     SELECT calendardate,securitycompanycode,
@@ -4988,15 +4989,15 @@ namespace BDA.Helper
                     		WHEN kasdansetarakas > mkbdminimum then 'Normal'
                     	END AS status,cluster,
                         CASE 
-                            WHEN cluster ='<100%'  then '1'
-   	                        WHEN cluster ='100% s.d. <120%'  then '2'
-   	                        WHEN cluster ='120% s.d. <200%'  then '3'
-   	                        WHEN cluster ='200% s.d. <500%'  then '4'
-   	                        WHEN cluster ='>=500%'  then '5'
+                           WHEN cluster ='<100%'  then '1'
+                           WHEN cluster ='100% s.d. <120%'  then '2'
+                           WHEN cluster ='120% s.d. <200%'  then '3'
+                           WHEN cluster ='200% s.d. <500%'  then '4'
+                           WHEN cluster ='>=500%'  then '5'
                         END AS urut
                     FROM pasarmodal." + tableName + @") as x  
                     WHERE " + whereQuery + @") AS t 						
-                    GROUP BY urut,cluster";
+                    GROUP BY urut,cluster) AS z";
                 }
             }
             else
@@ -5004,6 +5005,7 @@ namespace BDA.Helper
                 if (tableName == "pe_segmentation_sum_cluster_mkbd")
                 {
                     props.Query = @"
+                    SELECT * FROM (
                     SELECT cluster,COUNT(status) total,urut from (
                     SELECT * FROM (                    
                     SELECT calendardate,securitycompanycode,
@@ -5012,15 +5014,15 @@ namespace BDA.Helper
                     		WHEN kasdansetarakas > mkbdminimum then 'Normal'
                     	END AS status,cluster,
                         CASE 
-                    	    WHEN cluster ='<100%'  then '1'
-   	                        WHEN cluster ='100% s.d. <120%'  then '2'
-   	                        WHEN cluster ='120% s.d. <200%'  then '3'
-   	                        WHEN cluster ='200% s.d. <500%'  then '4'
-   	                        WHEN cluster ='>=500%'  then '5'
+                           WHEN cluster ='<100%'  then '1'
+                           WHEN cluster ='100% s.d. <120%'  then '2'
+                           WHEN cluster ='120% s.d. <200%'  then '3'
+                           WHEN cluster ='200% s.d. <500%'  then '4'
+                           WHEN cluster ='>=500%'  then '5'
                         END AS urut
                     FROM pasarmodal." + tableName + @") as x  
                     WHERE " + whereQuery + @") AS t 						
-                    GROUP BY urut,cluster";
+                    GROUP BY urut,cluster) AS z";
                 }
             }
 

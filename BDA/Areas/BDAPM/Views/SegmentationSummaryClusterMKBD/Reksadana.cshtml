@@ -124,11 +124,11 @@
                     columns.Add().DataField("mutualfundtypename").Caption("Jenis Reksa Dana").Width(300);
                     columns.Add().DataField("mutualfundname").Caption("Nama Reksa Dana");
                     columns.Add().DataField("isaffiliated").Caption("Terafiliasi/Tidak Terafiliasi");
-                    columns.Add().DataField("netassetvalueunit").Caption("Nilai Aktiva Bersih Unit Penyertaan Reksa Dana yang dimiliki").Width(130).Alignment(HorizontalAlignment.Right).Format("#,##0");
-                    columns.Add().DataField("netassetvaluemutualfund").Caption("Nilai Aktiva Bersih per Reksa Dana").Alignment(HorizontalAlignment.Right).Format("#,##0").Width(130);
-                    columns.Add().DataField("liabilitiesrankingcal").Caption("Perhitungan Ranking Liabilities").Alignment(HorizontalAlignment.Right).Format("#,##0");
-                    columns.Add().DataField("mkbdlimitationvalue").Caption("Batasan yang dapat dimiliki untuk MKBD").Alignment(HorizontalAlignment.Right).Format("#,##0").Width(130);
-                    columns.Add().DataField("mkbdlimitationexcessvalue").Caption("Kelebihan di atas batasan (Kolom D - Kolom G)").Alignment(HorizontalAlignment.Right).Format("#,##0").Width(130);
+                    columns.Add().DataField("netassetvalueunit").Caption("Nilai Aktiva Bersih Unit Penyertaan Reksa Dana yang dimiliki").Width(130).Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+                    columns.Add().DataField("netassetvaluemutualfund").Caption("Nilai Aktiva Bersih per Reksa Dana").Alignment(HorizontalAlignment.Right).Width(130).DataType(GridColumnDataType.Number).Format(",##0");
+                    columns.Add().DataField("liabilitiesrankingcal").Caption("Perhitungan Ranking Liabilities").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+                    columns.Add().DataField("mkbdlimitationvalue").Caption("Batasan yang dapat dimiliki untuk MKBD").Alignment(HorizontalAlignment.Right).Width(130).DataType(GridColumnDataType.Number).Format(",##0");
+                    columns.Add().DataField("mkbdlimitationexcessvalue").Caption("Kelebihan di atas batasan (Kolom D - Kolom G)").Alignment(HorizontalAlignment.Right).Width(130).DataType(GridColumnDataType.Number).Format(",##0");
                 })
                 .ColumnResizingMode(ColumnResizingMode.Widget)
                 .FilterRow(f => f.Visible(true))
@@ -173,7 +173,7 @@
                 .Columns(columns =>
                 {
                     columns.Add().DataField("mkbdvd510description").Caption("Detail Summary").Width(1350);
-                    columns.Add().DataField("mkbdlimitationexcessvalue").Caption("Kelebihan di Atas Batasan").Alignment(HorizontalAlignment.Right).Format("#,##0").Width(150);
+                    columns.Add().DataField("mkbdlimitationexcessvalue").Caption("Kelebihan di Atas Batasan").Alignment(HorizontalAlignment.Right).Width(150).DataType(GridColumnDataType.Number).Format(",##0");
                 })
                 .ColumnResizingMode(ColumnResizingMode.Widget)
                 .FilterRow(f => f.Visible(true))

@@ -123,9 +123,9 @@
                 {
                     columns.Add().DataField("no").Caption("No.").Alignment(HorizontalAlignment.Center).Width(50);
                     columns.Add().DataField("securityname").Caption("Nama Efek").Width(1000);
-                    columns.Add().DataField("volume").Caption("Volume").Alignment(HorizontalAlignment.Right).Format("#,##0").Width(130);
-                    columns.Add().DataField("price").Caption("Harga").Width(130).Alignment(HorizontalAlignment.Right).Format("#,##0").Width(130);
-                    columns.Add().DataField("fairmarketvalue").Caption("Nilai Pasar Wajar").Alignment(HorizontalAlignment.Right).Format("#,##0").Width(130);
+                    columns.Add().DataField("volume").Caption("Volume").Alignment(HorizontalAlignment.Right).Width(130).DataType(GridColumnDataType.Number).Format(",##0");
+                    columns.Add().DataField("price").Caption("Harga").Width(130).Alignment(HorizontalAlignment.Right).Width(130).DataType(GridColumnDataType.Number).Format(",##0");
+                    columns.Add().DataField("fairmarketvalue").Caption("Nilai Pasar Wajar").Alignment(HorizontalAlignment.Right).Width(130).DataType(GridColumnDataType.Number).Format(",##0");
                 })
                 .ColumnResizingMode(ColumnResizingMode.Widget)
                 .FilterRow(f => f.Visible(true))
@@ -170,7 +170,7 @@
                 .Columns(columns =>
                 {
                     columns.Add().DataField("mkbdvd510description").Caption("Detail Summary").Width(1350);
-                    columns.Add().DataField("fairmarketvalue").Caption("Nilai Pasar Wajar").Alignment(HorizontalAlignment.Right).Format("#,##0").Width(150);
+                    columns.Add().DataField("fairmarketvalue").Caption("Nilai Pasar Wajar").Alignment(HorizontalAlignment.Right).Width(150).DataType(GridColumnDataType.Number).Format(",##0");
                 })
                 .ColumnResizingMode(ColumnResizingMode.Widget)
                 .FilterRow(f => f.Visible(true))

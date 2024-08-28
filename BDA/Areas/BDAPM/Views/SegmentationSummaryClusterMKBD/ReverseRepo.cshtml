@@ -126,12 +126,12 @@
                     columns.Add().DataField("sellername").Caption("Penjual (Lawan Transaksi)").Width(300);
                     columns.Add().DataField("buyingdate").Caption("Tanggal Pembelian").DataType(GridColumnDataType.DateTime).Format("dd MMM yyyy");
                     columns.Add().DataField("sellingdate").Caption("Tanggal Penjualan Kembali").DataType(GridColumnDataType.DateTime).Format("dd MMM yyyy");
-                    columns.Add().DataField("buyingamount").Caption("Nilai Pembelian").Alignment(HorizontalAlignment.Right).Format("#,##0").Width(130);
-                    columns.Add().DataField("sellingamount").Caption("Nilai Penjualan Kembali").Alignment(HorizontalAlignment.Right).Format("#,##0").Width(130);
+                    columns.Add().DataField("buyingamount").Caption("Nilai Pembelian").Alignment(HorizontalAlignment.Right).Width(130).DataType(GridColumnDataType.Number).Format(",##0");
+                    columns.Add().DataField("sellingamount").Caption("Nilai Penjualan Kembali").Alignment(HorizontalAlignment.Right).Width(130).DataType(GridColumnDataType.Number).Format(",##0");
                     columns.Add().DataField("collateralsecuritycode").Caption("Kode Efek Jaminan").Width(130);
-                    columns.Add().DataField("collateralamount").Caption("Jumlah Jaminan (Lembar/Nominal)").Alignment(HorizontalAlignment.Right).Format("#,##0").Width(140);
-                    columns.Add().DataField("fairmarketvalue").Caption("Nilai Pasar Wajar Jaminan").Alignment(HorizontalAlignment.Right).Format("#,##0").Width(130);
-                    columns.Add().DataField("liabilitiesrankingvalue").Caption("Nilai Rangking Liabilities").Alignment(HorizontalAlignment.Right).Format("#,##0").Width(130);
+                    columns.Add().DataField("collateralamount").Caption("Jumlah Jaminan (Lembar/Nominal)").Alignment(HorizontalAlignment.Right).Width(140).DataType(GridColumnDataType.Number).Format(",##0");
+                    columns.Add().DataField("fairmarketvalue").Caption("Nilai Pasar Wajar Jaminan").Alignment(HorizontalAlignment.Right).Width(130).DataType(GridColumnDataType.Number).Format(",##0");
+                    columns.Add().DataField("liabilitiesrankingvalue").Caption("Nilai Rangking Liabilities").Alignment(HorizontalAlignment.Right).Width(130).DataType(GridColumnDataType.Number).Format(",##0");
                 })
                 .ColumnResizingMode(ColumnResizingMode.Widget)
                 .FilterRow(f => f.Visible(true))
@@ -176,10 +176,10 @@
                 .Columns(columns =>
                 {
                     columns.Add().DataField("mkbdvd510description").Caption("Detail Summary").Width(800);
-                    columns.Add().DataField("buyingamount").Caption("Nilai Pembelian").Alignment(HorizontalAlignment.Right).Format("#,##0").Width(150);
-                    columns.Add().DataField("sellingamount").Caption("Nilai Penjualan Kembali").Alignment(HorizontalAlignment.Right).Format("#,##0").Width(150);
-                    columns.Add().DataField("fairmarketvalue").Caption("Nilai Pasar Wajar Jaminan").Alignment(HorizontalAlignment.Right).Format("#,##0").Width(150);
-                    columns.Add().DataField("liabilitiesrankingvalue").Caption("Nilai Rangking Liabilities").Alignment(HorizontalAlignment.Right).Format("#,##0").Width(150);
+                    columns.Add().DataField("buyingamount").Caption("Nilai Pembelian").Alignment(HorizontalAlignment.Right).Width(150).DataType(GridColumnDataType.Number).Format(",##0");
+                    columns.Add().DataField("sellingamount").Caption("Nilai Penjualan Kembali").Alignment(HorizontalAlignment.Right).Width(150).DataType(GridColumnDataType.Number).Format(",##0");
+                    columns.Add().DataField("fairmarketvalue").Caption("Nilai Pasar Wajar Jaminan").Alignment(HorizontalAlignment.Right).Width(150).DataType(GridColumnDataType.Number).Format(",##0");
+                    columns.Add().DataField("liabilitiesrankingvalue").Caption("Nilai Rangking Liabilities").Alignment(HorizontalAlignment.Right).Width(150).DataType(GridColumnDataType.Number).Format(",##0");
                 })
                 .ColumnResizingMode(ColumnResizingMode.Widget)
                 .FilterRow(f => f.Visible(true))
