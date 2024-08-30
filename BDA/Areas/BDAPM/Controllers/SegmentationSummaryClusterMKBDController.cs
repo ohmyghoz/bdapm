@@ -936,7 +936,14 @@ namespace BDA.Controllers
                     StyleFlag textFlag = new StyleFlag();
                     textFlag.NumberFormat = true;
 
+                    worksheet.Cells.Columns[3].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[4].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[5].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[6].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[7].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[8].ApplyStyle(textStyle, textFlag);
                     worksheet.Cells.Columns[9].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[10].ApplyStyle(textStyle, textFlag);
 
                     //page setup
                     PageSetup pageSetup = worksheet.PageSetup;
@@ -1033,7 +1040,9 @@ namespace BDA.Controllers
                     StyleFlag textFlag = new StyleFlag();
                     textFlag.NumberFormat = true;
 
-                    worksheet.Cells.Columns[9].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[4].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[5].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[7].ApplyStyle(textStyle, textFlag);
 
                     //page setup
                     PageSetup pageSetup = worksheet.PageSetup;
@@ -1128,7 +1137,9 @@ namespace BDA.Controllers
                     StyleFlag textFlag = new StyleFlag();
                     textFlag.NumberFormat = true;
 
-                    worksheet.Cells.Columns[9].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[1].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[2].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[4].ApplyStyle(textStyle, textFlag);
 
                     //page setup
                     PageSetup pageSetup = worksheet.PageSetup;
@@ -1224,7 +1235,13 @@ namespace BDA.Controllers
                     StyleFlag textFlag = new StyleFlag();
                     textFlag.NumberFormat = true;
 
+                    worksheet.Cells.Columns[5].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[6].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[7].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[8].ApplyStyle(textStyle, textFlag);
                     worksheet.Cells.Columns[9].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[11].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[12].ApplyStyle(textStyle, textFlag);
 
                     //page setup
                     PageSetup pageSetup = worksheet.PageSetup;
@@ -1318,8 +1335,8 @@ namespace BDA.Controllers
                     StyleFlag textFlag = new StyleFlag();
                     textFlag.NumberFormat = true;
 
-                    worksheet.Cells.Columns[9].ApplyStyle(textStyle, textFlag);
-
+                    worksheet.Cells.Columns[1].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[2].ApplyStyle(textStyle, textFlag);
                     //page setup
                     PageSetup pageSetup = worksheet.PageSetup;
                     pageSetup.Orientation = PageOrientationType.Landscape;
@@ -1414,7 +1431,11 @@ namespace BDA.Controllers
                     StyleFlag textFlag = new StyleFlag();
                     textFlag.NumberFormat = true;
 
-                    worksheet.Cells.Columns[9].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[3].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[4].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[5].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[6].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[7].ApplyStyle(textStyle, textFlag);
 
                     //page setup
                     PageSetup pageSetup = worksheet.PageSetup;
@@ -1508,7 +1529,7 @@ namespace BDA.Controllers
                     StyleFlag textFlag = new StyleFlag();
                     textFlag.NumberFormat = true;
 
-                    worksheet.Cells.Columns[9].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[1].ApplyStyle(textStyle, textFlag);
 
                     //page setup
                     PageSetup pageSetup = worksheet.PageSetup;
@@ -1604,8 +1625,9 @@ namespace BDA.Controllers
                     StyleFlag textFlag = new StyleFlag();
                     textFlag.NumberFormat = true;
 
-                    worksheet.Cells.Columns[9].ApplyStyle(textStyle, textFlag);
-
+                    worksheet.Cells.Columns[2].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[3].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[4].ApplyStyle(textStyle, textFlag);
                     //page setup
                     PageSetup pageSetup = worksheet.PageSetup;
                     pageSetup.Orientation = PageOrientationType.Landscape;
@@ -1698,7 +1720,7 @@ namespace BDA.Controllers
                     StyleFlag textFlag = new StyleFlag();
                     textFlag.NumberFormat = true;
 
-                    worksheet.Cells.Columns[9].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[1].ApplyStyle(textStyle, textFlag);
 
                     //page setup
                     PageSetup pageSetup = worksheet.PageSetup;
@@ -1794,8 +1816,11 @@ namespace BDA.Controllers
                     StyleFlag textFlag = new StyleFlag();
                     textFlag.NumberFormat = true;
 
+                    worksheet.Cells.Columns[5].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[6].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[7].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[8].ApplyStyle(textStyle, textFlag);
                     worksheet.Cells.Columns[9].ApplyStyle(textStyle, textFlag);
-
                     //page setup
                     PageSetup pageSetup = worksheet.PageSetup;
                     pageSetup.Orientation = PageOrientationType.Landscape;
@@ -1888,8 +1913,10 @@ namespace BDA.Controllers
                     StyleFlag textFlag = new StyleFlag();
                     textFlag.NumberFormat = true;
 
-                    worksheet.Cells.Columns[9].ApplyStyle(textStyle, textFlag);
-
+                    worksheet.Cells.Columns[1].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[2].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[3].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[4].ApplyStyle(textStyle, textFlag);
                     //page setup
                     PageSetup pageSetup = worksheet.PageSetup;
                     pageSetup.Orientation = PageOrientationType.Landscape;
