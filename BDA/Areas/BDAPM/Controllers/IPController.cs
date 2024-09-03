@@ -41,14 +41,14 @@ namespace BDA.Controllers
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
             var currentNode = mdl.GetCurrentNode();
             
-            string pageTitle = currentNode != null ? currentNode.Title : "";
+            string pageTitle = currentNode != null ? currentNode.Title : ""; 
             TempData["pageTitle"] = pageTitle;
             ViewBag.FullFilter = true;
             ViewBag.Export = false; // TODO ubah disini
             var obj = db.osida_master.Find(id);
             db.InsertAuditTrail("PM_" + id + "_Akses_Page", "Akses Page Dashboard " + obj.menu_nama, pageTitle);
             db.CheckPermission(obj.menu_nama + " View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-            //ViewBag.Export = db.CheckPermission(obj.menu_nama + " Export", DataEntities.PermissionMessageType.NoMessage);
+            ViewBag.Export = db.CheckPermission(obj.menu_nama + " Export", DataEntities.PermissionMessageType.NoMessage);
             ViewBag.Export = true;
             var isHive = Helper.WSQueryStore.IsPeriodInHive(db, id);
             ViewBag.Hive = isHive;
@@ -145,8 +145,8 @@ namespace BDA.Controllers
                 var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
                 var currentNode = mdl.GetCurrentNode();
 
-                string pageTitle = currentNode != null ? currentNode.Title : "";
-                pageTitle = TempData.Peek("pageTitle").ToString();
+                string pageTitle = reportId; // currentNode != null ? currentNode.Title : "";
+                //pageTitle = TempData.Peek("pageTitle").ToString();
                 //TODO : tambah permission
                 //db.CheckPermission("OSIDA Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
                 var obj = db.osida_master.Find(reportId);
@@ -168,8 +168,8 @@ namespace BDA.Controllers
                 var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
                 var currentNode = mdl.GetCurrentNode();
 
-                string pageTitle = currentNode != null ? currentNode.Title : "";
-                pageTitle = TempData.Peek("pageTitle").ToString();
+                string pageTitle = reportId; //currentNode != null ? currentNode.Title : "";
+                //pageTitle = TempData.Peek("pageTitle").ToString();
                 //TODO : tambah permission
                 //db.CheckPermission("OSIDA Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
                 var obj = db.osida_master.Find(reportId);
@@ -254,7 +254,7 @@ namespace BDA.Controllers
 
                 timeStamp = timeStamp.Replace('/', '-').Replace(" ", "_").Replace(":", "-");
                 TempData["timeStamp"] = timeStamp;
-                var fileName = "OSIDA_" + reportId + "_" + timeStamp + ".pdf";
+                var fileName = "PM_" + reportId + "_" + timeStamp + ".pdf";
                 workbook.Save(Path.Combine(directory, fileName), SaveFormat.Pdf);
                 return new EmptyResult();
             }
@@ -267,7 +267,7 @@ namespace BDA.Controllers
         public FileResult File(string reportId)
         {
             var directory = _env.WebRootPath;
-            var timeStamp = TempData.Peek("timeStamp").ToString();
+            var timeStamp = TempData.Peek("timeStamp").ToString();            
             var fileName = "PM_" + reportId + "_" + timeStamp + ".pdf";
             var filePath = Path.Combine(directory, fileName);
             var fileByte = System.IO.File.ReadAllBytes(filePath);

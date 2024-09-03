@@ -148,8 +148,8 @@
                             <a class="btn btn-sm btn-light-primary font-weight-bolder py-2 px-5" onclick="DetailPopup()">Upload</a>
                         }
 
-                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="ExportToExcel();" title="Export Excel maksimal @maxExport data"><span class="image fa fa-file-excel"></span> Export Excel</a>
-                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="ExportToPdf();" title="Export PDF maksimal @maxExport data"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();" title="Export Excel maksimal @maxExport data"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf();" title="Export PDF maksimal @maxExport data"><span class="image fa fa-file-pdf"></span> Export PDF</a>
 
 
                     }
@@ -419,7 +419,7 @@
                         }
                     }).then(function () {
                         workbook.xlsx.writeBuffer().then(function (buffer) {
-                            saveAs(new Blob([buffer], { type: "application/octet-stream" }), "IP_@(Model.kode)_" + new Date().toISOString().slice(0, 10) + ".xlsx");
+                            saveAs(new Blob([buffer], { type: "application/octet-stream" }), "PM_@(Model.kode)_" + new Date().toISOString().slice(0, 10) + ".xlsx");
                         });
                     });
                 }
@@ -447,6 +447,8 @@
 
         dataGrid.exportToExcel();
     }
+
+    
 
     function PopupDetailHidden() {
 
