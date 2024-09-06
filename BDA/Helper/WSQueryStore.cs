@@ -5441,6 +5441,24 @@ namespace BDA.Helper
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
         }
+        public static WSQueryReturns GetBDAPMSID(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, bool isHive = false)
+        {
+            bool isC = false;
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                props.Query = @"
+                        SELECT sid, nama_sid from pasarmodal.src_sid WHERE nama_sid like '%BIO%' AND is_active=1 LIMIT 100";
+            }
+            else
+            {
+                props.Query = @"
+                        SELECT sid, nama_sid from pasarmodal.ip_sid";
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
 
         public static WSQueryReturns GetPMIPQuery(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string startPeriod, bool chk100 = false, bool isHive = false)
         {
