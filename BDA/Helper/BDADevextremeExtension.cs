@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace BDA.Helper
@@ -2541,5 +2542,252 @@ namespace BDA.Helper
             }
             return grid;
         }
+
+        public static DataGridBuilder<T> IPDataGrid<T>(this DataGridBuilder<T> grid, DataEntities db, string kode, bool isHive)
+        {
+            TextInfo cultInfo = new CultureInfo("en-US", false).TextInfo;
+            var regex = new Regex(@"\Aip_relation");
+            var regexRel = new Regex(@"\Arelation|\Asuspect");
+
+            var list = db.vw_TableDictionary.Where(x => x.TableName == kode).ToList();
+
+            foreach (var row in list)
+            {
+                //string left7 = "";
+                bool isInput = false;
+                var caption = cultInfo.ToTitleCase(row.ColumnName.Replace("dm_", "").Replace("_", " "));
+                caption = caption.Replace("Ljk", "LJK");
+                caption = caption.Replace("Cif", "CIF");
+                caption = caption.Replace("Njop", "NJOP");
+
+
+                if (row.ColumnName != "rowid" && row.ColumnName != "etl_date")
+                {
+                    var width = 150;
+                    var format = "";
+                    var visible = false;
+                    var colDataType = GridColumnDataType.String;
+
+
+                    if (row.DataType == "date")
+                    {
+                        if (row.ColumnName != "dm_periode")
+                        {
+                            format = "yyyy-MM-dd";
+                            colDataType = GridColumnDataType.Date;
+                        }
+                        else
+                        {
+                            if (isHive == false)
+                            {
+                                format = "yyyy-MM-dd";
+                                colDataType = GridColumnDataType.Date;
+                            }
+                            else
+                            {
+                                format = "";
+                                colDataType = GridColumnDataType.String;
+                            }
+                            continue;
+                        }
+                    }
+                    else if (row.DataType == "int" || row.DataType == "decimal" || row.DataType == "bigint")
+                    {
+                        format = ",##0";
+                        colDataType = GridColumnDataType.Number;
+                    }
+
+                    if (row.ColumnName.Contains("tanggal"))
+                    {
+                        width = 130;
+                    }
+
+                    if (row.ColumnName == "sid")
+                    {
+                        width = 130;
+                        visible = true;
+                    }
+
+
+                    if (row.ColumnName == "nama_sid")
+                    {
+                        caption = "Nama SID";
+                        width = 300;
+                        visible = true;
+                    }
+
+                    if (row.ColumnName == "accountbalancestatuscode") caption = "Balance Status";
+                    if (row.ColumnName == "rekening_status") caption = "Account Status";
+                    if (row.ColumnName == "securityname") caption = "Nama Efek";
+                    if (row.ColumnName == "securitycode") continue;
+
+                    if (kode == "ip_sid")
+                    {
+                        //if (new string[] { "", "" }.Any(row.ColumnName.Contains))
+                        if ((new string[] { "trade_id", "ktp", "npwp" }.Any(s => row.ColumnName == s)))
+                        {
+                            visible = true;
+                        }
+
+                        if (row.ColumnName == "gender")
+                        {
+                            caption = "Jenis Kelamin";
+                            width = 250;
+                        }
+                        //else continue;
+
+                    }
+                    else if (kode == "ip_transaction")
+                    {
+                        string left3 = row.ColumnName.Substring(0, 3);
+                        if (left3 == "buy" || left3 == "sel" || left3 == "net") continue;
+                        if ((new string[] { "trade_id", "ktp", "npwp", "periode", "sistem" }.Any(s => row.ColumnName == s))) continue;
+                        visible = true;
+                    }
+                    else if (kode == "ip_ownership")
+                    {
+                        if ((new string[] { "trade_id", "ktp", "npwp", "periode" }.Any(s => row.ColumnName == s))) continue;
+                        visible = true;
+                    }
+                    else if (regex.Match(kode).Success)
+                    {
+                        //left7 = row.ColumnName.Length >= 7 ? row.ColumnName.Substring(0, 7) : "";
+                        if (regexRel.Match(row.ColumnName).Success) isInput = true;
+                        if (row.ColumnName == "isdirect") caption = "Direct / Indirect";
+                        else if (row.ColumnName == "noterelationship") caption = "Keterangan Keterkaitan";
+                        else if (row.ColumnName == "suspectnote1") caption = "Keterangan Suspect";
+                        else if (row.ColumnName == "suspectnote2") caption = "Keterangan Suspect";
+                        else if (row.ColumnName == "suspectnote3") caption = "Keterangan Suspect";
+                        else if (row.ColumnName == "relationshipperiod") caption = "Periode Keterkaitan (Pemeriksaan)";
+                        else if (row.ColumnName == "relationshipgroup") caption = "Grup Keterkaitan";
+                        else if (row.ColumnName == "similaritynote") caption = "Keterangan Kemiripan";
+                        else if (row.ColumnName == "quantity") caption = "Volume";
+
+                        if (kode == "ip_relation_transaction")
+                        {
+                            string left3 = row.ColumnName.Substring(0, 3);
+                            if (left3 == "buy" || left3 == "sel" || left3 == "net") continue;
+
+                            if (row.ColumnName == "similaritynote")
+
+                            {
+                                grid.Columns(c => c.Add().Caption("Buy").CssClass("header-buy").Columns(c1 =>
+                                {
+                                    c1.Add().Caption("Volume").DataField("buy_quantity").Width(150).DataType(GridColumnDataType.Number).Format(",##0");
+                                    c1.Add().Caption("Value").DataField("buy_value").Width(150).DataType(GridColumnDataType.Number).Format(",##0");
+                                    c1.Add().Caption("Transaksi").DataField("buy_freq").Width(150).DataType(GridColumnDataType.Number).Format(",##0");
+                                }));
+                                grid.Columns(c => c.Add().Caption("Sell").CssClass("header-sell").Columns(c1 =>
+                                {
+                                    c1.Add().Caption("Direct/Indirect").DataField("sell_isdirect").Width(150).DataType(GridColumnDataType.String);
+                                    c1.Add().Caption("Keterangan Keterkaitan").DataField("sell_similaritynote").Width(150).DataType(GridColumnDataType.String);
+                                    c1.Add().Caption("Keterangan Suspect").DataField("sell_suspectnote").Width(150).DataType(GridColumnDataType.String);
+                                }));
+                                grid.Columns(c => c.Add().Caption("Net Sell/Buy").CssClass("header-net").Columns(c1 =>
+                                {
+                                    c1.Add().Caption("Keterangan Suspect").DataField("net_suspectnote1").Width(150).DataType(GridColumnDataType.String);
+                                    c1.Add().Caption("Keterangan Suspect").DataField("net_suspectnote2").Width(150).DataType(GridColumnDataType.String);
+                                    c1.Add().Caption("Periode Keterkaitan/Pemeriksaan").DataField("net_relationshipperiod").Width(150).DataType(GridColumnDataType.Number).Format(",##0");
+                                }));
+                            }
+                        }
+
+                        visible = true;
+                    }
+                    else
+                    {
+                        visible = true;
+                    }
+                    //if (row.DataType == "decimal")
+                    //{
+                    //    grid.Columns(c => c.Add().Caption(caption).DataField(row.ColumnName).Width(width)
+                    //    .DataType(colDataType).Format(format).CalculateFilterExpression("CFE"));
+                    //}
+                    //else
+                    //{
+                    //    grid.Columns(c => c.Add().Caption(caption).DataField(row.ColumnName).Width(width).DataType(colDataType).Format(format));
+                    //}
+
+                    //if ((left7 == "relatio") || (left7 == "suspect"))
+                    if (isInput)
+                        grid.Columns(c => c.Add().Caption(caption).DataField(row.ColumnName).Width(width).Visible(visible).DataType(colDataType).Format(format).CssClass("header-green"));
+                    else
+                        grid.Columns(c => c.Add().Caption(caption).DataField(row.ColumnName).Width(width).Visible(visible).DataType(colDataType).Format(format));
+                }
+            }
+
+            if (kode == "ip_transaction")
+            {
+                grid.Columns(c => c.Add().Caption("Buy").CssClass("header-buy").Columns(c1 =>
+                {
+                    c1.Add().Caption("Value").DataField("buy_value").Width(150).DataType(GridColumnDataType.Number).Format(",##0");
+                    c1.Add().Caption("Volume").DataField("buy_quantity").Width(150).DataType(GridColumnDataType.Number).Format(",##0");
+                    c1.Add().Caption("Transaksi").DataField("buy_freq").Width(150).DataType(GridColumnDataType.Number).Format(",##0");
+                }));
+                grid.Columns(c => c.Add().Caption("Sell").CssClass("header-sell").Columns(c1 =>
+                {
+                    c1.Add().Caption("Value").DataField("sell_value").Width(150).DataType(GridColumnDataType.Number).Format(",##0");
+                    c1.Add().Caption("Volume").DataField("sell_quantity").Width(150).DataType(GridColumnDataType.Number).Format(",##0");
+                    c1.Add().Caption("Transaksi").DataField("sell_freq").Width(150).DataType(GridColumnDataType.Number).Format(",##0");
+                }));
+                grid.Columns(c => c.Add().Caption("Net Sell/Buy").CssClass("header-net").Columns(c1 =>
+                {
+                    c1.Add().Caption("Value").DataField("net_value").Width(150).DataType(GridColumnDataType.Number).Format(",##0");
+                    c1.Add().Caption("Volume").DataField("net_quantity").Width(150).DataType(GridColumnDataType.Number).Format(",##0");
+                    c1.Add().Caption("Transaksi").DataField("net_freq").Width(150).DataType(GridColumnDataType.Number).Format(",##0");
+                }));
+            }
+
+            if (regex.Match(kode).Success)
+            {
+                //grid.Columns(c => c.Add().Caption("Aksi").Width(100).Type(GridCommandColumnType.Buttons).Buttons(b => { b.Add().Icon("icon_here").OnClick(@< text > jsFunctionToRedirectPage </ text >)}));//.DataType(colDataType);
+                grid.Editing(e => e.UseIcons(true)
+                                    .Mode(GridEditMode.Popup).AllowUpdating(true)
+                                    .Popup(p => p.Title("Keterangan").ShowTitle(true).Width(700).Height(525)
+                                    .ToolbarItems(items =>
+                                    {
+                                        items.Add().Toolbar(Toolbar.Bottom).Location(ToolbarItemLocation.After)
+                                            .Widget(w => w.Button()
+                                                .Type(ButtonType.Success)
+                                                .StylingMode(ButtonStylingMode.Outlined)
+                                                .Text("Simpan")
+                                                .OnClick("function() { $('#gridPopup').dxDataGrid('instance').saveEditData(); }")
+                                        );
+                                        items.Add().Toolbar(Toolbar.Bottom).Location(ToolbarItemLocation.After)
+                                            .Widget(w => w.Button()
+                                                .Type(ButtonType.Danger)
+                                                .StylingMode(ButtonStylingMode.Outlined)
+                                                .Text("Batal")
+                                        //.OnClick("function() { $('#gridPopup').dxDataGrid('instance').cancelEditData(); }")
+                                        );
+                                        //items.Add().Toolbar(Toolbar.Bottom).Location(ToolbarItemLocation.Before)
+                                        //    .Widget(w => w.Button()
+                                        //        .StylingMode(ButtonStylingMode.Outlined)
+                                        //        .Text("Copy Data")
+                                        //        .OnClick("() => copyDataClick('gridPopup')")
+                                        //);
+                                    }))
+                                    .Form(f => f.Items(items =>
+                                    {
+                                        items.AddGroup().ColCount(2).ColSpan(2).Items(groupItems =>
+                                        {
+                                            if (kode == "ip_relation_sid")
+                                            {
+                                                groupItems.AddSimple().DataField("suspectnote1").ColSpan(2).Editor(editor => editor.TextArea().Height(100)).Name("suspectnote1");
+                                                groupItems.AddSimple().DataField("suspectnote2").ColSpan(2).Editor(editor => editor.TextArea().Height(100)).Name("suspectnote2");
+                                                groupItems.AddSimple().DataField("suspectnote3").ColSpan(2).Editor(editor => editor.TextArea().Height(100)).Name("suspectnote3");
+                                            }
+                                            groupItems.AddSimple().DataField("relationshipperiod").Name("relationshipperiod");
+                                            groupItems.AddSimple().DataField("relationshipgroup").Name("relationshipgroup");
+                                        });
+
+
+                                    }))
+                );
+            }
+
+            return grid;
+        }
+
     }
 }

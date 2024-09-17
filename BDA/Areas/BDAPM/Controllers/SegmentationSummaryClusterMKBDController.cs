@@ -26,6 +26,7 @@ using System.Web;
 using System.Reflection;
 using DevExpress.Xpo.DB;
 using DevExpress.Charts.Native;
+using static DevExpress.Data.ODataLinq.Helpers.ODataLinqHelpers;
 
 namespace BDA.Controllers
 {
@@ -88,7 +89,7 @@ namespace BDA.Controllers
                 //string result = stringNamaPE.Replace("\",\"", "");
                 TempData["pe"] = stringNamaPE;
             }
-            
+
             if (StatusPE.Length > 0)
             {
                 stringStatus = string.Join(", ", StatusPE);
@@ -144,7 +145,7 @@ namespace BDA.Controllers
             db.Database.CommandTimeout = 420;
             var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryGetChartClusterSearch(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, stringStatus, cekHive);
             return JsonConvert.SerializeObject(result);
-        }     
+        }
         public object GetChartClusterBarSearch(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE, string status)
         {
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
@@ -182,13 +183,28 @@ namespace BDA.Controllers
             db.Database.CommandTimeout = 420;
             var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryGetChartClusterBarSearch(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, stringStatus, cekHive);
             var varDataList = (dynamic)null;
-            varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
-                           select new
-                           {
-                               cluster = bs.Field<string>("cluster").ToString(),
-                               total = bs.Field<Int32>("total").ToString(),
-                               urut = bs.Field<string>("urut").ToString(),
-                           }).OrderBy(bs => bs.urut).ToList();
+
+            if(cekHive == true)
+            {
+                varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                               select new
+                               {
+                                   cluster = bs.Field<string>("cluster").ToString(),
+                                   total = bs.Field<Int64>("total").ToString(),
+                                   urut = bs.Field<string>("urut").ToString(),
+                               }).OrderBy(bs => bs.urut).ToList();
+            }
+            else
+            {
+                varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                               select new
+                               {
+                                   cluster = bs.Field<string>("cluster").ToString(),
+                                   total = bs.Field<Int32>("total").ToString(),
+                                   urut = bs.Field<string>("urut").ToString(),
+                               }).OrderBy(bs => bs.urut).ToList();
+            }
+
             return JsonConvert.SerializeObject(varDataList);
         }
         public object GetGridDataDetail(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE)
@@ -228,7 +244,7 @@ namespace BDA.Controllers
             {
                 var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryDetail(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, cekHive);
                 return JsonConvert.SerializeObject(result);
-            }   
+            }
         }
         public object GetGridDataDetailRincian(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE)
         {
@@ -517,7 +533,7 @@ namespace BDA.Controllers
 
             string stringPeriodeAwal = null;
             string stringNamaPE = null;
-            string reportId = "pe_segmentation_det_reverse_repo"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+            string reportId = "pe_segmentation_det_reverse_repo_new"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
 
             var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
 
@@ -557,7 +573,7 @@ namespace BDA.Controllers
 
             string stringPeriodeAwal = null;
             string stringNamaPE = null;
-            string reportId = "pe_segmentation_det_reverse_repo_sum"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+            string reportId = "pe_segmentation_det_reverse_repo_sum_new"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
 
             var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
 
@@ -637,10 +653,70 @@ namespace BDA.Controllers
             string strSQL = db.appSettings.DataConnString;
             var list = new List<NamaPE>();
 
+            string reportId = "dim_exchange_members"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+            var result = Helper.WSQueryStore.GetBDAPMNamaPE(db, loadOptions, reportId, cekHive);
+            var varDataList = (dynamic)null;
+            varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                           select new
+                           {
+                               exchangemembercode = bs.Field<string>("exchangemembercode").ToString(),
+                               exchangemembername = bs.Field<string>("exchangemembername").ToString(),
+                           }).OrderBy(bs => bs.exchangemembername).ToList();
+            DataTable dtList = new DataTable();
+            dtList = Helper.WSQueryStore.LINQResultToDataTable(varDataList);
+
+            if (dtList.Rows.Count > 0)
+            {
+                for (int i = 0; i < dtList.Rows.Count; i++)
+                {
+                    string namakode = dtList.Rows[i]["exchangemembercode"].ToString() + " - " + dtList.Rows[i]["exchangemembername"].ToString();
+                    list.Add(new NamaPE() { value = dtList.Rows[i]["exchangemembercode"].ToString(), text = namakode });
+                }
+            }
+            return Json(DataSourceLoader.Load(list, loadOptions));
+        }
+        [HttpGet]
+        public object GetNamaSID(DataSourceLoadOptions loadOptions)
+        {
+            var userId = HttpContext.User.Identity.Name;
+            string strSQL = db.appSettings.DataConnString;
+            var list = new List<NamaPE>();
+
+            string reportId = "src_sid"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+            var result = Helper.WSQueryStore.GetBDAPMSID(db, loadOptions, reportId, cekHive);
+            var varDataList = (dynamic)null;
+            varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                           select new
+                           {
+                               nama_sid = bs.Field<string>("nama_sid").ToString(),
+                               sid = bs.Field<string>("sid").ToString(),
+                           }).OrderBy(bs => bs.nama_sid).ToList();
+            DataTable dtList = new DataTable();
+            dtList = Helper.WSQueryStore.LINQResultToDataTable(varDataList);
+
+            if (dtList.Rows.Count > 0)
+            {
+                for (int i = 0; i < dtList.Rows.Count; i++)
+                {
+                    string nama = dtList.Rows[i]["nama_sid"].ToString();
+                    list.Add(new NamaPE() { value = dtList.Rows[i]["sid"].ToString(), text = nama });
+                }
+            }
+            return Json(DataSourceLoader.Load(list, loadOptions));
+        }
+        [HttpGet]
+        public object GetNamaPE_Old(DataSourceLoadOptions loadOptions)
+        {
+            var userId = HttpContext.User.Identity.Name;
+            string strSQL = db.appSettings.DataConnString;
+            var list = new List<NamaPE>();
+
             using (SqlConnection conn = new SqlConnection(strSQL))
             {
                 conn.Open();
-                string strQuery = "Select [SecurityCompanySK],[SecurityCompanyCode],[SecurityCompanyName] from PM_dimSecurityCompanies where CurrentStatus='A' order by SecurityCompanyName asc ";
+                string strQuery = "Select exchangemembercode,exchangemembername from pasarmodal.dim_exchange_members where currentstatus='A' order by exchangemembername asc ";
                 SqlDataAdapter da = new SqlDataAdapter(strQuery, conn);
                 DataTable dt = new DataTable();
                 da.Fill(dt);
@@ -648,8 +724,8 @@ namespace BDA.Controllers
                 {
                     for (int i = 0; i < dt.Rows.Count; i++)
                     {
-                        string namakode = dt.Rows[i]["SecurityCompanyCode"].ToString() + " - " + dt.Rows[i]["SecurityCompanyName"].ToString();
-                        list.Add(new NamaPE() { value = dt.Rows[i]["SecurityCompanyCode"].ToString(), text = namakode });
+                        string namakode = dt.Rows[i]["exchangemembercode"].ToString() + " - " + dt.Rows[i]["exchangemembername"].ToString();
+                        list.Add(new NamaPE() { value = dt.Rows[i]["exchangemembercode"].ToString(), text = namakode });
                     }
 
                     return Json(DataSourceLoader.Load(list, loadOptions));
@@ -873,6 +949,25 @@ namespace BDA.Controllers
                 var directory = _env.WebRootPath;
                 var timeStamp = DateTime.Now.ToString();
                 Workbook workbook = new Workbook(file.OpenReadStream());
+                Worksheet worksheet2 = workbook.Worksheets[0];
+                var columns1 = worksheet2.Cells.Columns.Count;
+                var rows1 = worksheet2.Cells.Rows.Count;
+                var style = workbook.CreateStyle();
+                style.SetBorder(BorderType.TopBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.BottomBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.LeftBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.RightBorder, CellBorderType.Thick, Color.Black);
+
+                //Apply bottom borders from cell F4 till K4
+                for (int r = 0; r <= rows1 - 1; r++)
+                {
+                    for (int col = 0; col <= columns1 - 1; col++)
+                    {
+                        Aspose.Cells.Cell cell = worksheet2.Cells[r, col];
+
+                        cell.SetStyle(style);
+                    }
+                }
 
                 foreach (Worksheet worksheet in workbook.Worksheets)
                 {
@@ -890,7 +985,14 @@ namespace BDA.Controllers
                     StyleFlag textFlag = new StyleFlag();
                     textFlag.NumberFormat = true;
 
+                    worksheet.Cells.Columns[3].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[4].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[5].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[6].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[7].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[8].ApplyStyle(textStyle, textFlag);
                     worksheet.Cells.Columns[9].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[10].ApplyStyle(textStyle, textFlag);
 
                     //page setup
                     PageSetup pageSetup = worksheet.PageSetup;
@@ -970,6 +1072,25 @@ namespace BDA.Controllers
                 var directory = _env.WebRootPath;
                 var timeStamp = DateTime.Now.ToString();
                 Workbook workbook = new Workbook(file.OpenReadStream());
+                Worksheet worksheet2 = workbook.Worksheets[0];
+                var columns1 = worksheet2.Cells.Columns.Count;
+                var rows1 = worksheet2.Cells.Rows.Count;
+                var style = workbook.CreateStyle();
+                style.SetBorder(BorderType.TopBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.BottomBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.LeftBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.RightBorder, CellBorderType.Thick, Color.Black);
+
+                //Apply bottom borders from cell F4 till K4
+                for (int r = 0; r <= rows1 - 1; r++)
+                {
+                    for (int col = 0; col <= columns1 - 1; col++)
+                    {
+                        Aspose.Cells.Cell cell = worksheet2.Cells[r, col];
+
+                        cell.SetStyle(style);
+                    }
+                }
 
                 foreach (Worksheet worksheet in workbook.Worksheets)
                 {
@@ -987,7 +1108,9 @@ namespace BDA.Controllers
                     StyleFlag textFlag = new StyleFlag();
                     textFlag.NumberFormat = true;
 
-                    worksheet.Cells.Columns[9].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[4].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[5].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[7].ApplyStyle(textStyle, textFlag);
 
                     //page setup
                     PageSetup pageSetup = worksheet.PageSetup;
@@ -1065,6 +1188,25 @@ namespace BDA.Controllers
                 var directory = _env.WebRootPath;
                 var timeStamp = DateTime.Now.ToString();
                 Workbook workbook = new Workbook(file.OpenReadStream());
+                Worksheet worksheet2 = workbook.Worksheets[0];
+                var columns1 = worksheet2.Cells.Columns.Count;
+                var rows1 = worksheet2.Cells.Rows.Count;
+                var style = workbook.CreateStyle();
+                style.SetBorder(BorderType.TopBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.BottomBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.LeftBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.RightBorder, CellBorderType.Thick, Color.Black);
+
+                //Apply bottom borders from cell F4 till K4
+                for (int r = 0; r <= rows1 - 1; r++)
+                {
+                    for (int col = 0; col <= columns1 - 1; col++)
+                    {
+                        Aspose.Cells.Cell cell = worksheet2.Cells[r, col];
+
+                        cell.SetStyle(style);
+                    }
+                }
 
                 foreach (Worksheet worksheet in workbook.Worksheets)
                 {
@@ -1082,7 +1224,9 @@ namespace BDA.Controllers
                     StyleFlag textFlag = new StyleFlag();
                     textFlag.NumberFormat = true;
 
-                    worksheet.Cells.Columns[9].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[1].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[2].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[4].ApplyStyle(textStyle, textFlag);
 
                     //page setup
                     PageSetup pageSetup = worksheet.PageSetup;
@@ -1161,6 +1305,25 @@ namespace BDA.Controllers
                 var directory = _env.WebRootPath;
                 var timeStamp = DateTime.Now.ToString();
                 Workbook workbook = new Workbook(file.OpenReadStream());
+                Worksheet worksheet2 = workbook.Worksheets[0];
+                var columns1 = worksheet2.Cells.Columns.Count;
+                var rows1 = worksheet2.Cells.Rows.Count;
+                var style = workbook.CreateStyle();
+                style.SetBorder(BorderType.TopBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.BottomBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.LeftBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.RightBorder, CellBorderType.Thick, Color.Black);
+
+                //Apply bottom borders from cell F4 till K4
+                for (int r = 0; r <= rows1 - 1; r++)
+                {
+                    for (int col = 0; col <= columns1 - 1; col++)
+                    {
+                        Aspose.Cells.Cell cell = worksheet2.Cells[r, col];
+
+                        cell.SetStyle(style);
+                    }
+                }
 
                 foreach (Worksheet worksheet in workbook.Worksheets)
                 {
@@ -1178,7 +1341,13 @@ namespace BDA.Controllers
                     StyleFlag textFlag = new StyleFlag();
                     textFlag.NumberFormat = true;
 
+                    worksheet.Cells.Columns[5].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[6].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[7].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[8].ApplyStyle(textStyle, textFlag);
                     worksheet.Cells.Columns[9].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[11].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[12].ApplyStyle(textStyle, textFlag);
 
                     //page setup
                     PageSetup pageSetup = worksheet.PageSetup;
@@ -1255,6 +1424,25 @@ namespace BDA.Controllers
                 var directory = _env.WebRootPath;
                 var timeStamp = DateTime.Now.ToString();
                 Workbook workbook = new Workbook(file.OpenReadStream());
+                Worksheet worksheet2 = workbook.Worksheets[0];
+                var columns1 = worksheet2.Cells.Columns.Count;
+                var rows1 = worksheet2.Cells.Rows.Count;
+                var style = workbook.CreateStyle();
+                style.SetBorder(BorderType.TopBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.BottomBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.LeftBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.RightBorder, CellBorderType.Thick, Color.Black);
+
+                //Apply bottom borders from cell F4 till K4
+                for (int r = 0; r <= rows1 - 1; r++)
+                {
+                    for (int col = 0; col <= columns1 - 1; col++)
+                    {
+                        Aspose.Cells.Cell cell = worksheet2.Cells[r, col];
+
+                        cell.SetStyle(style);
+                    }
+                }
 
                 foreach (Worksheet worksheet in workbook.Worksheets)
                 {
@@ -1272,8 +1460,8 @@ namespace BDA.Controllers
                     StyleFlag textFlag = new StyleFlag();
                     textFlag.NumberFormat = true;
 
-                    worksheet.Cells.Columns[9].ApplyStyle(textStyle, textFlag);
-
+                    worksheet.Cells.Columns[1].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[2].ApplyStyle(textStyle, textFlag);
                     //page setup
                     PageSetup pageSetup = worksheet.PageSetup;
                     pageSetup.Orientation = PageOrientationType.Landscape;
@@ -1351,6 +1539,25 @@ namespace BDA.Controllers
                 var directory = _env.WebRootPath;
                 var timeStamp = DateTime.Now.ToString();
                 Workbook workbook = new Workbook(file.OpenReadStream());
+                Worksheet worksheet2 = workbook.Worksheets[0];
+                var columns1 = worksheet2.Cells.Columns.Count;
+                var rows1 = worksheet2.Cells.Rows.Count;
+                var style = workbook.CreateStyle();
+                style.SetBorder(BorderType.TopBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.BottomBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.LeftBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.RightBorder, CellBorderType.Thick, Color.Black);
+
+                //Apply bottom borders from cell F4 till K4
+                for (int r = 0; r <= rows1 - 1; r++)
+                {
+                    for (int col = 0; col <= columns1 - 1; col++)
+                    {
+                        Aspose.Cells.Cell cell = worksheet2.Cells[r, col];
+
+                        cell.SetStyle(style);
+                    }
+                }
 
                 foreach (Worksheet worksheet in workbook.Worksheets)
                 {
@@ -1368,7 +1575,11 @@ namespace BDA.Controllers
                     StyleFlag textFlag = new StyleFlag();
                     textFlag.NumberFormat = true;
 
-                    worksheet.Cells.Columns[9].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[3].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[4].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[5].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[6].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[7].ApplyStyle(textStyle, textFlag);
 
                     //page setup
                     PageSetup pageSetup = worksheet.PageSetup;
@@ -1445,6 +1656,25 @@ namespace BDA.Controllers
                 var directory = _env.WebRootPath;
                 var timeStamp = DateTime.Now.ToString();
                 Workbook workbook = new Workbook(file.OpenReadStream());
+                Worksheet worksheet2 = workbook.Worksheets[0];
+                var columns1 = worksheet2.Cells.Columns.Count;
+                var rows1 = worksheet2.Cells.Rows.Count;
+                var style = workbook.CreateStyle();
+                style.SetBorder(BorderType.TopBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.BottomBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.LeftBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.RightBorder, CellBorderType.Thick, Color.Black);
+
+                //Apply bottom borders from cell F4 till K4
+                for (int r = 0; r <= rows1 - 1; r++)
+                {
+                    for (int col = 0; col <= columns1 - 1; col++)
+                    {
+                        Aspose.Cells.Cell cell = worksheet2.Cells[r, col];
+
+                        cell.SetStyle(style);
+                    }
+                }
 
                 foreach (Worksheet worksheet in workbook.Worksheets)
                 {
@@ -1462,7 +1692,7 @@ namespace BDA.Controllers
                     StyleFlag textFlag = new StyleFlag();
                     textFlag.NumberFormat = true;
 
-                    worksheet.Cells.Columns[9].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[1].ApplyStyle(textStyle, textFlag);
 
                     //page setup
                     PageSetup pageSetup = worksheet.PageSetup;
@@ -1541,6 +1771,25 @@ namespace BDA.Controllers
                 var directory = _env.WebRootPath;
                 var timeStamp = DateTime.Now.ToString();
                 Workbook workbook = new Workbook(file.OpenReadStream());
+                Worksheet worksheet2 = workbook.Worksheets[0];
+                var columns1 = worksheet2.Cells.Columns.Count;
+                var rows1 = worksheet2.Cells.Rows.Count;
+                var style = workbook.CreateStyle();
+                style.SetBorder(BorderType.TopBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.BottomBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.LeftBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.RightBorder, CellBorderType.Thick, Color.Black);
+
+                //Apply bottom borders from cell F4 till K4
+                for (int r = 0; r <= rows1 - 1; r++)
+                {
+                    for (int col = 0; col <= columns1 - 1; col++)
+                    {
+                        Aspose.Cells.Cell cell = worksheet2.Cells[r, col];
+
+                        cell.SetStyle(style);
+                    }
+                }
 
                 foreach (Worksheet worksheet in workbook.Worksheets)
                 {
@@ -1558,8 +1807,9 @@ namespace BDA.Controllers
                     StyleFlag textFlag = new StyleFlag();
                     textFlag.NumberFormat = true;
 
-                    worksheet.Cells.Columns[9].ApplyStyle(textStyle, textFlag);
-
+                    worksheet.Cells.Columns[2].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[3].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[4].ApplyStyle(textStyle, textFlag);
                     //page setup
                     PageSetup pageSetup = worksheet.PageSetup;
                     pageSetup.Orientation = PageOrientationType.Landscape;
@@ -1635,6 +1885,25 @@ namespace BDA.Controllers
                 var directory = _env.WebRootPath;
                 var timeStamp = DateTime.Now.ToString();
                 Workbook workbook = new Workbook(file.OpenReadStream());
+                Worksheet worksheet2 = workbook.Worksheets[0];
+                var columns1 = worksheet2.Cells.Columns.Count;
+                var rows1 = worksheet2.Cells.Rows.Count;
+                var style = workbook.CreateStyle();
+                style.SetBorder(BorderType.TopBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.BottomBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.LeftBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.RightBorder, CellBorderType.Thick, Color.Black);
+
+                //Apply bottom borders from cell F4 till K4
+                for (int r = 0; r <= rows1 - 1; r++)
+                {
+                    for (int col = 0; col <= columns1 - 1; col++)
+                    {
+                        Aspose.Cells.Cell cell = worksheet2.Cells[r, col];
+
+                        cell.SetStyle(style);
+                    }
+                }
 
                 foreach (Worksheet worksheet in workbook.Worksheets)
                 {
@@ -1652,7 +1921,7 @@ namespace BDA.Controllers
                     StyleFlag textFlag = new StyleFlag();
                     textFlag.NumberFormat = true;
 
-                    worksheet.Cells.Columns[9].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[1].ApplyStyle(textStyle, textFlag);
 
                     //page setup
                     PageSetup pageSetup = worksheet.PageSetup;
@@ -1731,6 +2000,25 @@ namespace BDA.Controllers
                 var directory = _env.WebRootPath;
                 var timeStamp = DateTime.Now.ToString();
                 Workbook workbook = new Workbook(file.OpenReadStream());
+                Worksheet worksheet2 = workbook.Worksheets[0];
+                var columns1 = worksheet2.Cells.Columns.Count;
+                var rows1 = worksheet2.Cells.Rows.Count;
+                var style = workbook.CreateStyle();
+                style.SetBorder(BorderType.TopBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.BottomBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.LeftBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.RightBorder, CellBorderType.Thick, Color.Black);
+
+                //Apply bottom borders from cell F4 till K4
+                for (int r = 0; r <= rows1 - 1; r++)
+                {
+                    for (int col = 0; col <= columns1 - 1; col++)
+                    {
+                        Aspose.Cells.Cell cell = worksheet2.Cells[r, col];
+
+                        cell.SetStyle(style);
+                    }
+                }
 
                 foreach (Worksheet worksheet in workbook.Worksheets)
                 {
@@ -1748,8 +2036,11 @@ namespace BDA.Controllers
                     StyleFlag textFlag = new StyleFlag();
                     textFlag.NumberFormat = true;
 
+                    worksheet.Cells.Columns[5].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[6].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[7].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[8].ApplyStyle(textStyle, textFlag);
                     worksheet.Cells.Columns[9].ApplyStyle(textStyle, textFlag);
-
                     //page setup
                     PageSetup pageSetup = worksheet.PageSetup;
                     pageSetup.Orientation = PageOrientationType.Landscape;
@@ -1825,6 +2116,25 @@ namespace BDA.Controllers
                 var directory = _env.WebRootPath;
                 var timeStamp = DateTime.Now.ToString();
                 Workbook workbook = new Workbook(file.OpenReadStream());
+                Worksheet worksheet2 = workbook.Worksheets[0];
+                var columns1 = worksheet2.Cells.Columns.Count;
+                var rows1 = worksheet2.Cells.Rows.Count;
+                var style = workbook.CreateStyle();
+                style.SetBorder(BorderType.TopBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.BottomBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.LeftBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.RightBorder, CellBorderType.Thick, Color.Black);
+
+                //Apply bottom borders from cell F4 till K4
+                for (int r = 0; r <= rows1 - 1; r++)
+                {
+                    for (int col = 0; col <= columns1 - 1; col++)
+                    {
+                        Aspose.Cells.Cell cell = worksheet2.Cells[r, col];
+
+                        cell.SetStyle(style);
+                    }
+                }
 
                 foreach (Worksheet worksheet in workbook.Worksheets)
                 {
@@ -1842,8 +2152,10 @@ namespace BDA.Controllers
                     StyleFlag textFlag = new StyleFlag();
                     textFlag.NumberFormat = true;
 
-                    worksheet.Cells.Columns[9].ApplyStyle(textStyle, textFlag);
-
+                    worksheet.Cells.Columns[1].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[2].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[3].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[4].ApplyStyle(textStyle, textFlag);
                     //page setup
                     PageSetup pageSetup = worksheet.PageSetup;
                     pageSetup.Orientation = PageOrientationType.Landscape;

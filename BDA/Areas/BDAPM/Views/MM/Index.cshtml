@@ -1,0 +1,395 @@
+﻿@model BDA.DataModel.osida_master
+
+@using DevExtreme.AspNet.Mvc
+@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+    
+    var maxExport = db.GetSetting("LimitExportExcelPDF");
+    bool isExport = ViewBag.Export;
+    bool isHive = ViewBag.Hive;
+    bool isFullFilter = ViewBag.FullFilter;
+    var p = ViewBag.startPeriod;
+    
+
+    
+}
+
+@inject BDA.DataModel.DataEntities db
+
+
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="card card-default">
+        @*filter*@
+        <div class="row filter-panel" style="padding-top:0px;">
+            
+
+
+
+            <div class="widget-container">
+
+                @(
+                Html.DevExtreme().TabPanel().ID("tabpanel")
+                                    //.DataSource(d => d.Mvc().Controller("MM").LoadAction("GetTabPanelItems"))
+                                    //.DataSource(new[] { new { icon = "description", title = "Summary", },  new { icon = "description", title = "Explore", }  })
+                                    .Items(items => {
+                                        items.Add().Title("Summary").Icon("chart").Template(new TemplateName("summary-template"));
+                                        items.Add().Title("Explore").Icon("rowfield").Template(new TemplateName("explore-template"));
+                                    })
+                                    .Width("100%")
+                                    .Height("100%")
+                                    .AnimationEnabled(true)
+                                    .SwipeEnabled(true)
+                                    .TabsPosition(Position.Top)
+                                    .StylingMode(TabsStyle.Secondary)
+                                    .IconPosition(TabsIconPosition.Top)
+                                    //.ItemTemplate(new JS("tabPanelTemplate"))
+                    )
+                @using (Html.DevExtreme().NamedTemplate("summary-template"))
+                {
+                    <div class="card-body">
+                        <div class="row">
+
+                            <div class="col-lg-4 form-group">
+
+                                <label>Periode Awal<span class="mandatory">*</span></label>
+
+
+                                @(Html.DevExtreme().TagBox()
+                                    .ID("StartPeriode")
+                                    .DataSource(d => d.Mvc()
+                                    .Controller("PMRef")
+                                    .Area("BDAPM")
+                                    .LoadAction("GetPeriode")
+                                    .Key("value"))
+                                    .ValueExpr("value")
+                                    .DisplayExpr("text")
+                                    .ShowSelectionControls(true)
+                                    .MaxDisplayedTags(3)
+                                    .SearchEnabled(true)
+                                    .ShowClearButton(true)
+                                    .Width("100%")
+                                    .Value(p)
+                                    )
+                            </div>
+
+                            <div class="col-lg-4 form-group">
+                                <label>Periode Akhir<span class="mandatory">*</span></label>
+
+                                @(
+                                    Html.DevExtreme().TagBox()
+                                    .ID("EndPeriode")
+                                    .DataSource(d => d.Mvc()
+                                    .Controller("PMRef")
+                                    .Area("BDAPM")
+                                    .LoadAction("GetPeriode")
+                                    .Key("value"))
+                                    .ValueExpr("value")
+                                    .DisplayExpr("text")
+                                    .ShowSelectionControls(true)
+                                    .MaxDisplayedTags(3)
+                                    .SearchEnabled(true)
+                                    .ShowClearButton(true)
+                                    .Width("100%")
+                                    .Value(p)
+                                    )
+                            </div>
+                            <div class="col-lg-4 form-group" style="padding-top:25px;">
+
+                                @(Html.DevExtreme().Button()
+                                    .ID("Filter")
+                                    .Type(ButtonType.Default)
+                                    .Text("Tampilkan")
+                                    .OnClick("onButtonFilterClicked")
+                                    .ValidationGroup("Filter"))
+                            </div>
+
+                        </div>
+                        
+                    </div>
+
+                    <div class="card-body">
+                        <div class="row">
+                            @(
+                        Html.DevExtreme().Chart()
+                                        .ID("lineChart")
+                                        .DataSource(new JS("populationData"))
+                                        .Series(s => s.Add().Type(SeriesType.Line).ValueField("val").Name("Total"))
+                                        .Title("Summary Trend Pola")
+                                        .Size(s => { s.Height(500); s.Width(700); })
+                                        .ArgumentAxis(a => a.Label(l => l.CustomizeText(
+                                                    @<text>
+                                                        function() {
+                                                        return "Year " + this.value.toString();
+                                                        //return "Year " + this.valueText.replace(",", "");
+                                                        }
+                                                    </text>
+                                                    )
+                                                )
+                                            )
+                                        )
+
+                            
+                        </div>
+                    </div>
+                }
+                @using (Html.DevExtreme().NamedTemplate("explore-template"))
+                {
+                    <div class="card-body">
+                        <div class="row">
+
+                            <div class="col-lg-4 form-group">
+
+                                <label>Periode Awal<span class="mandatory">*</span></label>
+
+
+                                @(Html.DevExtreme().TagBox()
+                                    .ID("expStartPeriode")
+                                    .DataSource(d => d.Mvc()
+                                    .Controller("PMRef")
+                                    .Area("BDAPM")
+                                    .LoadAction("GetPeriode")
+                                    .Key("value"))
+                                    .ValueExpr("value")
+                                    .DisplayExpr("text")
+                                    .ShowSelectionControls(true)
+                                    .MaxDisplayedTags(3)
+                                    .SearchEnabled(true)
+                                    .ShowClearButton(true)
+                                    .Width("100%")
+                                    .Value(p)
+                                    )
+                            </div>
+
+                            <div class="col-lg-4 form-group">
+                                <label>Periode Akhir<span class="mandatory">*</span></label>
+
+                                @(
+                                    Html.DevExtreme().TagBox()
+                                    .ID("expEndPeriode")
+                                    .DataSource(d => d.Mvc()
+                                    .Controller("PMRef")
+                                    .Area("BDAPM")
+                                    .LoadAction("GetPeriode")
+                                    .Key("value"))
+                                    .ValueExpr("value")
+                                    .DisplayExpr("text")
+                                    .ShowSelectionControls(true)
+                                    .MaxDisplayedTags(3)
+                                    .SearchEnabled(true)
+                                    .ShowClearButton(true)
+                                    .Width("100%")
+                                    .Value(p)
+                                    )
+                            </div>
+                            <div class="col-lg-4 form-group" style="padding-top:25px;">
+                                
+                                @(Html.DevExtreme().Button()
+                                    .ID("expFilter")
+                                    .Type(ButtonType.Default)
+                                    .Text("Tampilkan")
+                                    .OnClick("onButtonFilterClicked")
+                                    .ValidationGroup("Filter"))
+                            </div>
+                        </div>
+                        
+                    </div>
+                    <div>
+                        <div style="margin:5px;">Keterkaitan</div>
+                        <div class="gna-div" style="padding-top:0px; margin:5px; border:1px solid red">
+                            <iframe src="" id="gna" frameborder="0" style="overflow:hidden;height:100%;width:100%" height="350px" width="100%"></iframe>
+                        </div>
+                    </div>
+                }
+                <div class="modal fade" id="ModalSimpanPenggunaanData" tabindex="-1" role="document" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header" style="background-color:#0066b2">
+                                <h4 class="modal-title" style="text-align:left">
+                                    <font color="white">Pilih Penggunaan Data</font>
+                                </h4>
+                            </div><!--Modal Header-->
+                            <!-- Modal body -->
+                            <div class="modal-body">
+                                <form id="StrukturFormDetail" method="POST" action="" class="form-horizontal row-border">
+                                    <div class="row" style="padding: 0 10px 0 10px;">
+                                        @(Html.DevExtreme().SelectBox()
+                                            .ID("penggunaandataid")
+                                            .DataSource(d => d.Mvc()
+                                            .Controller("PenggunaanData")
+                                            .Area("Website")
+                                            .LoadAction("GetPenggunaanData")
+                                            .Key("value"))
+                                            .ValueExpr("value")
+                                            .DisplayExpr("text")
+                                            .SearchEnabled(true)
+                                            .Width("100%")
+                                            )
+                                    </div>
+                                </form>
+                            </div>
+                            <!-- Modal footer -->
+                            <div class="modal-footer">
+                                <button type="button" id="btnSavePenggunaanData" class="btn btn-primary" data-bs-dismiss="modal"><i class='fa fa-save'></i> Save</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+    </div>
+}
+
+
+<script>
+    window.jsPDF = window.jspdf.jsPDF;
+    applyPlugin(window.jsPDF);
+
+    $(function () {
+        const startDate = $("#PeriodeAwal").dxDateBox({
+            onValueChanged: function (e) {
+                endDate.option("min", e.value);
+            }
+        }).dxDateBox("instance");
+
+        $("#PeriodeAwal").dxValidator({
+            validationGroup: "Filter",
+            validationRules: [{ type: "required", message: "[Tanggal] harus dipilih" }]
+        })
+    });
+
+    $(function () {
+        $("#penggunaandataid").dxValidator({
+            validationGroup: "Filter",
+            validationRules: [{ type: "required", message: "[Penggunaan Data] harus dipilih" }]
+        })
+    });
+
+    $(window).on('load', function () {
+        $("#ModalSimpanPenggunaanData").modal("show");
+    });
+
+    $("#btnSavePenggunaanData").click(function () {
+        let penggunaandataid = $("#penggunaandataid").dxSelectBox("instance").option("value");
+
+        if (penggunaandataid == null) {
+            alert("Silahkan Pilih Tujuan Penggunaan Data");
+            return false;
+        } else {
+            $.ajax({
+                url: '@Url.Action("SimpanPenggunaanData", "MM")',
+                data: { id: penggunaandataid },
+                dataType: "json",
+                type: "POST",
+                success: function (data) {
+                    if (data.success == true) {
+                        //alert(data.message);
+    @* waitingDialog.hide(); *@
+                            $('#ModalSimpanPenggunaanData').modal('hide');
+                        return "Saving Success !";
+                    }
+                    else if (data.success == false) {
+    @*  waitingDialog.hide(); *@
+                            alert(data.message);
+                        $('#ModalSimpanPenggunaanData').modal('hide');
+                        return "Saving Failed !";
+                    }
+                }
+            });
+        }
+    });
+</script>
+
+<script type="text/javascript">
+
+    var populationData = [{
+        arg: 1950,
+        val: 2525778669
+    }, {
+        arg: 1960,
+        val: 3026002942
+    }, {
+        arg: 1970,
+        val: 3691172616
+    }, {
+        arg: 1980,
+        val: 4449048798
+    }, {
+        arg: 1990,
+        val: 5320816667
+    }, {
+        arg: 2000,
+        val: 6127700428
+    }, {
+        arg: 2010,
+        val: 6916183482
+    }];
+
+    function CFE(filterValue, selectedFilterOperation) {
+        if (selectedFilterOperation === "=") {
+            var filterExpression = [
+                [this.dataField, ">=", filterValue - 0.5],
+                "and", [this.dataField, "<=", filterValue + 0.5]
+            ];
+            return filterExpression;
+        }
+        return [this.dataField, selectedFilterOperation || '=', filterValue];
+    }
+
+    const tabsTextAndIcon = [
+        {
+            id: 0,
+            text: "Summary",
+            icon: "ordersbox",
+        },
+        {
+            id: 1,
+            text: "Exploration",
+            icon: "chart",
+        }
+    ]
+
+
+
+    const maxItems = 0;
+
+
+
+
+    function onButtonFilterClicked(e) {
+
+
+    }
+
+
+
+    function onTabChanged(e) {
+
+
+    }
+
+    function onButtonFilterClicked(e) {
+
+    }
+
+</script>
+
+<style type="text/css">
+    .mandatory {
+        color: red;
+    }
+
+    .widget-container {
+        display: flex;
+        justify-content: center;
+        flex-grow: 1;
+        min-width: 360px;
+        padding: 16px 32px;
+    }
+</style>
