@@ -45,6 +45,49 @@ namespace BDA.Controllers
         
         }
 
+        public ActionResult Index2()
+        {
+            List<Market_Driven_rg_ng> marketData = new List<Market_Driven_rg_ng>();
+
+            string connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                string sql = "SELECT * FROM dbo.pasarmodal_market_driven_rg_ng";
+
+                using (SqlCommand command = new SqlCommand(sql, connection))
+                {
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            marketData.Add(new MarketDrivenModel
+                            {
+                                HistoryType = reader["history_type"].ToString(),
+                                PeriodeLvl1 = reader["periode_lvl1"].ToString(),
+                                PeriodeLvl2 = reader["periode_lvl2"].ToString(),
+                                PeriodeLvl3 = reader["periode_lvl3"].ToString(),
+                                SecurityCode = reader["security_code"].ToString(),
+                                Market = reader["market"].ToString(),
+                                Volume = Convert.ToInt32(reader["volume"]),
+                                Value = Convert.ToDecimal(reader["value"]),
+                                Freq = Convert.ToInt32(reader["freq"]),
+                                Low = Convert.ToDecimal(reader["low"]),
+                                High = Convert.ToDecimal(reader["high"]),
+                                Close = Convert.ToDecimal(reader["close"]),
+                                Periode = reader["periode"].ToString()
+                            });
+                        }
+                    }
+                }
+            }
+
+            return View(marketData);
+        }
+
+
+
         public IActionResult LeaderVsLaggard()
         {
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
@@ -127,5 +170,6 @@ namespace BDA.Controllers
             return View();
 
         }
+
     }
 }
