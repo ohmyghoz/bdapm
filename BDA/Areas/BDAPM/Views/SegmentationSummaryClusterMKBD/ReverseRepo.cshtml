@@ -52,6 +52,22 @@
                             .OnClick("onButtonFilterClicked")
                             .ValidationGroup("Filter"))
                     </div>
+
+                    <div class="col-lg-4 form-group" hidden="hidden">
+                        <label>Nama SID</label>
+                        @(Html.DevExtreme().SelectBox()
+                            .ID("namaSIDid")
+                            .DataSource(d => d.Mvc()
+                            .Controller("SegmentationSummaryClusterMKBD")
+                            .Area("BDAPM")
+                            .LoadAction("GetNamaSID")
+                            .Key("value"))
+                            .ValueExpr("value")
+                            .DisplayExpr("text")
+                            .SearchEnabled(true)
+                            .Width("100%")
+                            )
+                    </div>
                 </div>
             </div>
         </div>

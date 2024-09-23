@@ -677,6 +677,36 @@ namespace BDA.Controllers
             return Json(DataSourceLoader.Load(list, loadOptions));
         }
         [HttpGet]
+        public object GetNamaSID(DataSourceLoadOptions loadOptions)
+        {
+            var userId = HttpContext.User.Identity.Name;
+            string strSQL = db.appSettings.DataConnString;
+            var list = new List<NamaPE>();
+
+            string reportId = "src_sid"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+            var result = Helper.WSQueryStore.GetBDAPMSID(db, loadOptions, reportId, cekHive);
+            var varDataList = (dynamic)null;
+            varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                           select new
+                           {
+                               nama_sid = bs.Field<string>("nama_sid").ToString(),
+                               sid = bs.Field<string>("sid").ToString(),
+                           }).OrderBy(bs => bs.nama_sid).ToList();
+            DataTable dtList = new DataTable();
+            dtList = Helper.WSQueryStore.LINQResultToDataTable(varDataList);
+
+            if (dtList.Rows.Count > 0)
+            {
+                for (int i = 0; i < dtList.Rows.Count; i++)
+                {
+                    string nama = dtList.Rows[i]["nama_sid"].ToString();
+                    list.Add(new NamaPE() { value = dtList.Rows[i]["sid"].ToString(), text = nama });
+                }
+            }
+            return Json(DataSourceLoader.Load(list, loadOptions));
+        }
+        [HttpGet]
         public object GetNamaPE_Old(DataSourceLoadOptions loadOptions)
         {
             var userId = HttpContext.User.Identity.Name;
