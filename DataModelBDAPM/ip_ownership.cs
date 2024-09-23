@@ -12,18 +12,22 @@ namespace BDA.DataModel
     using System;
     using System.Collections.Generic;
     
-    public partial class pe_segmentation_det_jaminan_margin
+    public partial class ip_ownership
     {
-        public System.DateTime calendardate { get; set; }
-        public Nullable<int> securitycompanysk { get; set; }
-        public string securitycompanycode { get; set; }
-        public string securitycompanyname { get; set; }
-        public Nullable<int> securitysk { get; set; }
+        public System.DateTime dm_periode { get; set; }
+        public long rowid { get; set; }
+        public string sid { get; set; }
+        public string nama_sid { get; set; }
+        public string trade_id { get; set; }
+        public string ktp { get; set; }
+        public string npwp { get; set; }
         public string securitycode { get; set; }
         public string securityname { get; set; }
-        public Nullable<int> volume { get; set; }
-        public Nullable<int> price { get; set; }
-        public Nullable<long> fairmarketvalue { get; set; }
+        public string rekening_status { get; set; }
+        public string accountbalancestatuscode { get; set; }
+        public Nullable<long> volume { get; set; }
+        public Nullable<decimal> value { get; set; }
+        public string sistem { get; set; }
         public string periode { get; set; }
     }
 }

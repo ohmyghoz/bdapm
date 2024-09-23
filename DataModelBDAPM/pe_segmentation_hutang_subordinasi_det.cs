@@ -12,22 +12,19 @@ namespace BDA.DataModel
     using System;
     using System.Collections.Generic;
     
-    public partial class pe_segmentation_det_reksa_dana
+    public partial class pe_segmentation_hutang_subordinasi_det
     {
-        public System.DateTime calendardate { get; set; }
+        public System.DateTime dm_periode { get; set; }
+        public long rowid { get; set; }
+        public Nullable<System.DateTime> calendardate { get; set; }
         public Nullable<int> securitycompanysk { get; set; }
         public string securitycompanycode { get; set; }
         public string securitycompanyname { get; set; }
-        public Nullable<int> mutualfundtypesk { get; set; }
-        public string mutualfundtypecode { get; set; }
-        public string mutualfundtypename { get; set; }
-        public string mutualfundname { get; set; }
-        public string isaffiliated { get; set; }
-        public Nullable<double> netassetvalueunit { get; set; }
-        public Nullable<double> netassetvaluemutualfund { get; set; }
-        public string liabilitiesrankingcal { get; set; }
-        public Nullable<double> mkbdlimitationvalue { get; set; }
-        public Nullable<double> mkbdlimitationexcessvalue { get; set; }
+        public Nullable<decimal> mkbdaccountbalance { get; set; }
+        public Nullable<System.DateTime> buyingdate { get; set; }
+        public Nullable<decimal> buyingamount { get; set; }
+        public string sellername { get; set; }
+        public Nullable<decimal> rr_per_hso { get; set; }
         public string periode { get; set; }
     }
 }

@@ -17,7 +17,7 @@ namespace BDA.DataModel
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public MasterSatker()
         {
-            this.UserMaster = new HashSet<UserMaster>();
+            this.UserMasters = new HashSet<UserMaster>();
         }
     
         public long SatkerId { get; set; }
@@ -39,6 +39,6 @@ namespace BDA.DataModel
     
         public virtual MasterKota MasterKota { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<UserMaster> UserMaster { get; set; }
+        public virtual ICollection<UserMaster> UserMasters { get; set; }
     }
 }

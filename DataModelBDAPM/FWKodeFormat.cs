@@ -17,8 +17,8 @@ namespace BDA.DataModel
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public FWKodeFormat()
         {
-            this.FWKodeCounter = new HashSet<FWKodeCounter>();
-            this.FWKodeDetail = new HashSet<FWKodeDetail>();
+            this.FWKodeCounters = new HashSet<FWKodeCounter>();
+            this.FWKodeDetails = new HashSet<FWKodeDetail>();
         }
     
         public string KofId { get; set; }
@@ -36,8 +36,8 @@ namespace BDA.DataModel
         public Nullable<System.DateTime> UpdatedDatetime { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<FWKodeCounter> FWKodeCounter { get; set; }
+        public virtual ICollection<FWKodeCounter> FWKodeCounters { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<FWKodeDetail> FWKodeDetail { get; set; }
+        public virtual ICollection<FWKodeDetail> FWKodeDetails { get; set; }
     }
 }

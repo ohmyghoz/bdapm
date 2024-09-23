@@ -17,7 +17,7 @@ namespace BDA.DataModel
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public FWEmailQueue()
         {
-            this.FWNoticeQueue = new HashSet<FWNoticeQueue>();
+            this.FWNoticeQueues = new HashSet<FWNoticeQueue>();
         }
     
         public long EmailqId { get; set; }
@@ -52,6 +52,6 @@ namespace BDA.DataModel
     
         public virtual FWNotice FWNotice { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<FWNoticeQueue> FWNoticeQueue { get; set; }
+        public virtual ICollection<FWNoticeQueue> FWNoticeQueues { get; set; }
     }
 }

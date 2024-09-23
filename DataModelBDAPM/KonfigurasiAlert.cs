@@ -17,7 +17,7 @@ namespace BDA.DataModel
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public KonfigurasiAlert()
         {
-            this.KonfigurasiALertDetail = new HashSet<KonfigurasiALertDetail>();
+            this.KonfigurasiALertDetails = new HashSet<KonfigurasiALertDetail>();
         }
     
         public long KaId { get; set; }
@@ -30,6 +30,6 @@ namespace BDA.DataModel
         public Nullable<System.DateTime> UpdatedDatetime { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<KonfigurasiALertDetail> KonfigurasiALertDetail { get; set; }
+        public virtual ICollection<KonfigurasiALertDetail> KonfigurasiALertDetails { get; set; }
     }
 }

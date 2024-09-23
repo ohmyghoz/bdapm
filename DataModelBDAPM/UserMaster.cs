@@ -17,11 +17,11 @@ namespace BDA.DataModel
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public UserMaster()
         {
-            this.FWNoticeQueue = new HashSet<FWNoticeQueue>();
-            this.FWUserLostPassword = new HashSet<FWUserLostPassword>();
-            this.FWUserRole = new HashSet<FWUserRole>();
-            this.KonfigurasiALertDetail = new HashSet<KonfigurasiALertDetail>();
-            this.Thread = new HashSet<Thread>();
+            this.FWNoticeQueues = new HashSet<FWNoticeQueue>();
+            this.FWUserLostPasswords = new HashSet<FWUserLostPassword>();
+            this.FWUserRoles = new HashSet<FWUserRole>();
+            this.KonfigurasiALertDetails = new HashSet<KonfigurasiALertDetail>();
+            this.Threads = new HashSet<Thread>();
             this.Thread_Post = new HashSet<Thread_Post>();
         }
     
@@ -59,16 +59,16 @@ namespace BDA.DataModel
         public Nullable<bool> user_is_notifyellowalert { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<FWNoticeQueue> FWNoticeQueue { get; set; }
+        public virtual ICollection<FWNoticeQueue> FWNoticeQueues { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<FWUserLostPassword> FWUserLostPassword { get; set; }
+        public virtual ICollection<FWUserLostPassword> FWUserLostPasswords { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<FWUserRole> FWUserRole { get; set; }
+        public virtual ICollection<FWUserRole> FWUserRoles { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<KonfigurasiALertDetail> KonfigurasiALertDetail { get; set; }
+        public virtual ICollection<KonfigurasiALertDetail> KonfigurasiALertDetails { get; set; }
         public virtual MasterSatker MasterSatker { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Thread> Thread { get; set; }
+        public virtual ICollection<Thread> Threads { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Thread_Post> Thread_Post { get; set; }
     }
