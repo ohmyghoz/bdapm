@@ -307,7 +307,8 @@ namespace BDA.Controllers
 
             //var q = db.macro_penetrasi_lending_ljk.Select(x => new { text = x.dm_jenis_debitur, kode = x.dm_jenis_debitur }).Distinct();
             //var list = new List<RefDto>();
-            var result = Helper.WSQueryStore.GetNamaSIDQuery(db, loadOptions, namaSID);
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, "sid_nama");
+            var result = Helper.WSQueryStore.GetNamaSIDQuery(db, loadOptions, namaSID, cekHive);
             return JsonConvert.SerializeObject(result);
             //return Json(DataSourceLoader.Load(list, loadOptions));
         }
