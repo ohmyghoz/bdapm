@@ -19,6 +19,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Data.SqlClient;
+using static BDA.Controllers.RefController;
+using System.Security.Policy;
+using DevExpress.DocumentServices.ServiceModel.DataContracts;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -30,13 +33,19 @@ namespace BDA.Controllers
         private DataEntities db;
         private IWebHostEnvironment _env;
 
+        public class RefDto
+        {
+            public string kode { get; set; }
+            public string text { get; set; }
+        }
+
         public IPController(DataEntities db, IWebHostEnvironment env)
         {
             this.db = db;
             _env = env;
         }
         
-        public IActionResult Index(string id,string period,string sid,string tradeid,string namasid,string ktp,string npwp)
+        public IActionResult Index(string id, string detailsid)
         {
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
             var currentNode = mdl.GetCurrentNode();
@@ -55,34 +64,29 @@ namespace BDA.Controllers
             
             if (obj == null) return NoContent();
             
-            if (period == null)
+            
+            if (detailsid == null)
             {
-                //ViewBag.period = string.Format("{0:yyyy-MM-01}", DateTime.Now.AddMonths(-1));
                 ViewBag.period = null;
+                //ViewBag.endperiod = null;
+                ViewBag.sid = "";
+                ViewBag.sistem = null;
             }
             else
             {
-                DateTime p = Convert.ToDateTime(period);
-                //ViewBag.period = string.Format("{0:yyyy-MM-01}", p);
-                string[] p1= new string[]{ string.Format("{0:yyyy-MM-01}", p) };
-                ViewBag.period = p1;
-            }
-            if (sid == null)
-            {
-                ViewBag.sid = null;
-            }
-            else
-            {
-                ViewBag.sid = sid;
-                //string[] j1= new string[]{ jljk };
-                //ViewBag.jljk = j1;
-            }
-            ViewBag.tradeid = (tradeid == null) ? null : tradeid;
-            ViewBag.namasid = (namasid == null) ? null : namasid;
-            ViewBag.ktp = (ktp == null) ? null : ktp;
-            ViewBag.npwp = (npwp == null) ? null : npwp;
+                var details = detailsid.ToString().Split("~");
 
-
+                DateTime p = Convert.ToDateTime(details[0]);
+                ViewBag.period = p;//string.Format("{0:yyyy-MM-01}", p);
+                //string[] p1 = new string[] { string.Format("{0:yyyy-MM-01}", p) };
+                //ViewBag.period = p1;
+                //ViewBag.endperiod = System.DateTime.Now;
+                                
+                ViewBag.sistem = details[1];
+                ViewBag.sid = details[2];
+            }
+            
+            
             TempData["kodeReport"] = obj.kode;
             
             if (obj.kode == "HALT")
@@ -280,8 +284,34 @@ namespace BDA.Controllers
             string se1 = "Waktu Proses : " + TempData.Peek("SG").ToString() + " detik \nWaktu tunggu Hive / SQL : " + TempData.Peek("SD").ToString() + " detik \nPenggunaan Memory Webserver: " + TempData.Peek("PM").ToString() + "KB";
             return Json(se1);
         }
+
+        public IActionResult GetSistem(DataSourceLoadOptions loadOptions)
+        {
+            //var q = db.macro_penetrasi_lending_ljk.Select(x => new { text = x.dm_jenis_debitur, kode = x.dm_jenis_debitur }).Distinct();
+            var list = new List<RefDto>();
+            list.Add(new RefDto() { text = "C-Best", kode = "C-Best" });
+            list.Add(new RefDto() { text = "S-Invest", kode = "S-Invest" });
+            list.Add(new RefDto() { text = "SBN", kode = "SBN" });
+            list.Add(new RefDto() { text = "JATS", kode = "JATS" });
+            list.Add(new RefDto() { text = "PLTE", kode = "PLTE" });
+            list.Add(new RefDto() { text = "Transaksi RD", kode = "Transaksi RD" });
+            list.Add(new RefDto() { text = "C-Best Balance", kode = "C-Best Balance" });
+            list.Add(new RefDto() { text = "IFUA Balance", kode = "IFUA Balance" });
+            return Json(DataSourceLoader.Load(list, loadOptions));
+        }
+
+        public object GetNamaSID(DataSourceLoadOptions loadOptions, string namaSID = "adi")
+        {
+
+            //var q = db.macro_penetrasi_lending_ljk.Select(x => new { text = x.dm_jenis_debitur, kode = x.dm_jenis_debitur }).Distinct();
+            //var list = new List<RefDto>();
+            var result = Helper.WSQueryStore.GetNamaSIDQuery(db, loadOptions, namaSID);
+            return JsonConvert.SerializeObject(result);
+            //return Json(DataSourceLoader.Load(list, loadOptions));
+        }
+
         #region "GetGridData"
-        public object GetGridData(DataSourceLoadOptions loadOptions, string reportId, string SID, string tradeId, string namaSID, string nomorKTP, string nomorNPWP, string startPeriode, string endPeriode, bool chk100)
+        public object GetGridData(DataSourceLoadOptions loadOptions, string reportId, string SID, string tradeId, string namaSID, string nomorKTP, string nomorNPWP, string sistem, string businessReg, string startPeriode, string endPeriode, bool chk100)
         {
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
             TempData.Clear();
@@ -295,15 +325,22 @@ namespace BDA.Controllers
             TempData["periodeValue"] = null;
 
             string stringStartPeriode = null;
+            string stringEndPeriode = null;
 
             if (startPeriode != null)
             {
                 stringStartPeriode = Convert.ToDateTime(startPeriode).ToString("yyyy-MM-dd");
                 TempData["sPeriod"] = stringStartPeriode;
             }
-            
-            
-            
+
+            if (endPeriode != null)
+            {
+                stringEndPeriode = Convert.ToDateTime(endPeriode).ToString("yyyy-MM-dd");
+                TempData["ePeriod"] = stringEndPeriode;
+            }
+
+
+
             if (startPeriode != null)
                 {
                 var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId);
@@ -314,7 +351,7 @@ namespace BDA.Controllers
                 //}
 
                 
-                var result = Helper.WSQueryStore.GetPMIPQuery(db, loadOptions, reportId, stringStartPeriode, chk100, cekHive);
+                var result = Helper.WSQueryStore.GetPMIPQuery(db, loadOptions, reportId, SID, tradeId, namaSID, nomorKTP, nomorNPWP, sistem, businessReg, stringStartPeriode, stringEndPeriode, chk100, cekHive);
                 return JsonConvert.SerializeObject(result);
 
                 

@@ -1,4 +1,5 @@
 ﻿using BDA.DataModel;
+using DevExpress.PivotGrid;
 using DevExtreme.AspNet.Mvc;
 using DevExtreme.AspNet.Mvc.Builders;
 using System;
@@ -2641,7 +2642,7 @@ namespace BDA.Helper
                     {
                         string left3 = row.ColumnName.Substring(0, 3);
                         if (left3 == "buy" || left3 == "sel" || left3 == "net") continue;
-                        if ((new string[] { "trade_id", "ktp", "npwp", "periode", "sistem" }.Any(s => row.ColumnName == s))) continue;
+                        if ((new string[] { "trade_id", "ktp", "npwp", "periode", "system" }.Any(s => row.ColumnName == s))) continue;
                         visible = true;
                     }
                     else if (kode == "ip_ownership")
@@ -2712,7 +2713,16 @@ namespace BDA.Helper
                     if (isInput)
                         grid.Columns(c => c.Add().Caption(caption).DataField(row.ColumnName).Width(width).Visible(visible).DataType(colDataType).Format(format).CssClass("header-green"));
                     else
-                        grid.Columns(c => c.Add().Caption(caption).DataField(row.ColumnName).Width(width).Visible(visible).DataType(colDataType).Format(format));
+                    {
+                        if (kode != "ip_sid" && row.ColumnName == "sid")
+                        {
+                            string ct = "<text><a href=\"ip_sid?detailsid=<%- data.lem %>\"><%- value %></a></text>";
+                            grid.Columns(c => c.Add().Caption(caption).DataField(row.ColumnName).Width(width).Visible(visible).DataType(colDataType).Format(format).CellTemplate(ct));
+                            
+                        }
+                        else
+                            grid.Columns(c => c.Add().Caption(caption).DataField(row.ColumnName).Width(width).Visible(visible).DataType(colDataType).Format(format));
+                    }
                 }
             }
 
@@ -2784,6 +2794,10 @@ namespace BDA.Helper
 
                                     }))
                 );
+            }
+
+            if (kode != "ip_sid") {
+                grid.OnRowDblClick("onRowDblClick");
             }
 
             return grid;

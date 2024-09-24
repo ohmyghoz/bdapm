@@ -5402,46 +5402,110 @@ namespace BDA.Helper
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
         }
 
-        public static WSQueryReturns GetPMIPQuery(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string startPeriod, bool chk100 = false, bool isHive = false)
+        public static WSQueryReturns GetNamaSIDQuery(DataEntities db, DataSourceLoadOptions loadOptions, string namaSID)
         {
             bool isC = false;
             var whereQuery = "1=1";
+            var isHive = false;
+            if (namaSID != null)
+            {
+                namaSID = "'%" + namaSID.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "%'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND nama_sid like " + namaSID + " ";
+            }
+            var props = new WSQueryProperties();            
+            props.Query = @"SELECT top 30 nama_sid, sid, len(nama_sid) len_nama FROM pasarmodal.src_sid x WHERE " + whereQuery + @" ORDER BY len_nama, nama_sid asc";
+            if(isHive)
+                props.Query = @"SELECT nama_sid, sid, len(nama_sid) len_nama FROM pasarmodal.src_sid x WHERE " + whereQuery + @" ORDER BY len_nama, nama_sid asc LIMIT 30";
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+
+        public static WSQueryReturns GetPMIPQuery(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string SID, string tradeId, string namaSID, string nomorKTP, string nomorNPWP, string sistem, string businessReg, string startPeriod, string endPeriod, bool chk100 = false, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            var periodWhereQuery = "";
             isHive = false;
 
-            if (startPeriod != null)
+            if (sistem != null) whereQuery = whereQuery += " AND system = '" + sistem + "' ";
+            
+            if (SID != null) whereQuery = whereQuery += " AND sid = '" + SID + "' ";
+            else if (tradeId != null) whereQuery = whereQuery += " AND trade_id = '" + tradeId + "' ";            
+            else if (nomorKTP != null) whereQuery = whereQuery += " AND ktp = '" + nomorKTP + "' ";
+            else if (nomorNPWP != null) whereQuery = whereQuery += " AND npwp = '" + nomorNPWP + "' ";
+            //else if (namaSID != null) whereQuery = whereQuery += " AND nama_sid = " + namaSID;
+            else if (businessReg != null) whereQuery = whereQuery += " AND business_registration_number = '" + businessReg + "' ";
+
+            if (endPeriod != null)
+            {
+                string startperiodes = "'" + startPeriod.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                string endperiodes = "'" + endPeriod.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                periodWhereQuery = " AND dm_periode between " + startperiodes + " and " + endperiodes;
+            }
+            else if (startPeriod != null)
             {
                 string periodes = "'" + startPeriod.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND dm_periode in (" + periodes + ")";
+                periodWhereQuery = " AND dm_periode = " + periodes;
             }
             var props = new WSQueryProperties();
-            if (isHive == true)
-            {
-                props.Query = @"";
 
+            if (tableName == "ip_sid")
+            {
+                props.Query += @" SELECT 
+                        CAST(dm_periode AS VARCHAR(20)) + '~' + system + '~' + sid AS lem, * from pasarmodal." + (isHive ? "src_sid" : tableName) + @" x WHERE " + whereQuery + periodWhereQuery;
+                props.Query += (chk100 == true) ? @" order by x.periode" : @"";
             }
-            else
+            else if (tableName == "ip_transaction")
             {
-                props.Query = (chk100 == true) ? @"select top 100 " : @"select ";
-                if (tableName == "ip_sid")
-                {
+                props.Query += @"
+                        SELECT CAST(y.dm_periode AS VARCHAR(20)) + '~' + y.system + '~' + y.sid AS lem, y.*, x.buy_value, x.buy_quantity, x.buy_freq, 
+                        x.sell_value, x.sell_quantity, x.sell_freq, 
+                        (x.buy_value - x.sell_value) as net_value, 
+                        (x.buy_quantity - x.sell_quantity) as net_quantity,
+                        (x.buy_freq - x.sell_freq) as net_freq
+                        FROM (
+                            select sid, securitycode, securityname, ";
+
+                if (isHive)
                     props.Query += @"
-                        CAST(dm_periode AS VARCHAR(20)) + '~' + sid AS lem, * from pasarmodal." + tableName + @" x WHERE " + whereQuery;
-                    props.Query += (chk100 == true) ? @" order by x.is_active desc" : @"";
-                }
-                else if (tableName == "ip_ownership" || tableName == "ip_transaction")
-                {            
-                    props.Query += @"
-                        CAST(dm_periode AS VARCHAR(20)) + '~' + sid AS lem, * from pasarmodal." + tableName + @" x WHERE " + whereQuery;
-                    props.Query += (chk100 == true) ? @" order by x.periode" : @"";
-                }
+                            SUM( IF( transactiontypecode = 'B', value, 0) ) AS buy_value, 
+                            SUM( IF( transactiontypecode = 'B', quantity, 0) ) AS buy_quantity, 
+                            SUM( IF( transactiontypecode = 'B', freq, 0) ) AS buy_freq,
+                            SUM( IF( transactiontypecode = 'S', value, 0) ) AS sell_value, 
+                            SUM( IF( transactiontypecode = 'S', quantity, 0) ) AS sell_quantity, 
+                            SUM( IF( transactiontypecode = 'S', freq, 0) ) AS sell_freq ";
                 else
-                {
                     props.Query += @"
-                        CAST(dm_periode AS VARCHAR(20)) + '~' + sid AS lem, * from pasarmodal." + tableName + @" x WHERE " + whereQuery;
-                    props.Query += (chk100 == true) ? @" order by x.isdirect" : @"";
+                            buy_value, buy_quantity, buy_freq, sell_value, sell_quantity, sell_freq ";
 
-                }
-
+                props.Query += @"
+                            from pasarmodal." + (isHive ? "investor_profile_trans" : tableName) + @"
+                            where " + whereQuery + periodWhereQuery + @" 
+                        )x LEFT OUTER JOIN (
+                            select dm_periode, sid, nama_sid, trade_id, tanggal_lahir, tanggal_pendirian, address1, ktp, npwp, status_sid, last_update_sid, system, email, phone_number, fax, passport, occupation, nationality, province, city, periode 
+                            from pasarmodal." + (isHive ? "src_sid" : "ip_sid") + @" 
+                            where " + whereQuery + @"
+                        )y ON x.sid = y.sid";
+            }
+            else if (tableName == "ip_ownership")
+            {
+                props.Query += @"
+                        SELECT CAST(y.dm_periode AS VARCHAR(20)) + '~' + y.system + '~' + y.sid AS lem, y.*, 
+                        securitycode, securityname, rekening_status, accountbalancestatuscode, volume, value 
+                        FROM (
+                            select sid, securitycode, securityname, rekening_status, accountbalancestatuscode, volume, value  
+                            from pasarmodal." + (isHive ? "investor_profile_kpm" : tableName) + @" x WHERE " + whereQuery + periodWhereQuery + @"
+                        )x LEFT OUTER JOIN (
+                            select dm_periode, sid, nama_sid, trade_id, tanggal_lahir, tanggal_pendirian, address1, ktp, npwp, status_sid, last_update_sid, system, email, phone_number, fax, passport, occupation, nationality, province, city, periode 
+                            from pasarmodal." + (isHive ? "src_sid" : "ip_sid") + @" 
+                            where " + whereQuery + @"
+                        )y ON x.sid = y.sid";
+                props.Query += (chk100 == true) ? @" order by x.periode" : @"";
+            }
+            else 
+            {
+                props.Query += @" SELECT 
+                        CAST(dm_periode AS VARCHAR(20)) + '~' + system + '~' + sid AS lem, * from pasarmodal." + tableName + @" x WHERE " + whereQuery;
+                props.Query += (chk100 == true) ? @" order by x.is_direct" : @"";
             }
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
