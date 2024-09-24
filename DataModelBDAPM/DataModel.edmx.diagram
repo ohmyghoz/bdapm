@@ -4,7 +4,7 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="54199a72b79a441ebe97de0c65e4d6bd" Name="Diagram1">
+      <Diagram DiagramId="d1345fe23f3c4cacb2b75b1669fb87c4" Name="Diagram1" ZoomLevel="55">
         <EntityTypeShape EntityType="DataModel.Alert_Master" Width="1.5" PointX="0.75" PointY="10.75" IsExpanded="true" />
         <EntityTypeShape EntityType="DataModel.Alert_Summary" Width="1.5" PointX="11.75" PointY="8.75" IsExpanded="true" />
         <EntityTypeShape EntityType="DataModel.AuditTrail" Width="1.5" PointX="5.75" PointY="22.75" IsExpanded="true" />
@@ -42,44 +42,43 @@
         <EntityTypeShape EntityType="DataModel.FWWorkday" Width="1.5" PointX="23.75" PointY="10.75" IsExpanded="true" />
         <EntityTypeShape EntityType="DataModel.Help" Width="1.5" PointX="12" PointY="34.375" IsExpanded="true" />
         <EntityTypeShape EntityType="DataModel.HiveSync" Width="1.5" PointX="23.75" PointY="15.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.ip_sid" Width="1.5" PointX="23.75" PointY="18.75" IsExpanded="true" />
         <EntityTypeShape EntityType="DataModel.KonfigurasiAlert" Width="1.5" PointX="7.5" PointY="8.875" IsExpanded="true" />
         <EntityTypeShape EntityType="DataModel.KonfigurasiALertDetail" Width="1.5" PointX="9.75" PointY="12.625" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.la_inquiry_check" Width="1.5" PointX="18.75" PointY="27.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.la_inquiry_pattern_recognition" Width="1.5" PointX="0.75" PointY="28.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.LOG_AKSES" Width="1.5" PointX="2.75" PointY="28.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.Log_ETL" Width="1.5" PointX="14.75" PointY="28.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.market_driven_ape_growth" Width="1.5" PointX="20.75" PointY="28.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.market_driven_rg_ng" Width="1.5" PointX="25.75" PointY="4.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.market_driven_stp_balance" Width="1.5" PointX="25.75" PointY="9.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.market_driven_stp_settlement_new" Width="1.5" PointX="25.75" PointY="13.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.Master_Agunan" Width="1.5" PointX="25.75" PointY="18.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.Master_Keterangan" Width="1.5" PointX="25.75" PointY="21.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.master_ljk" Width="1.5" PointX="25.75" PointY="25.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.master_ljk_type" Width="1.5" PointX="4.75" PointY="30.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.master_office_ljk" Width="1.5" PointX="6.75" PointY="30.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.master_user_ideb" Width="1.5" PointX="27.75" PointY="7.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.la_inquiry_check" Width="1.5" PointX="23.75" PointY="18.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.la_inquiry_pattern_recognition" Width="1.5" PointX="18.75" PointY="27.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.LOG_AKSES" Width="1.5" PointX="23.75" PointY="27.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.Log_ETL" Width="1.5" PointX="0.75" PointY="28.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.market_driven_ape_growth" Width="1.5" PointX="2.75" PointY="28.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.market_driven_rg_ng" Width="1.5" PointX="14.75" PointY="28.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.market_driven_stp_balance" Width="1.5" PointX="20.75" PointY="28.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.market_driven_stp_settlement_new" Width="1.5" PointX="25.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.Master_Agunan" Width="1.5" PointX="25.75" PointY="9.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.Master_Keterangan" Width="1.5" PointX="25.75" PointY="12.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.master_ljk" Width="1.5" PointX="25.75" PointY="16.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.master_ljk_type" Width="1.5" PointX="25.75" PointY="22.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.master_office_ljk" Width="1.5" PointX="25.75" PointY="26.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.master_sid" Width="1.5" PointX="4.75" PointY="30.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.master_user_ideb" Width="1.5" PointX="6.75" PointY="30.75" IsExpanded="true" />
         <EntityTypeShape EntityType="DataModel.MasterKota" Width="1.5" PointX="3" PointY="15.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.MasterPenggunaanData" Width="1.5" PointX="22.75" PointY="30.75" IsExpanded="true" />
         <EntityTypeShape EntityType="DataModel.MasterPropinsi" Width="1.5" PointX="0.75" PointY="15.625" IsExpanded="true" />
         <EntityTypeShape EntityType="DataModel.MasterSatker" Width="1.5" PointX="5.25" PointY="15" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.osida_master" Width="1.5" PointX="27.75" PointY="13.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.osida_nik_tidak_konsisten_det" Width="1.5" PointX="27.75" PointY="18.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.osida_nik_tidak_konsisten_mst" Width="1.5" PointX="27.75" PointY="25.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.osida_pembanding_populasi_chart" Width="1.5" PointX="25.75" PointY="31.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.pe_segmentation_bridging_detail" Width="1.5" PointX="27.75" PointY="31.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.pe_segmentation_det_jaminan_margin" Width="1.5" PointX="14.75" PointY="32.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.pe_segmentation_det_jaminan_margin_sum" Width="1.5" PointX="29.75" PointY="4.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.pe_segmentation_det_portofolio_saham" Width="1.5" PointX="29.75" PointY="8.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.pe_segmentation_det_portofolio_saham_sum" Width="1.5" PointX="8.75" PointY="33.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.pe_segmentation_det_reksa_dana" Width="1.5" PointX="29.75" PointY="14.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.pe_segmentation_det_reksa_dana_sum" Width="1.5" PointX="29.75" PointY="19.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.pe_segmentation_det_reverse_repo" Width="1.5" PointX="29.75" PointY="23.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.pe_segmentation_det_reverse_repo_sum" Width="1.5" PointX="29.75" PointY="28.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.pe_segmentation_sum_cluster_mkbd" Width="1.5" PointX="29.75" PointY="33.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.Penarikan_Data" Width="1.5" PointX="2.75" PointY="34.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.ref_cities" Width="1.5" PointX="31.75" PointY="4.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.ref_collateral_types" Width="1.5" PointX="31.75" PointY="8.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.ref_credit_types" Width="1.5" PointX="4.75" PointY="35.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.ml_log_aktivitas" Width="1.5" PointX="27.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.ml_log_mon_data" Width="1.5" PointX="27.75" PointY="9.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.ml_master_log" Width="1.5" PointX="27.75" PointY="14.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.osida_master" Width="1.5" PointX="27.75" PointY="18.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.osida_nik_tidak_konsisten_det" Width="1.5" PointX="27.75" PointY="23.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.osida_nik_tidak_konsisten_mst" Width="1.5" PointX="24.75" PointY="31.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.osida_pembanding_populasi_chart" Width="1.5" PointX="27.75" PointY="30.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.pe_segmentation_basis_investor" Width="1.5" PointX="29.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.pe_segmentation_detail_basis_investor_sre" Width="1.5" PointX="8.75" PointY="33.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.pe_segmentation_geo" Width="1.5" PointX="29.75" PointY="17.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.pe_segmentation_pendanaan_per_mkbd" Width="1.5" PointX="14.75" PointY="33.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.pe_segmentation_summary_transaction_sid" Width="1.5" PointX="29.75" PointY="23.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.Penarikan_Data" Width="1.5" PointX="20.75" PointY="33.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.ref_cities" Width="1.5" PointX="26.75" PointY="34.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.ref_collateral_types" Width="1.5" PointX="31.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.ref_credit_types" Width="1.5" PointX="31.75" PointY="8.75" IsExpanded="true" />
         <EntityTypeShape EntityType="DataModel.ref_credit_usages" Width="1.5" PointX="31.75" PointY="12.75" IsExpanded="true" />
         <EntityTypeShape EntityType="DataModel.ref_ownership_document_temp" Width="1.5" PointX="31.75" PointY="16.75" IsExpanded="true" />
         <EntityTypeShape EntityType="DataModel.ref_pekerjaan_temp" Width="1.5" PointX="31.75" PointY="19.75" IsExpanded="true" />
@@ -92,17 +91,48 @@
         <EntityTypeShape EntityType="DataModel.Thread" Width="1.5" PointX="9.75" PointY="28.625" IsExpanded="true" />
         <EntityTypeShape EntityType="DataModel.Thread_Post" Width="1.5" PointX="12" PointY="21" IsExpanded="true" />
         <EntityTypeShape EntityType="DataModel.UserMaster" Width="1.5" PointX="7.5" PointY="13" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.pengawas_ljk" Width="1.5" PointX="31.75" PointY="26.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.vw_getMasterLJK" Width="1.5" PointX="31.75" PointY="31.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.vw_getMasterOfficeLJK" Width="1.5" PointX="16.75" PointY="36.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.vw_JarakAntarAktivitas" Width="1.5" PointX="18.75" PointY="36.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.vw_ListUser" Width="1.5" PointX="20.75" PointY="36.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.vw_Log_Akses" Width="1.5" PointX="25.75" PointY="36.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.vw_Modul" Width="1.5" PointX="33.75" PointY="4.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.vw_PengawasLJK" Width="1.5" PointX="33.75" PointY="9.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.vw_PeriodTableHive" Width="1.5" PointX="6.75" PointY="37.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.vw_RefDeskripsiKategori" Width="1.5" PointX="8.75" PointY="37.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="DataModel.vw_TableDictionary" Width="1.5" PointX="33.75" PointY="15.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.ip_ownership" Width="1.5" PointX="31.75" PointY="26.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.ip_relation_ownership" Width="1.5" PointX="31.75" PointY="31.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.ip_relation_sid" Width="1.5" PointX="0.75" PointY="36.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.ip_relation_transaction" Width="1.5" PointX="2.75" PointY="36.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.ip_sid" Width="1.5" PointX="4.75" PointY="36.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.ip_transaction" Width="1.5" PointX="28.75" PointY="36.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.market_driven_ape_growth1" Width="1.5" PointX="30.75" PointY="36.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.market_driven_rg_ng1" Width="1.5" PointX="32.75" PointY="36.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.market_driven_stp_balance1" Width="1.5" PointX="33.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.market_driven_stp_settlement_new1" Width="1.5" PointX="33.75" PointY="8.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.mm_spv" Width="1.5" PointX="33.75" PointY="13.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.mm_total" Width="1.5" PointX="33.75" PointY="19.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.pe_segmentation_hutang_subordinasi_det" Width="1.5" PointX="16.75" PointY="37.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.pe_segmentation_pembiayaan_vs_jaminan_saham" Width="1.5" PointX="33.75" PointY="22.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.src_sid" Width="1.5" PointX="18.75" PointY="37.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.pasarmodal_market_driven_rg_ng" Width="1.5" PointX="20.75" PointY="37.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.pengawas_ljk" Width="1.5" PointX="22.75" PointY="37.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.PM_dimSecurityCompanies" Width="1.5" PointX="10.75" PointY="38.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.MEMBER_OFFICES" Width="1.5" PointX="33.75" PointY="27.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.MEMBER_TYPES" Width="1.5" PointX="33.75" PointY="31.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.MEMBER" Width="1.5" PointX="12.75" PointY="38.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.dim_exchange_members" Width="1.5" PointX="24.75" PointY="38.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.pe_segmentation_bridging_detail" Width="1.5" PointX="34.75" PointY="34.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.pe_segmentation_det_jaminan_margin" Width="1.5" PointX="35.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.pe_segmentation_det_jaminan_margin_sum" Width="1.5" PointX="35.75" PointY="8.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.pe_segmentation_det_portofolio_saham" Width="1.5" PointX="35.75" PointY="12.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.pe_segmentation_det_portofolio_saham_sum" Width="1.5" PointX="35.75" PointY="18.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.pe_segmentation_det_reksa_dana" Width="1.5" PointX="35.75" PointY="22.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.pe_segmentation_det_reksa_dana_sum" Width="1.5" PointX="35.75" PointY="27.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.pe_segmentation_det_reverse_repo_new" Width="1.5" PointX="34.75" PointY="39.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.pe_segmentation_det_reverse_repo_sum_new" Width="1.5" PointX="36.75" PointY="31.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.pe_segmentation_sum_cluster_mkbd" Width="1.5" PointX="36.75" PointY="36.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.vw_getMasterLJK" Width="1.5" PointX="37.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.vw_getMasterOfficeLJK" Width="1.5" PointX="37.75" PointY="11.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.vw_JarakAntarAktivitas" Width="1.5" PointX="37.75" PointY="17.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.vw_ListUser" Width="1.5" PointX="37.75" PointY="21.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.vw_Log_Akses" Width="1.5" PointX="37.75" PointY="25.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.vw_Modul" Width="1.5" PointX="36.75" PointY="41.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.vw_PengawasLJK" Width="1.5" PointX="0.75" PointY="42.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.vw_PeriodTableHive" Width="1.5" PointX="37.75" PointY="28.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.vw_RefDeskripsiKategori" Width="1.5" PointX="14.75" PointY="42.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="DataModel.vw_TableDictionary" Width="1.5" PointX="16.75" PointY="42.75" IsExpanded="true" />
         <AssociationConnector Association="DataModel.FK_FW_Attachment_Email_In" ManuallyRouted="false" />
         <AssociationConnector Association="DataModel.FK_FW_Attachment_Help" ManuallyRouted="false" />
         <AssociationConnector Association="DataModel.FK_FW_Attachment_Thread_Post" ManuallyRouted="false" />
@@ -130,9 +160,6 @@
         <AssociationConnector Association="DataModel.FK_Post_Thread" ManuallyRouted="false" />
         <AssociationConnector Association="DataModel.FK_Thread_User_Master" ManuallyRouted="false" />
         <AssociationConnector Association="DataModel.FK_Post_User_Master" ManuallyRouted="false" />
-        <EntityTypeShape EntityType="DataModel.master_sid" Width="1.5" PointX="0.75" PointY="0.75" />
-        <EntityTypeShape EntityType="DataModel.PM_dimSecurityCompanies" Width="1.5" PointX="34.75" PointY="19.75" />
-        <EntityTypeShape EntityType="DataModel.MasterPenggunaanData" Width="1.5" PointX="13.375" PointY="0.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

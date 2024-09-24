@@ -15,8 +15,6 @@
     <Company>BDA</Company>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="Areas\BDA2\Views\DNA\**" />
-    <Compile Remove="Areas\BDA2\Views\Osint\**" />
     <Compile Remove="Areas\Master\Views\Calendar\**" />
     <Compile Remove="Areas\Master\Views\LOV\**" />
     <Compile Remove="Areas\Master\Views\MasterThreshold\**" />
@@ -26,8 +24,6 @@
     <Compile Remove="Controllers\**" />
     <Compile Remove="Helper\WSQueryStore.cs\**" />
     <Compile Remove="Views\Login\**" />
-    <Content Remove="Areas\BDA2\Views\DNA\**" />
-    <Content Remove="Areas\BDA2\Views\Osint\**" />
     <Content Remove="Areas\Master\Views\Calendar\**" />
     <Content Remove="Areas\Master\Views\LOV\**" />
     <Content Remove="Areas\Master\Views\MasterThreshold\**" />
@@ -37,8 +33,6 @@
     <Content Remove="Controllers\**" />
     <Content Remove="Helper\WSQueryStore.cs\**" />
     <Content Remove="Views\Login\**" />
-    <EmbeddedResource Remove="Areas\BDA2\Views\DNA\**" />
-    <EmbeddedResource Remove="Areas\BDA2\Views\Osint\**" />
     <EmbeddedResource Remove="Areas\Master\Views\Calendar\**" />
     <EmbeddedResource Remove="Areas\Master\Views\LOV\**" />
     <EmbeddedResource Remove="Areas\Master\Views\MasterThreshold\**" />
@@ -48,8 +42,6 @@
     <EmbeddedResource Remove="Controllers\**" />
     <EmbeddedResource Remove="Helper\WSQueryStore.cs\**" />
     <EmbeddedResource Remove="Views\Login\**" />
-    <None Remove="Areas\BDA2\Views\DNA\**" />
-    <None Remove="Areas\BDA2\Views\Osint\**" />
     <None Remove="Areas\Master\Views\Calendar\**" />
     <None Remove="Areas\Master\Views\LOV\**" />
     <None Remove="Areas\Master\Views\MasterThreshold\**" />
@@ -61,8 +53,6 @@
     <None Remove="Views\Login\**" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Remove="Areas\BDA2\Controllers\DNAController.cs" />
-    <Compile Remove="Areas\BDA2\Controllers\OsintController.cs" />
     <Compile Remove="Areas\Master\Controllers\MasterThresholdController.cs" />
     <Compile Remove="Helper\CAMHelper.cs" />
     <Compile Remove="Helper\FW\CAMHelper.cs" />
@@ -99,41 +89,10 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.31" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.2" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Utils" Version="8.0.2" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0" />
     <PackageReference Include="System.Data.Odbc" Version="8.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Areas\BDA2\Views\CoverageMap\Index.cshtml" />
-    <None Include="Areas\BDA2\Views\DA\AnomaliDokumenAgunan.cshtml" />
-    <None Include="Areas\BDA2\Views\DA\AnomaliDuplikasiNama.cshtml" />
-    <None Include="Areas\BDA2\Views\DA\AnomaliFormatKTP.cshtml" />
-    <None Include="Areas\BDA2\Views\DA\AnomaliGender.cshtml" />
-    <None Include="Areas\BDA2\Views\DA\AnomaliIDAgunan.cshtml" />
-    <None Include="Areas\BDA2\Views\LA\InquiryCheck.cshtml" />
-    <None Include="Areas\BDA2\Views\LA\InquiryPatternRecognition.cshtml" />
-    <None Include="Areas\BDA2\Views\ListMenu\Index.cshtml" />
-    <None Include="Areas\BDA2\Views\Macro\Forecasting.cshtml" />
-    <None Include="Areas\BDA2\Views\Macro\PenetrasiPinjaman.cshtml" />
-    <None Include="Areas\BDA2\Views\Macro\PertumbuhanPinjaman.cshtml" />
-    <None Include="Areas\BDA2\Views\Macro\PolicyEvaluation.cshtml" />
-    <None Include="Areas\BDA2\Views\MA\AnalisisPencurianIdentitas.cshtml" />
-    <None Include="Areas\BDA2\Views\MA\AnomaliPekerjaan.cshtml" />
-    <None Include="Areas\BDA2\Views\MA\Index.cshtml" />
-    <None Include="Areas\BDA2\Views\MA\KolektibilitasKesalahanLJK.cshtml" />
-    <None Include="Areas\BDA2\Views\MA\OutstandingMacet.cshtml" />
-    <None Include="Areas\BDA2\Views\MA\RekBaruNPL.cshtml" />
-    <None Include="Areas\BDA2\Views\Micro\CreditRisk.cshtml" />
-    <None Include="Areas\BDA2\Views\Micro\Index.cshtml" />
-    <None Include="Areas\BDA2\Views\Micro\LiquidityRisk.cshtml" />
-    <None Include="Areas\BDA2\Views\MS\Index.cshtml" />
-    <None Include="Areas\BDA2\Views\MS\KetentuanKolektibilitas.cshtml" />
-    <None Include="Areas\BDA2\Views\MS\KolektibilitasKaryawanLJK.cshtml" />
-    <None Include="Areas\BDA2\Views\MS\PemberianPinjamanKaryawanLJK.cshtml" />
-    <None Include="Areas\BDA2\Views\MS\PinjamanBaruBersamaan.cshtml" />
-    <None Include="Areas\BDA2\Views\MS\PinjamanBaruBersamaanDetail.cshtml" />
-    <None Include="Areas\BDA2\Views\OSIDA\Detail.cshtml" />
-    <None Include="Areas\BDA2\Views\OSIDA\Index.cshtml" />
-    <None Include="Areas\BDA2\Views\OSIDA\Index2.cshtml" />
-    <None Include="Areas\BDA2\Views\OSIDA\Summary.cshtml" />
     <None Include="Areas\FW\Views\Attachment\Sample.cshtml" />
     <None Include="Areas\FW\Views\DXReport\Designer.cshtml" />
     <None Include="Areas\FW\Views\DXReport\QueryBuilder.cshtml" />
@@ -161,8 +120,6 @@
     <None Include="Areas\Master\Views\User_Master\Edit.cshtml" />
     <None Include="Areas\Master\Views\User_Master\Index.cshtml" />
     <None Include="Areas\Master\Views\_ViewImports.cshtml" />
-    <None Include="Areas\Test\Views\TestingEmailAlert\Index.cshtml" />
-    <None Include="Areas\Test\Views\_ViewImports.cshtml" />
     <None Include="Areas\Website\Views\Home\Login.cshtml" />
     <None Include="Areas\Website\_ViewImports.cshtml" />
     <None Include="Views\Home\Index.cshtml" />

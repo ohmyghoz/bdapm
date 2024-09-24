@@ -123,9 +123,9 @@
                 {
                     columns.Add().DataField("no").Caption("No.").Alignment(HorizontalAlignment.Center).Width(50);
                     columns.Add().DataField("securityname").Caption("Nama Efek").Width(1000);
-                    columns.Add().DataField("volume").Caption("Volume").Alignment(HorizontalAlignment.Right).Format("#,##0").Width(130);
-                    columns.Add().DataField("price").Caption("Harga").Width(130).Alignment(HorizontalAlignment.Right).Format("#,##0").Width(130);
-                    columns.Add().DataField("fairmarketvalue").Caption("Nilai Pasar Wajar").Alignment(HorizontalAlignment.Right).Format("#,##0").Width(130);
+                    columns.Add().DataField("volume").Caption("Volume").Alignment(HorizontalAlignment.Right).Width(130).DataType(GridColumnDataType.Number).Format(",##0");
+                    columns.Add().DataField("price").Caption("Harga").Width(130).Alignment(HorizontalAlignment.Right).Width(130).DataType(GridColumnDataType.Number).Format(",##0");
+                    columns.Add().DataField("fairmarketvalue").Caption("Nilai Pasar Wajar").Alignment(HorizontalAlignment.Right).Width(130).DataType(GridColumnDataType.Number).Format(",##0");
                 })
                 .ColumnResizingMode(ColumnResizingMode.Widget)
                 .FilterRow(f => f.Visible(true))
@@ -170,7 +170,7 @@
                 .Columns(columns =>
                 {
                     columns.Add().DataField("mkbdvd510description").Caption("Detail Summary").Width(1350);
-                    columns.Add().DataField("fairmarketvalue").Caption("Nilai Pasar Wajar").Alignment(HorizontalAlignment.Right).Format("#,##0").Width(150);
+                    columns.Add().DataField("fairmarketvalue").Caption("Nilai Pasar Wajar").Alignment(HorizontalAlignment.Right).Width(150).DataType(GridColumnDataType.Number).Format(",##0");
                 })
                 .ColumnResizingMode(ColumnResizingMode.Widget)
                 .FilterRow(f => f.Visible(true))
@@ -234,17 +234,31 @@
 <script>
 
     function ExportToExcelJaminanMargin() {
-        $.ajax({
+         $.ajax({
             type: "POST",
             url: "@Url.Action("LogExportIndexJaminanMargin", "SegmentationSummaryClusterMKBD")",
             success: function (response) {
                 if (response.result == "Success") {
-                    var grid = $("#grid1").dxDataGrid("instance");
-                    grid.option("onExporting", function (e) {
-                        e.fileName = "JaminanMargin_" + new Date().toISOString().slice(0, 10);
+                    var workbook = new ExcelJS.Workbook();
+                    var worksheet = workbook.addWorksheet('Main sheet');
+
+                    DevExpress.excelExporter.exportDataGrid({
+                        component: $("#grid1").dxDataGrid("instance"),
+                        worksheet: worksheet,
+                        customizeCell: function (options) {
+                            var { gridCell, excelCell } = options;
+
+                            if (gridCell.rowType === 'data') {
+                                if (options.gridCell.column.dataType === 'number') {
+                                    excelCell.numFmt = '#,##0';
+                                }
+                            }
+                        }
+                    }).then(function () {
+                        workbook.xlsx.writeBuffer().then(function (buffer) {
+                            saveAs(new Blob([buffer], { type: "application/octet-stream" }), "JaminanMargin_" + new Date().toISOString().slice(0, 10) + ".xlsx");
+                        });
                     });
-                    grid.option("onFileSaving", function (e) { });
-                    grid.exportToExcel();
                 }
             }
         });
@@ -271,17 +285,31 @@
     }
 
     function ExportToExcelJaminanMarginDetailSummary() {
-        $.ajax({
+         $.ajax({
             type: "POST",
             url: "@Url.Action("LogExportIndexJaminanMarginDetailSummary", "SegmentationSummaryClusterMKBD")",
             success: function (response) {
                 if (response.result == "Success") {
-                    var grid = $("#grid2").dxDataGrid("instance");
-                    grid.option("onExporting", function (e) {
-                        e.fileName = "JaminanMarginDetailSummary_" + new Date().toISOString().slice(0, 10);
+                    var workbook = new ExcelJS.Workbook();
+                    var worksheet = workbook.addWorksheet('Main sheet');
+
+                    DevExpress.excelExporter.exportDataGrid({
+                        component: $("#grid2").dxDataGrid("instance"),
+                        worksheet: worksheet,
+                        customizeCell: function (options) {
+                            var { gridCell, excelCell } = options;
+
+                            if (gridCell.rowType === 'data') {
+                                if (options.gridCell.column.dataType === 'number') {
+                                    excelCell.numFmt = '#,##0';
+                                }
+                            }
+                        }
+                    }).then(function () {
+                        workbook.xlsx.writeBuffer().then(function (buffer) {
+                            saveAs(new Blob([buffer], { type: "application/octet-stream" }), "JaminanMarginDetailSummary_" + new Date().toISOString().slice(0, 10) + ".xlsx");
+                        });
                     });
-                    grid.option("onFileSaving", function (e) { });
-                    grid.exportToExcel();
                 }
             }
         });

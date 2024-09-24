@@ -17,7 +17,7 @@ namespace BDA.DataModel
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public MasterPropinsi()
         {
-            this.MasterKota = new HashSet<MasterKota>();
+            this.MasterKotas = new HashSet<MasterKota>();
         }
     
         public long RefPropinsiId { get; set; }
@@ -32,6 +32,6 @@ namespace BDA.DataModel
         public string JtiProvinceid { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<MasterKota> MasterKota { get; set; }
+        public virtual ICollection<MasterKota> MasterKotas { get; set; }
     }
 }

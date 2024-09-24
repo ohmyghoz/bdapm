@@ -16,6 +16,11 @@ namespace BDA.DataModel
     {
         public System.DateTime dm_periode { get; set; }
         public long rowid { get; set; }
+        public string sid { get; set; }
+        public string nama_sid { get; set; }
+        public string trade_id { get; set; }
+        public string ktp { get; set; }
+        public string sistem { get; set; }
         public string kitas_skd_number { get; set; }
         public string email { get; set; }
         public string ap4_mobile_phone { get; set; }
@@ -74,7 +79,6 @@ namespace BDA.DataModel
         public Nullable<System.DateTime> dob_sid { get; set; }
         public string other_address2 { get; set; }
         public string city { get; set; }
-        public string sid { get; set; }
         public string ap2_first_name { get; set; }
         public string fax { get; set; }
         public string passport_sid { get; set; }
@@ -88,7 +92,6 @@ namespace BDA.DataModel
         public string institutional_source_fund { get; set; }
         public string asset_info_3_years_ago { get; set; }
         public string ap3_kitas_skd_number { get; set; }
-        public string nama_sid { get; set; }
         public string birth_place { get; set; }
         public Nullable<System.DateTime> tanggal_pendirian { get; set; }
         public string asset_info_last_year { get; set; }
@@ -119,7 +122,6 @@ namespace BDA.DataModel
         public string ap2_passport { get; set; }
         public string status_rekening { get; set; }
         public string full_name { get; set; }
-        public string ktp { get; set; }
         public Nullable<decimal> individual_income { get; set; }
         public string ap1_mobile_phone { get; set; }
         public string kyc_no { get; set; }
@@ -135,6 +137,5 @@ namespace BDA.DataModel
         public string valid_from { get; set; }
         public string valid_until { get; set; }
         public string is_active { get; set; }
-        public string system { get; set; }
     }
 }

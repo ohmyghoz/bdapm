@@ -14,7 +14,6 @@ namespace BDA.DataModel
     
     public partial class pe_segmentation_det_jaminan_margin
     {
-        public long rowid { get; set; }
         public System.DateTime calendardate { get; set; }
         public Nullable<int> securitycompanysk { get; set; }
         public string securitycompanycode { get; set; }
@@ -25,6 +24,6 @@ namespace BDA.DataModel
         public Nullable<int> volume { get; set; }
         public Nullable<int> price { get; set; }
         public Nullable<long> fairmarketvalue { get; set; }
-        public System.DateTime periode { get; set; }
+        public string periode { get; set; }
     }
 }

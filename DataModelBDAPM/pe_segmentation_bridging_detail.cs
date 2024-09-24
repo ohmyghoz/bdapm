@@ -14,18 +14,17 @@ namespace BDA.DataModel
     
     public partial class pe_segmentation_bridging_detail
     {
-        public long rowid { get; set; }
         public System.DateTime calendardate { get; set; }
         public Nullable<int> securitycompanysk { get; set; }
         public string securitycompanycode { get; set; }
         public string securitycompanyname { get; set; }
-        public Nullable<double> f_level_1 { get; set; }
-        public Nullable<double> f_level_2 { get; set; }
+        public string f_level_1 { get; set; }
+        public string f_level_2 { get; set; }
         public Nullable<double> total_balance { get; set; }
         public Nullable<double> total_aset_lancar { get; set; }
-        public Nullable<double> persentase { get; set; }
+        public string persentase { get; set; }
         public Nullable<double> fairmarketvalue { get; set; }
         public Nullable<int> flag { get; set; }
-        public System.DateTime periode { get; set; }
+        public string periode { get; set; }
     }
 }

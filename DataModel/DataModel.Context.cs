@@ -210,17 +210,7 @@ namespace BDA.DataModel
 
         //---------------------------------------------------------2024 BDAPM--------------------------------------------------------------------//
         public virtual DbSet<ip_sid> ip_sid { get; set; }
-        public virtual DbSet<pe_segmentation_bridging_detail> pe_segmentation_bridging_detail { get; set; }
-        public virtual DbSet<pe_segmentation_det_jaminan_margin> pe_segmentation_det_jaminan_margin { get; set; }
-        public virtual DbSet<pe_segmentation_det_jaminan_margin_sum> pe_segmentation_det_jaminan_margin_sum { get; set; }
-        public virtual DbSet<pe_segmentation_det_portofolio_saham> pe_segmentation_det_portofolio_saham { get; set; }
-        public virtual DbSet<pe_segmentation_det_portofolio_saham_sum> pe_segmentation_det_portofolio_saham_sum { get; set; }
-        public virtual DbSet<pe_segmentation_det_reksa_dana> pe_segmentation_det_reksa_dana { get; set; }
-        public virtual DbSet<pe_segmentation_det_reksa_dana_sum> pe_segmentation_det_reksa_dana_sum { get; set; }
-        public virtual DbSet<pe_segmentation_det_reverse_repo> pe_segmentation_det_reverse_repo { get; set; }
-        public virtual DbSet<pe_segmentation_det_reverse_repo_sum> pe_segmentation_det_reverse_repo_sum { get; set; }
-        public virtual DbSet<pe_segmentation_sum_cluster_mkbd> pe_segmentation_sum_cluster_mkbd { get; set; }
-        public virtual DbSet<MasterPenggunaanData> MasterPenggunaanData { get; set; }
+        
         //---------------------------------------------------------2024 BDAPM--------------------------------------------------------------------//
 
         public virtual ObjectResult<FW_userPermission_Result> FW_userPermission(string user_id, string mod_kode, string role_name)

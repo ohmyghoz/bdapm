@@ -29,7 +29,7 @@ namespace BDA.DataModel
     
         public virtual DbSet<Alert_Master> Alert_Master { get; set; }
         public virtual DbSet<Alert_Summary> Alert_Summary { get; set; }
-        public virtual DbSet<AuditTrail> AuditTrail { get; set; }
+        public virtual DbSet<AuditTrail> AuditTrails { get; set; }
         public virtual DbSet<BDA_A01_Cluster> BDA_A01_Cluster { get; set; }
         public virtual DbSet<BDA_HML_MCDFA> BDA_HML_MCDFA { get; set; }
         public virtual DbSet<BDA_Log_PerHour> BDA_Log_PerHour { get; set; }
@@ -38,35 +38,34 @@ namespace BDA.DataModel
         public virtual DbSet<BDA2_Table_Period> BDA2_Table_Period { get; set; }
         public virtual DbSet<BDA2_Table_Period_LJK> BDA2_Table_Period_LJK { get; set; }
         public virtual DbSet<debitur_anomali_data_populasi> debitur_anomali_data_populasi { get; set; }
-        public virtual DbSet<DimTanggal> DimTanggal { get; set; }
-        public virtual DbSet<DimTime> DimTime { get; set; }
-        public virtual DbSet<DxReport> DxReport { get; set; }
+        public virtual DbSet<DimTanggal> DimTanggals { get; set; }
+        public virtual DbSet<DimTime> DimTimes { get; set; }
+        public virtual DbSet<DxReport> DxReports { get; set; }
         public virtual DbSet<Email_In> Email_In { get; set; }
-        public virtual DbSet<FWAttachment> FWAttachment { get; set; }
-        public virtual DbSet<FWCalendar> FWCalendar { get; set; }
-        public virtual DbSet<FWEmailQueue> FWEmailQueue { get; set; }
-        public virtual DbSet<FWHoliday> FWHoliday { get; set; }
-        public virtual DbSet<FWKodeCounter> FWKodeCounter { get; set; }
-        public virtual DbSet<FWKodeDetail> FWKodeDetail { get; set; }
-        public virtual DbSet<FWKodeFormat> FWKodeFormat { get; set; }
-        public virtual DbSet<FWLOGError> FWLOGError { get; set; }
-        public virtual DbSet<FWNotice> FWNotice { get; set; }
-        public virtual DbSet<FWNoticeQueue> FWNoticeQueue { get; set; }
-        public virtual DbSet<FWNoticeTemplate> FWNoticeTemplate { get; set; }
-        public virtual DbSet<FWRefModul> FWRefModul { get; set; }
-        public virtual DbSet<FWRefModulMenu> FWRefModulMenu { get; set; }
-        public virtual DbSet<FWRefRole> FWRefRole { get; set; }
-        public virtual DbSet<FWRefSetting> FWRefSetting { get; set; }
-        public virtual DbSet<FWRoleRight> FWRoleRight { get; set; }
-        public virtual DbSet<FWTempTable> FWTempTable { get; set; }
-        public virtual DbSet<FWUserLostPassword> FWUserLostPassword { get; set; }
-        public virtual DbSet<FWUserRole> FWUserRole { get; set; }
-        public virtual DbSet<FWWorkday> FWWorkday { get; set; }
-        public virtual DbSet<Help> Help { get; set; }
-        public virtual DbSet<HiveSync> HiveSync { get; set; }
-        public virtual DbSet<ip_sid> ip_sid { get; set; }
-        public virtual DbSet<KonfigurasiAlert> KonfigurasiAlert { get; set; }
-        public virtual DbSet<KonfigurasiALertDetail> KonfigurasiALertDetail { get; set; }
+        public virtual DbSet<FWAttachment> FWAttachments { get; set; }
+        public virtual DbSet<FWCalendar> FWCalendars { get; set; }
+        public virtual DbSet<FWEmailQueue> FWEmailQueues { get; set; }
+        public virtual DbSet<FWHoliday> FWHolidays { get; set; }
+        public virtual DbSet<FWKodeCounter> FWKodeCounters { get; set; }
+        public virtual DbSet<FWKodeDetail> FWKodeDetails { get; set; }
+        public virtual DbSet<FWKodeFormat> FWKodeFormats { get; set; }
+        public virtual DbSet<FWLOGError> FWLOGErrors { get; set; }
+        public virtual DbSet<FWNotice> FWNotices { get; set; }
+        public virtual DbSet<FWNoticeQueue> FWNoticeQueues { get; set; }
+        public virtual DbSet<FWNoticeTemplate> FWNoticeTemplates { get; set; }
+        public virtual DbSet<FWRefModul> FWRefModuls { get; set; }
+        public virtual DbSet<FWRefModulMenu> FWRefModulMenus { get; set; }
+        public virtual DbSet<FWRefRole> FWRefRoles { get; set; }
+        public virtual DbSet<FWRefSetting> FWRefSettings { get; set; }
+        public virtual DbSet<FWRoleRight> FWRoleRights { get; set; }
+        public virtual DbSet<FWTempTable> FWTempTables { get; set; }
+        public virtual DbSet<FWUserLostPassword> FWUserLostPasswords { get; set; }
+        public virtual DbSet<FWUserRole> FWUserRoles { get; set; }
+        public virtual DbSet<FWWorkday> FWWorkdays { get; set; }
+        public virtual DbSet<Help> Helps { get; set; }
+        public virtual DbSet<HiveSync> HiveSyncs { get; set; }
+        public virtual DbSet<KonfigurasiAlert> KonfigurasiAlerts { get; set; }
+        public virtual DbSet<KonfigurasiALertDetail> KonfigurasiALertDetails { get; set; }
         public virtual DbSet<la_inquiry_check> la_inquiry_check { get; set; }
         public virtual DbSet<la_inquiry_pattern_recognition> la_inquiry_pattern_recognition { get; set; }
         public virtual DbSet<LOG_AKSES> LOG_AKSES { get; set; }
@@ -80,24 +79,24 @@ namespace BDA.DataModel
         public virtual DbSet<master_ljk> master_ljk { get; set; }
         public virtual DbSet<master_ljk_type> master_ljk_type { get; set; }
         public virtual DbSet<master_office_ljk> master_office_ljk { get; set; }
+        public virtual DbSet<master_sid> master_sid { get; set; }
         public virtual DbSet<master_user_ideb> master_user_ideb { get; set; }
-        public virtual DbSet<MasterKota> MasterKota { get; set; }
-        public virtual DbSet<MasterPropinsi> MasterPropinsi { get; set; }
-        public virtual DbSet<MasterSatker> MasterSatker { get; set; }
+        public virtual DbSet<MasterKota> MasterKotas { get; set; }
+        public virtual DbSet<MasterPenggunaanData> MasterPenggunaanDatas { get; set; }
+        public virtual DbSet<MasterPropinsi> MasterPropinsis { get; set; }
+        public virtual DbSet<MasterSatker> MasterSatkers { get; set; }
+        public virtual DbSet<ml_log_aktivitas> ml_log_aktivitas { get; set; }
+        public virtual DbSet<ml_log_mon_data> ml_log_mon_data { get; set; }
+        public virtual DbSet<ml_master_log> ml_master_log { get; set; }
         public virtual DbSet<osida_master> osida_master { get; set; }
         public virtual DbSet<osida_nik_tidak_konsisten_det> osida_nik_tidak_konsisten_det { get; set; }
         public virtual DbSet<osida_nik_tidak_konsisten_mst> osida_nik_tidak_konsisten_mst { get; set; }
         public virtual DbSet<osida_pembanding_populasi_chart> osida_pembanding_populasi_chart { get; set; }
-        public virtual DbSet<pe_segmentation_bridging_detail> pe_segmentation_bridging_detail { get; set; }
-        public virtual DbSet<pe_segmentation_det_jaminan_margin> pe_segmentation_det_jaminan_margin { get; set; }
-        public virtual DbSet<pe_segmentation_det_jaminan_margin_sum> pe_segmentation_det_jaminan_margin_sum { get; set; }
-        public virtual DbSet<pe_segmentation_det_portofolio_saham> pe_segmentation_det_portofolio_saham { get; set; }
-        public virtual DbSet<pe_segmentation_det_portofolio_saham_sum> pe_segmentation_det_portofolio_saham_sum { get; set; }
-        public virtual DbSet<pe_segmentation_det_reksa_dana> pe_segmentation_det_reksa_dana { get; set; }
-        public virtual DbSet<pe_segmentation_det_reksa_dana_sum> pe_segmentation_det_reksa_dana_sum { get; set; }
-        public virtual DbSet<pe_segmentation_det_reverse_repo> pe_segmentation_det_reverse_repo { get; set; }
-        public virtual DbSet<pe_segmentation_det_reverse_repo_sum> pe_segmentation_det_reverse_repo_sum { get; set; }
-        public virtual DbSet<pe_segmentation_sum_cluster_mkbd> pe_segmentation_sum_cluster_mkbd { get; set; }
+        public virtual DbSet<pe_segmentation_basis_investor> pe_segmentation_basis_investor { get; set; }
+        public virtual DbSet<pe_segmentation_detail_basis_investor_sre> pe_segmentation_detail_basis_investor_sre { get; set; }
+        public virtual DbSet<pe_segmentation_geo> pe_segmentation_geo { get; set; }
+        public virtual DbSet<pe_segmentation_pendanaan_per_mkbd> pe_segmentation_pendanaan_per_mkbd { get; set; }
+        public virtual DbSet<pe_segmentation_summary_transaction_sid> pe_segmentation_summary_transaction_sid { get; set; }
         public virtual DbSet<Penarikan_Data> Penarikan_Data { get; set; }
         public virtual DbSet<ref_cities> ref_cities { get; set; }
         public virtual DbSet<ref_collateral_types> ref_collateral_types { get; set; }
@@ -105,16 +104,47 @@ namespace BDA.DataModel
         public virtual DbSet<ref_credit_usages> ref_credit_usages { get; set; }
         public virtual DbSet<ref_ownership_document_temp> ref_ownership_document_temp { get; set; }
         public virtual DbSet<ref_pekerjaan_temp> ref_pekerjaan_temp { get; set; }
-        public virtual DbSet<ReportDef> ReportDef { get; set; }
-        public virtual DbSet<RptGrid> RptGrid { get; set; }
+        public virtual DbSet<ReportDef> ReportDefs { get; set; }
+        public virtual DbSet<RptGrid> RptGrids { get; set; }
         public virtual DbSet<RptGrid_Param> RptGrid_Param { get; set; }
         public virtual DbSet<RptGrid_Queue> RptGrid_Queue { get; set; }
         public virtual DbSet<RptGrid_RoleSetting> RptGrid_RoleSetting { get; set; }
-        public virtual DbSet<TableauLink> TableauLink { get; set; }
-        public virtual DbSet<Thread> Thread { get; set; }
+        public virtual DbSet<TableauLink> TableauLinks { get; set; }
+        public virtual DbSet<Thread> Threads { get; set; }
         public virtual DbSet<Thread_Post> Thread_Post { get; set; }
-        public virtual DbSet<UserMaster> UserMaster { get; set; }
+        public virtual DbSet<UserMaster> UserMasters { get; set; }
+        public virtual DbSet<ip_ownership> ip_ownership { get; set; }
+        public virtual DbSet<ip_relation_ownership> ip_relation_ownership { get; set; }
+        public virtual DbSet<ip_relation_sid> ip_relation_sid { get; set; }
+        public virtual DbSet<ip_relation_transaction> ip_relation_transaction { get; set; }
+        public virtual DbSet<ip_sid> ip_sid { get; set; }
+        public virtual DbSet<ip_transaction> ip_transaction { get; set; }
+        public virtual DbSet<market_driven_ape_growth1> market_driven_ape_growth1 { get; set; }
+        public virtual DbSet<market_driven_rg_ng1> market_driven_rg_ng1 { get; set; }
+        public virtual DbSet<market_driven_stp_balance1> market_driven_stp_balance1 { get; set; }
+        public virtual DbSet<market_driven_stp_settlement_new1> market_driven_stp_settlement_new1 { get; set; }
+        public virtual DbSet<mm_spv> mm_spv { get; set; }
+        public virtual DbSet<mm_total> mm_total { get; set; }
+        public virtual DbSet<pe_segmentation_hutang_subordinasi_det> pe_segmentation_hutang_subordinasi_det { get; set; }
+        public virtual DbSet<pe_segmentation_pembiayaan_vs_jaminan_saham> pe_segmentation_pembiayaan_vs_jaminan_saham { get; set; }
+        public virtual DbSet<src_sid> src_sid { get; set; }
+        public virtual DbSet<pasarmodal_market_driven_rg_ng> pasarmodal_market_driven_rg_ng { get; set; }
         public virtual DbSet<pengawas_ljk> pengawas_ljk { get; set; }
+        public virtual DbSet<PM_dimSecurityCompanies> PM_dimSecurityCompanies { get; set; }
+        public virtual DbSet<MEMBER_OFFICES> MEMBER_OFFICES { get; set; }
+        public virtual DbSet<MEMBER_TYPES> MEMBER_TYPES { get; set; }
+        public virtual DbSet<MEMBER> MEMBERS { get; set; }
+        public virtual DbSet<dim_exchange_members> dim_exchange_members { get; set; }
+        public virtual DbSet<pe_segmentation_bridging_detail> pe_segmentation_bridging_detail { get; set; }
+        public virtual DbSet<pe_segmentation_det_jaminan_margin> pe_segmentation_det_jaminan_margin { get; set; }
+        public virtual DbSet<pe_segmentation_det_jaminan_margin_sum> pe_segmentation_det_jaminan_margin_sum { get; set; }
+        public virtual DbSet<pe_segmentation_det_portofolio_saham> pe_segmentation_det_portofolio_saham { get; set; }
+        public virtual DbSet<pe_segmentation_det_portofolio_saham_sum> pe_segmentation_det_portofolio_saham_sum { get; set; }
+        public virtual DbSet<pe_segmentation_det_reksa_dana> pe_segmentation_det_reksa_dana { get; set; }
+        public virtual DbSet<pe_segmentation_det_reksa_dana_sum> pe_segmentation_det_reksa_dana_sum { get; set; }
+        public virtual DbSet<pe_segmentation_det_reverse_repo_new> pe_segmentation_det_reverse_repo_new { get; set; }
+        public virtual DbSet<pe_segmentation_det_reverse_repo_sum_new> pe_segmentation_det_reverse_repo_sum_new { get; set; }
+        public virtual DbSet<pe_segmentation_sum_cluster_mkbd> pe_segmentation_sum_cluster_mkbd { get; set; }
         public virtual DbSet<vw_getMasterLJK> vw_getMasterLJK { get; set; }
         public virtual DbSet<vw_getMasterOfficeLJK> vw_getMasterOfficeLJK { get; set; }
         public virtual DbSet<vw_JarakAntarAktivitas> vw_JarakAntarAktivitas { get; set; }
@@ -125,9 +155,6 @@ namespace BDA.DataModel
         public virtual DbSet<vw_PeriodTableHive> vw_PeriodTableHive { get; set; }
         public virtual DbSet<vw_RefDeskripsiKategori> vw_RefDeskripsiKategori { get; set; }
         public virtual DbSet<vw_TableDictionary> vw_TableDictionary { get; set; }
-        public virtual DbSet<master_sid> master_sid { get; set; }
-        public virtual DbSet<PM_dimSecurityCompanies> PM_dimSecurityCompanies { get; set; }
-        public virtual DbSet<MasterPenggunaanData> MasterPenggunaanData { get; set; }
     
         [DbFunction("DataEntities", "FT_Modul_Children")]
         public virtual IQueryable<FT_Modul_Children_Result> FT_Modul_Children(string node_id)
