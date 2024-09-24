@@ -24,6 +24,7 @@ using System.Security.Policy;
 using DevExpress.DocumentServices.ServiceModel.DataContracts;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Globalization;
+using System.Text.RegularExpressions;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -316,6 +317,7 @@ namespace BDA.Controllers
         #region "GetGridData"
         public object GetGridData(DataSourceLoadOptions loadOptions, string reportId, string SID, string tradeId, string namaSID, string nomorKTP, string nomorNPWP, string sistem, string businessReg, string startPeriode, string endPeriode, bool chk100)
         {
+            var regex = new Regex(@"\Aip_relation");
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
             TempData.Clear();
             //string[] periodes = JsonConvert.DeserializeObject<string[]>(periode);
@@ -344,7 +346,7 @@ namespace BDA.Controllers
 
 
 
-            if (startPeriode != null)
+            if (startPeriode != null && (regex.Match(reportId).Success || sistem != null) && (SID != null || tradeId != null || namaSID != null || nomorKTP != null || nomorNPWP != null || businessReg != null))
                 {
                 var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId);
 
