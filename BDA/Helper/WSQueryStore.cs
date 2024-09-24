@@ -5473,7 +5473,7 @@ namespace BDA.Helper
             var props = new WSQueryProperties();
             props.Query = @"SELECT top 20 nama_sid, sid, len(nama_sid) len_nama FROM pasarmodal.src_sid x WHERE " + whereQuery + @" ORDER BY len_nama, nama_sid asc";
             if (isHive)
-                props.Query = @"SELECT nama_sid, sid, len(nama_sid) len_nama FROM pasarmodal.src_sid x WHERE " + whereQuery + @" ORDER BY len_nama, nama_sid asc LIMIT 20";
+                props.Query = @"SELECT nama_sid, sid, length(nama_sid) len_nama FROM pasarmodal.src_sid x WHERE " + whereQuery + @" ORDER BY len_nama, nama_sid asc LIMIT 20";
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
         }
 
