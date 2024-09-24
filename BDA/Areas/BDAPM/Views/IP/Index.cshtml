@@ -478,7 +478,7 @@
 
 
             if (sid != "" || tradeId != "" || (namaSID != "" && namaSID != null) || nomorKTP != "" || nomorNPWP != "") {
-                //console.log(sid + ";" + tradeId + ";" + namaSID + ";" + nomorKTP + ";" +nomorNPWP);
+                console.log(sid + ";" + tradeId + ";" + namaSID + ";" + nomorKTP + ";" +nomorNPWP);
                 $("#grid1").dxDataGrid("instance").refresh();
             }
             else {
@@ -498,7 +498,7 @@
         let nomorKTP = $("#tbKTP").dxTextBox("instance").option("value");
         let nomorNPWP = $("#tbNPWP").dxTextBox("instance").option("value");
         
-                
+        console.log(sid + "-" + tradeId + "-" + namaSID + "-" + nomorKTP + "-" + nomorNPWP);
 
         let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
         let periode = null;
@@ -506,11 +506,11 @@
             periode = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
         }
         
-        if (sid != null) {
-            ajaxOptions.data.SID = sid;
+        if (namaSID != null && namaSID != "") {
+            ajaxOptions.data.SID = namaSID; 
         }
         else {
-            ajaxOptions.data.SID = namaSID;
+            ajaxOptions.data.SID = sid;
         }
         
         ajaxOptions.data.tradeId = tradeId;
