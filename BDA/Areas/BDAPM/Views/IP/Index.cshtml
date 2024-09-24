@@ -349,7 +349,7 @@
     const maxItems = @maxItems;
 
     function onCellPrepared(e) {
-        let listColumn = ["nama_sid", "tanggal_lahir", "tanggal_pendirian", "address1", "ktp", "npwp", "status_sid", "last_update_sid", "system", "sre", "email", "phone_number", "fax", "passport", "occupation", "nationality", "province", "city"];
+        let listColumn = ["nama_sid", "no_rekening", "tanggal_lahir", "tanggal_pendirian", "address1", "ktp", "npwp", "status_sid", "last_update_sid", "system", "sre", "email", "phone_number", "fax", "passport", "occupation", "nationality", "province", "city"];
         if (e.rowType === "data" && e.column.dataField === "sid") {
             
             var tooltipInstance = $("#gridtooltip").dxTooltip("instance");
@@ -477,7 +477,8 @@
             let nomorNPWP = $("#tbNPWP").dxTextBox("instance").option("value");
 
 
-            if (sid != "" || tradeId != "" || namaSID != "" || nomorKTP != "" || nomorNPWP != "") {
+            if (sid != "" || tradeId != "" || (namaSID != "" && namaSID != null) || nomorKTP != "" || nomorNPWP != "") {
+                //console.log(sid + ";" + tradeId + ";" + namaSID + ";" + nomorKTP + ";" +nomorNPWP);
                 $("#grid1").dxDataGrid("instance").refresh();
             }
             else {

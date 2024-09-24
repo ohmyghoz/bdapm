@@ -22,6 +22,8 @@ using System.Data.SqlClient;
 using static BDA.Controllers.RefController;
 using System.Security.Policy;
 using DevExpress.DocumentServices.ServiceModel.DataContracts;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Globalization;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -67,7 +69,7 @@ namespace BDA.Controllers
             
             if (detailsid == null)
             {
-                ViewBag.period = null;
+                ViewBag.period = System.DateTime.Now;
                 //ViewBag.endperiod = null;
                 ViewBag.sid = "";
                 ViewBag.sistem = null;
@@ -76,8 +78,8 @@ namespace BDA.Controllers
             {
                 var details = detailsid.ToString().Split("~");
 
-                DateTime p = Convert.ToDateTime(details[0]);
-                ViewBag.period = p;//string.Format("{0:yyyy-MM-01}", p);
+                DateTime p = DateTime.ParseExact(details[0], "yyyyMMdd", CultureInfo.InvariantCulture);//Convert.ToDateTime(details[0]);
+                ViewBag.period = p.Year == 9999? System.DateTime.Now: p;//string.Format("{0:yyyy-MM-01}", p);
                 //string[] p1 = new string[] { string.Format("{0:yyyy-MM-01}", p) };
                 //ViewBag.period = p1;
                 //ViewBag.endperiod = System.DateTime.Now;
@@ -329,13 +331,13 @@ namespace BDA.Controllers
 
             if (startPeriode != null)
             {
-                stringStartPeriode = Convert.ToDateTime(startPeriode).ToString("yyyy-MM-dd");
+                stringStartPeriode = Convert.ToDateTime(startPeriode).ToString("yyyyMMdd");
                 TempData["sPeriod"] = stringStartPeriode;
             }
 
             if (endPeriode != null)
             {
-                stringEndPeriode = Convert.ToDateTime(endPeriode).ToString("yyyy-MM-dd");
+                stringEndPeriode = Convert.ToDateTime(endPeriode).ToString("yyyyMMdd");
                 TempData["ePeriod"] = stringEndPeriode;
             }
 
