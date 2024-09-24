@@ -11,8 +11,12 @@ namespace BDA.DataModel
 using System;
 using System.Collections.Generic;
 
-public partial class getRJPSelfVsOtherLJK_Result
+public partial class mm_total
 {
+    public System.DateTime dm_periode { get; set; }
+    public long rowid { get; set; }
+    public string sid { get; set; }
+    public Nullable<int> total { get; set; }
 }
 
 }

@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Data.SqlClient;
 using static System.Net.Mime.MediaTypeNames;
+using System.Configuration;
 
 namespace BDA.Controllers
 {
@@ -47,7 +48,7 @@ namespace BDA.Controllers
 
         public ActionResult Index2()
         {
-            List<Market_Driven_rg_ng> marketData = new List<Market_Driven_rg_ng>();
+            List<market_driven_rg_ng> marketData = new List<market_driven_rg_ng>();
 
             string connectionString = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
 
@@ -62,22 +63,22 @@ namespace BDA.Controllers
                     {
                         while (reader.Read())
                         {
-                            marketData.Add(new MarketDrivenModel
-                            {
-                                HistoryType = reader["history_type"].ToString(),
-                                PeriodeLvl1 = reader["periode_lvl1"].ToString(),
-                                PeriodeLvl2 = reader["periode_lvl2"].ToString(),
-                                PeriodeLvl3 = reader["periode_lvl3"].ToString(),
-                                SecurityCode = reader["security_code"].ToString(),
-                                Market = reader["market"].ToString(),
-                                Volume = Convert.ToInt32(reader["volume"]),
-                                Value = Convert.ToDecimal(reader["value"]),
-                                Freq = Convert.ToInt32(reader["freq"]),
-                                Low = Convert.ToDecimal(reader["low"]),
-                                High = Convert.ToDecimal(reader["high"]),
-                                Close = Convert.ToDecimal(reader["close"]),
-                                Periode = reader["periode"].ToString()
-                            });
+                            //marketData.Add(new MarketDrivenModel
+                            //{
+                            //    HistoryType = reader["history_type"].ToString(),
+                            //    PeriodeLvl1 = reader["periode_lvl1"].ToString(),
+                            //    PeriodeLvl2 = reader["periode_lvl2"].ToString(),
+                            //    PeriodeLvl3 = reader["periode_lvl3"].ToString(),
+                            //    SecurityCode = reader["security_code"].ToString(),
+                            //    Market = reader["market"].ToString(),
+                            //    Volume = Convert.ToInt32(reader["volume"]),
+                            //    Value = Convert.ToDecimal(reader["value"]),
+                            //    Freq = Convert.ToInt32(reader["freq"]),
+                            //    Low = Convert.ToDecimal(reader["low"]),
+                            //    High = Convert.ToDecimal(reader["high"]),
+                            //    Close = Convert.ToDecimal(reader["close"]),
+                            //    Periode = reader["periode"].ToString()
+                            //});
                         }
                     }
                 }

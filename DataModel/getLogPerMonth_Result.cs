@@ -13,15 +13,6 @@ using System.Collections.Generic;
 
 public partial class getLogPerMonth_Result
 {
-    public Nullable<System.DateTime> periode { get; set; }
-    public string JenisLJK { get; set; }
-    public string LJK { get; set; }
-    public Nullable<float> user_id { get; set; }
-    public Nullable<long> max_act_count { get; set; }
-    public Nullable<long> min_act_count { get; set; }
-    public Nullable<decimal> avg_act_count { get; set; }
-    public Nullable<decimal> max_to_min { get; set; }
-    public Nullable<decimal> max_to_avg { get; set; }
 }
 
 }

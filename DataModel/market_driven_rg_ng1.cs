@@ -11,7 +11,7 @@ namespace BDA.DataModel
 using System;
 using System.Collections.Generic;
 
-public partial class market_driven_rg_ng
+public partial class market_driven_rg_ng1
 {
     public System.DateTime dm_periode { get; set; }
     public long rowid { get; set; }

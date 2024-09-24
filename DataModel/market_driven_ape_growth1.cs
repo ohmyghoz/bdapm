@@ -11,22 +11,35 @@ namespace BDA.DataModel
 using System;
 using System.Collections.Generic;
 
-public partial class market_driven_rg_ng
+public partial class market_driven_ape_growth1
 {
     public System.DateTime dm_periode { get; set; }
     public long rowid { get; set; }
     public string history_type { get; set; }
+    public Nullable<System.DateTime> periode_lvl0 { get; set; }
     public Nullable<System.DateTime> periode_lvl1 { get; set; }
     public Nullable<System.DateTime> periode_lvl2 { get; set; }
-    public Nullable<System.DateTime> periode_lvl3 { get; set; }
     public string security_code { get; set; }
-    public string market { get; set; }
+    public string security_name { get; set; }
     public Nullable<long> volume { get; set; }
     public Nullable<decimal> value { get; set; }
     public Nullable<int> freq { get; set; }
-    public Nullable<int> low { get; set; }
-    public Nullable<int> high { get; set; }
-    public Nullable<int> close { get; set; }
+    public Nullable<decimal> turnover { get; set; }
+    public Nullable<long> weight { get; set; }
+    public Nullable<int> lowvalue { get; set; }
+    public Nullable<int> highvalue { get; set; }
+    public Nullable<int> price { get; set; }
+    public Nullable<long> listedshares { get; set; }
+    public Nullable<double> bmc { get; set; }
+    public Nullable<double> changeprice { get; set; }
+    public Nullable<double> mc { get; set; }
+    public Nullable<double> point { get; set; }
+    public Nullable<int> ranking_point { get; set; }
+    public Nullable<int> ranking_changeprice { get; set; }
+    public Nullable<double> net_volume { get; set; }
+    public Nullable<double> net_value { get; set; }
+    public string flag_volume { get; set; }
+    public string flag_value { get; set; }
     public Nullable<System.DateTime> periode { get; set; }
 }
 

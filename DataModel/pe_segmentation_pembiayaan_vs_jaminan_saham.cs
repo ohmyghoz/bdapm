@@ -11,18 +11,20 @@ namespace BDA.DataModel
 using System;
 using System.Collections.Generic;
 
-public partial class macro_pertumbuhan_pinjaman_level_ljk
+public partial class pe_segmentation_pembiayaan_vs_jaminan_saham
 {
     public System.DateTime dm_periode { get; set; }
     public long rowid { get; set; }
-    public string dm_jenis_ljk { get; set; }
-    public string dm_kode_ljk { get; set; }
-    public Nullable<decimal> dm_outstanding_sekarang { get; set; }
-    public Nullable<decimal> dm_outstanding_sebelumnya { get; set; }
-    public string dm_persen_pertumbuhan_outstanding { get; set; }
-    public string dm_jenis_pertumbuhan { get; set; }
-    public string dm_current_period { get; set; }
-    public string dm_prev_period { get; set; }
+    public Nullable<System.DateTime> calendardate { get; set; }
+    public Nullable<int> securitycompanysk { get; set; }
+    public string securitycompanycode { get; set; }
+    public string securitycompanyname { get; set; }
+    public string kodeefek { get; set; }
+    public Nullable<int> volume { get; set; }
+    public Nullable<decimal> value { get; set; }
+    public string groupemiten { get; set; }
+    public Nullable<int> flag { get; set; }
+    public string periode { get; set; }
 }
 
 }

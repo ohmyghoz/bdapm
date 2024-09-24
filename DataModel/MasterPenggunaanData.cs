@@ -11,8 +11,11 @@ namespace BDA.DataModel
 using System;
 using System.Collections.Generic;
 
-public partial class getRJPSelfVsOtherLJK_Result
+public partial class MasterPenggunaanData
 {
+    public int ID { get; set; }
+    public string Penggunaan_Data { get; set; }
+    public Nullable<int> Sts_Aktif { get; set; }
 }
 
 }

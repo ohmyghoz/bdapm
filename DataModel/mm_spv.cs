@@ -11,23 +11,25 @@ namespace BDA.DataModel
 using System;
 using System.Collections.Generic;
 
-public partial class market_driven_rg_ng
+public partial class mm_spv
 {
     public System.DateTime dm_periode { get; set; }
     public long rowid { get; set; }
-    public string history_type { get; set; }
-    public Nullable<System.DateTime> periode_lvl1 { get; set; }
-    public Nullable<System.DateTime> periode_lvl2 { get; set; }
-    public Nullable<System.DateTime> periode_lvl3 { get; set; }
-    public string security_code { get; set; }
-    public string market { get; set; }
+    public string sid { get; set; }
+    public string nama_sid { get; set; }
+    public string trade_id { get; set; }
+    public string seller { get; set; }
+    public string buyer { get; set; }
     public Nullable<long> volume { get; set; }
     public Nullable<decimal> value { get; set; }
-    public Nullable<int> freq { get; set; }
-    public Nullable<int> low { get; set; }
-    public Nullable<int> high { get; set; }
-    public Nullable<int> close { get; set; }
-    public Nullable<System.DateTime> periode { get; set; }
+    public Nullable<decimal> price { get; set; }
+    public Nullable<System.DateTime> trade_date { get; set; }
+    public Nullable<System.DateTime> trade_time { get; set; }
+    public string set_data { get; set; }
+    public string note { get; set; }
+    public string isAlert { get; set; }
+    public string isSettled { get; set; }
+    public string isComply { get; set; }
 }
 
 }

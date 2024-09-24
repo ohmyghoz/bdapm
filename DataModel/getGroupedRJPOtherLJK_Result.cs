@@ -13,18 +13,6 @@ using System.Collections.Generic;
 
 public partial class getGroupedRJPOtherLJK_Result
 {
-    public string KODE_ALERT { get; set; }
-    public string NAMA_ALERT { get; set; }
-    public string TIPE_PERIODE { get; set; }
-    public string MEMBER_TYPE_CODE { get; set; }
-    public string JenisLJK { get; set; }
-    public string MEMBER_CODE { get; set; }
-    public string LJK { get; set; }
-    public string Frekuensi { get; set; }
-    public Nullable<int> RED { get; set; }
-    public Nullable<int> YELLOW { get; set; }
-    public Nullable<int> GREEN { get; set; }
-    public Nullable<int> GREY { get; set; }
 }
 
 }

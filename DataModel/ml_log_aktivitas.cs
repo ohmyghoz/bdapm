@@ -11,18 +11,21 @@ namespace BDA.DataModel
 using System;
 using System.Collections.Generic;
 
-public partial class macro_pertumbuhan_pinjaman_level_ljk
+public partial class ml_log_aktivitas
 {
     public System.DateTime dm_periode { get; set; }
     public long rowid { get; set; }
-    public string dm_jenis_ljk { get; set; }
-    public string dm_kode_ljk { get; set; }
-    public Nullable<decimal> dm_outstanding_sekarang { get; set; }
-    public Nullable<decimal> dm_outstanding_sebelumnya { get; set; }
-    public string dm_persen_pertumbuhan_outstanding { get; set; }
-    public string dm_jenis_pertumbuhan { get; set; }
-    public string dm_current_period { get; set; }
-    public string dm_prev_period { get; set; }
+    public string ip_address { get; set; }
+    public string nip { get; set; }
+    public string user_id { get; set; }
+    public string satuan_kerja { get; set; }
+    public string kegiatan { get; set; }
+    public string menu { get; set; }
+    public string url { get; set; }
+    public string input_params { get; set; }
+    public string output_params { get; set; }
+    public string keterangan { get; set; }
+    public Nullable<System.DateTime> tanggal { get; set; }
 }
 
 }

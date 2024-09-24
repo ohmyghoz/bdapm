@@ -11,8 +11,9 @@ namespace BDA.DataModel
 using System;
 using System.Collections.Generic;
 
-public partial class getRJPSelfVsOtherLJK_Result
+public partial class master_sid
 {
+    public string sid { get; set; }
 }
 
 }
