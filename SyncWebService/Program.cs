@@ -75,11 +75,11 @@ namespace SyncWebService
                     var conn = new OdbcConnection
                     {
                         ConnectionString = @"DRIVER={Hortonworks Hive ODBC Driver};                                        
-                                        Host=10.225.90.61;
-                                        Port=10500;
-                                        Schema=ojk;
+                                        Host=10.225.60.14;
+                                        Port=10000;
+                                        Schema=pasarmodal;
                                         HiveServerType=2;
-                                        KrbHostFQDN={bgrdco-rckbig8.ojk.go.id};
+                                        KrbHostFQDN={bgrdco-bddvedg1.ojk.go.id};
                                         KrbServiceName={hive};
                                         AuthMech=1;"
                     };
@@ -114,7 +114,7 @@ namespace SyncWebService
                             Console.WriteLine("Periode Hive lebih besar dari periode SQL");
                             //run sync master
                             Console.WriteLine("Sync Master");
-                            var request = new RestRequest("notebook/job/2H331V7D4", Method.POST);
+                            var request = new RestRequest("notebook/job/2K9MNAAUG", Method.POST);
                             var response = client.Post(request);
                             Console.WriteLine(response.StatusCode);
                             Console.WriteLine(response.Content);
@@ -156,6 +156,7 @@ namespace SyncWebService
                 }
                
             }
+            /*
             else if (mode == "EWS")
             {
                 var lastPeriode = "19900101";
@@ -364,7 +365,7 @@ namespace SyncWebService
                 }
 
             }
-
+            */
         }
 
         public static string EncryptString(string text, string keyString)
