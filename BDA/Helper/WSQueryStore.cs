@@ -40,6 +40,21 @@ namespace BDA.Helper
             return wqr;
         }
 
+        public static WSQueryReturns DecryptResultsNamaSID(WSQueryReturns wqr)
+        {
+            DataTable dt = wqr.data;
+
+            foreach (DataRow dr in dt.Rows)
+            {
+                dr["sid"] = DecryptSID(dr["sid"].ToString());
+                dr["nama_sid"] = DecryptName(dr["nama_sid"].ToString());
+            }
+            
+            wqr.data = dt;
+
+            return wqr;
+        }
+
         private static string DecryptSID(string s)
         {
             if (s.Length < 3) return s;
@@ -51,8 +66,8 @@ namespace BDA.Helper
         {
             if (s.Length == 0) return s;
             int val = 0;            
-            return (Int32.TryParse(s.Substring(0, 1), out val) ? keyName[val] : s.Substring(0, 1)) 
-                + s.Substring(1).Replace("IOII", "O").Replace("IOOI", "A").Replace("IIOO", "U").Replace("IOIO", "E");
+            return ((Int32.TryParse(s.Substring(0, 1), out val) ? keyName[val] : s.Substring(0, 1)) 
+                + s.Substring(1)).Replace("IOII", "O").Replace("IOOI", "A").Replace("IIOO", "U").Replace("IOIO", "E");
         }
 
         private static string DecryptNumber(string s)
@@ -76,7 +91,7 @@ namespace BDA.Helper
         {
             if (s.Length < 2) return s;
             int idx = Array.IndexOf(keyName, s.Substring(0, 1));
-            return (idx >= 0 ? idx.ToString(): s.Substring(0, 1)) + s.Substring(1).Replace("O", "IOII").Replace("A", "IOOI").Replace("U", "IIOO").Replace("E", "IOIO");            
+            return ((idx >= 0 ? idx.ToString(): s.Substring(0, 1)) + s.Substring(1)).Replace("O", "IOII").Replace("A", "IOOI").Replace("U", "IIOO").Replace("E", "IOIO");            
         }
         #endregion
 
@@ -5530,18 +5545,20 @@ namespace BDA.Helper
         public static WSQueryReturns GetNamaSIDQuery(DataEntities db, DataSourceLoadOptions loadOptions, string namaSID, bool isHive = false)
         {
             bool isC = false;
-            var whereQuery = "1=1";
+            var whereQuery = "";
             //isHive = false;
             if (namaSID != null)
             {
-                namaSID = "'%" + namaSID.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "%'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND nama_sid like " + namaSID + " ";
+                namaSID = namaSID.Replace("'", "").Replace(",", "','").Replace("' ", "'"); //cegah sql inject dikit
+                namaSID = "'%" + namaSID + "%'";
+                whereQuery = "REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(LEFT(nama_sid, 1), 0,'M'), 1,'R'), 2,'S'), 3,'D'), 4,'N'), 5,'F'), 6,'H'), 7,'Y'), 8,'T'), 9,'J') + SUBSTRING(nama_sid, 2, " + (isHive ? "LENGTH" : "LEN") + "(nama_sid)), 'IOII','O') , 'IOOI', 'A'), 'IIOO', 'U'),'IOIO' , 'E') LIKE " + namaSID + " ";                
+
             }
             var props = new WSQueryProperties();
             props.Query = @"SELECT top 20 nama_sid, sid, len(nama_sid) len_nama FROM pasarmodal.master_sid x WHERE " + whereQuery + @" ORDER BY len_nama, nama_sid asc";
             if (isHive)
                 props.Query = @"SELECT nama_sid, sid, length(nama_sid) len_nama FROM pasarmodal.src_sid x WHERE " + whereQuery + @" ORDER BY len_nama, nama_sid asc LIMIT 20";
-            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+            return DecryptResultsNamaSID(WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive));
         }
 
         public static WSQueryReturns GetPMIPQuery(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string SID, string tradeId, string namaSID, string nomorKTP, string nomorNPWP, string sistem, string businessReg, string startPeriod, string endPeriod, bool chk100 = false, bool isHive = false)
