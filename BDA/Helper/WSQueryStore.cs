@@ -5550,14 +5550,14 @@ namespace BDA.Helper
             if (namaSID != null)
             {
                 namaSID = namaSID.Replace("'", "").Replace(",", "','").Replace("' ", "'"); //cegah sql inject dikit
-                namaSID = "'%" + namaSID + "%'";
-                whereQuery = "REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(LEFT(nama_sid, 1), 0,'M'), 1,'R'), 2,'S'), 3,'D'), 4,'N'), 5,'F'), 6,'H'), 7,'Y'), 8,'T'), 9,'J') + SUBSTRING(nama_sid, 2, " + (isHive ? "LENGTH" : "LEN") + "(nama_sid)), 'IOII','O') , 'IOOI', 'A'), 'IIOO', 'U'),'IOIO' , 'E') LIKE " + namaSID + " ";                
+                namaSID = "'%" + namaSID.ToUpper() + "%'";
+                whereQuery = "REPLACE(REPLACE(REPLACE(REPLACE(CONCAT(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(SUBSTRING(nama_sid, 1, 1), 0,'M'), 1,'R'), 2,'S'), 3,'D'), 4,'N'), 5,'F'), 6,'H'), 7,'Y'), 8,'T'), 9,'J'), SUBSTRING(nama_sid, 2, " + (isHive ? "LENGTH" : "LEN") + "(nama_sid))), 'IOII','O') , 'IOOI', 'A'), 'IIOO', 'U'),'IOIO' , 'E') LIKE " + namaSID + " ";                
 
             }
             var props = new WSQueryProperties();
-            props.Query = @"SELECT top 20 nama_sid, sid, len(nama_sid) len_nama FROM pasarmodal.master_sid x WHERE " + whereQuery + @" ORDER BY len_nama, nama_sid asc";
+            props.Query = @"SELECT top 20 nama_sid, sid, len(nama_sid) len_nama FROM pasarmodal.master_sid x WHERE " + whereQuery + @" ORDER BY len_nama asc";
             if (isHive)
-                props.Query = @"SELECT nama_sid, sid, length(nama_sid) len_nama FROM pasarmodal.src_sid x WHERE " + whereQuery + @" ORDER BY len_nama, nama_sid asc LIMIT 20";
+                props.Query = @"SELECT nama_sid, sid, length(nama_sid) len_nama FROM pasarmodal.src_sid x WHERE " + whereQuery + @" ORDER BY len_nama asc LIMIT 20";
             return DecryptResultsNamaSID(WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive));
         }
 
