@@ -18,6 +18,8 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Data.SqlClient;
 using static System.Net.Mime.MediaTypeNames;
+using Microsoft.IdentityModel.Tokens;
+using static BDA.Controllers.GeospasialInvestorController;
 
 namespace BDA.Controllers
 {
@@ -58,37 +60,47 @@ namespace BDA.Controllers
 
             return View();
         }
-        public object GetGridData(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE, string status)
+
+        [HttpGet]
+        public object GetGrid1(DataSourceLoadOptions loadOptions, string periode, string pe)
         {
-            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
-            TempData.Clear(); //membersihkan data filtering
-            string[] NamaPE = JsonConvert.DeserializeObject<string[]>(namaPE);
+            var ret = new List<seriesCVGrowth>();
+            ret.Add(new seriesCVGrowth { periode = "202008", currentValue = 10, growth = 5 });
+            ret.Add(new seriesCVGrowth { periode = "202007", currentValue = 30, growth = 20 });
+            ret.Add(new seriesCVGrowth { periode = "202006", currentValue = 50, growth = 20 });
+            ret.Add(new seriesCVGrowth { periode = "202005", currentValue = 60, growth = 10 });
+            ret.Add(new seriesCVGrowth { periode = "202004", currentValue = 30, growth = -30 });
+            ret.Add(new seriesCVGrowth { periode = "202003", currentValue = 40, growth = 10 });
+            ret.OrderBy(t => t.periode);
 
-            string stringPeriodeAwal = null;
-            string stringPE = null;
-            string stringStatus = null;
-            string reportId = "pe_segmentation_sum_cluster_mkbd"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
-
-            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
-
-            if (periodeAwal != null)
+            if (!province.IsNullOrEmpty())
             {
-                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
-                TempData["pawal"] = stringPeriodeAwal;
+                ret.Add(new seriesCVGrowth { periode = "202009", currentValue = 40, growth = 10 });
             }
 
-            db.Database.CommandTimeout = 420;
-            if (periodeAwal.Length > 0) //jika ada parameter nya
-            {
-                var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQuery(db, loadOptions, reportId, stringPeriodeAwal, stringPE, stringStatus, cekHive);
-                return JsonConvert.SerializeObject(result);
-            }
-            else
-            {
-                loadOptions = new DataSourceLoadOptions();
-            }
-            return DataSourceLoader.Load(new List<string>(), loadOptions);
+            return DataSourceLoader.Load(ret, loadOptions);
         }
+
+        [HttpGet]
+        public object GetGrid2(DataSourceLoadOptions loadOptions, string periode, string pe)
+        {
+            var ret = new List<seriesCVGrowth>();
+            ret.Add(new seriesCVGrowth { periode = "202008", currentValue = 10, growth = 5 });
+            ret.Add(new seriesCVGrowth { periode = "202007", currentValue = 30, growth = 20 });
+            ret.Add(new seriesCVGrowth { periode = "202006", currentValue = 50, growth = 20 });
+            ret.Add(new seriesCVGrowth { periode = "202005", currentValue = 60, growth = 10 });
+            ret.Add(new seriesCVGrowth { periode = "202004", currentValue = 30, growth = -30 });
+            ret.Add(new seriesCVGrowth { periode = "202003", currentValue = 40, growth = 10 });
+            ret.OrderBy(t => t.periode);
+
+            if (!province.IsNullOrEmpty())
+            {
+                ret.Add(new seriesCVGrowth { periode = "202009", currentValue = 40, growth = 10 });
+            }
+
+            return DataSourceLoader.Load(ret, loadOptions);
+        }
+
         [HttpPost]
         public ActionResult SimpanPenggunaanData(string id)
         {
@@ -247,269 +259,6 @@ namespace BDA.Controllers
             }
         }
 
-        public object GetGridData(DataSourceLoadOptions loadOptions, string reportId, string memberTypes, string members, string kantorCabangs, string periode, bool chk100)
-        {
-            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
-            string[] periodes = JsonConvert.DeserializeObject<string[]>(periode);
-            TempData["memberTypeValue"] = null;
-            TempData["memberValue"] = null;
-            TempData["periodeValue"] = null;
-            TempData["kcValue"] = null;
-            if (periodes.Length > 0)
-            {
-                string[] MemberTypes = JsonConvert.DeserializeObject<string[]>(memberTypes);
-                string[] Members1 = JsonConvert.DeserializeObject<string[]>(members);
-                string[] Members = JsonConvert.DeserializeObject<string[]>(members);
-                string[] KantorCabangs = null;
-                string[] KantorCabangs1 = null;
-                if (kantorCabangs != null)
-                {
-                    KantorCabangs = JsonConvert.DeserializeObject<string[]>(kantorCabangs);
-                    KantorCabangs1 = JsonConvert.DeserializeObject<string[]>(kantorCabangs);
-                    KantorCabangs = KantorCabangs.Select(x => x.Split('-').Last().TrimStart(' ')).ToArray();
-                }
-                Members = Members.Select(x => x.Substring(x.IndexOf("- ") + 2, x.Length - (x.IndexOf("- ") + 2))).ToArray();
-
-                List<DateTime> lp = new List<DateTime>();
-                foreach (var i in periodes)
-                {
-                    lp.Add(DateTime.Parse(i.Trim().Replace("'", "")));
-                }
-                if (members != null)
-                {
-                    members = members.Substring(members.IndexOf("- ") + 2, members.Length - (members.IndexOf("- ") + 2));
-                }
-                string stringMemberTypes = null;
-                string stringMembers = null;
-                string stringKantorCabangs = null;
-                string stringPeriode = null;
-                var timeNow = DateTime.Now;
-                var timeAftter = DateTime.Now;
-
-                var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId);
-                /*check pengawas LJK*/
-                if (RefController.IsPengawasLJK(db))
-                {
-                    var filter = RefController.GetFilteredMemberTypes(db, login);
-                    var filter2 = RefController.GetFilteredMembers(db, login);
-
-                    if (MemberTypes.Length == 0)
-                    {
-                        stringMemberTypes = string.Join(", ", filter);
-                    }
-
-                    if (Members.Length == 0)
-                    {
-                        stringMembers = string.Join(", ", filter2);
-                    }
-                }
-
-                if (MemberTypes.Length > 0)
-                {
-                    TempData["memberTypeValue"] = MemberTypes;
-                    var listOfJenis = db.master_ljk_type.ToList();
-                    // nih gara2 si data processing kaga pake kode di output nya -_-;
-                    stringMemberTypes = "";
-                    foreach (var m in MemberTypes)
-                    {
-                        var find = listOfJenis.Where(x => x.kode_jenis_ljk == m).FirstOrDefault();
-                        if (find != null)
-                        {
-                            if (stringMemberTypes != "") stringMemberTypes += ", ";
-                            stringMemberTypes += find.deskripsi_jenis_ljk;
-                        }
-                        TempData["mt"] = stringMemberTypes;
-                    }
-
-                }
-
-                if (Members.Length > 0)
-                {
-                    TempData["memberValue"] = Members1;
-                    stringMembers = string.Join(", ", Members);
-                    TempData["m"] = stringMembers;
-                }
-
-
-                if (periodes.Length > 0)
-                {
-                    TempData["periodeValue"] = periodes;
-                    if (cekHive == true)
-                    {
-                        foreach (var i in lp)
-                        {
-                            if (stringPeriode == null)
-                            {
-                                stringPeriode = string.Format("{0:yyyyMM}", i);
-                            }
-                            else
-                            {
-                                stringPeriode = stringPeriode + "," + string.Format("{0:yyyyMM}", i);
-                            }
-
-                        }
-                    }
-                    else
-                    {
-                        stringPeriode = string.Join(", ", periodes);
-                    }
-                    TempData["p"] = stringPeriode;
-                }
-                if (KantorCabangs != null)
-                {
-                    if (KantorCabangs.Length > 0)
-                    {
-                        TempData["kcValue"] = KantorCabangs1;
-                        stringKantorCabangs = string.Join(", ", KantorCabangs);
-                        TempData["kc"] = stringKantorCabangs;
-                    }
-                }
-                var timeResultBefore = DateTime.Now;
-                var result = Helper.WSQueryStore.GetOsida2023Query(db, loadOptions, reportId, stringMemberTypes, stringMembers, stringKantorCabangs, stringPeriode, chk100, cekHive);
-                var timeResultAfter = DateTime.Now;
-                timeAftter = DateTime.Now;
-                var proc = Process.GetCurrentProcess();
-                var mem = proc.WorkingSet64 / 1024.0;
-                TempData["PM"] = mem;
-                TempData["SG"] = (timeAftter - timeNow).TotalSeconds;
-                TempData["SD"] = (timeResultAfter - timeResultBefore).TotalSeconds;
-                return JsonConvert.SerializeObject(result);
-            }
-            else
-            {
-                loadOptions = new DataSourceLoadOptions();
-            }
-            return DataSourceLoader.Load(new List<string>(), loadOptions);
-        }
-
-        //-----------------------------detail-----------------------------------//
-        public IActionResult Detail(long? id)
-        {
-            var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
-            var currentNode = mdl.GetCurrentNode();
-            string pageTitle = currentNode != null ? currentNode.Title : "Detil Cluster MKBD";
-
-            db.CheckPermission("Detil Cluster MKBD View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-            ViewBag.Export = db.CheckPermission("Detil Cluster MKBD Export", DataEntities.PermissionMessageType.NoMessage);
-            db.InsertAuditTrail("AksesPageDetilCluster_Akses_Page", "Akses Page Detil Cluster MKBD", pageTitle);
-
-            //if (id == null) return BadRequest(); //cek id itu menngarah ke mana
-
-            if (id == null) {
-                id = 1;
-            }
-
-            var obj = (dynamic)null;
-            //var obj = db.BDA_F01_MaxMinOverdue.Find(id);
-            //if (obj == null) return NotFound();
-
-            return View(obj);
-        }
-        //-----------------------------detail-----------------------------------//
-
-        //-----------------------------Rincian Portofolio-----------------------------------//
-        public IActionResult RincianPortofolio(long? id)
-        {
-            var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
-            var currentNode = mdl.GetCurrentNode();
-            string pageTitle = currentNode != null ? currentNode.Title : "Rincian Portofolio";
-
-            db.CheckPermission("Rincian Portofolio View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-            ViewBag.Export = db.CheckPermission("Rincian Portofolio Export", DataEntities.PermissionMessageType.NoMessage);
-            db.InsertAuditTrail("RincianPortofolio_Akses_Page", "Akses Page Rincian Portofolio", pageTitle);
-
-            //if (id == null) return BadRequest();
-
-            if (id == null)
-            {
-                id = 1;
-            }
-
-            var obj = (dynamic)null;
-            //var obj = db.BDA_F01_MaxMinOverdue.Find(id);
-            //if (obj == null) return NotFound();
-
-            return View(obj);
-        }
-        //-----------------------------Rincian Portofolio-----------------------------------//
-
-        //-----------------------------Reksadana-----------------------------------//
-        public IActionResult Reksadana(long? id)
-        {
-            var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
-            var currentNode = mdl.GetCurrentNode();
-            string pageTitle = currentNode != null ? currentNode.Title : "Reksadana";
-
-            db.CheckPermission("Reksadana View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-            ViewBag.Export = db.CheckPermission("Reksadana Export", DataEntities.PermissionMessageType.NoMessage);
-            db.InsertAuditTrail("Reksadana_Akses_Page", "Akses Page Reksadana", pageTitle);
-
-            //if (id == null) return BadRequest();
-
-            if (id == null)
-            {
-                id = 1;
-            }
-
-            var obj = (dynamic)null;
-            //var obj = db.BDA_F01_MaxMinOverdue.Find(id);
-            //if (obj == null) return NotFound();
-
-            return View(obj);
-        }
-        //-----------------------------Reksadana-----------------------------------//
-
-        //-----------------------------JaminanMargin-----------------------------------//
-        public IActionResult JaminanMargin(long? id)
-        {
-            var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
-            var currentNode = mdl.GetCurrentNode();
-            string pageTitle = currentNode != null ? currentNode.Title : "Jaminan Margin";
-
-            db.CheckPermission("Jaminan Margin View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-            ViewBag.Export = db.CheckPermission("Jaminan Margin Export", DataEntities.PermissionMessageType.NoMessage);
-            db.InsertAuditTrail("Jaminan_Margin_Akses_Page", "Akses Page Jaminan Margin", pageTitle);
-
-            //if (id == null) return BadRequest();
-
-            if (id == null)
-            {
-                id = 1;
-            }
-
-            var obj = (dynamic)null;
-            //var obj = db.BDA_F01_MaxMinOverdue.Find(id);
-            //if (obj == null) return NotFound();
-
-            return View(obj);
-        }
-        //-----------------------------JaminanMargin-----------------------------------//
-
-
-        //-----------------------------ReverseRepo-----------------------------------//
-        public IActionResult ReverseRepo(long? id)
-        {
-            var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
-            var currentNode = mdl.GetCurrentNode();
-            string pageTitle = currentNode != null ? currentNode.Title : "Jaminan Margin";
-
-            db.CheckPermission("Reverse Repo View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-            ViewBag.Export = db.CheckPermission("Reverse Repo Export", DataEntities.PermissionMessageType.NoMessage);
-            db.InsertAuditTrail("Reverse_Repo_Akses_Page", "Akses Page Reverse Repo", pageTitle);
-
-            //if (id == null) return BadRequest();
-
-            if (id == null)
-            {
-                id = 1;
-            }
-
-            var obj = (dynamic)null;
-            //var obj = db.BDA_F01_MaxMinOverdue.Find(id);
-            //if (obj == null) return NotFound();
-
-            return View(obj);
-        }
-        //-----------------------------ReverseRepo-----------------------------------//
+        
     }
 }

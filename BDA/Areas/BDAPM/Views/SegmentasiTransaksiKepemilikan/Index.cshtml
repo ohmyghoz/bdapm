@@ -1,7 +1,7 @@
 ﻿@using DevExtreme.AspNet.Mvc
 @{
     Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
-    string reportId = "PembiayaanVSJaminanSaham";
+    string reportId = "SegmentasiTransaksiKepemilikan";
     var p = (string[])ViewBag.period;
     bool isHive = ViewBag.Hive;
     var maxItems = db.GetSetting("LimitFilterLJK");
@@ -35,9 +35,25 @@
                         @(Html.DevExtreme().SelectBox()
                             .ID("namaPEid")
                             .DataSource(d => d.Mvc()
-                            .Controller("PembiayaanVSJaminanSaham")
+                            .Controller("SegmentasiTransaksiKepemilikan")
                             .Area("BDAPM")
                             .LoadAction("GetNamaPE")
+                            .Key("value"))
+                            .ValueExpr("value")
+                            .DisplayExpr("text")
+                            .SearchEnabled(true)
+                            .Width("100%")
+                            )
+                    </div>
+
+                    <div class="col-lg-4 form-group">
+                        <label>Jenis</label>
+                        @(Html.DevExtreme().SelectBox()
+                            .ID("JenisData")
+                            .DataSource(d => d.Mvc()
+                            .Controller("SegmentasiTransaksiKepemilikan")
+                            .Area("BDAPM")
+                            .LoadAction("GetJenisData")
                             .Key("value"))
                             .ValueExpr("value")
                             .DisplayExpr("text")
@@ -62,77 +78,76 @@
         <div class="row filter-panel" style="padding-top:0px;">
             <div class="card-body">
                 <div class="row">
-                    <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
-                        <div class="row" style="padding-bottom:12.5px">
-                            <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
-                            <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
-                        </div>
-                        <div class="row">
-                            <h4 class="headerTable">Nilai Pembiayaan Reverse Repo</h4>
-                        </div>
-                        <div class="row">
-                            @(Html.DevExtreme().DataGrid()
-                                .ID("gridNilaiPembiayaanRR")
-                                .KeyExpr("ID")
-                                .RemoteOperations(true)
-                                .Width("100%")
-                                .AllowColumnResizing(true)
-                                .ColumnFixing(c => c.Enabled(true))
-                                .ShowBorders(true)
-                                .Selection(c => c.Mode(SelectionMode.Single))
-                                .Columns(c =>
-                                {
-                                    c.Add().DataField("Akun");
-                                    c.Add().DataField("Nilai");
-                                })
-                                .DataSource(d => d.StaticJson().Url("~/js/sampleNilaiPembiayaanRR.json").Key("ID"))
-                                .ShowColumnHeaders(false)
-                                .ShowRowLines(true)
-                                )
-                        </div>
+                    <div class="col-lg-4 form-group" style="padding-right:25px;padding-left:25px">
+                        @(Html.DevExtreme().PieChart()
+                            .ID("PieLiquidHC")
+                            .Title("Liquid HC")
+                            .Palette(VizPalette.Office)
+                            .Type(PieChartType.Doughnut)
+                            .Export(e => e.Enabled(true))
+                            .Legend(l => l.Visible(true).VerticalAlignment(VerticalEdge.Bottom).HorizontalAlignment(HorizontalAlignment.Center))
+                            .Series(s => s
+                            .Add()
+                            .ArgumentField("Type")
+                            .ValueField("Val")
+                            .Label(l => l.CustomizeText(@<text>
+                                                        function (arg) {
+                                                            return (arg.percent * 100).toFixed(2) + "%";
+                                                        }
+                                                        </text>).Visible(true).Connector(c => c.Visible(true))))
+                            .DataSource(d => d.StaticJson().Url("~/js/sampleLiquidHC.json").Key("ID"))
+                            )
                     </div>
-                    <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
-                        <div class="row" style="padding-bottom:12.5px">
-                            <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
-                            <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
-                        </div>
-                        <div class="row">
-                            <h4 class="headerTable">Nilai Pembiayaan Margin</h4>
-                        </div>
-                        <div class="row">
-                            @(Html.DevExtreme().DataGrid()
-                                .ID("gridNilaiPembiayaanM")
-                                .KeyExpr("ID")
-                                .RemoteOperations(true)
-                                .Width("100%")
-                                .AllowColumnResizing(true)
-                                .ColumnFixing(c => c.Enabled(true))
-                                .ShowBorders(true)
-                                .Selection(c => c.Mode(SelectionMode.Single))
-                                .Columns(c =>
-                                {
-                                    c.Add().DataField("Akun");
-                                    c.Add().DataField("Nilai");
-                                })
-                                .DataSource(d => d.StaticJson().Url("~/js/sampleNilaiPembiayaanM.json").Key("ID"))
-                                .ShowColumnHeaders(false)
-                                .ShowRowLines(true)
-                                )
-                        </div>
+                    <div class="col-lg-4 form-group" style="padding-right:25px;padding-left:25px">
+                        @(Html.DevExtreme().PieChart()
+                            .ID("PieLiquidIM")
+                            .Title("Liquid IM")
+                            .Palette(VizPalette.Office)
+                            .Type(PieChartType.Doughnut)
+                            .Export(e => e.Enabled(true))
+                            .Legend(l => l.Visible(true).VerticalAlignment(VerticalEdge.Bottom).HorizontalAlignment(HorizontalAlignment.Center))
+                            .Series(s => s
+                            .Add()
+                            .ArgumentField("Type")
+                            .ValueField("Val")
+                            .Label(l => l.CustomizeText(@<text>
+                                                        function (arg) {
+                                                            return (arg.percent * 100).toFixed(2) + "%";
+                                                        }
+                                                        </text>).Visible(true).Connector(c => c.Visible(true))))
+                            .DataSource(d => d.StaticJson().Url("~/js/sampleLiquidIM.json").Key("ID"))
+                            )
+                    </div>
+                    <div class="col-lg-4 form-group" style="padding-right:25px;padding-left:25px">
+                        @(Html.DevExtreme().PieChart()
+                            .ID("PieLiquidNK")
+                            .Title("Liquid HC")
+                            .Palette(VizPalette.Office)
+                            .Type(PieChartType.Doughnut)
+                            .Export(e => e.Enabled(true))
+                            .Legend(l => l.Visible(true).VerticalAlignment(VerticalEdge.Bottom).HorizontalAlignment(HorizontalAlignment.Center))
+                            .Series(s => s
+                            .Add()
+                            .ArgumentField("Type")
+                            .ValueField("Val")
+                            .Label(l => l.CustomizeText(@<text>
+                                                        function (arg) {
+                                                            return (arg.percent * 100).toFixed(2) + "%";
+                                                        }
+                                                        </text>).Visible(true).Connector(c => c.Visible(true))))
+                            .DataSource(d => d.StaticJson().Url("~/js/sampleLiquidNK.json").Key("ID"))
+                            )
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
-                        <div class="row" style="padding-bottom:12.5px">
+                    <div class="form-group" style="padding-right:25px;padding-left:25px">
+                        <div class="row float-right" style="padding-bottom:12.5px">
                             <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
                             <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
                         </div>
-                        <div class="row">
-                            <h4 class="headerTable">Efek Repo</h4>
-                        </div>
-                        <div class="row">
+                        <div class="row float-right">
                             @(Html.DevExtreme().DataGrid()
-                                .ID("gridEfekRepo")
+                                .ID("gridSegmentasiTransaksiKepemilikan")
                                 .KeyExpr("ID")
                                 .RemoteOperations(true)
                                 .Width("100%")
@@ -155,66 +170,23 @@
                                 })
                                 .Columns(c =>
                                 {
-                                    c.Add().DataField("KodePE");
-                                    c.Add().DataField("GroupEmiten");
-                                    c.Add().DataField("Volume").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
-                                    c.Add().DataField("Value").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
+                                    c.Add().DataField("KodeEfek");
+                                    c.Add().DataField("LiquidHC");
+                                    c.Add().DataField("LiquidIM");
+                                    c.Add().DataField("LiquidNK");
+                                    c.Add().DataField("TotalVolume").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
+                                    c.Add().DataField("TotalValue").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
+                                    c.Add().DataField("TotalFreq").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
                                 })
-                                .DataSource(d => d.StaticJson().Url("~/js/sampleEfekRepo.json").Key("ID"))
+                                .DataSource(d => d.StaticJson().Url("~/js/sampleGridSK.json").Key("ID"))
                                 .ShowRowLines(true)
                                 )
                         </div>
                     </div>
-                    <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
-                        <div class="row" style="padding-bottom:12.5px">
-                            <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
-                            <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
-                        </div>
-                        <div class="row">
-                            <h4 class="headerTable">Efek Repo</h4>
-                        </div>
-                        <div class="row">
-                            @(Html.DevExtreme().DataGrid()
-                                .ID("gridJaminanMargin")
-                                .KeyExpr("ID")
-                                .RemoteOperations(true)
-                                .Width("100%")
-                                .AllowColumnResizing(true)
-                                .ColumnFixing(c => c.Enabled(true))
-                                .Scrolling(s => s.ShowScrollbar(ShowScrollbarMode.Always))
-                                .FilterRow(f => f.Visible(true))
-                                .ShowBorders(true)
-                                .Selection(c => c.Mode(SelectionMode.Single))
-                                .Paging(p =>
-                                {
-                                    p.PageSize(15);
-                                    p.Enabled(true);
-
-                                })
-                                .Pager(p =>
-                                {
-                                    p.Visible(true);
-                                    p.ShowInfo(true);
-                                })
-                                .Columns(c =>
-                                {
-                                    c.Add().DataField("KodePE");
-                                    c.Add().DataField("GroupEmiten");
-                                    c.Add().DataField("Volume").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
-                                    c.Add().DataField("Value").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
-                                })
-                                .DataSource(d => d.StaticJson().Url("~/js/sampleJaminanMargin.json").Key("ID"))
-                                .ShowRowLines(true)
-                                )
-                        </div>
-                    </div> 
                 </div>
             </div>
         </div>
     </div>
-
-
-
 
 <!-- The Modal  Detail-->
 <div class="modal fade" id="ModalSimpanPenggunaanData" tabindex="-1" role="document" aria-hidden="true" data-backdrop="static" data-keyboard="false">
