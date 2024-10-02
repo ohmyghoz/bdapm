@@ -14,7 +14,6 @@ namespace BDA.DataModel
     
     public partial class pe_segmentation_det_reksa_dana_sum
     {
-        public long rowid { get; set; }
         public System.DateTime calendardate { get; set; }
         public Nullable<int> securitycompanysk { get; set; }
         public string securitycompanycode { get; set; }
@@ -23,6 +22,6 @@ namespace BDA.DataModel
         public string mkbdvd510accountcode { get; set; }
         public string mkbdvd510description { get; set; }
         public Nullable<double> mkbdlimitationexcessvalue { get; set; }
-        public System.DateTime periode { get; set; }
+        public string periode { get; set; }
     }
 }

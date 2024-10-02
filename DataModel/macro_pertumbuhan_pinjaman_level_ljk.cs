@@ -19,7 +19,7 @@ public partial class macro_pertumbuhan_pinjaman_level_ljk
     public string dm_kode_ljk { get; set; }
     public Nullable<decimal> dm_outstanding_sekarang { get; set; }
     public Nullable<decimal> dm_outstanding_sebelumnya { get; set; }
-    public Nullable<decimal> dm_persen_pertumbuhan_outstanding { get; set; }
+    public string dm_persen_pertumbuhan_outstanding { get; set; }
     public string dm_jenis_pertumbuhan { get; set; }
     public string dm_current_period { get; set; }
     public string dm_prev_period { get; set; }

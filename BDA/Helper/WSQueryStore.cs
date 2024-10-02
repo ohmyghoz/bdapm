@@ -1,16 +1,100 @@
 ﻿using BDA.DataModel;
 using BDA.Helper.FW;
+using DevExpress.Data.Extensions;
+using DevExpress.XtraRichEdit;
 using DevExtreme.AspNet.Mvc;
+using Org.BouncyCastle.Asn1.Mozilla;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 
 namespace BDA.Helper
 {
     public class WSQueryStore
     {
+        #region Encrypt Decrypt PM
+        private static string[] keySID = ["MFF", "FDD", "FDF", "CPD", "SCD", "IDD", "PFD", "OTF", "OTD", "IBD", "SCF", "IDF", "CPF", "MFD", "IBF", "PFF", "ISD", "ISF"];
+        private static char[] keyName = ['M', 'R', 'S', 'D', 'N', 'F', 'H', 'Y', 'T', 'J'];
+        private static char[] keyOne = ['X', 'A', 'Y', 'B', 'Z', 'C', 'L', 'R', 'H', 'S'];
+        private static char[] keyTwo = ['D', 'N', 'J', 'P', 'E', 'I', 'O', 'K', 'Q', 'M'];
+
+        public static WSQueryReturns DecryptResults(WSQueryReturns wqr)
+        {
+            DataTable dt = wqr.data;
+
+            foreach(DataRow dr in dt.Rows)
+            {
+                dr["sid"] = DecryptSID(dr["sid"].ToString());
+                dr["nama_sid"] = DecryptName(dr["nama_sid"].ToString());
+                dr["full_name"] = DecryptName(dr["full_name"].ToString());
+                dr["email"] = DecryptName(dr["email"].ToString());
+                dr["nama_rekening"] = DecryptName(dr["nama_rekening"].ToString());
+                dr["phone_number"] = DecryptNumber(dr["phone_number"].ToString());
+            }
+            wqr.data = dt;
+
+            return wqr;
+        }
+
+        public static WSQueryReturns DecryptResultsNamaSID(WSQueryReturns wqr)
+        {
+            DataTable dt = wqr.data;
+
+            foreach (DataRow dr in dt.Rows)
+            {
+                dr["sid"] = DecryptSID(dr["sid"].ToString());
+                dr["nama_sid"] = DecryptName(dr["nama_sid"].ToString());
+            }
+            
+            wqr.data = dt;
+
+            return wqr;
+        }
+
+        private static string DecryptSID(string s)
+        {
+            if (s.Length < 3) return s;
+            int val = 0;
+            return (Int32.TryParse(s.Substring(0, 2), out val) ? keySID[(val-11)] : s.Substring(0, 2)) + s.Substring(2);
+        }
+
+        private static string DecryptName(string s) 
+        {
+            if (s.Length == 0) return s;
+            int val = 0;            
+            return ((Int32.TryParse(s.Substring(0, 1), out val) ? keyName[val] : s.Substring(0, 1)) 
+                + s.Substring(1)).Replace("IOII", "O").Replace("IOOI", "A").Replace("IIOO", "U").Replace("IOIO", "E");
+        }
+
+        private static string DecryptNumber(string s)
+        {
+            if (s.Length < 2) return s;
+            int val = 0;
+            string right = s.Substring(s.Length - 2, 2);
+            return (Int32.TryParse(right.Substring(0,1), out val) ? keyOne[val] : right[0]) + (Int32.TryParse(right.Substring(1, 1), out val) ? keyTwo[val] : right[1])
+                + s.Substring(0, s.Length - 2);
+        }
+
+        private static string EncryptSID(string s)
+        {
+            if (s.Length < 3) return s;
+            int idx = Array.IndexOf(keySID, s.Substring(0, 3));
+            if (idx >= 0) return (idx+11).ToString() + s.Substring(3);
+            return s;
+        }
+
+        private static string EncryptName(string s)
+        {
+            if (s.Length < 2) return s;
+            int idx = Array.IndexOf(keyName, s.Substring(0, 1));
+            return ((idx >= 0 ? idx.ToString(): s.Substring(0, 1)) + s.Substring(1)).Replace("O", "IOII").Replace("A", "IOOI").Replace("U", "IIOO").Replace("E", "IOIO");            
+        }
+        #endregion
+
         public static bool IsPeriodInHive(DataEntities db, string tableName)
         {
             var dict = db.BDA2_Table.Find(tableName);
@@ -4456,7 +4540,7 @@ namespace BDA.Helper
         }
 
         public static WSQueryReturns GetOsida2023Query(DataEntities db, DataSourceLoadOptions loadOptions, string tableName,
-            string memberTypes, string members, string kantorCabangs, string periodes,bool chk100=false, bool isHive = false)
+            string memberTypes, string members, string kantorCabangs, string periodes, bool chk100 = false, bool isHive = false)
         {
             bool isC = false;
             var whereQuery = "1=1";
@@ -4607,7 +4691,7 @@ namespace BDA.Helper
             //isHive = true;
             if (memberTypes != null)
             {
-                if (tableName != "osida_potensi_konversi_kur_deb_noneligible_det" && tableName != "osida_pemberian_kur_deb_noneligible_det" && tableName!= "osida_pengurus_pemilik_kredit_bermasalah_det_pengurus")
+                if (tableName != "osida_potensi_konversi_kur_deb_noneligible_det" && tableName != "osida_pemberian_kur_deb_noneligible_det" && tableName != "osida_pengurus_pemilik_kredit_bermasalah_det_pengurus")
                 {
                     memberTypes = "'" + memberTypes.Replace("'", "").Replace("-", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
                     whereQuery = whereQuery += " AND dm_jenis_ljk in (" + memberTypes + ")";
@@ -4783,37 +4867,89 @@ namespace BDA.Helper
             return WSQueryHelper.DoQueryNL(db, props, isC, isHive);
         }
 
+        public static DataTable LINQResultToDataTable<T>(IEnumerable<T> Linqlist)
+        {
+            DataTable dt = new DataTable();
+
+            PropertyInfo[] columns = null;
+
+            if (Linqlist == null) return dt;
+
+            foreach (T Record in Linqlist)
+            {
+
+                if (columns == null)
+                {
+                    columns = ((Type)Record.GetType()).GetProperties();
+                    foreach (PropertyInfo GetProperty in columns)
+                    {
+                        Type colType = GetProperty.PropertyType;
+
+                        if ((colType.IsGenericType) && (colType.GetGenericTypeDefinition()
+                        == typeof(Nullable<>)))
+                        {
+                            colType = colType.GetGenericArguments()[0];
+                        }
+
+                        dt.Columns.Add(new DataColumn(GetProperty.Name, colType));
+                    }
+                }
+
+                DataRow dr = dt.NewRow();
+
+                foreach (PropertyInfo pinfo in columns)
+                {
+                    dr[pinfo.Name] = pinfo.GetValue(Record, null) == null ? DBNull.Value : pinfo.GetValue
+                    (Record, null);
+                }
+
+                dt.Rows.Add(dr);
+            }
+            return dt;
+        }
         public static WSQueryReturns GetBDAPMSegmentationSummaryClusterMKBDQuery(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string periodes, string stringPE, string stringStatus, bool isHive = false)
         {
             bool isC = false;
             var whereQuery = "1=1";
             //isHive = true;
-            
+
             if (periodes != null)
             {
                 periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND calendardate in (" + periodes + ")";
+                whereQuery = whereQuery += " AND periode in (" + periodes.Replace("-","") + ")";
             }
             if (stringPE != null)
             {
                 stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
                 whereQuery = whereQuery += " AND securitycompanycode in (" + stringPE + ")";
             }
-            
-            //if (stringStatus != null)
-            //{
-            //    stringStatus = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-            //    whereQuery = whereQuery += " AND securitycompanycode in (" + periodes + ")";
-            //}
+            if (stringStatus != null)
+            {
+                stringStatus = "'" + stringStatus.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND status in (" + stringStatus + ")";
+            }
             var props = new WSQueryProperties();
             if (isHive == true)
             {
                 if (tableName == "pe_segmentation_sum_cluster_mkbd")
                 {
                     props.Query = @"
-                        select  concat_ws('~', cast(dm_periode as string), regexp_replace(dm_jenis_ljk,'/','>'), dm_kode_ljk,'',dm_cif) AS lem,concat_ws('~','n', cast(dm_periode as string), regexp_replace(dm_jenis_ljk,'/','>'), dm_kode_ljk,'',dm_cif) AS idcif,concat_ws('~','p', cast(dm_periode as string), regexp_replace(dm_jenis_ljk,'/','>'), dm_kode_ljk,'',dm_id_pengurus_pemilik) AS idpeng,* from dbo." + tableName + @" x
-                        WHERE " + whereQuery + @"	                
-                        ";
+                    SELECT row_number() over(order by securitycompanycode) as no,* from (
+                    SELECT calendardate,securitycompanycode,securitycompanyname,
+                        cast(cast(simpanangiro as BIGINT)  as string) as simpanangiro,
+                        cast(cast(depositolt3bulan as BIGINT)  as string) as depositolt3bulan,
+                        cast(cast(depositogt3bulandijaminlps as BIGINT)  as string) as depositogt3bulandijaminlps,
+                        cast(cast(uangjaminanlkp as BIGINT)  as string) as uangjaminanlkp,
+                        cast(cast(kasdansetarakas as BIGINT)  as string) as kasdansetarakas,
+                        cast(cast(mkbd as BIGINT)  as string) as mkbd,
+                        cast(cast(mkbdminimum as BIGINT)  as string) as mkbdminimum,
+                        cast(cast(mkbdminimum as BIGINT)  as string) as mkbdpermkbdminimum,
+                        CASE 
+                            when cast(cast(kasdansetarakas as BIGINT)  as string) < cast(cast(mkbdminimum as BIGINT)  as string) then 'Alert'
+                            when cast(cast(kasdansetarakas as BIGINT)  as string) > cast(cast(mkbdminimum as BIGINT)  as string) then 'Normal'
+                        END AS status,periode
+                        From pasarmodal." + tableName + @") as x
+                WHERE " + whereQuery + @"";
                 }
             }
             else
@@ -4821,8 +4957,152 @@ namespace BDA.Helper
                 if (tableName == "pe_segmentation_sum_cluster_mkbd")
                 {
                     props.Query = @"
-                        select * from dbo." + tableName + @" x
-                        WHERE " + whereQuery + @"";
+                    SELECT row_number() over(order by securitycompanycode) as no,* from (
+                    SELECT calendardate,securitycompanycode,securitycompanyname,simpanangiro,depositolt3bulan,depositogt3bulandijaminlps,uangjaminanlkp,kasdansetarakas,mkbd,mkbdminimum,mkbdpermkbdminimum,
+                        CASE 
+                            when kasdansetarakas < mkbdminimum then 'Alert'
+                            when kasdansetarakas > mkbdminimum then 'Normal'
+                        END AS status,periode
+                        From pasarmodal." + tableName + @") as x
+                    WHERE " + whereQuery + @"";
+                }
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMSegmentationSummaryClusterMKBDQueryGetChartClusterSearch(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string periodes, string stringPE, string stringStatus, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            //isHive = true;
+
+            if (periodes != null)
+            {
+                periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND periode in (" + periodes.Replace("-", "") + ")";
+            }
+
+            if (stringPE != null)
+            {
+                stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND securitycompanycode in (" + stringPE + ")";
+            }
+            if (stringStatus != null)
+            {
+                stringStatus = "'" + stringStatus.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND status in (" + stringStatus + ")";
+            }
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "pe_segmentation_sum_cluster_mkbd")
+                {
+                    props.Query = @"
+                    SELECT status,COUNT(status) total from (
+                    SELECT calendardate,securitycompanycode,securitycompanyname,
+                        cast(cast(simpanangiro as BIGINT)  as string) as simpanangiro,
+                        cast(cast(depositolt3bulan as BIGINT)  as string) as depositolt3bulan,
+                        cast(cast(depositogt3bulandijaminlps as BIGINT)  as string) as depositogt3bulandijaminlps,
+                        cast(cast(uangjaminanlkp as BIGINT)  as string) as uangjaminanlkp,
+                        cast(cast(kasdansetarakas as BIGINT)  as string) as kasdansetarakas,
+                        cast(cast(mkbd as BIGINT)  as string) as mkbd,
+                        cast(cast(mkbdminimum as BIGINT)  as string) as mkbdminimum,
+                        cast(cast(mkbdminimum as BIGINT)  as string) as mkbdpermkbdminimum,
+                        CASE 
+                            when cast(cast(kasdansetarakas as BIGINT)  as string) < cast(cast(mkbdminimum as BIGINT)  as string) then 'Alert'
+                            when cast(cast(kasdansetarakas as BIGINT)  as string) > cast(cast(mkbdminimum as BIGINT)  as string) then 'Normal'
+                        END AS status,periode
+                        From pasarmodal." + tableName + @") as x
+                    WHERE " + whereQuery + @" group by status";
+                }
+            }
+            else
+            {
+                if (tableName == "pe_segmentation_sum_cluster_mkbd")
+                {
+                    props.Query = @"
+                    SELECT status,COUNT(status) total from (
+                    SELECT calendardate,securitycompanycode,securitycompanyname,simpanangiro,depositolt3bulan,depositogt3bulandijaminlps,uangjaminanlkp,kasdansetarakas,mkbd,mkbdminimum,mkbdpermkbdminimum,
+                        CASE 
+                            when kasdansetarakas < mkbdminimum then 'Alert'
+                            when kasdansetarakas > mkbdminimum then 'Normal'
+                        END AS status,periode
+                        From pasarmodal." + tableName + @") as x
+                    WHERE " + whereQuery + @" group by status";
+                }
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMSegmentationSummaryClusterMKBDQueryGetChartClusterBarSearch(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string periodes, string stringPE, string stringStatus, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            //isHive = true;
+
+            if (periodes != null)
+            {
+                periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND periode in (" + periodes.Replace("-", "") + ")";
+            }
+
+            if (stringPE != null)
+            {
+                stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND securitycompanycode in (" + stringPE + ")";
+            }
+            if (stringStatus != null)
+            {
+                stringStatus = "'" + stringStatus.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND status in (" + stringStatus + ")";
+            }
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "pe_segmentation_sum_cluster_mkbd")
+                {
+                    props.Query = @"
+                    SELECT cluster,COUNT(status) total,urut from (
+                    SELECT * FROM (                    
+                    SELECT calendardate,securitycompanycode,
+                        CASE 
+                            when cast(cast(kasdansetarakas as BIGINT)  as string) < cast(cast(mkbdminimum as BIGINT)  as string) then 'Alert'
+                            when cast(cast(kasdansetarakas as BIGINT)  as string) > cast(cast(mkbdminimum as BIGINT)  as string) then 'Normal'
+                        END AS status,cluster,
+                        CASE 
+                           WHEN cluster ='<100%'  then '1'
+                           WHEN cluster ='100% s.d. <120%'  then '2'
+                           WHEN cluster ='120% s.d. <200%'  then '3'
+                           WHEN cluster ='200% s.d. <500%'  then '4'
+                           WHEN cluster ='>=500%'  then '5'
+                        END AS urut,periode
+                    FROM pasarmodal." + tableName + @") as x  
+                    WHERE " + whereQuery + @") AS t 						
+                    GROUP BY urut,cluster";
+                }
+            }
+            else
+            {
+                if (tableName == "pe_segmentation_sum_cluster_mkbd")
+                {
+                    props.Query = @"
+                    SELECT cluster,COUNT(status) total,urut from (
+                    SELECT * FROM (                    
+                    SELECT calendardate,securitycompanycode,
+                    	CASE 
+                    		WHEN kasdansetarakas < mkbdminimum then 'Alert'
+                    		WHEN kasdansetarakas > mkbdminimum then 'Normal'
+                    	END AS status,cluster,
+                        CASE 
+                           WHEN cluster ='<100%'  then '1'
+                           WHEN cluster ='100% s.d. <120%'  then '2'
+                           WHEN cluster ='120% s.d. <200%'  then '3'
+                           WHEN cluster ='200% s.d. <500%'  then '4'
+                           WHEN cluster ='>=500%'  then '5'
+                        END AS urut,periode
+                    FROM pasarmodal." + tableName + @") as x  
+                    WHERE " + whereQuery + @") AS t 						
+                    GROUP BY urut,cluster";
                 }
             }
 
@@ -4837,7 +5117,7 @@ namespace BDA.Helper
             if (periodes != null)
             {
                 periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND calendardate in (" + periodes + ")";
+                whereQuery = whereQuery += " AND periode in (" + periodes.Replace("-", "") + ")";
             }
             if (stringPE != null)
             {
@@ -4851,9 +5131,13 @@ namespace BDA.Helper
                 if (tableName == "pe_segmentation_bridging_detail")
                 {
                     props.Query = @"
-                        select  concat_ws('~', cast(dm_periode as string), regexp_replace(dm_jenis_ljk,'/','>'), dm_kode_ljk,'',dm_cif) AS lem,concat_ws('~','n', cast(dm_periode as string), regexp_replace(dm_jenis_ljk,'/','>'), dm_kode_ljk,'',dm_cif) AS idcif,concat_ws('~','p', cast(dm_periode as string), regexp_replace(dm_jenis_ljk,'/','>'), dm_kode_ljk,'',dm_id_pengurus_pemilik) AS idpeng,* from dbo." + tableName + @" x
-                        WHERE " + whereQuery + @"	                
-                        ";
+                        SELECT calendardate,securitycompanysk,securitycompanycode,securitycompanyname,f_level_1,f_level_2,
+                            cast(cast(total_balance as BIGINT)  as string) as total_balance,
+                            cast(cast(total_aset_lancar as BIGINT)  as string) as total_aset_lancar,
+                            cast(cast(persentase as BIGINT)  as string) as persentase,
+                            cast(cast(fairmarketvalue as BIGINT)  as string) as fairmarketvalue,flag,periode
+                        FROM pasarmodal." + tableName + @" x
+                        WHERE " + whereQuery + @"";
                 }
             }
             else
@@ -4861,9 +5145,539 @@ namespace BDA.Helper
                 if (tableName == "pe_segmentation_bridging_detail")
                 {
                     props.Query = @"
-                        select * from dbo." + tableName + @" x
+                        select * 
+                        from pasarmodal." + tableName + @" x
                         WHERE " + whereQuery + @"";
                 }
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMSegmentationSummaryClusterMKBDQueryRincianPortofolio(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string periodes, string stringPE, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            //isHive = true;
+
+            if (periodes != null)
+            {
+                periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND periode in (" + periodes.Replace("-", "") + ")";
+            }
+            if (stringPE != null)
+            {
+                stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND securitycompanycode in (" + stringPE + ")";
+            }
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "pe_segmentation_det_portofolio_saham")
+                {
+                    props.Query = @"
+                        SELECT row_number() over(order by securitycompanycode) as no,
+                            calendardate,securitycompanysk,securitycompanycode,securitycompanyname,securitysk,securitycode,securitytypename,
+                            affiliated,nominalsheet,acquisitionprice,fairmarketprice,
+                            cast(cast(fairmarketvalue as BIGINT)  as string) as fairmarketvalue,gainperloss,
+                            cast(cast(fairmarketvaluepertotalporto as BIGINT)  as string) as fairmarketvaluepertotalporto,entitygroup,marketvaluepercentage,
+                            cast(cast(liabilitiesrankingvalue as BIGINT)  as string) as liabilitiesrankingvalue,periode 
+                        from pasarmodal." + tableName + @" x
+                        WHERE " + whereQuery + @"";
+                }
+            }
+            else
+            {
+                if (tableName == "pe_segmentation_det_portofolio_saham")
+                {
+                    props.Query = @"
+                        select row_number() over(order by securitycompanycode) as no, * 
+                        from pasarmodal." + tableName + @" x
+                        WHERE " + whereQuery + @"";
+                }
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMSegmentationSummaryClusterMKBDQueryRincianPortofolioDetailSummary(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string periodes, string stringPE, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            //isHive = true;
+
+            if (periodes != null)
+            {
+                periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND periode in (" + periodes.Replace("-", "") + ")";
+            }
+            if (stringPE != null)
+            {
+                stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND securitycompanycode in (" + stringPE + ")";
+            }
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "pe_segmentation_det_portofolio_saham_sum")
+                {
+                    props.Query = @"
+                        SELECT 
+                            calendardate,securitycompanysk,securitycompanycode,securitycompanyname,mkbdvd510accountsk,mkbdvd510accountcode,mkbdvd510description,
+                            cast(cast(fairmarketvalue as BIGINT)  as string) as fairmarketvalue,
+                            cast(cast(liabilitiesrankingvalue as BIGINT)  as string) as liabilitiesrankingvalue,periode 
+                            from pasarmodal." + tableName + @" x
+                        WHERE " + whereQuery + @"";
+                }
+            }
+            else
+            {
+                if (tableName == "pe_segmentation_det_portofolio_saham_sum")
+                {
+                    props.Query = @"
+                        select * from pasarmodal." + tableName + @" x
+                        WHERE " + whereQuery + @"";
+                }
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMSegmentationSummaryClusterMKBDQueryReksadana(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string periodes, string stringPE, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            //isHive = true;
+
+            if (periodes != null)
+            {
+                periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND periode in (" + periodes.Replace("-", "") + ")";
+            }
+            if (stringPE != null)
+            {
+                stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND securitycompanycode in (" + stringPE + ")";
+            }
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "pe_segmentation_det_reksa_dana")
+                {
+                    props.Query = @"
+                        SELECT calendardate,securitycompanysk,securitycompanycode,securitycompanyname,mutualfundtypesk,mutualfundtypecode,mutualfundtypename,mutualfundname,isaffiliated,
+                            cast(cast(netassetvalueunit as BIGINT)  as string) as netassetvalueunit,
+                            cast(cast(netassetvalueunit as BIGINT)  as string) as netassetvaluemutualfund,liabilitiesrankingcal,
+                            cast(cast(mkbdlimitationvalue as BIGINT)  as string) as mkbdlimitationvalue,
+                            cast(cast(mkbdlimitationexcessvalue as BIGINT)  as string) as mkbdlimitationexcessvalue,periode 
+                        from pasarmodal." + tableName + @" x
+                        WHERE " + whereQuery + @"";
+                }
+            }
+            else
+            {
+                if (tableName == "pe_segmentation_det_reksa_dana")
+                {
+                    props.Query = @"
+                        select * from pasarmodal." + tableName + @" x
+                        WHERE " + whereQuery + @"";
+                }
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMSegmentationSummaryClusterMKBDQueryReksadanaDetailSummary(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string periodes, string stringPE, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            //isHive = true;
+
+            if (periodes != null)
+            {
+                periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND periode in (" + periodes.Replace("-", "") + ")";
+            }
+            if (stringPE != null)
+            {
+                stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND securitycompanycode in (" + stringPE + ")";
+            }
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "pe_segmentation_det_reksa_dana_sum")
+                {
+                    props.Query = @"
+                        SELECT calendardate,securitycompanysk,securitycompanycode,securitycompanyname, mkbdvd510accountsk,mkbdvd510accountcode,mkbdvd510description,
+                        cast(cast(mkbdlimitationexcessvalue as BIGINT)  as string) as mkbdlimitationexcessvalue                        
+                        from pasarmodal." + tableName + @" x
+                        WHERE " + whereQuery + @"";
+                }
+            }
+            else
+            {
+                if (tableName == "pe_segmentation_det_reksa_dana_sum")
+                {
+                    props.Query = @"
+                        select * from pasarmodal." + tableName + @" x
+                        WHERE " + whereQuery + @"";
+                }
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMSegmentationSummaryClusterMKBDQueryJaminanMargin(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string periodes, string stringPE, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            //isHive = true;
+
+            if (periodes != null)
+            {
+                periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND periode in (" + periodes.Replace("-", "") + ")";
+            }
+            if (stringPE != null)
+            {
+                stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND securitycompanycode in (" + stringPE + ")";
+            }
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "pe_segmentation_det_jaminan_margin")
+                {
+                    props.Query = @"
+                        Select row_number() over(order by securitycompanycode) as no,calendardate,securitycompanysk,securitycompanycode,securitycompanyname,securitysk,securitycode,securityname,volume,price,
+                            cast(cast(fairmarketvalue as BIGINT)  as string) as fairmarketvalue,periode 
+                        from pasarmodal." + tableName + @" x
+                        WHERE " + whereQuery + @"";
+                }
+            }
+            else
+            {
+                if (tableName == "pe_segmentation_det_jaminan_margin")
+                {
+                    props.Query = @"
+                        Select row_number() over(order by securitycompanycode) as no, * from pasarmodal." + tableName + @" x
+                        WHERE " + whereQuery + @"";
+                }
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMSegmentationSummaryClusterMKBDQueryJaminanMarginDetailSummary(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string periodes, string stringPE, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            //isHive = true;
+
+            if (periodes != null)
+            {
+                periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND periode in (" + periodes.Replace("-", "") + ")";
+            }
+            if (stringPE != null)
+            {
+                stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND securitycompanycode in (" + stringPE + ")";
+            }
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "pe_segmentation_det_jaminan_margin_sum")
+                {
+                    props.Query = @"
+                        select calendardate,securitycompanysk,securitycompanycode,securitycompanyname,mkbdvd510accountsk,mkbdvd510accountcode,mkbdvd510description,
+                            cast(cast(fairmarketvalue as BIGINT)  as string) as fairmarketvalue,periode 
+                        from pasarmodal." + tableName + @" x
+                        WHERE " + whereQuery + @"";
+                }
+            }
+            else
+            {
+                if (tableName == "pe_segmentation_det_jaminan_margin_sum")
+                {
+                    props.Query = @"
+                        select * from pasarmodal." + tableName + @" x
+                        WHERE " + whereQuery + @"";
+                }
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMSegmentationSummaryClusterMKBDQueryReverseRepo(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string periodes, string stringPE, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            //isHive = true;
+
+            if (periodes != null)
+            {
+                periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND periode in (" + periodes.Replace("-", "") + ")";
+            }
+            if (stringPE != null)
+            {
+                stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND securitycompanycode in (" + stringPE + ")";
+            }
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "pe_segmentation_det_reverse_repo_new")
+                {
+                    props.Query = @"
+                        SELECT  row_number() over(order by securitycompanycode) as no,calendardate,securitycompanysk,securitycompanycode,securitycompanyname,securitycode,sellername,buyingdate,sellingdate,
+                            cast(cast(buyingamount as BIGINT)  as string) as buyingamount,
+                            cast(cast(sellingamount as BIGINT)  as string) as sellingamount,collateralsecuritycode,
+                            cast(cast(collateralamount as BIGINT)  as string) as collateralamount,
+                            cast(cast(fairmarketvalue as BIGINT)  as string) as fairmarketvalue,
+                            cast(cast(liabilitiesrankingvalue as BIGINT)  as string) as liabilitiesrankingvalue,
+                            cast(cast(rasio as BIGINT)  as string) as rasio,periode 
+                        FROM pasarmodal." + tableName + @" x
+                        WHERE " + whereQuery + @"";
+                }
+            }
+            else
+            {
+                if (tableName == "pe_segmentation_det_reverse_repo_new")
+                {
+                    props.Query = @"
+                        Select row_number() over(order by securitycompanycode) as no, * from pasarmodal." + tableName + @" x
+                        WHERE " + whereQuery + @"";
+                }
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMSegmentationSummaryClusterMKBDQueryReverseRepoDetailSummary(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string periodes, string stringPE, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            //isHive = true;
+
+            if (periodes != null)
+            {
+                periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND periode in (" + periodes.Replace("-", "") + ")";
+            }
+            if (stringPE != null)
+            {
+                stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND securitycompanycode in (" + stringPE + ")";
+            }
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "pe_segmentation_det_reverse_repo_sum_new")
+                {
+                    props.Query = @"
+                        SELECT calendardate,securitycompanysk,securitycompanycode,securitycompanyname,mkbdvd510accountsk,mkbdvd510accountcode,mkbdvd510description,
+                        cast(cast(buyingamount as BIGINT)  as string) as buyingamount,
+                        cast(cast(sellingamount as BIGINT)  as string) as sellingamount,
+                        cast(cast(fairmarketvalue as BIGINT)  as string) as fairmarketvalue,
+                        cast(cast(liabilitiesrankingvalue as BIGINT)  as string) as liabilitiesrankingvalue,periode 
+                        FROM pasarmodal." + tableName + @" x
+                        WHERE " + whereQuery + @"";
+                }
+            }
+            else
+            {
+                if (tableName == "pe_segmentation_det_reverse_repo_sum_new")
+                {
+                    props.Query = @"
+                        select * from pasarmodal." + tableName + @" x
+                        WHERE " + whereQuery + @"";
+                }
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMNamaPE(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, bool isHive = false)
+        {
+            bool isC = false;
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "dim_exchange_members")
+                {
+                    props.Query = @"
+                        SELECT exchangemembercode,exchangemembername from pasarmodal." + tableName + @" where currentstatus='A'";
+                }
+            }
+            else
+            {
+                if (tableName == "dim_exchange_members")
+                {
+                    props.Query = @"
+                        SELECT exchangemembercode,exchangemembername from pasarmodal." + tableName + @" where currentstatus='A'";
+                }
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMSID(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, bool isHive = false)
+        {
+            bool isC = false;
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                props.Query = @"
+                        SELECT sid, nama_sid from pasarmodal.src_sid WHERE nama_sid like '%BIO%' AND is_active=1 LIMIT 100";
+            }
+            else
+            {
+                props.Query = @"
+                        SELECT sid, nama_sid from pasarmodal.ip_sid";
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+
+        public static WSQueryReturns GetNamaSIDQuery(DataEntities db, DataSourceLoadOptions loadOptions, string namaSID, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "";
+            //isHive = false;
+            if (namaSID != null)
+            {
+                namaSID = namaSID.Replace("'", "").Replace(",", "','").Replace("' ", "'"); //cegah sql inject dikit
+                namaSID = "'%" + namaSID.ToUpper() + "%'";
+                whereQuery = "REPLACE(REPLACE(REPLACE(REPLACE(CONCAT(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(SUBSTRING(nama_sid, 1, 1), 0,'M'), 1,'R'), 2,'S'), 3,'D'), 4,'N'), 5,'F'), 6,'H'), 7,'Y'), 8,'T'), 9,'J'), SUBSTRING(nama_sid, 2, " + (isHive ? "LENGTH" : "LEN") + "(nama_sid))), 'IOII','O') , 'IOOI', 'A'), 'IIOO', 'U'),'IOIO' , 'E') LIKE " + namaSID + " ";                
+
+            }
+            var props = new WSQueryProperties();
+            props.Query = @"SELECT top 20 nama_sid, sid, len(nama_sid) len_nama FROM pasarmodal.master_sid x WHERE " + whereQuery + @" ORDER BY len_nama asc";
+            if (isHive)
+                props.Query = @"SELECT nama_sid, sid, length(nama_sid) len_nama FROM pasarmodal.src_sid x WHERE " + whereQuery + @" ORDER BY len_nama asc LIMIT 20";
+            return DecryptResultsNamaSID(WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive));
+        }
+
+        public static WSQueryReturns GetPMIPQuery(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string SID, string tradeId, string namaSID, string nomorKTP, string nomorNPWP, string sistem, string businessReg, string startPeriod, string endPeriod, bool chk100 = false, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            var periodWhereQuery = "";
+            //isHive = false;
+
+            if (sistem != null) whereQuery = whereQuery += " AND system = '" + sistem + "' ";
+
+            if (SID != null) whereQuery = whereQuery += " AND sid = '" + EncryptSID(SID) + "' ";
+            else if (tradeId != null) whereQuery = whereQuery += " AND trade_id = '" + tradeId + "' ";
+            else if (nomorKTP != null) whereQuery = whereQuery += " AND ktp = '" + nomorKTP + "' ";
+            else if (nomorNPWP != null) whereQuery = whereQuery += " AND npwp = '" + nomorNPWP + "' ";
+            //else if (namaSID != null) whereQuery = whereQuery += " AND nama_sid = " + EncryptName(namaSID);
+            else if (businessReg != null) whereQuery = whereQuery += " AND business_registration_number = '" + businessReg + "' ";
+
+            if (endPeriod != null)
+            {
+                string startperiodes = "'" + startPeriod.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                string endperiodes = "'" + endPeriod.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                periodWhereQuery = " AND periode between " + startperiodes + " and " + endperiodes;
+            }
+            else if (startPeriod != null)
+            {
+                string periodes = "'" + startPeriod.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                periodWhereQuery = " AND " + periodes + " between valid_from and valid_until"; //date_format(CURRENT_DATE(), 'YYYYMMdd')
+            }
+            var props = new WSQueryProperties();
+
+            if (tableName == "ip_sid")
+            {
+                props.Query += @" SELECT 
+                        valid_until + '~' + system + '~' + sid AS lem, * from pasarmodal." + (isHive ? "src_sid" : tableName) + @" x WHERE " + whereQuery + periodWhereQuery;
+                //props.Query += (chk100 == true) ? @" order by x.periode" : @"";
+            }
+            else if (tableName == "ip_transaction")
+            {
+                props.Query += @"
+                        SELECT CAST(y.valid_until AS VARCHAR(20)) + '~' + y.system + '~' + y.sid AS lem, y.*, x.buy_value, x.buy_quantity, x.buy_freq, 
+                        x.sell_value, x.sell_quantity, x.sell_freq, 
+                        (x.buy_value - x.sell_value) as net_value, 
+                        (x.buy_quantity - x.sell_quantity) as net_quantity,
+                        (x.buy_freq - x.sell_freq) as net_freq
+                        FROM (
+                            select sid, securitycode, securityname, ";
+
+                if (isHive)
+                    props.Query += @"
+                            SUM( IF( transactiontypecode = 'B', value, 0) ) AS buy_value, 
+                            SUM( IF( transactiontypecode = 'B', quantity, 0) ) AS buy_quantity, 
+                            SUM( IF( transactiontypecode = 'B', freq, 0) ) AS buy_freq,
+                            SUM( IF( transactiontypecode = 'S', value, 0) ) AS sell_value, 
+                            SUM( IF( transactiontypecode = 'S', quantity, 0) ) AS sell_quantity, 
+                            SUM( IF( transactiontypecode = 'S', freq, 0) ) AS sell_freq ";
+                else
+                    props.Query += @"
+                            buy_value, buy_quantity, buy_freq, sell_value, sell_quantity, sell_freq ";
+
+                props.Query += @"
+                            from pasarmodal." + (isHive ? "investor_profile_trans" : tableName) + @"
+                            where " + whereQuery + periodWhereQuery + @" 
+                        )x LEFT OUTER JOIN (
+                            select valid_until, sid, nama_sid, trade_id, tanggal_lahir, tanggal_pendirian, address1, ktp, npwp, status_sid, last_update_sid, system, email, phone_number, fax, passport, occupation, nationality, province, city, periode 
+                            from pasarmodal." + (isHive ? "src_sid" : "ip_sid") + @" 
+                            where " + whereQuery + @"
+                        )y ON x.sid = y.sid";
+            }
+            else if (tableName == "ip_ownership")
+            {
+                props.Query += @"
+                        SELECT CAST(y.valid_until AS VARCHAR(20)) + '~' + y.system + '~' + y.sid AS lem, y.*, 
+                        securitycode, securityname, rekening_status, accountbalancestatuscode, volume, value 
+                        FROM (
+                            select sid, securitycode, securityname, rekening_status, accountbalancestatuscode, volume, value  
+                            from pasarmodal." + (isHive ? "investor_profile_kpm" : tableName) + @" x WHERE " + whereQuery + periodWhereQuery + @"
+                        )x LEFT OUTER JOIN (
+                            select valid_until, sid, nama_sid, trade_id, tanggal_lahir, tanggal_pendirian, address1, ktp, npwp, status_sid, last_update_sid, system, email, phone_number, fax, passport, occupation, nationality, province, city, periode 
+                            from pasarmodal." + (isHive ? "src_sid" : "ip_sid") + @" 
+                            where " + whereQuery + @"
+                        )y ON x.sid = y.sid";
+                //props.Query += (chk100 == true) ? @" order by x.periode" : @"";
+            }
+            else
+            {
+                props.Query += @" SELECT 
+                        CAST(dm_periode AS VARCHAR(20)) + '~' + system + '~' + sid AS lem, * from pasarmodal." + tableName + @" x WHERE " + whereQuery;
+                props.Query += (chk100 == true) ? @" order by x.is_direct" : @"";
+            }
+
+            return DecryptResults( WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive) );
+        }
+        public static WSQueryReturns GetPMMMQuery(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string startPeriod, string endPeriod, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            isHive = false;
+
+            if (startPeriod != null)
+            {
+                string periodes = "'" + startPeriod.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND dm_periode in (" + periodes + ")";
+            }
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                props.Query = @"";
+
+            }
+            else
+            {
+                if (tableName == "mm_spv")
+                {
+                    props.Query += @"
+                        CAST(dm_periode AS VARCHAR(20)) + '~' + sid AS lem, * from pasarmodal." + tableName + @" x WHERE " + whereQuery;
+                }
+
+
             }
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);

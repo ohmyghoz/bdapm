@@ -13,13 +13,6 @@ using System.Collections.Generic;
 
 public partial class getRJPSelfVsOtherLJK_Result
 {
-    public Nullable<long> rowid { get; set; }
-    public Nullable<System.DateTime> tgl { get; set; }
-    public Nullable<decimal> NILAI1 { get; set; }
-    public Nullable<decimal> avg1 { get; set; }
-    public Nullable<decimal> avg2 { get; set; }
-    public Nullable<decimal> ratio { get; set; }
-    public string KODE_ALERT { get; set; }
 }
 
 }

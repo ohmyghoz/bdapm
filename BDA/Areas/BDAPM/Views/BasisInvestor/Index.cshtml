@@ -1,0 +1,1005 @@
+﻿@using DevExtreme.AspNet.Mvc
+@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+    string reportId = "Segmentation_Basis_Investor";
+    var p = (string[])ViewBag.period;
+    var maxItems = db.GetSetting("LimitFilterLJK");
+}
+
+@inject BDA.DataModel.DataEntities db
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="card card-default">
+        @*filter*@
+        <div class="row filter-panel" style="padding-top:0px;">
+            <div class="card-body">
+                <div class="row">
+                    <div class="form-group ml-3">
+                        @* <button type="button" id="btnDetailCluster" class="btn btn-danger">Detail Cluster MKBD</button> *@
+                        <input type="button" id="btnBasisInvestor" class="btn btn-danger" value="Basis Investor" onclick="location.href='@Url.Action("/", "BasisInvestor")'" />
+                    </div>&nbsp;&nbsp;
+                    <div class="form-group">
+                        <input type="button" id="btnDetailBI" class="btn btn-danger" value="Detail Basis Investor" onclick="location.href='@Url.Action("Detail", "BasisInvestor")'" />
+                    </div>&nbsp;&nbsp;
+                    <div class="form-group">
+                        <input type="button" id="btnSumTxSID" class="btn btn-danger" value="Summary Transaction SID" onclick="location.href='@Url.Action("SumTxSID", "BasisInvestor")'" />
+                    </div>&nbsp;&nbsp;
+                </div>
+                <div class="row">
+
+                    <div class="col-lg-2 form-group">
+                        <label>Periode<span class="mandatory">*</span></label>
+                        @(Html.DevExtreme().DateBox()
+                            .ID("Periode")
+                            .DisplayFormat("MMM yyyy")
+                            //.Value(periodeAwal1 == null ? DateTime.Now : periodeAwal1)
+                            .Value(DateTime.Now)
+                            .Max(DateTime.Now)
+                            .Width("100%"))
+                    </div>
+
+                    <div class="col-lg-2 form-group">
+                        <label>PE<span class="mandatory">*</span></label>
+                        @(Html.DevExtreme().SelectBox()
+                            .ID("namaPEid")
+                            .DataSource(d => d.Mvc()
+                            .Controller("BasisInvestor")
+                            .Area("BDAPM")
+                            .LoadAction("GetNamaPE")
+                            .Key("value"))
+                            .ValueExpr("value")
+                            .DisplayExpr("text")
+                            .SearchEnabled(true)
+                            .Width("100%")
+                            )
+                    </div>
+
+                    <div class="col-lg-2 form-group">
+                        <label>Investor Type@*<span class="mandatory">*</span>*@</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("InvstType")
+                            .DataSource(new[] { "(All)", "Individu", "Institusi" })
+                            .SearchEnabled(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .Width("100%"))
+                    </div>
+
+                    <div class="col-lg-2 form-group">
+                        <label>Investor Origin@*<span class="mandatory">*</span>*@</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("InvstOrigin")
+                            .DataSource(new[] { "(All)", "Asing", "Lokal" })
+                            .SearchEnabled(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .Width("100%"))
+                    </div>
+
+                    <div class="col-lg-2 form-group">
+                        <label>Input Range@*<span class="mandatory">*</span>*@</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("InpRange")
+                            .DataSource(new[] { "1 Bulan", "6 Bulan", "12 Bulan" })
+                            .SearchEnabled(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .Width("100%"))
+                    </div>
+
+                    <div class="col-lg-2 form-group">
+                        <label>Market@*<span class="mandatory">*</span>*@</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("Market")
+                            .DataSource(new[] { "Bursa" })
+                            .SearchEnabled(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .Width("100%"))
+                    </div>
+
+                </div>
+
+                <div class="float-left">
+                    @(Html.DevExtreme().Button()
+                        .ID("Filter")
+                        .Type(ButtonType.Default)
+                        .Text("Tampilkan")
+                        .OnClick("onButtonFilterClicked")
+                        .ValidationGroup("Filter"))
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-12 col-sm-6 col-md-4 col-lg-2 d-flex align-items-stretch">
+                <div class="card text-center">
+                    <div class="card-header bg-danger text-white d-flex align-items-center justify-content-center h-100">
+                        Total Clients
+                    </div>
+                    <div class="small-card-body">
+                        <p class="card-text font-weight-bold">99.999</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-4 col-lg-2 d-flex align-items-stretch">
+                <div class="card text-center">
+                    <div class="card-header bg-danger text-white d-flex align-items-center justify-content-center h-100">
+                        Active Client
+                    </div>
+                    <div class="small-card-body">
+                        <p class="card-text font-weight-bold">99.999</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-4 col-lg-2 d-flex align-items-stretch">
+                <div class="card text-center">
+                    <div class="card-header bg-danger text-white d-flex align-items-center justify-content-center h-100">
+                        Transaction Frequency
+                    </div>
+                    <div class="small-card-body">
+                        <p class="card-text font-weight-bold">9.999.999</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-4 col-lg-2 d-flex align-items-stretch">
+                <div class="card text-center">
+                    <div class="card-header bg-danger text-white d-flex align-items-center justify-content-center h-100">
+                        Traded Value
+                    </div>
+                    <div class="small-card-body">
+                        <p class="card-text font-weight-bold">99.999.999.999.999</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-4 col-lg-2 d-flex align-items-stretch">
+                <div class="card text-center">
+                    <div class="card-header bg-danger text-white d-flex align-items-center justify-content-center h-100">
+                        Client Liquid Amount
+                    </div>
+                    <div class="small-card-body">
+                        <p class="card-text font-weight-bold">99.999.999.999.999</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br />
+
+        <div class="row justify-content-center">
+            <div class="col-xl-12">
+                <div class="card text-center">
+
+                    <div class="card-header bg-danger text-white h-100">
+                        Presentase By Segment <i class="fa fa-info float-right" title="TEST INFO"></i>
+                    </div>
+
+                    <div class="card-body">
+                        <div id="chartContainer1"></div>
+                    </div>
+
+                    <div class="card-body">
+                        <div id="chartContainer2"></div>
+                    </div>
+
+                    <div class="card-body">
+                        <div id="chartContainer3"></div>
+                    </div>
+
+                    <div class="card-body">
+                        <div id="chartContainer4"></div>
+                    </div>
+
+                    <div class="card-body">
+                        <div id="chartContainer5"></div>
+                    </div>
+
+                    <div class="card-body">
+                        <div id="chartContainer6"></div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="col-s-4">
+                <div class="card text-center">
+                    <div class="card-header bg-danger text-white h-100">
+                        Recency
+                    </div>
+                    <div class="card-body donutchart1">
+                        DONUT
+                    </div>
+                </div>
+            </div>
+            <div class="col-s-4">
+                <div class="card text-center">
+                    <div class="card-header bg-danger text-white h-100">
+                        Frequency
+                    </div>
+                    <div class="card-body donutchart1">
+                        DONUT
+                    </div>
+                </div>
+            </div>
+            <div class="col-s-4">
+                <div class="card text-center">
+                    <div class="card-header bg-danger text-white h-100">
+                        Monetary
+                    </div>
+                    <div class="card-body donutchart1">
+                        DONUT
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-s-4">
+                <div class="card text-center">
+                    <div class="card-header bg-danger text-white h-100">
+                        New Client vs Client
+                    </div>
+                    <div class="card-body donutchart1">
+                        DONUT
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-s-4">
+                <div class="card text-center">
+                    <div class="card-header bg-danger text-white h-100">
+                        Investor Origin
+                    </div>
+                    <div class="card-body donutchart1">
+                        DONUT
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-s-4">
+                <div class="card text-center">
+                    <div class="card-header bg-danger text-white h-100">
+                        Investor Type
+                    </div>
+                    <div class="card-body donutchart1">
+                        DONUT
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                @(Html.DevExtreme().TagBox()
+                    .ID("FilterChart")
+                    .DataSource(new[] { "Jumlah SID", "Tx Freq." })
+                    .SearchEnabled(true)
+                    .OnSelectionChanged("onSelectionChanged")
+                    .Width("100%"))
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-xl-12">
+                <div class="card text-center">
+                    <div class="card-header bg-danger text-white h-100">
+                        Last Transaction Days vs Investor Value <i class="fa fa-info float-right" title="TEST INFO"></i>
+                    </div>
+                    <div class="card-body" id="scatterplot1">
+                        SCATTER
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+        
+        <!-- The Modal  Detail -->
+        <div class="modal fade" id="ModalSimpanPenggunaanData" tabindex="-1" role="document" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color:#0066b2">
+                        <h4 class="modal-title" style="text-align:left">
+                            <font color="white">Pilih Penggunaan Data</font>
+                        </h4>
+                    </div><!--Modal Header-->
+                    <!-- Modal body -->
+                    <div class="modal-body">
+                        <form id="StrukturFormDetail" method="POST" action="" class="form-horizontal row-border">
+                            <div class="row" style="padding: 0 10px 0 10px;">
+                                @(Html.DevExtreme().SelectBox()
+                                    .ID("penggunaandataid")
+                                    .DataSource(d => d.Mvc()
+                                    .Controller("PenggunaanData")
+                                    .Area("Website")
+                                    .LoadAction("GetPenggunaanData")
+                                    .Key("value"))
+                                    .ValueExpr("value")
+                                    .DisplayExpr("text")
+                                    .SearchEnabled(true)
+                                    .Width("100%")
+                                    )
+                            </div>
+                        </form>
+                    </div>
+                    <!-- Modal footer -->
+                    <div class="modal-footer">
+                        <button type="button" id="btnSavePenggunaanData" class="btn btn-primary" data-bs-dismiss="modal"><i class='fa fa-save'></i> Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- The Modal Detail -->
+
+}
+
+<script>
+    window.jsPDF = window.jspdf.jsPDF;
+    applyPlugin(window.jsPDF);
+</script>
+
+
+<script>
+    // DONUT START
+    $(function () {
+        $(".donutchart1").dxPieChart({
+            dataSource: [
+                { category: "High", value: 0.450 },
+                { category: "Medium", value: 0.250 },
+                { category: "Low", value: 0.300 }
+            ],
+            size: {
+                width: '100%',
+                height: 150
+            },
+            sizeGroup: "donutGrp",
+            legend: {
+                visible: true,
+                position: "outside",
+                horizontalAlignment: "center",
+                verticalAlignment: "bottom"
+            },
+            series: {
+                argumentField: "category",
+                valueField: "value",
+                type: "donut",
+                label: {
+                    visible: true,
+                    position: "inside",
+                    backgroundColor: "none",
+                    format: {
+                        type: "percent",
+                        precision: 1
+                    }
+                }
+            },
+            margin: {
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0
+            }
+        });
+    });
+
+    // DONUT END
+
+    // VERT.BAR START
+    $(function () {
+        $("#chartContainer1").dxChart({
+            commonAxisSettings: {
+                grid: {
+                    visible: false
+                }
+            },
+            dataSource: [
+                { category: "% Transaction Freq", value: 0.745 },
+                { category: "% Total Client", value: 0.251 }
+            ],
+            rotated: true,
+            series: [{
+                argumentField: "category",
+                valueField: "value",
+                type: "bar",
+                color: "darkred",
+                label: {
+                    visible: true,
+                    format: {
+                        type: "percent",
+                        precision: 1
+                    },
+                }
+            }],
+            legend: {
+                visible: false
+            },
+            valueAxis: {
+                label: {
+                    format: {
+                        type: "percent",
+                        precision: 1
+                    }
+                }
+            },
+            size: {
+                height: 200,
+                width: '100%'  
+            },
+            title: {
+                text: "Champions",
+                verticalAlignment: "center",
+                horizontalAlignment: "center",
+                margin: {
+                    left: 10
+                }
+            }
+        });
+    });
+
+    $(function () {
+        $("#chartContainer2").dxChart({
+            commonAxisSettings: {
+                grid: {
+                    visible: false
+                }
+            },
+            dataSource: [
+                { category: "% Transaction Freq", value: 0.745 },
+                { category: "% Total Client", value: 0.251 }
+            ],
+            rotated: true,
+            series: [{
+                argumentField: "category",
+                valueField: "value",
+                type: "bar",
+                color: "darkred",
+                label: {
+                    visible: true,
+                    format: {
+                        type: "percent",
+                        precision: 1
+                    },
+                }
+            }],
+            legend: {
+                visible: false
+            },
+            valueAxis: {
+                label: {
+                    format: {
+                        type: "percent",
+                        precision: 1
+                    }
+                }
+            }
+            ,
+            size: {
+                height: 200, 
+                width: '100%'
+            },
+            title: {
+                text: "Potential Loyalist",
+                verticalAlignment: "center",
+                horizontalAlignment: "center",
+                margin: {
+                    left: 10
+                }
+            }
+        });
+    });
+
+    $(function () {
+        $("#chartContainer3").dxChart({
+            commonAxisSettings: {
+                grid: {
+                    visible: false
+                }
+            },
+            dataSource: [
+                { category: "% Transaction Freq", value: 0.745 },
+                { category: "% Total Client", value: 0.251 }
+            ],
+            rotated: true,
+            series: [{
+                argumentField: "category",
+                valueField: "value",
+                type: "bar",
+                color: "darkred",
+                label: {
+                    visible: true,
+                    format: {
+                        type: "percent",
+                        precision: 1
+                    },
+                }
+            }],
+            legend: {
+                visible: false
+            },
+            valueAxis: {
+                label: {
+                    format: {
+                        type: "percent",
+                        precision: 1
+                    }
+                }
+            }
+            ,
+            size: {
+                height: 200, 
+                width: '100%'
+            },
+            title: {
+                text: "Promising",
+                verticalAlignment: "center",
+                horizontalAlignment: "center",
+                margin: {
+                    left: 10
+                }
+            }
+        });
+    });
+
+    $(function () {
+        $("#chartContainer4").dxChart({
+            commonAxisSettings: {
+                grid: {
+                    visible: false
+                }
+            },
+            dataSource: [
+                { category: "% Transaction Freq", value: 0.745 },
+                { category: "% Total Client", value: 0.251 }
+            ],
+            rotated: true,
+            series: [{
+                argumentField: "category",
+                valueField: "value",
+                type: "bar",
+                color: "darkred",
+                label: {
+                    visible: true,
+                    format: {
+                        type: "percent",
+                        precision: 1
+                    },
+                }
+            }],
+            legend: {
+                visible: false
+            },
+            valueAxis: {
+                label: {
+                    format: {
+                        type: "percent",
+                        precision: 1
+                    }
+                }
+            }
+            ,
+            size: {
+                height: 200, 
+                width: '100%'
+            },
+            title: {
+                text: "Recent Customer",
+                verticalAlignment: "center",
+                horizontalAlignment: "center",
+                margin: {
+                    left: 10
+                }
+            }
+        });
+    });
+
+    $(function () {
+        $("#chartContainer5").dxChart({
+            commonAxisSettings: {
+                grid: {
+                    visible: false
+                }
+            },
+            dataSource: [
+                { category: "% Transaction Freq", value: 0.745 },
+                { category: "% Total Client", value: 0.251 }
+            ],
+            rotated: true,
+            series: [{
+                argumentField: "category",
+                valueField: "value",
+                type: "bar",
+                color: "darkred",
+                label: {
+                    visible: true,
+                    format: {
+                        type: "percent",
+                        precision: 1
+                    },
+                }
+            }],
+            legend: {
+                visible: false
+            },
+            valueAxis: {
+                label: {
+                    format: {
+                        type: "percent",
+                        precision: 1
+                    }
+                }
+            }
+            ,
+            size: {
+                height: 200, 
+                width: '100%'
+            },
+            title: {
+                text: "At Risk",
+                verticalAlignment: "center",
+                horizontalAlignment: "center",
+                margin: {
+                    left: 10
+                }
+            }
+        });
+    });
+
+    $(function () {
+        $("#chartContainer6").dxChart({
+            commonAxisSettings: {
+                grid: {
+                    visible: false
+                }
+            },
+            dataSource: [
+                { category: "% Transaction Freq", value: 0.745 },
+                { category: "% Total Client", value: 0.251 }
+            ],
+            rotated: true,
+            series: [{
+                argumentField: "category",
+                valueField: "value",
+                type: "bar",
+                color: "darkred",
+                label: {
+                    visible: true,
+                    format: {
+                        type: "percent",
+                        precision: 1
+                    },
+                }
+            }],
+            legend: {
+                visible: false
+            },
+            valueAxis: {
+                label: {
+                    format: {
+                        type: "percent",
+                        precision: 1
+                    }
+                }
+            }
+            ,
+            size: {
+                height: 200, 
+                width: '100%'
+            },
+            title: {
+                text: "Churn",
+                verticalAlignment: "center",
+                horizontalAlignment: "center",
+                margin: {
+                    left: 10
+                }
+            }
+        });
+    });
+
+    // VERT.BAR END
+
+    // SCATTER START
+    const dataSource = generateDataSource();
+
+    $('#scatterplot1').dxChart({
+        dataSource,
+        commonSeriesSettings: {
+            type: 'scatter',
+        },
+        series: [{
+            argumentField: 'x1',
+            valueField: 'y1',
+        }, {
+            argumentField: 'x2',
+            valueField: 'y2',
+            point: {
+                symbol: 'triangleDown',
+            },
+        }],
+        argumentAxis: {
+            grid: {
+                visible: true,
+            },
+            tickInterval: 5,
+            minorGrid: {
+                visible: true,
+            },
+        },
+        valueAxis: {
+            tickInterval: 50,
+        },
+        legend: {
+            visible: false,
+        },
+        commonPaneSettings: {
+            border: {
+                visible: true,
+            },
+        },
+    });
+
+    function generateDataSource() {
+        const b1 = random(-100, 100) / 10;
+        const b2 = random(-100, 100) / 10;
+        let k1 = random(-100, 100) / 10;
+        let k2 = random(-100, 100) / 10;
+        const ds = [];
+        let i;
+        let x1;
+        let x2;
+        let y1;
+        let y2;
+        let isNegativeDelta;
+        let delta1;
+        let delta2;
+
+        if (k1 < 0.1 && k1 >= 0) { k1 = 0.1; }
+        if (k1 > -0.1 && k1 < 0) { k1 = -0.1; }
+        if (k2 < 0.1 && k2 >= 0) { k2 = 0.1; }
+        if (k2 > -0.1 && k2 < 0) { k2 = -0.1; }
+
+        const deviation1 = Math.abs(k1 * 8);
+        const deviation2 = Math.abs(k2 * 8);
+        for (i = 0; i < 30; i += 1) {
+            x1 = random(1, 20);
+            x2 = random(1, 20);
+
+            isNegativeDelta = random(0, 1) === 0;
+            delta1 = deviation1 * Math.random();
+            delta2 = deviation2 * Math.random();
+            if (isNegativeDelta) {
+                delta1 = -delta1;
+                delta2 = -delta2;
+            }
+            y1 = k1 * x1 + b1 + delta1;
+            y2 = k2 * x2 + b2 + delta2;
+
+            ds.push({
+                x1, y1, x2, y2,
+            });
+        }
+        return ds;
+    }
+
+    function random(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    // SCATTER END
+
+    
+    
+    $(function () {
+        const startDate = $("#PeriodeAwal").dxDateBox({
+            onValueChanged: function (e) {
+                endDate.option("min", e.value);
+            }
+        }).dxDateBox("instance");
+
+        $("#PeriodeAwal").dxValidator({
+            validationGroup: "Filter",
+            validationRules: [{ type: "required", message: "[Tanggal] harus dipilih" }]
+        })
+    });
+
+    $(function () {
+        $("#penggunaandataid").dxValidator({
+            validationGroup: "Filter",
+            validationRules: [{ type: "required", message: "[Penggunaan Data] harus dipilih" }]
+        })
+    });
+
+    $(function () {
+        $("#namaPEid").dxValidator({
+            validationGroup: "Filter",
+            validationRules: [{ type: "required", message: "[Nama PE] harus dipilih" }]
+        })
+    });
+
+    $(window).on('load', function () {
+        $("#ModalSimpanPenggunaanData").modal("show");
+    });
+
+    $("#btnSavePenggunaanData").click(function () {
+        let penggunaandataid = $("#penggunaandataid").dxSelectBox("instance").option("value");
+
+        if (penggunaandataid == null) {
+            alert("Silahkan Pilih Tujuan Penggunaan Data");
+            return false;
+        } else {
+            $.ajax({
+                url: '@Url.Action("SimpanPenggunaanData", "SegmentationSummaryClusterMKBD")',
+                data: { id: penggunaandataid },
+                dataType: "json",
+                type: "POST",
+                success: function (data) {
+                    if (data.success == true) {
+                        //alert(data.message);
+    @* waitingDialog.hide(); *@
+                            $('#ModalSimpanPenggunaanData').modal('hide');
+                        return "Saving Success !";
+                    }
+                    else if (data.success == false) {
+    @*  waitingDialog.hide(); *@
+                            alert(data.message);
+                        $('#ModalSimpanPenggunaanData').modal('hide');
+                        return "Saving Failed !";
+                    }
+                }
+            });
+        }
+    });
+
+    function loadBarCharts(title, id) {
+       
+    }
+
+    function ExportToPdf() {
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("LogExportIndex", "MaxMinOverdue")",
+            success: function (response) {
+                if (response.result == "Success") {
+                    const doc = new jsPDF({
+                        orientation: "landscape",
+                        unit: "cm",
+                        format: [21, 60]
+                    });
+                    var dataGrid = $("#grid1").dxDataGrid("instance");
+                    var fileName = "MaxMinOverdue_" + new Date().toISOString().slice(0, 10) + ".pdf";
+                    doc.setFontSize("6")
+                    //var keys = $("#grid1").dxDataGrid("getSelectedRowsData")
+                    //console.log(keys)
+                    DevExpress.pdfExporter.exportDataGrid({
+                        jsPDFDocument: doc,
+                        component: dataGrid,
+                        keepColumnWidths: true
+                        //selectedRowsOnly: true
+                    }).then(function () {
+                        doc.save(fileName);
+                    });
+                }
+            }
+        });
+    }
+
+    function ExportToPdf2() {
+        var dataGrid = $("#grid1").dxDataGrid("instance");
+        dataGrid.option("onExporting", function (e) { });
+        dataGrid.option("onFileSaving", function (e) {
+            var fd = new FormData();
+            fd.append("file", e.data);
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("ExportPDF", "SegmentationSummaryClusterMKBD")",
+                data: fd,
+                processData: false,
+                contentType: false
+            }).done(function (data) {
+                window.location = "@Url.Action("File", "SegmentationSummaryClusterMKBD")"
+            });
+            e.cancel = true;
+        });
+
+        dataGrid.exportToExcel();
+    }
+
+    function onSelectionChanged(e) {
+        if (e.addedItems.length > 0) {
+            e.component.field().val(""); // Clears the search text. However, search filter is only applied to the widget after focus is lost in the input element
+        }
+    }
+
+    function onButtonFilterClicked(e) {
+        const res = e.validationGroup.validate();
+        if (res.status === "valid") {
+            $("#grid1").dxDataGrid("instance").refresh();
+        }
+    }
+
+    function onGridBeforeSend(method, ajaxOptions) {
+        let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
+        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
+        let status = $("#Statusid").dxTagBox("instance").option("value");
+
+        let periodeAwal = null;
+        if (tempPeriodeAwal != null) {
+            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + (tempPeriodeAwal.getMonth() + 1) + '-' + tempPeriodeAwal.getDate();
+        }
+        ajaxOptions.data.namaPE = JSON.stringify(namaPE);
+        ajaxOptions.data.periodeAwal = periodeAwal;
+        ajaxOptions.data.status = JSON.stringify(status);
+    }
+
+    function onLJKOpened(e) {
+        e.component.content().find('.dx-list-select-all').hide();
+    }
+
+    function Detail(e) {
+        var keys = e.row.key;
+        if (typeof (keys) !== "undefined" && typeof (keys) !== null) {
+            window.open('@Url.Action("Detail", "SegmentationSummaryClusterMKBD")?id=' + keys.toString());
+        }
+    }
+
+    var waitingDialog = (function ($) {
+
+        // Creating modal dialog's DOM
+        var $dialog = $(
+            '<div class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">' +
+            '<div class="modal-dialog modal-m">' +
+            '<div class="modal-content">' +
+            '<div class="modal-header"><h3 style="margin:0;"></h3></div>' +
+            '<div class="modal-body">' +
+            '<div class="progress progress-striped active" style="margin-bottom:0;"><div class="progress-bar" style="width: 100%"></div></div>' +
+            '</div>' +
+            '</div></div></div>');
+
+        return {
+            show: function (message, options) {
+                // Assigning defaults
+                var settings = $.extend({
+                    dialogSize: 'm',
+                    progressType: ''
+                }, options);
+                if (typeof message === 'undefined') {
+                    message = 'Loading';
+                }
+                if (typeof options === 'undefined') {
+                    options = {};
+                }
+                // Configuring dialog
+                $dialog.find('.modal-dialog').attr('class', 'modal-dialog').addClass('modal-' + settings.dialogSize);
+                $dialog.find('.progress-bar').attr('class', 'progress-bar');
+                if (settings.progressType) {
+                    $dialog.find('.progress-bar').addClass('progress-bar-' + settings.progressType);
+                }
+                $dialog.find('h3').text(message);
+                // Opening dialog
+                $dialog.modal();
+            },
+            /**
+                * Closes dialog
+                */
+            hide: function () {
+                $dialog.modal('hide');
+            }
+        }
+    })(jQuery);
+</script>
+
+<style type="text/css">
+    .mandatory {
+        color: red;
+    }
+
+    .card {
+        margin: 5px;
+        text-align: center;
+    }
+
+    .small-card-body {
+        height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+</style>

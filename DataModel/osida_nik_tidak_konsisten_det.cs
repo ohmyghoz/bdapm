@@ -26,21 +26,20 @@ public partial class osida_nik_tidak_konsisten_det
     public string dm_jenis_kredit { get; set; }
     public string dm_jenis_penggunaan { get; set; }
     public string dm_sifat_kredit { get; set; }
-    public Nullable<System.DateTime> dm_tanggal_mulai { get; set; }
-    public Nullable<System.DateTime> dm_tanggal_jatuh_tempo { get; set; }
-    public Nullable<System.DateTime> dm_tanggal_awal_kredit { get; set; }
+    public Nullable<System.DateTime> dm_tgl_awal_kredit { get; set; }
+    public Nullable<System.DateTime> dm_tgl_mulai { get; set; }
+    public Nullable<System.DateTime> dm_tgl_jatuh_tempo { get; set; }
     public string dm_status_pengajuan { get; set; }
     public string dm_valuta { get; set; }
     public Nullable<decimal> dm_plafon_awal { get; set; }
     public Nullable<decimal> dm_plafon { get; set; }
     public Nullable<decimal> dm_baki_debet { get; set; }
     public Nullable<decimal> dm_kolektibilitas { get; set; }
+    public Nullable<decimal> dm_jml_hari_tunggakan { get; set; }
     public Nullable<decimal> dm_tunggakan_pokok { get; set; }
     public Nullable<decimal> dm_tunggakan_bunga { get; set; }
     public string dm_kondisi { get; set; }
-    public Nullable<System.DateTime> dm_tanggal_kondisi { get; set; }
-    public Nullable<decimal> dm_jml_hari_tunggakan { get; set; }
-    public string dm_no { get; set; }
+    public Nullable<System.DateTime> dm_tgl_kondisi { get; set; }
 }
 
 }

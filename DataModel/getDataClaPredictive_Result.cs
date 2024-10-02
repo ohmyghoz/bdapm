@@ -13,21 +13,6 @@ using System.Collections.Generic;
 
 public partial class getDataClaPredictive_Result
 {
-    public Nullable<long> rowid { get; set; }
-    public string kode_report { get; set; }
-    public Nullable<System.DateTime> periode { get; set; }
-    public string member_type_code { get; set; }
-    public string member_code { get; set; }
-    public string status { get; set; }
-    public string collectibility_type_code { get; set; }
-    public string dugaan_collectability { get; set; }
-    public Nullable<decimal> sum_outstanding { get; set; }
-    public Nullable<long> cnt_row { get; set; }
-    public Nullable<long> cnt_distinct_cif { get; set; }
-    public Nullable<long> cnt_acc { get; set; }
-    public Nullable<long> min_overdue_days { get; set; }
-    public Nullable<long> max_overdue_days { get; set; }
-    public string deskripsi_jenis_ljk { get; set; }
 }
 
 }

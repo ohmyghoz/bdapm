@@ -20,13 +20,98 @@
     <None Remove="PartialClass\DataSet\**" />
     <None Remove="PartialClass\DM\**" />
     <None Remove="PartialClass\ETL\**" />
+    <Compile Remove="agunan_dokumen_anomali.cs" />
+    <Compile Remove="agunan_id_anomali.cs" />
+    <Compile Remove="BDA_F01_MaxMinOverdue.cs" />
+    <Compile Remove="BDA_LogOutliers_Avg.cs" />
+    <Compile Remove="BDA_Log_PerMonth.cs" />
+    <Compile Remove="coverage_map_ljkxcity.cs" />
+    <Compile Remove="da_analisis_debtor_nom_identitas_beda.cs" />
+    <Compile Remove="da_analisis_debtor_nom_identitas_sama.cs" />
+    <Compile Remove="da_anomali_alamat_bekerja_debitur.cs" />
+    <Compile Remove="da_anomali_alamat_deb.cs" />
+    <Compile Remove="da_anomali_alamat_email_debitur.cs" />
+    <Compile Remove="da_anomali_baki_debet_tidak_wajar.cs" />
+    <Compile Remove="da_anomali_bentuk_badan_usaha.cs" />
+    <Compile Remove="da_anomali_bukti_kepemilikan_agunan.cs" />
+    <Compile Remove="da_anomali_format_npwp.cs" />
+    <Compile Remove="da_anomali_format_peringkat_agunan.cs" />
+    <Compile Remove="da_anomali_format_telepon_debitur.cs" />
+    <Compile Remove="da_anomali_gelar_nama_deb.cs" />
+    <Compile Remove="da_anomali_nama_ibu_kandung.cs" />
+    <Compile Remove="da_anomali_nik_deb.cs" />
+    <Compile Remove="da_anomali_nik_lahir_debitur.cs" />
+    <Compile Remove="da_anomali_nilai_agunan_deb.cs" />
+    <Compile Remove="da_anomali_nilai_njop_agunan.cs" />
+    <Compile Remove="da_anomali_nomor_akta_badan_usaha.cs" />
+    <Compile Remove="da_anomali_penghasilan_per_tahun.cs" />
+    <Compile Remove="da_anomali_tempat_badan_usaha.cs" />
+    <Compile Remove="da_anomali_tempat_bekerja_debitur.cs" />
+    <Compile Remove="da_anomali_tempat_lahir_debitur.cs" />
+    <Compile Remove="da_anomali_tingkat_suku_bunga.cs" />
+    <Compile Remove="debitur_anomali_duplikasi_nama_debitur.cs" />
+    <Compile Remove="debitur_anomali_format_ktp.cs" />
+    <Compile Remove="debitur_anomali_gender.cs" />
+    <Compile Remove="edge_collateral.cs" />
+    <Compile Remove="log_monitoring_bda_slik_det.cs" />
+    <Compile Remove="log_monitoring_bda_slik_sum.cs" />
+    <Compile Remove="ma_aml_cft_analysis.cs" />
+    <Compile Remove="ma_analisis_pencurian_identitas.cs" />
+    <Compile Remove="ma_anomali_plafon_by_pekerjaan_debitur.cs" />
+    <Compile Remove="ma_outstanding_macet_no_agunan.cs" />
+    <Compile Remove="ma_rekening_baru_non_restrukturisasi_npl.cs" />
+    <Compile Remove="micro_credit_risk_analysis.cs" />
+    <Compile Remove="micro_plafond_usability_acc_detail.cs" />
+    <Compile Remove="ms_ketentuan_kolektibilitas.cs" />
+    <Compile Remove="ms_kolektibilitas_karyawan_ljk.cs" />
+    <Compile Remove="ms_pemberian_pinjaman_karyawan_ljk.cs" />
+    <Compile Remove="ms_perubahan_suku_bunga_no_restrukturisasi.cs" />
+    <Compile Remove="ms_pinjaman_baru_bersamaan_det.cs" />
+    <Compile Remove="ms_pinjaman_baru_bersamaan_sum.cs" />
+    <Compile Remove="node_collateral.cs" />
+    <Compile Remove="osida_agunan_tdk_dinilai_independen_det.cs" />
+    <Compile Remove="osida_agunan_tdk_dinilai_independen_mst.cs" />
+    <Compile Remove="osida_alih_deb_ke_bank_det.cs" />
+    <Compile Remove="osida_alih_deb_ke_bank_mst.cs" />
+    <Compile Remove="osida_hapusbuku_satu_tahun.cs" />
+    <Compile Remove="osida_info_keu_tdk_update_det.cs" />
+    <Compile Remove="osida_info_keu_tdk_update_mst.cs" />
+    <Compile Remove="osida_keu_buruk_kol_lancar_det.cs" />
+    <Compile Remove="osida_keu_buruk_kol_lancar_mst.cs" />
+    <Compile Remove="osida_kolektibilitas_hari_tunggakan.cs" />
+    <Compile Remove="osida_kolektibilitas_jatuh_tempo.cs" />
+    <Compile Remove="osida_kolektibilitas_nilai_tunggakan.cs" />
+    <Compile Remove="osida_kredit_macet_tdk_hb_det.cs" />
+    <Compile Remove="osida_kredit_macet_tdk_hb_mst.cs" />
+    <Compile Remove="osida_kredit_melampaui_plafon.cs" />
+    <Compile Remove="osida_kredit_no_agunan.cs" />
+    <Compile Remove="osida_kredit_takeover_macet.cs" />
+    <Compile Remove="osida_kredit_takeover_tidak_bayar.cs" />
+    <Compile Remove="osida_pemberian_kur_deb_noneligible_det.cs" />
+    <Compile Remove="osida_pemberian_kur_deb_noneligible_mst.cs" />
+    <Compile Remove="osida_pencairan_kredit_npl.cs" />
+    <Compile Remove="osida_pengurus_pemilik_kredit_bermasalah_det_bu.cs" />
+    <Compile Remove="osida_pengurus_pemilik_kredit_bermasalah_det_pengurus.cs" />
+    <Compile Remove="osida_pengurus_pemilik_kredit_bermasalah_mst.cs" />
+    <Compile Remove="osida_perubahan_akad_no_restrukturisasi.cs" />
+    <Compile Remove="osida_plafondering_prk_dengan_plafon.cs" />
+    <Compile Remove="osida_plafondering_prk_tanpa_plafon.cs" />
+    <Compile Remove="osida_plafondering_umum_detail.cs" />
+    <Compile Remove="osida_plafondering_umum_master.cs" />
+    <Compile Remove="osida_potensi_konversi_kur_deb_noneligible_det.cs" />
+    <Compile Remove="osida_potensi_konversi_kur_deb_noneligible_mst.cs" />
+    <Compile Remove="osida_restrukturisasi_satu_tahun.cs" />
+    <Compile Remove="osida_tanpa_info_keu_det.cs" />
+    <Compile Remove="osida_tanpa_info_keu_mst.cs" />
+    <Compile Remove="osida_tidak_bayar_dari_fasilitas_dibentuk.cs" />
+    <Compile Remove="osint_edge_wordpair.cs" />
+    <Compile Remove="osint_node_wordpair.cs" />
+    <Compile Remove="osint_scrapping_filtered.cs" />
+    <Compile Remove="osint_tfidf_wordcloud.cs" />
     <Compile Update="Alert_Summary.cs">
       <DependentUpon>DataModel.tt</DependentUpon>
     </Compile>
     <Compile Update="BDA_A01_Cluster.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="BDA_F01_Predictive.cs">
       <DependentUpon>DataModel.tt</DependentUpon>
     </Compile>
     <Compile Update="BDA_Log_PerHour.cs">
@@ -69,9 +154,6 @@
       <DependentUpon>DataModel.tt</DependentUpon>
     </Compile>
     <Compile Update="FWWorkday.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="Glossary.cs">
       <DependentUpon>DataModel.tt</DependentUpon>
     </Compile>
     <Compile Update="HiveSync.cs">
@@ -170,16 +252,7 @@
     <Compile Update="AuditTrail.cs">
       <DependentUpon>DataModel.tt</DependentUpon>
     </Compile>
-    <Compile Update="BDA_F01_MaxMinOverdue.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
     <Compile Update="BDA_HML_MCDFA.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="BDA_Log_PerMonth.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="BDA_LogOutliers_Avg.cs">
       <DependentUpon>DataModel.tt</DependentUpon>
     </Compile>
     <Compile Update="DimTime.cs">
@@ -227,27 +300,6 @@
     <Compile Update="LOG_AKSES.cs">
       <DependentUpon>DataModel.tt</DependentUpon>
     </Compile>
-    <Compile Update="ma_aml_cft_analysis.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="ma_anomali_plafon_by_pekerjaan_debitur.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="ma_outstanding_macet_no_agunan.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="ma_rekening_baru_non_restrukturisasi_npl.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="macro_output_forecast_level_ljk.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="macro_penetrasi_lending_ljk.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="macro_pertumbuhan_pinjaman_level_ljk.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
     <Compile Update="Master_Agunan.cs">
       <DependentUpon>DataModel.tt</DependentUpon>
     </Compile>
@@ -260,58 +312,7 @@
     <Compile Update="MasterPropinsi.cs">
       <DependentUpon>DataModel.tt</DependentUpon>
     </Compile>
-    <Compile Update="micro_plafond_usability_acc_detail.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="osida_hapusbuku_satu_tahun.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="osida_kolektibilitas_hari_tunggakan.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="osida_kolektibilitas_jatuh_tempo.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="osida_kolektibilitas_nilai_tunggakan.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="osida_kredit_melampaui_plafon.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="osida_kredit_no_agunan.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="osida_kredit_takeover_macet.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="osida_kredit_takeover_tidak_bayar.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
     <Compile Update="osida_master.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="osida_pencairan_kredit_npl.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="osida_perubahan_akad_no_restrukturisasi.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="osida_plafondering_prk_dengan_plafon.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="osida_plafondering_prk_tanpa_plafon.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="osida_plafondering_umum_detail.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="osida_plafondering_umum_master.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="osida_restrukturisasi_satu_tahun.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="osida_tidak_bayar_dari_fasilitas_dibentuk.cs">
       <DependentUpon>DataModel.tt</DependentUpon>
     </Compile>
     <Compile Update="pengawas_ljk.cs">
@@ -401,40 +402,10 @@
     <Compile Update="BDA2_Table_Period.cs">
       <DependentUpon>DataModel.tt</DependentUpon>
     </Compile>
-    <Compile Update="ms_perubahan_suku_bunga_no_restrukturisasi.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
     <Compile Update="vw_RefDeskripsiKategori.cs">
       <DependentUpon>DataModel.tt</DependentUpon>
     </Compile>
-    <Compile Update="ma_kolektibilitas_kesalahan_ljk.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="macro_policy_evaluation_analysis.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="ms_ketentuan_kolektibilitas.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="ms_kolektibilitas_karyawan_ljk.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
     <Compile Update="osida_pembanding_populasi_chart.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="ma_analisis_pencurian_identitas.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="micro_credit_risk_analysis.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="ms_pemberian_pinjaman_karyawan_ljk.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="ms_pinjaman_baru_bersamaan_det.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="ms_pinjaman_baru_bersamaan_sum.cs">
       <DependentUpon>DataModel.tt</DependentUpon>
     </Compile>
     <Compile Update="vw_ListUser.cs">
@@ -458,30 +429,6 @@
     <Compile Update="getListQueue_Result.cs">
       <DependentUpon>DataModel.tt</DependentUpon>
     </Compile>
-    <Compile Update="agunan_dokumen_anomali.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="coverage_map_ljkxcity.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="debitur_anomali_duplikasi_nama_debitur.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="debitur_anomali_format_ktp.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="debitur_anomali_gender.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="edge_collateral.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="node_collateral.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="agunan_id_anomali.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
     <Compile Update="debitur_anomali_data_populasi.cs">
       <DependentUpon>DataModel.tt</DependentUpon>
     </Compile>
@@ -489,18 +436,6 @@
       <DependentUpon>DataModel.tt</DependentUpon>
     </Compile>
     <Compile Update="la_inquiry_pattern_recognition.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="osint_edge_wordpair.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="osint_node_wordpair.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="osint_scrapping_filtered.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="osint_tfidf_wordcloud.cs">
       <DependentUpon>DataModel.tt</DependentUpon>
     </Compile>
     <Compile Update="Master_Keterangan.cs">
@@ -518,142 +453,10 @@
     <Compile Update="ref_ownership_document_temp.cs">
       <DependentUpon>DataModel.tt</DependentUpon>
     </Compile>
-    <Compile Update="da_analisis_debtor_nom_identitas_beda.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="da_analisis_debtor_nom_identitas_sama.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="da_anomali_alamat_bekerja_debitur.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="da_anomali_alamat_deb.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="da_anomali_alamat_email_debitur.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="da_anomali_baki_debet_tidak_wajar.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="da_anomali_bentuk_badan_usaha.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="da_anomali_bukti_kepemilikan_agunan.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="da_anomali_format_npwp.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="da_anomali_format_peringkat_agunan.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="da_anomali_format_telepon_debitur.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="da_anomali_gelar_nama_deb.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="da_anomali_nama_ibu_kandung.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="da_anomali_nik_deb.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="da_anomali_nik_lahir_debitur.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="da_anomali_nilai_agunan_deb.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="da_anomali_nilai_njop_agunan.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="da_anomali_nomor_akta_badan_usaha.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="da_anomali_penghasilan_per_tahun.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="da_anomali_tempat_badan_usaha.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="da_anomali_tempat_bekerja_debitur.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="da_anomali_tempat_lahir_debitur.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="da_anomali_tingkat_suku_bunga.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="log_monitoring_bda_slik_det.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="log_monitoring_bda_slik_sum.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="osida_agunan_tdk_dinilai_independen_det.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="osida_agunan_tdk_dinilai_independen_mst.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="osida_alih_deb_ke_bank_det.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="osida_alih_deb_ke_bank_mst.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="osida_info_keu_tdk_update_det.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="osida_info_keu_tdk_update_mst.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="osida_keu_buruk_kol_lancar_det.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="osida_keu_buruk_kol_lancar_mst.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="osida_kredit_macet_tdk_hb_det.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="osida_kredit_macet_tdk_hb_mst.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
     <Compile Update="osida_nik_tidak_konsisten_det.cs">
       <DependentUpon>DataModel.tt</DependentUpon>
     </Compile>
     <Compile Update="osida_nik_tidak_konsisten_mst.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="osida_pemberian_kur_deb_noneligible_det.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="osida_pemberian_kur_deb_noneligible_mst.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="osida_pengurus_pemilik_kredit_bermasalah_det_bu.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="osida_pengurus_pemilik_kredit_bermasalah_det_pengurus.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="osida_pengurus_pemilik_kredit_bermasalah_mst.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="osida_potensi_konversi_kur_deb_noneligible_det.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="osida_potensi_konversi_kur_deb_noneligible_mst.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="osida_tanpa_info_keu_det.cs">
-      <DependentUpon>DataModel.tt</DependentUpon>
-    </Compile>
-    <Compile Update="osida_tanpa_info_keu_mst.cs">
       <DependentUpon>DataModel.tt</DependentUpon>
     </Compile>
     <Compile Update="Penarikan_Data.cs">
@@ -672,6 +475,147 @@
       <DependentUpon>DataModel.tt</DependentUpon>
     </Compile>
     <Compile Update="getSummaryLJK_Result.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="market_driven_ape_growth.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="market_driven_rg_ng.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="market_driven_stp_balance.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="market_driven_stp_settlement_new.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="master_sid.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="MasterPenggunaanData.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="ml_log_aktivitas.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="ml_log_mon_data.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="ml_master_log.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="pasarmodal_market_driven_rg_ng.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="pe_segmentation_basis_investor.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="pe_segmentation_detail_basis_investor.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="pe_segmentation_geo.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="pe_segmentation_pendanaan_per_mkbd.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="pe_segmentation_summary_transaction_sid.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="PM_dimSecurityCompanies.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="dim_exchange_members.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="ip_ownership.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="ip_relation_ownership.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="ip_relation_sid.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="ip_relation_transaction.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="ip_sid.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="ip_transaction.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="market_driven_ape_growth1.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="market_driven_rg_ng1.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="market_driven_stp_balance1.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="market_driven_stp_settlement_new1.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="mm_spv.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="mm_total.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="pe_segmentation_bridging_detail.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="pe_segmentation_det_jaminan_margin.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="pe_segmentation_det_jaminan_margin_sum.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="pe_segmentation_det_portofolio_saham.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="pe_segmentation_det_portofolio_saham_sum.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="pe_segmentation_det_reksa_dana.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="pe_segmentation_det_reksa_dana_sum.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="pe_segmentation_det_reverse_repo_new.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="pe_segmentation_det_reverse_repo_sum_new.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="pe_segmentation_hutang_subordinasi_det.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="pe_segmentation_pembiayaan_vs_jaminan_saham.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="pe_segmentation_sum_cluster_mkbd.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Glossary.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="ma_kolektibilitas_kesalahan_ljk.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="macro_output_forecast_level_ljk.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="macro_penetrasi_lending_ljk.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="macro_pertumbuhan_pinjaman_level_ljk.cs">
+      <DependentUpon>DataModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="macro_policy_evaluation_analysis.cs">
       <DependentUpon>DataModel.tt</DependentUpon>
     </Compile>
   </ItemGroup>

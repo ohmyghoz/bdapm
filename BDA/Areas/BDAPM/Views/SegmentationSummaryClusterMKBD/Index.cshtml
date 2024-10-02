@@ -80,9 +80,9 @@
         <div class="row">
             <div class="col-lg-6">
                 @(Html.DevExtreme().PieChart()
-                    .ID("pie")
+                    .ID("pie-chart")
                     .Type(PieChartType.Donut)
-                    .Palette(VizPalette.SoftPastel)
+                    .Palette(VizPalette.Carmine)
                     .Title("Jumlah Cluster")
                     .Legend(l => l
                     .HorizontalAlignment(HorizontalAlignment.Right)
@@ -92,49 +92,59 @@
                     .Export(e => e.Enabled(true))
                     .Series(s => s
                     .Add()
-                    .ArgumentField("Country")
-                    .ValueField("Medals")
-                    .HoverStyle(h => h.Color("#ffd700"))
-                    )
-                    .OnPointClick(@<text>
-                function(arg) {
-                arg.target.select();
-                }
-            </text>)
-                    .DataSource(new[] {
-            new { Country = "Normal", Medals = 110 },
-            new { Country = "Alert", Medals = 100 },
-            })
-                    )
+                    .ArgumentField("status")
+                    .ValueField("total")
+                    .Label(l => l
+                    .Visible(true)                   
+                    .Connector(c => c.Visible(true))
+                    ))
+                    .DataSource(d => d.Mvc()
+                    .Controller("SegmentationSummaryClusterMKBD")
+                    .LoadAction("GetChartClusterSearch")
+                    .OnBeforeSend("onGridBeforeSend")))
             </div>
 
             <div class="col-lg-6">
                 @(Html.DevExtreme().Chart()
-                    .ID("chart")
+                    .ID("bar-chart")
                     .Title("Cluster PE Berdasarkan Persentase MKBD dibandingkan MKBD Dipersyaratkan")
+                    .Export(e => e.Enabled(true))
                     .Series(s => s
                     .Add()
-                    .ArgumentField("Day")
-                    .ValueField("Oranges")
-                    .Name("My oranges")
+                    .ArgumentField("cluster")
+                    .ValueField("total")
+                    .Name("Cluster PE")
                     .Type(SeriesType.Bar)
-                    .Color("#ffaa66")
-                    )
-                    .DataSource(new[] {
-            new { Day = "< 100%", Oranges = 3 },
-            new { Day = "100% s/d 119%", Oranges = 2 },
-            new { Day = "200% s/d 499%", Oranges = 3 },
-            new { Day = "> 500%", Oranges = 4 }
-            })
-                    )
-
+                    .Color("#f5403d")
+                    .Label(l => l
+                    .Visible(true)
+                    .Format(f => f
+                    .Type(Format.FixedPoint)
+                    .Precision(0))))
+                    .DataSource(d => d.Mvc()
+                    .Controller("SegmentationSummaryClusterMKBD")
+                    .LoadAction("GetChartClusterBarSearch")
+                    .OnBeforeSend("onGridBeforeSend")))
             </div>
         </div>
         <br />
+        <br />
         @*grid*@
+        <div class="row filter-panel" style="padding-top:0px;">
+            <div class="card-body">
+                <div class="float-right">
+                    @if (ViewBag.Export)
+                    {
+                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcelIndex();"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdfIndex();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                    }
+                </div>
+            </div>
+        </div>
         <div class="gridview-div">
             @(Html.DevExtreme().DataGrid()
                 .ID("grid1")
+                .ShowBorders(true).Width("100%").ShowColumnLines(true).ShowRowLines(true)
                 .DataSource(d => d.Mvc()
                 .Controller("SegmentationSummaryClusterMKBD")
                 .LoadAction("GetGridData")
@@ -147,17 +157,19 @@
                 .WordWrapEnabled(true)
                 .Columns(columns =>
                 {
-                    columns.Add().DataField("rowid").Visible(false);
-                    columns.Add().DataField("securitycompanycode").Caption("Kode PE");
-                    columns.Add().DataField("securitycompanyname").Caption("Nama PE");
-                    columns.Add().DataField("simpanangiro").Caption("Simpanan Giro");
-                    columns.Add().DataField("depositolt3bulan").Caption("Deposito < 3 Bulan");
-                    columns.Add().DataField("depositogt3bulandijaminlps").Caption("Deposito > 3 Bulan Dijamin LPS");
-                    columns.Add().DataField("uangjaminanlkp").Caption("Uang Jaminan LKP").Format("#,##0");
-                    columns.Add().DataField("kasdansetarakas").Caption("Kas dan Setara Kas (Simpanan Giro + Deposito < 3 Bulan + Uang Jaminan LKP)").Format("#,##0");
-                    columns.Add().DataField("mkbd").Caption("MKBD").Format("#,##0");
-                    columns.Add().DataField("mkbdminimum").Caption("MKBD Minimum").Format("#,##0");
-                    columns.Add().DataField("mkbdpermkbdminimum").Caption("MKBD Terhadap MKBD Minimum");
+                    columns.Add().DataField("no").Caption("No.").Alignment(HorizontalAlignment.Center);
+                    columns.Add().DataField("securitycompanycode").Caption("Kode PE").Alignment(HorizontalAlignment.Center);
+                    columns.Add().DataField("securitycompanyname").Caption("Nama PE").Width(300);
+                    columns.Add().DataField("simpanangiro").Caption("Simpanan Giro").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+                    columns.Add().DataField("depositolt3bulan").Caption("Deposito < 3 Bulan").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+                    columns.Add().DataField("depositogt3bulandijaminlps").Caption("Deposito > 3 Bulan Dijamin LPS").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+                    columns.Add().DataField("uangjaminanlkp").Caption("Uang Jaminan LKP").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+                    columns.Add().DataField("kasdansetarakas").Caption("Kas dan Setara Kas (Simpanan Giro + Deposito < 3 Bulan + Uang Jaminan LKP)").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+                    columns.Add().DataField("mkbd").Caption("MKBD").Format("#,##0").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0"); 
+                    columns.Add().DataField("mkbdminimum").Caption("MKBD Minimum").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0"); 
+                    columns.Add().DataField("mkbdpermkbdminimum").Caption("MKBD Terhadap MKBD Minimum").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+                    @* columns.Add().DataField("status").Caption("Status"); *@
+                    columns.Add().DataField("status").Visible(false);
                     columns.Add().Type(GridCommandColumnType.Buttons).Caption("Action").Buttons(b =>
                     {
                         b.Add()
@@ -224,6 +236,39 @@
 </script>
 
 <script>
+    $(function () {
+        $("#grid1").dxDataGrid({
+            onCellPrepared: function (e) {
+                if (e.rowType === "data") {
+                    if (e.column.dataField === "no") {
+                        e.cellElement.css({ "color": "black", "background-color": "white" });
+                    }
+                    if (e.column.dataField === "securitycompanycode") {
+                        e.cellElement.css({ "color": "black", "background-color": "white" });
+                    }
+                    if (e.column.dataField === "securitycompanyname") {
+                        e.cellElement.css({ "color": "black", "background-color": "white" });
+                    }
+                }
+            }
+        });
+    });
+
+    $(function () {
+        $("#grid1").dxDataGrid({
+            onRowPrepared: function (e) {
+                if (e.rowType === "data") {
+                    if (e.data.status === "Alert") {
+                        e.rowElement.css({ "color": "black", "background-color": "#fb7764" });
+                    }else{
+                        e.rowElement.css({ "color": "black", "background-color": "#73d47f" });
+                    }
+                }
+            }
+        });
+    });
+
+    
 
     $(function () {
         const startDate = $("#PeriodeAwal").dxDateBox({
@@ -286,36 +331,38 @@
         }
     });
 
-    function ExportToPdf() {
-        $.ajax({
+    function ExportToExcelIndex() {
+       $.ajax({
             type: "POST",
-            url: "@Url.Action("LogExportIndex", "MaxMinOverdue")",
+            url: "@Url.Action("LogExportIndex", "SegmentationSummaryClusterMKBD")",
             success: function (response) {
                 if (response.result == "Success") {
-                    const doc = new jsPDF({
-                        orientation: "landscape",
-                        unit: "cm",
-                        format: [21, 60]
-                    });
-                    var dataGrid = $("#grid1").dxDataGrid("instance");
-                    var fileName = "MaxMinOverdue_" + new Date().toISOString().slice(0, 10) + ".pdf";
-                    doc.setFontSize("6")
-                    //var keys = $("#grid1").dxDataGrid("getSelectedRowsData")
-                    //console.log(keys)
-                    DevExpress.pdfExporter.exportDataGrid({
-                        jsPDFDocument: doc,
-                        component: dataGrid,
-                        keepColumnWidths: true
-                        //selectedRowsOnly: true
+                    var workbook = new ExcelJS.Workbook();
+                    var worksheet = workbook.addWorksheet('Main sheet');
+
+                    DevExpress.excelExporter.exportDataGrid({
+                        component: $("#grid1").dxDataGrid("instance"),
+                        worksheet: worksheet,
+                        customizeCell: function (options) {
+                            var { gridCell, excelCell } = options;
+
+                            if (gridCell.rowType === 'data') {
+                                if (options.gridCell.column.dataType === 'number') {
+                                    excelCell.numFmt = '#,##0';
+                                }
+                            }
+                        }
                     }).then(function () {
-                        doc.save(fileName);
+                        workbook.xlsx.writeBuffer().then(function (buffer) {
+                            saveAs(new Blob([buffer], { type: "application/octet-stream" }), "SummaryClusterMKBD_" + new Date().toISOString().slice(0, 10) + ".xlsx");
+                        });
                     });
                 }
             }
         });
     }
 
-    function ExportToPdf2() {
+    function ExportToPdfIndex() {
         var dataGrid = $("#grid1").dxDataGrid("instance");
         dataGrid.option("onExporting", function (e) { });
         dataGrid.option("onFileSaving", function (e) {
@@ -323,18 +370,17 @@
             fd.append("file", e.data);
             $.ajax({
                 type: "POST",
-                url: "@Url.Action("ExportPDF", "SegmentationSummaryClusterMKBD")",
+                url: "@Url.Action("LogExportPDFIndex", "SegmentationSummaryClusterMKBD")",
                 data: fd,
                 processData: false,
                 contentType: false
             }).done(function (data) {
-                window.location = "@Url.Action("File", "SegmentationSummaryClusterMKBD")"
+                window.location = "@Url.Action("FileIndex", "SegmentationSummaryClusterMKBD")"
             });
             e.cancel = true;
         });
-
         dataGrid.exportToExcel();
-    }  
+    }
 
     function onSelectionChanged(e) {
         if (e.addedItems.length > 0) {
@@ -345,7 +391,37 @@
     function onButtonFilterClicked(e) {
         const res = e.validationGroup.validate();
         if (res.status === "valid") {
+            let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
+            let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
+            let status = $("#Statusid").dxTagBox("instance").option("value");
+
+
+            let periodeAwal = null;
+            if (tempPeriodeAwal != null) {
+                periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
+            }
+
             $("#grid1").dxDataGrid("instance").refresh();
+
+            $.ajax({
+                url: '@Url.Action("GetChartClusterSearch", "SegmentationSummaryClusterMKBD")',
+                data: { periodeAwal: periodeAwal, namaPE: namaPE, status: JSON.stringify(status) },
+                dataType: "json",
+                type: "POST",
+                success: function (response) {
+                    $("#pie-chart").dxPieChart("instance").refresh();
+                }
+            });
+
+            $.ajax({
+                url: '@Url.Action("GetChartClusterBarSearch", "SegmentationSummaryClusterMKBD")',
+                data: { periodeAwal: periodeAwal, namaPE: namaPE, status: JSON.stringify(status) },
+                dataType: "json",
+                type: "POST",
+                success: function (response) {
+                    $("#bar-chart").dxChart("instance").refresh();
+                }
+            });
         }
     }
 

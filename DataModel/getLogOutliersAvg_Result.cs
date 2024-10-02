@@ -13,13 +13,6 @@ using System.Collections.Generic;
 
 public partial class getLogOutliersAvg_Result
 {
-    public Nullable<long> rowid { get; set; }
-    public Nullable<System.DateTime> periode { get; set; }
-    public string LJK { get; set; }
-    public Nullable<float> user_id { get; set; }
-    public Nullable<long> act_count { get; set; }
-    public Nullable<double> mean_diff { get; set; }
-    public string status { get; set; }
 }
 
 }

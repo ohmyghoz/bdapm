@@ -17,8 +17,8 @@ namespace BDA.DataModel
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public FWNoticeTemplate()
         {
-            this.FWNotice = new HashSet<FWNotice>();
-            this.FWNoticeQueue = new HashSet<FWNoticeQueue>();
+            this.FWNotices = new HashSet<FWNotice>();
+            this.FWNoticeQueues = new HashSet<FWNoticeQueue>();
         }
     
         public string NottId { get; set; }
@@ -48,9 +48,9 @@ namespace BDA.DataModel
         public Nullable<System.DateTime> UpdatedDatetime { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<FWNotice> FWNotice { get; set; }
+        public virtual ICollection<FWNotice> FWNotices { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<FWNoticeQueue> FWNoticeQueue { get; set; }
+        public virtual ICollection<FWNoticeQueue> FWNoticeQueues { get; set; }
         public virtual ReportDef ReportDef { get; set; }
     }
 }

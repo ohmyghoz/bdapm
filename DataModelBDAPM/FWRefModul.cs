@@ -17,7 +17,7 @@ namespace BDA.DataModel
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public FWRefModul()
         {
-            this.FWRefModulMenu = new HashSet<FWRefModulMenu>();
+            this.FWRefModulMenus = new HashSet<FWRefModulMenu>();
         }
     
         public long ModId { get; set; }
@@ -37,6 +37,6 @@ namespace BDA.DataModel
         public string ModTooltip { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<FWRefModulMenu> FWRefModulMenu { get; set; }
+        public virtual ICollection<FWRefModulMenu> FWRefModulMenus { get; set; }
     }
 }

@@ -14,7 +14,6 @@ namespace BDA.DataModel
     
     public partial class pe_segmentation_sum_cluster_mkbd
     {
-        public long rowid { get; set; }
         public System.DateTime calendardate { get; set; }
         public Nullable<int> securitycompanysk { get; set; }
         public string securitycompanycode { get; set; }
@@ -28,6 +27,6 @@ namespace BDA.DataModel
         public Nullable<double> mkbdminimum { get; set; }
         public Nullable<double> mkbdpermkbdminimum { get; set; }
         public string cluster { get; set; }
-        public System.DateTime periode { get; set; }
+        public string periode { get; set; }
     }
 }

@@ -17,7 +17,7 @@ namespace BDA.DataModel
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Thread_Post()
         {
-            this.FWAttachment = new HashSet<FWAttachment>();
+            this.FWAttachments = new HashSet<FWAttachment>();
         }
     
         public long post_id { get; set; }
@@ -41,7 +41,7 @@ namespace BDA.DataModel
         public Nullable<System.DateTime> date_modified { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<FWAttachment> FWAttachment { get; set; }
+        public virtual ICollection<FWAttachment> FWAttachments { get; set; }
         public virtual Thread Thread { get; set; }
         public virtual UserMaster UserMaster { get; set; }
     }

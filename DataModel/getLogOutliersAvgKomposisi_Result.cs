@@ -13,9 +13,6 @@ using System.Collections.Generic;
 
 public partial class getLogOutliersAvgKomposisi_Result
 {
-    public Nullable<int> user_count { get; set; }
-    public Nullable<double> mean_diff_avg { get; set; }
-    public string status { get; set; }
 }
 
 }

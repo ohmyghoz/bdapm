@@ -17,7 +17,7 @@ namespace BDA.DataModel
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public ReportDef()
         {
-            this.FWNoticeTemplate = new HashSet<FWNoticeTemplate>();
+            this.FWNoticeTemplates = new HashSet<FWNoticeTemplate>();
         }
     
         public string rdef_kode { get; set; }
@@ -25,6 +25,6 @@ namespace BDA.DataModel
         public string rdef_nama { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<FWNoticeTemplate> FWNoticeTemplate { get; set; }
+        public virtual ICollection<FWNoticeTemplate> FWNoticeTemplates { get; set; }
     }
 }
