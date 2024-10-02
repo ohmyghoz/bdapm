@@ -184,7 +184,7 @@ namespace BDA.Controllers
             var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryGetChartClusterBarSearch(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, stringStatus, cekHive);
             var varDataList = (dynamic)null;
 
-            if(cekHive == true)
+            if (cekHive == true)
             {
                 varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
                                select new
