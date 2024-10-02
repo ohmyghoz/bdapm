@@ -73,10 +73,6 @@ namespace BDA.Controllers
             ret.Add(new seriesCVGrowth { periode = "202003", currentValue = 40, growth = 10 });
             ret.OrderBy(t => t.periode);
 
-            if (!province.IsNullOrEmpty())
-            {
-                ret.Add(new seriesCVGrowth { periode = "202009", currentValue = 40, growth = 10 });
-            }
 
             return DataSourceLoader.Load(ret, loadOptions);
         }
@@ -93,10 +89,6 @@ namespace BDA.Controllers
             ret.Add(new seriesCVGrowth { periode = "202003", currentValue = 40, growth = 10 });
             ret.OrderBy(t => t.periode);
 
-            if (!province.IsNullOrEmpty())
-            {
-                ret.Add(new seriesCVGrowth { periode = "202009", currentValue = 40, growth = 10 });
-            }
 
             return DataSourceLoader.Load(ret, loadOptions);
         }
