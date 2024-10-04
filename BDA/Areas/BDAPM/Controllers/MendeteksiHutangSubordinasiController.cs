@@ -64,33 +64,65 @@ namespace BDA.Controllers
         [HttpGet]
         public object GetGrid1(DataSourceLoadOptions loadOptions, string periode, string pe)
         {
-            var ret = new List<seriesCVGrowth>();
-            ret.Add(new seriesCVGrowth { periode = "202008", currentValue = 10, growth = 5 });
-            ret.Add(new seriesCVGrowth { periode = "202007", currentValue = 30, growth = 20 });
-            ret.Add(new seriesCVGrowth { periode = "202006", currentValue = 50, growth = 20 });
-            ret.Add(new seriesCVGrowth { periode = "202005", currentValue = 60, growth = 10 });
-            ret.Add(new seriesCVGrowth { periode = "202004", currentValue = 30, growth = -30 });
-            ret.Add(new seriesCVGrowth { periode = "202003", currentValue = 40, growth = 10 });
-            ret.OrderBy(t => t.periode);
+            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+            TempData.Clear(); //membersihkan data filtering
+            string stringPeriodeAwal = null;
+            string stringNamaPE = null;
+            
+            if (periode != null)
+            {
+                stringPeriodeAwal = Convert.ToDateTime(periode).ToString("yyyy-MM-dd");
+                TempData["pawal"] = stringPeriodeAwal;
+            }
+            if (pe != null)
+            {
+                stringNamaPE = pe;
+                TempData["pe"] = stringNamaPE;
+            }
 
-
-            return DataSourceLoader.Load(ret, loadOptions);
+            db.Database.CommandTimeout = 420;
+            if (periode.Length > 0) //jika ada parameter nya
+            {
+                var result = Helper.WSQueryPS.GetBDAPMMendeteksiHutangSubordinasiHSO(db, loadOptions, stringPeriodeAwal, stringNamaPE);
+                return JsonConvert.SerializeObject(result);
+            }
+            else
+            {
+                loadOptions = new DataSourceLoadOptions();
+            }
+            return DataSourceLoader.Load(new List<string>(), loadOptions);
         }
 
         [HttpGet]
         public object GetGrid2(DataSourceLoadOptions loadOptions, string periode, string pe)
         {
-            var ret = new List<seriesCVGrowth>();
-            ret.Add(new seriesCVGrowth { periode = "202008", currentValue = 10, growth = 5 });
-            ret.Add(new seriesCVGrowth { periode = "202007", currentValue = 30, growth = 20 });
-            ret.Add(new seriesCVGrowth { periode = "202006", currentValue = 50, growth = 20 });
-            ret.Add(new seriesCVGrowth { periode = "202005", currentValue = 60, growth = 10 });
-            ret.Add(new seriesCVGrowth { periode = "202004", currentValue = 30, growth = -30 });
-            ret.Add(new seriesCVGrowth { periode = "202003", currentValue = 40, growth = 10 });
-            ret.OrderBy(t => t.periode);
+            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+            TempData.Clear(); //membersihkan data filtering
+            string stringPeriodeAwal = null;
+            string stringNamaPE = null;
 
+            if (periode != null)
+            {
+                stringPeriodeAwal = Convert.ToDateTime(periode).ToString("yyyy-MM-dd");
+                TempData["pawal"] = stringPeriodeAwal;
+            }
+            if (pe != null)
+            {
+                stringNamaPE = pe;
+                TempData["pe"] = stringNamaPE;
+            }
 
-            return DataSourceLoader.Load(ret, loadOptions);
+            db.Database.CommandTimeout = 420;
+            if (periode.Length > 0) //jika ada parameter nya
+            {
+                var result = Helper.WSQueryPS.GetBDAPMMendeteksiHutangSubordinasiReverseRepo(db, loadOptions, stringPeriodeAwal, stringNamaPE);
+                return JsonConvert.SerializeObject(result);
+            }
+            else
+            {
+                loadOptions = new DataSourceLoadOptions();
+            }
+            return DataSourceLoader.Load(new List<string>(), loadOptions);
         }
 
         [HttpPost]

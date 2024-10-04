@@ -93,7 +93,7 @@
                                 .Columns(c =>
                                 {
                                     c.Add().DataField("NamaPE");
-                                    c.Add().DataField("TanggalHSO(T0)");
+                                    c.Add().DataField("TanggalHSOT0").Caption("Tanggal HSO (T0)");
                                     c.Add().DataField("HSO").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
                                 })
                                 .DataSource(d => d.Mvc().Controller("MendeteksiHutangSubordinasi").LoadAction("getGrid1").LoadMethod("Get").LoadParams(new
