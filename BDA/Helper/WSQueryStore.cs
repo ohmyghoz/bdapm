@@ -5501,7 +5501,19 @@ namespace BDA.Helper
         }
         public static WSQueryReturns GetBDAPMNamaPE(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, bool isHive = false)
         {
+            var filter = (dynamic)null;
+            filter = loadOptions.Filter;
+            if (loadOptions.Filter != null)
+            {
+                filter = filter[0][2];
+                filter = "AND exchangemembername LIKE '%" + filter + "%'";
+            }
+            else
+            {
+                filter = "";
+            }
             bool isC = false;
+            var whereQuery = "1=1 AND currentstatus='A' " + filter + "";
 
             var props = new WSQueryProperties();
             if (isHive == true)
@@ -5509,7 +5521,8 @@ namespace BDA.Helper
                 if (tableName == "dim_exchange_members")
                 {
                     props.Query = @"
-                        SELECT exchangemembercode,exchangemembername from pasarmodal." + tableName + @" where currentstatus='A'";
+                        SELECT exchangemembercode,exchangemembername,currentstatus from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @"";
                 }
             }
             else
@@ -5517,11 +5530,12 @@ namespace BDA.Helper
                 if (tableName == "dim_exchange_members")
                 {
                     props.Query = @"
-                        SELECT exchangemembercode,exchangemembername from pasarmodal." + tableName + @" where currentstatus='A'";
+                        SELECT exchangemembercode,exchangemembername,currentstatus from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @"";
                 }
             }
 
-            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+            return WSQueryHelper.DoQueryNL(db, props, isC, isHive);
         }
         public static WSQueryReturns GetBDAPMSID(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, bool isHive = false)
         {
