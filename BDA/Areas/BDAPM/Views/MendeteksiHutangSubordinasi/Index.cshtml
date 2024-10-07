@@ -272,8 +272,8 @@
             periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
         }
 
-        ajaxOptions.data.periodeAwal = periodeAwal;
-        ajaxOptions.data.namaPE = namaPE;
+        ajaxOptions.data.periode = periodeAwal;
+        ajaxOptions.data.pe = namaPE;
     }
 
     var waitingDialog = (function ($) {
