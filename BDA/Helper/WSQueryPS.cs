@@ -212,5 +212,55 @@ namespace BDA.Helper
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
         }
 
+        public static WSQueryReturns GetBDAPMPembiayaanVSJaminanSahamER(DataEntities db, DataSourceLoadOptions loadOptions, string periodes, string stringPE)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+
+            if (periodes != null)
+            {
+                periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND periode in (" + periodes.Replace("-", "") + ")";
+            }
+
+            if (stringPE != null)
+            {
+                stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND securitycompanycode in (" + stringPE + ")";
+            }
+            var props = new WSQueryProperties();
+
+            props.Query = @"
+                    select sellername as LawanTransaksi, buyingdate as BuyingData, sum(cast(buyingamount as bigint)) as ReverseRepo from pasarmodal.pe_segmentation_hutang_subordinasi_det
+                    WHERE " + whereQuery + @" group by sellername, buyingdate";
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
+        }
+
+        public static WSQueryReturns GetBDAPMPembiayaanVSJaminanSahamJM(DataEntities db, DataSourceLoadOptions loadOptions, string periodes, string stringPE)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+
+            if (periodes != null)
+            {
+                periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND periode in (" + periodes.Replace("-", "") + ")";
+            }
+
+            if (stringPE != null)
+            {
+                stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND securitycompanycode in (" + stringPE + ")";
+            }
+            var props = new WSQueryProperties();
+
+            props.Query = @"
+                    select sellername as LawanTransaksi, buyingdate as BuyingData, sum(cast(buyingamount as bigint)) as ReverseRepo from pasarmodal.pe_segmentation_hutang_subordinasi_det
+                    WHERE " + whereQuery + @" group by sellername, buyingdate";
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
+        }
+
     }
 }

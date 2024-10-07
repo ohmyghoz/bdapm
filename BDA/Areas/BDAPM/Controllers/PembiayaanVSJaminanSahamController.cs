@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Data.SqlClient;
 using static System.Net.Mime.MediaTypeNames;
+using static BDA.Controllers.GeospasialInvestorController;
 
 namespace BDA.Controllers
 {
@@ -58,29 +59,50 @@ namespace BDA.Controllers
 
             return View();
         }
-        public object GetGridData(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE, string status)
+
+        [HttpGet]
+        public object getGridNilaiPembiayaanRR(DataSourceLoadOptions loadOptions, string periode, string pe)
+        {
+            var ret = new List<DefaultList>();
+            ret.Add(new DefaultList { text = "reverse repo Surat berharga negara", value = "Formulir 5d51 baris 25"});
+            ret.Add(new DefaultList { text = "reverse repo Obligasi/Sukuk Korporasi", value = "Formulir 5d51 baris 26" });
+            ret.Add(new DefaultList { text = "reverse repo Efek bersifat equitas", value = "Formulir 5d51 baris 27" });
+
+            return DataSourceLoader.Load(ret, loadOptions);
+        }
+
+        [HttpGet]
+        public object getGridNilaiPembiayaanM(DataSourceLoadOptions loadOptions, string periode, string pe)
+        {
+            var ret = new List<DefaultList>();
+            ret.Add(new DefaultList { text = "Nilai Pembiayaan Margin", value = "Formulir 5d51 baris 35" });
+
+            return DataSourceLoader.Load(ret, loadOptions);
+        }
+
+        [HttpGet]
+        public object getGridEfekRepo(DataSourceLoadOptions loadOptions, string periode, string pe)
         {
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
             TempData.Clear(); //membersihkan data filtering
-            string[] NamaPE = JsonConvert.DeserializeObject<string[]>(namaPE);
-
             string stringPeriodeAwal = null;
-            string stringPE = null;
-            string stringStatus = null;
-            string reportId = "pe_segmentation_sum_cluster_mkbd"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+            string stringNamaPE = null;
 
-            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
-
-            if (periodeAwal != null)
+            if (periode != null)
             {
-                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
+                stringPeriodeAwal = Convert.ToDateTime(periode).ToString("yyyy-MM-dd");
                 TempData["pawal"] = stringPeriodeAwal;
+            }
+            if (pe != null)
+            {
+                stringNamaPE = pe;
+                TempData["pe"] = stringNamaPE;
             }
 
             db.Database.CommandTimeout = 420;
-            if (periodeAwal.Length > 0) //jika ada parameter nya
+            if (periode.Length > 0) //jika ada parameter nya
             {
-                var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQuery(db, loadOptions, reportId, stringPeriodeAwal, stringPE, stringStatus, cekHive);
+                var result = Helper.WSQueryPS.GetBDAPMPembiayaanVSJaminanSahamER(db, loadOptions, stringPeriodeAwal, stringNamaPE);
                 return JsonConvert.SerializeObject(result);
             }
             else
@@ -89,6 +111,39 @@ namespace BDA.Controllers
             }
             return DataSourceLoader.Load(new List<string>(), loadOptions);
         }
+
+        [HttpGet]
+        public object getGridJaminanMargin(DataSourceLoadOptions loadOptions, string periode, string pe)
+        {
+            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+            TempData.Clear(); //membersihkan data filtering
+            string stringPeriodeAwal = null;
+            string stringNamaPE = null;
+
+            if (periode != null)
+            {
+                stringPeriodeAwal = Convert.ToDateTime(periode).ToString("yyyy-MM-dd");
+                TempData["pawal"] = stringPeriodeAwal;
+            }
+            if (pe != null)
+            {
+                stringNamaPE = pe;
+                TempData["pe"] = stringNamaPE;
+            }
+
+            db.Database.CommandTimeout = 420;
+            if (periode.Length > 0) //jika ada parameter nya
+            {
+                var result = Helper.WSQueryPS.GetBDAPMPembiayaanVSJaminanSahamJM(db, loadOptions, stringPeriodeAwal, stringNamaPE);
+                return JsonConvert.SerializeObject(result);
+            }
+            else
+            {
+                loadOptions = new DataSourceLoadOptions();
+            }
+            return DataSourceLoader.Load(new List<string>(), loadOptions);
+        }
+
         [HttpPost]
         public ActionResult SimpanPenggunaanData(string id)
         {
@@ -163,6 +218,13 @@ namespace BDA.Controllers
             public string value { get; set; }
             public string text { get; set; }
         }
+
+        public class DefaultList
+        {
+            public string value { get; set; }
+            public string text { get; set; }
+        }
+
         [HttpPost]
         public IActionResult LogExportIndex()
         {

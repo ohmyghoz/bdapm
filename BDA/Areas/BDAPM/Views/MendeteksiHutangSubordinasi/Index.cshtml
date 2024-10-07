@@ -96,11 +96,7 @@
                                     c.Add().DataField("TanggalHSOT0").Caption("Tanggal HSO (T0)");
                                     c.Add().DataField("HSO").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
                                 })
-                                .DataSource(d => d.Mvc().Controller("MendeteksiHutangSubordinasi").LoadAction("getGrid1").LoadMethod("Get").LoadParams(new
-                                {
-                                    periode = new JS("function() { return $(\"#PeriodeAwal\").dxDateBox(\"instance\").option(\"value\");}"),
-                                    pe = new JS("function() { return $(\"#namaPEid\").dxSelectBox(\"instance\").option(\"value\");}")
-                                }))
+                                .DataSource(d => d.Mvc().Controller("MendeteksiHutangSubordinasi").LoadAction("getGrid1").OnBeforeSend("onGridBeforeSend"))
                                 .ShowRowLines(true)
                                 )
                         </div>
@@ -136,11 +132,7 @@
                                     c.Add().DataField("BuyingDate");
                                     c.Add().DataField("ReverseRepo").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
                                 })
-                                .DataSource(d => d.Mvc().Controller("MendeteksiHutangSubordinasi").LoadAction("getGrid2").LoadMethod("Get").LoadParams(new
-                                {
-                                    periode = new JS("function() { return $(\"#PeriodeAwal\").dxDateBox(\"instance\").option(\"value\");}"),
-                                    pe = new JS("function() { return $(\"#namaPEid\").dxSelectBox(\"instance\").option(\"value\");}")
-                                }))
+                                .DataSource(d => d.Mvc().Controller("MendeteksiHutangSubordinasi").LoadAction("getGrid2").OnBeforeSend("onGridBeforeSend"))
                                 .ShowRowLines(true)
                                 )
                         </div>
@@ -272,17 +264,16 @@
     }
 
     function onGridBeforeSend(method, ajaxOptions) {
-        let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
         let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
-        let status = $("#Statusid").dxTagBox("instance").option("value");
-
+        let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
+        
         let periodeAwal = null;
         if (tempPeriodeAwal != null) {
-            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + (tempPeriodeAwal.getMonth() + 1) + '-' + tempPeriodeAwal.getDate();
+            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
         }
-        ajaxOptions.data.namaPE = JSON.stringify(namaPE);
+
         ajaxOptions.data.periodeAwal = periodeAwal;
-        ajaxOptions.data.status = JSON.stringify(status);
+        ajaxOptions.data.namaPE = namaPE;
     }
 
     var waitingDialog = (function ($) {

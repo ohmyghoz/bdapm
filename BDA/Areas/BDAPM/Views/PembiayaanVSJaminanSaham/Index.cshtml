@@ -85,7 +85,7 @@
                                     c.Add().DataField("Akun");
                                     c.Add().DataField("Nilai");
                                 })
-                                .DataSource(d => d.StaticJson().Url("~/js/sampleNilaiPembiayaanRR.json").Key("ID"))
+                                .DataSource(d => d.Mvc().Controller("PembiayaanVSJaminanSaham").LoadAction("getGridNilaiPembiayaanRR").OnBeforeSend("onGridBeforeSend"))
                                 .ShowColumnHeaders(false)
                                 .ShowRowLines(true)
                                 )
@@ -114,7 +114,7 @@
                                     c.Add().DataField("Akun");
                                     c.Add().DataField("Nilai");
                                 })
-                                .DataSource(d => d.StaticJson().Url("~/js/sampleNilaiPembiayaanM.json").Key("ID"))
+                                .DataSource(d => d.Mvc().Controller("PembiayaanVSJaminanSaham").LoadAction("getGridNilaiPembiayaanM").OnBeforeSend("onGridBeforeSend"))
                                 .ShowColumnHeaders(false)
                                 .ShowRowLines(true)
                                 )
@@ -160,7 +160,7 @@
                                     c.Add().DataField("Volume").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
                                     c.Add().DataField("Value").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
                                 })
-                                .DataSource(d => d.StaticJson().Url("~/js/sampleEfekRepo.json").Key("ID"))
+                                .DataSource(d => d.Mvc().Controller("PembiayaanVSJaminanSaham").LoadAction("getGridEfekRepo").OnBeforeSend("onGridBeforeSend"))
                                 .ShowRowLines(true)
                                 )
                         </div>
@@ -203,7 +203,7 @@
                                     c.Add().DataField("Volume").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
                                     c.Add().DataField("Value").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
                                 })
-                                .DataSource(d => d.StaticJson().Url("~/js/sampleJaminanMargin.json").Key("ID"))
+                                .DataSource(d => d.Mvc().Controller("PembiayaanVSJaminanSaham").LoadAction("getGridJaminanMargin").OnBeforeSend("onGridBeforeSend"))
                                 .ShowRowLines(true)
                                 )
                         </div>

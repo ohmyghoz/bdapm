@@ -62,7 +62,7 @@ namespace BDA.Controllers
         }
 
         [HttpGet]
-        public object GetGrid1(DataSourceLoadOptions loadOptions, string periode, string pe)
+        public object getGrid1(DataSourceLoadOptions loadOptions, string periode, string pe)
         {
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
             TempData.Clear(); //membersihkan data filtering
@@ -94,7 +94,7 @@ namespace BDA.Controllers
         }
 
         [HttpGet]
-        public object GetGrid2(DataSourceLoadOptions loadOptions, string periode, string pe)
+        public object getGrid2(DataSourceLoadOptions loadOptions, string periode, string pe)
         {
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
             TempData.Clear(); //membersihkan data filtering
