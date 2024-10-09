@@ -155,7 +155,7 @@ namespace BDA.Controllers
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
             var currentNode = mdl.GetCurrentNode();
             string pageTitle = currentNode != null ? currentNode.Title : "";
-            db.InsertAuditTrail("SegmentationSummaryClusterMKBD_Akses_Page", "user " + userId + " mengakases halaman Segmentation Summary Cluster MKBD untuk digunakan sebagai " + Penggunaan_Data + "", pageTitle);
+            db.InsertAuditTrail("PembiayaanVSJaminanSaham_Akses_Page", "user " + userId + " mengakases halaman Segmentation Summary Cluster MKBD untuk digunakan sebagai " + Penggunaan_Data + "", pageTitle);
 
             try
             {
@@ -444,134 +444,6 @@ namespace BDA.Controllers
             return DataSourceLoader.Load(new List<string>(), loadOptions);
         }
 
-        //-----------------------------detail-----------------------------------//
-        public IActionResult Detail(long? id)
-        {
-            var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
-            var currentNode = mdl.GetCurrentNode();
-            string pageTitle = currentNode != null ? currentNode.Title : "Detil Cluster MKBD";
-
-            db.CheckPermission("Detil Cluster MKBD View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-            ViewBag.Export = db.CheckPermission("Detil Cluster MKBD Export", DataEntities.PermissionMessageType.NoMessage);
-            db.InsertAuditTrail("AksesPageDetilCluster_Akses_Page", "Akses Page Detil Cluster MKBD", pageTitle);
-
-            //if (id == null) return BadRequest(); //cek id itu menngarah ke mana
-
-            if (id == null) {
-                id = 1;
-            }
-
-            var obj = (dynamic)null;
-            //var obj = db.BDA_F01_MaxMinOverdue.Find(id);
-            //if (obj == null) return NotFound();
-
-            return View(obj);
-        }
-        //-----------------------------detail-----------------------------------//
-
-        //-----------------------------Rincian Portofolio-----------------------------------//
-        public IActionResult RincianPortofolio(long? id)
-        {
-            var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
-            var currentNode = mdl.GetCurrentNode();
-            string pageTitle = currentNode != null ? currentNode.Title : "Rincian Portofolio";
-
-            db.CheckPermission("Rincian Portofolio View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-            ViewBag.Export = db.CheckPermission("Rincian Portofolio Export", DataEntities.PermissionMessageType.NoMessage);
-            db.InsertAuditTrail("RincianPortofolio_Akses_Page", "Akses Page Rincian Portofolio", pageTitle);
-
-            //if (id == null) return BadRequest();
-
-            if (id == null)
-            {
-                id = 1;
-            }
-
-            var obj = (dynamic)null;
-            //var obj = db.BDA_F01_MaxMinOverdue.Find(id);
-            //if (obj == null) return NotFound();
-
-            return View(obj);
-        }
-        //-----------------------------Rincian Portofolio-----------------------------------//
-
-        //-----------------------------Reksadana-----------------------------------//
-        public IActionResult Reksadana(long? id)
-        {
-            var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
-            var currentNode = mdl.GetCurrentNode();
-            string pageTitle = currentNode != null ? currentNode.Title : "Reksadana";
-
-            db.CheckPermission("Reksadana View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-            ViewBag.Export = db.CheckPermission("Reksadana Export", DataEntities.PermissionMessageType.NoMessage);
-            db.InsertAuditTrail("Reksadana_Akses_Page", "Akses Page Reksadana", pageTitle);
-
-            //if (id == null) return BadRequest();
-
-            if (id == null)
-            {
-                id = 1;
-            }
-
-            var obj = (dynamic)null;
-            //var obj = db.BDA_F01_MaxMinOverdue.Find(id);
-            //if (obj == null) return NotFound();
-
-            return View(obj);
-        }
-        //-----------------------------Reksadana-----------------------------------//
-
-        //-----------------------------JaminanMargin-----------------------------------//
-        public IActionResult JaminanMargin(long? id)
-        {
-            var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
-            var currentNode = mdl.GetCurrentNode();
-            string pageTitle = currentNode != null ? currentNode.Title : "Jaminan Margin";
-
-            db.CheckPermission("Jaminan Margin View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-            ViewBag.Export = db.CheckPermission("Jaminan Margin Export", DataEntities.PermissionMessageType.NoMessage);
-            db.InsertAuditTrail("Jaminan_Margin_Akses_Page", "Akses Page Jaminan Margin", pageTitle);
-
-            //if (id == null) return BadRequest();
-
-            if (id == null)
-            {
-                id = 1;
-            }
-
-            var obj = (dynamic)null;
-            //var obj = db.BDA_F01_MaxMinOverdue.Find(id);
-            //if (obj == null) return NotFound();
-
-            return View(obj);
-        }
-        //-----------------------------JaminanMargin-----------------------------------//
-
-
-        //-----------------------------ReverseRepo-----------------------------------//
-        public IActionResult ReverseRepo(long? id)
-        {
-            var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
-            var currentNode = mdl.GetCurrentNode();
-            string pageTitle = currentNode != null ? currentNode.Title : "Jaminan Margin";
-
-            db.CheckPermission("Reverse Repo View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-            ViewBag.Export = db.CheckPermission("Reverse Repo Export", DataEntities.PermissionMessageType.NoMessage);
-            db.InsertAuditTrail("Reverse_Repo_Akses_Page", "Akses Page Reverse Repo", pageTitle);
-
-            //if (id == null) return BadRequest();
-
-            if (id == null)
-            {
-                id = 1;
-            }
-
-            var obj = (dynamic)null;
-            //var obj = db.BDA_F01_MaxMinOverdue.Find(id);
-            //if (obj == null) return NotFound();
-
-            return View(obj);
-        }
-        //-----------------------------ReverseRepo-----------------------------------//
+        
     }
 }
