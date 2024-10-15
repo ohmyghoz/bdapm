@@ -160,7 +160,7 @@
                                     .ID("penggunaandataid")
                                     .DataSource(d => d.Mvc()
                                     .Controller("PenggunaanData")
-                                    .Area("Website")
+                                    .Area("BDAPM")
                                     .LoadAction("GetPenggunaanData")
                                     .Key("value"))
                                     .ValueExpr("value")
@@ -228,7 +228,7 @@
             return false;
         } else {
             $.ajax({
-                url: '@Url.Action("SimpanPenggunaanData", "SegmentationSummaryClusterMKBD")',
+                url: '@Url.Action("SimpanPenggunaanData", "endeteksiHutangSubordinasi")',
                 data: { id: penggunaandataid },
                 dataType: "json",
                 type: "POST",
@@ -259,7 +259,8 @@
     function onButtonFilterClicked(e) {
         const res = e.validationGroup.validate();
         if (res.status === "valid") {
-            $("#grid1").dxDataGrid("instance").refresh();
+            $("#gridContainer").dxDataGrid("instance").refresh();
+            $("#gridContainer2").dxDataGrid("instance").refresh();
         }
     }
 

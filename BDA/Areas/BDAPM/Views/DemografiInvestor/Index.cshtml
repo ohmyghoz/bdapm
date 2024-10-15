@@ -14,13 +14,14 @@
 @using (Html.BeginForm())
 {
     @Html.AntiForgeryToken()
+    <input type="hidden" id="totalValueTraded" value=@(ViewBag.totalValueTraded) />
 
     <div class="card card-default">
         @*filter*@
         <div class="row filter-panel" style="padding-top:0px;">
             <div class="card-body">
                 <div class="row">
-                    <div class="col-lg-4 form-group">
+                    <div class="col-lg-3 form-group">
                         <label>Tanggal<span class="mandatory">*</span></label>
                         @(Html.DevExtreme().DateBox()
                             .ID("PeriodeAwal")
@@ -30,14 +31,46 @@
                             .Width("100%"))
                     </div>
 
-                    <div class="col-lg-4 form-group">
+                    <div class="col-lg-3 form-group">
                         <label>Nama PE</label>
                         @(Html.DevExtreme().SelectBox()
                             .ID("namaPEid")
                             .DataSource(d => d.Mvc()
-                            .Controller("PembiayaanVSJaminanSaham")
+                            .Controller("DemografiInvestor")
                             .Area("BDAPM")
                             .LoadAction("GetNamaPE")
+                            .Key("value"))
+                            .ValueExpr("value")
+                            .DisplayExpr("text")
+                            .SearchEnabled(true)
+                            .Width("100%")
+                            )
+                    </div>
+
+                    <div class="col-lg-3 form-group">
+                        <label>Origin</label>
+                        @(Html.DevExtreme().SelectBox()
+                            .ID("originList")
+                            .DataSource(d => d.Mvc()
+                            .Controller("DemografiInvestor")
+                            .Area("BDAPM")
+                            .LoadAction("GetOrigin")
+                            .Key("value"))
+                            .ValueExpr("value")
+                            .DisplayExpr("text")
+                            .SearchEnabled(true)
+                            .Width("100%")
+                            )
+                    </div>
+
+                    <div class="col-lg-3 form-group">
+                        <label>Tipe Investor</label>
+                        @(Html.DevExtreme().SelectBox()
+                            .ID("tipeInvestorList")
+                            .DataSource(d => d.Mvc()
+                            .Controller("DemografiInvestor")
+                            .Area("BDAPM")
+                            .LoadAction("GetTipeInvestor")
                             .Key("value"))
                             .ValueExpr("value")
                             .DisplayExpr("text")
@@ -72,22 +105,18 @@
                             .Title("Gender Investor")
                             .Palette(VizPalette.Office)
                             .CommonSeriesSettings(s => s
-                                .ArgumentField("Gender")
-                                .ValueField("Total")
+                                .ArgumentField("gender")
+                                .ValueField("total")
                                 .Type(SeriesType.Bar)
                                 .IgnoreEmptyPoints(true)
                                 .Label(l => l.CustomizeText(@<text>
                                                                 function () {
-                                                                    return thousandSeparatorDecimal(parseFloat(this.valueText)) + "<br>(" + thousandSeparatorDecimal2((this.valueText/@(ViewBag.totalValueTraded??1))*100) + "%)";
+                                                                    return thousandSeparatorDecimal(parseFloat(this.valueText)) + "<br>(" + thousandSeparatorDecimal2((this.valueText/($("#totalValueTraded").val()??1))*100) + "%)";
                                                                 }
                                                             </text>).Visible(true).Connector(c => c.Visible(true)).Position(RelativePosition.Outside))
                             )
-                            .SeriesTemplate(t => t.NameField("Gender"))
-                            .DataSource(new[]
-                            {
-                                new { Gender = "Male", Total = 100000000},
-                                new { Gender = "Female", Total = 30000000}
-                            })
+                            .SeriesTemplate(t => t.NameField("gender"))
+                            .DataSource(d => d.Mvc().Controller("DemografiInvestor").LoadAction("getCHartGender").OnBeforeSend("onGridBeforeSend"))
                             .Legend(l => l.Visible(false).VerticalAlignment(VerticalEdge.Top).HorizontalAlignment(HorizontalAlignment.Center))
                             )
                     </div>
@@ -99,18 +128,18 @@
                             .Palette(VizPalette.Vintage)
                             .Rotated(true)
                             .CommonSeriesSettings(s => s
-                                .ArgumentField("AgeRange")
-                                .ValueField("Total")
+                                .ArgumentField("ageRange")
+                                .ValueField("total")
                                 .Type(SeriesType.Bar)
                                 .IgnoreEmptyPoints(true)
                                 .Label(l => l.CustomizeText(@<text>
                                                                 function () {
-                                                                    return thousandSeparatorDecimal(parseFloat(this.valueText)) + "<br>(" + thousandSeparatorDecimal2((this.valueText/@(ViewBag.totalValueTraded??1))*100) + "%)";
+                                                                    return thousandSeparatorDecimal(parseFloat(this.valueText)) + "<br>(" + thousandSeparatorDecimal2((this.valueText/($("#totalValueTraded").val()??1))*100) + "%)";
                                                                 }
                                                             </text>).Visible(true).Connector(c => c.Visible(true)).Position(RelativePosition.Outside))
                             )
-                            .SeriesTemplate(t => t.NameField("AgeRange"))
-                            .DataSource((System.Collections.IEnumerable)ViewBag.objDU)
+                            .SeriesTemplate(t => t.NameField("ageRange"))
+                            .DataSource(d => d.Mvc().Controller("DemografiInvestor").LoadAction("getCHartUsia").OnBeforeSend("onGridBeforeSend"))
                             .Legend(l => l.Visible(false).VerticalAlignment(VerticalEdge.Top).HorizontalAlignment(HorizontalAlignment.Center))
                             .ValueAxis(a => a.Add().Title("Total Value Traded"))
                             )
@@ -123,18 +152,18 @@
                             .Palette(VizPalette.Soft)
                             .Rotated(true)
                             .CommonSeriesSettings(s => s
-                            .ArgumentField("Pendidikan")
-                            .ValueField("Total")
+                            .ArgumentField("pendidikan")
+                            .ValueField("total")
                             .Type(SeriesType.Bar)
                             .IgnoreEmptyPoints(true)
                             .Label(l => l.CustomizeText(@<text>
                                                             function () {
-                                                                return thousandSeparatorDecimal(parseFloat(this.valueText)) + "<br>(" + thousandSeparatorDecimal2((this.valueText/@(ViewBag.totalValueTraded??1))*100) + "%)";
+                                                                return thousandSeparatorDecimal(parseFloat(this.valueText)) + "<br>(" + thousandSeparatorDecimal2((this.valueText/($("#totalValueTraded").val()??1))*100) + "%)";
                                                             }
                                                         </text>).Visible(true).Connector(c => c.Visible(true)).Position(RelativePosition.Outside))
                             )
-                            .SeriesTemplate(t => t.NameField("Pendidikan"))
-                            .DataSource((System.Collections.IEnumerable)ViewBag.objDP)
+                            .SeriesTemplate(t => t.NameField("pendidikan"))
+                            .DataSource(d => d.Mvc().Controller("DemografiInvestor").LoadAction("getChartPendidikan").OnBeforeSend("onGridBeforeSend"))
                             .Legend(l => l.Visible(false).VerticalAlignment(VerticalEdge.Top).HorizontalAlignment(HorizontalAlignment.Center))
                             .ValueAxis(a => a.Add().Title("Total Value Traded"))
                             )
@@ -152,8 +181,8 @@
                             .InnerRadius(0.65)
                             .Series(s => s
                                 .Add()
-                                .ArgumentField("Occupation")
-                                .ValueField("Total")
+                                .ArgumentField("occupation")
+                                .ValueField("total")
                                 .Label(l=>l.Visible(true)
                                     .Connector(c=>c.Visible(true))
                                     .BackgroundColor("none")
@@ -167,11 +196,11 @@
                             .CenterTemplate(@<text> <svg>
                                                     <text text-anchor="middle" style="font-size: 12px" x="100" y="120" fill="#494949">
                                                         <tspan id="centerPieLbl" x="100" dy="20px" style="font-weight: 600">
-                                                            <script>document.getElementById("centerPieLbl").textContent = thousandSeparatorDecimal(@(ViewBag.totalValueTraded));</script>
+                                                            <script>document.getElementById("centerPieLbl").textContent = thousandSeparatorDecimal(($("#totalValueTraded").val()));</script>
                                                         </tspan>   
                                                     </text></svg>
                                             </text>)
-                            .DataSource((System.Collections.IEnumerable)ViewBag.objDPe))
+                            .DataSource(d => d.Mvc().Controller("DemografiInvestor").LoadAction("getChartPekerjaan").OnBeforeSend("onGridBeforeSend")))
                     </div>
                     <div class="col-lg-4 form-group" style="padding-right:25px;padding-left:0px">
                         @(
@@ -181,18 +210,18 @@
                             .Palette(VizPalette.Vintage)
                             .Rotated(true)
                             .CommonSeriesSettings(s => s
-                            .ArgumentField("Occupation")
-                            .ValueField("Total")
+                            .ArgumentField("occupation")
+                            .ValueField("total")
                             .Type(SeriesType.Bar)
                             .IgnoreEmptyPoints(true)
                             .Label(l => l.CustomizeText(@<text>
                                         function () {
-                                        return thousandSeparatorDecimal(parseFloat(this.valueText)) + "<br>(" + thousandSeparatorDecimal2((this.valueText/@(ViewBag.totalValueTraded??1))*100) + "%)";
+                                            return thousandSeparatorDecimal(parseFloat(this.valueText)) + "<br>(" + thousandSeparatorDecimal2((this.valueText/($("#totalValueTraded").val()??1))*100) + "%)";
                                         }
                                     </text>).Visible(true).Connector(c => c.Visible(true)).Position(RelativePosition.Outside))
                             )
-                            .SeriesTemplate(t => t.NameField("Occupation"))
-                            .DataSource((System.Collections.IEnumerable)ViewBag.objDPe)
+                            .SeriesTemplate(t => t.NameField("occupation"))
+                            .DataSource(d => d.Mvc().Controller("DemografiInvestor").LoadAction("getChartPekerjaan").OnBeforeSend("onGridBeforeSend"))
                             .Legend(l => l.Visible(false).VerticalAlignment(VerticalEdge.Top).HorizontalAlignment(HorizontalAlignment.Center))
                             .ValueAxis(a => a.Add().Title("Total Value Traded"))
                             )
@@ -202,9 +231,7 @@
                         Html.DevExtreme().TreeMap()
                             .ID("ChartPenghasilan")
                             .Title("Penghasilan")
-                            .DataSource(new[] { new {
-                                total = ViewBag.totalValueTraded, items = (System.Collections.IEnumerable)ViewBag.objDPeng
-                            }})
+                            .DataSource(d => d.Mvc().Controller("DemografiInvestor").LoadAction("getChartPenghasilan").OnBeforeSend("onGridBeforeSend"))
                             .LayoutAlgorithm(TreeMapLayoutAlgorithm.Squarified)
                             .Colorizer(c => c.Type(TreeMapColorizerType.Gradient).Range(new double[] { 10000000, 40000000 }).Palette(new[] { "#FFE5E5", "#800000" }).ColorizeGroups(false))
                             )
@@ -332,22 +359,65 @@
     function onButtonFilterClicked(e) {
         const res = e.validationGroup.validate();
         if (res.status === "valid") {
-            $("#grid1").dxDataGrid("instance").refresh();
+            let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
+            let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");  
+            let origin = $("#origin").dxSelectBox("instance").option("value");
+            let tipeInvestor = $("#tipeInvestor").dxSelectBox("instance").option("value");
+
+            $.ajax({
+                url: '@Url.Action("getTotalValueTraded", "DemograviInvestor")',
+                data: { pe: namaPE, periode: tempPeriodeAwal, origin: origin, tipeInvestor: tipeInvestor },
+                dataType: "json",
+                type: "GET",
+                success: function (data) {
+                    if (data.success == true) {
+                        $("#totalValueTraded").val(data.total);
+                        
+                        var chart1 = $("#ChartGender").dxChart("instance");
+                        var ds1 = chart1.option('dataSource');
+                        chart1.option('dataSource', ds1);
+                        
+                        var chart2 = $("#ChartUsia").dxChart("instance");
+                        var ds2 = chart2.option('dataSource');
+                        chart2.option('dataSource', ds2);
+
+                        var chart3 = $("#ChartPendidikan").dxChart("instance");
+                        var ds3 = chart3.option('dataSource');
+                        chart3.option('dataSource', ds3);
+
+                        var chart4 = $("#ChartPekerjaanPie").dxPieChart("instance");
+                        var ds4 = chart4.option('dataSource');
+                        chart4.option('dataSource', ds4);
+
+                        var chart5 = $("#ChartPekerjaanBar").dxChart("instance");
+                        var ds5 = chart5.option('dataSource');
+                        chart5.option('dataSource', ds5);
+
+                        var chart6 = $("#ChartPenghasilan").dxTreeMap("instance");
+                        var ds6 = chart6.option('dataSource');
+                        chart6.option('dataSource', ds6);
+
+                        return "Success !";
+                    }
+                    else if (data.success == false) {
+                        alert(data.message);
+                        return "Failed !";
+                    }
+                }
+            });
         }
     }
 
     function onGridBeforeSend(method, ajaxOptions) {
         let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
         let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
-        let status = $("#Statusid").dxTagBox("instance").option("value");
 
         let periodeAwal = null;
         if (tempPeriodeAwal != null) {
             periodeAwal = tempPeriodeAwal.getFullYear() + '-' + (tempPeriodeAwal.getMonth() + 1) + '-' + tempPeriodeAwal.getDate();
         }
-        ajaxOptions.data.namaPE = JSON.stringify(namaPE);
-        ajaxOptions.data.periodeAwal = periodeAwal;
-        ajaxOptions.data.status = JSON.stringify(status);
+        ajaxOptions.data.pe = JSON.stringify(namaPE);
+        ajaxOptions.data.periode = periodeAwal;
     }
 
     var waitingDialog = (function ($) {

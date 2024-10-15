@@ -233,7 +233,7 @@
                             .ID("penggunaandataid")
                             .DataSource(d => d.Mvc()
                             .Controller("PenggunaanData")
-                            .Area("Website")
+                            .Area("BDAPM")
                             .LoadAction("GetPenggunaanData")
                             .Key("value"))
                             .ValueExpr("value")
@@ -300,7 +300,7 @@
             return false;
         } else {
             $.ajax({
-                url: '@Url.Action("SimpanPenggunaanData", "SegmentationSummaryClusterMKBD")',
+                url: '@Url.Action("SimpanPenggunaanData", "PembiayaanVSJaminanSaham")',
                 data: { id: penggunaandataid },
                 dataType: "json",
                 type: "POST",
@@ -331,22 +331,23 @@
     function onButtonFilterClicked(e) {
         const res = e.validationGroup.validate();
         if (res.status === "valid") {
-            $("#grid1").dxDataGrid("instance").refresh();
+            $("#gridNilaiPembiayaanRR").dxDataGrid("instance").refresh();
+            $("#gridNilaiPembiayaanM").dxDataGrid("instance").refresh();
+            $("#gridEfekRepo").dxDataGrid("instance").refresh();
+            $("#gridJaminanMargin").dxDataGrid("instance").refresh();
         }
     }
 
     function onGridBeforeSend(method, ajaxOptions) {
         let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
         let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
-        let status = $("#Statusid").dxTagBox("instance").option("value");
 
         let periodeAwal = null;
         if (tempPeriodeAwal != null) {
             periodeAwal = tempPeriodeAwal.getFullYear() + '-' + (tempPeriodeAwal.getMonth() + 1) + '-' + tempPeriodeAwal.getDate();
         }
-        ajaxOptions.data.namaPE = JSON.stringify(namaPE);
-        ajaxOptions.data.periodeAwal = periodeAwal;
-        ajaxOptions.data.status = JSON.stringify(status);
+        ajaxOptions.data.pe = JSON.stringify(namaPE);
+        ajaxOptions.data.periode = periodeAwal;
     }
 
     var waitingDialog = (function ($) {
