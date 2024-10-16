@@ -46,6 +46,11 @@ namespace BDA.Controllers
         
         }
 
+        public ActionResult AjaxRequest()
+        {
+            return View();
+        }
+
         public ActionResult Index2()
         {
             List<market_driven_rg_ng> marketData = new List<market_driven_rg_ng>();

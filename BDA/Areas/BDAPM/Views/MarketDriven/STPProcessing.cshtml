@@ -1,6 +1,7 @@
 ﻿@using DevExtreme.AspNet.Mvc
 @{
     Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+  
 }
 
 @inject BDA.DataModel.DataEntities db
@@ -70,57 +71,188 @@
             </div> *@
             </div>
         </div>
-        <div class="row">
-        </div>
+       
         <br />
         @*grid*@
-        <div class="gridview-div">
-            @(Html.DevExtreme().DataGrid()
-                .ID("grid1")
-                .DataSource(d => d.Mvc()
-                .Controller("SegmentationSummaryClusterMKBD")
-                .LoadAction("GetGridData")
-                .Key("rowid")
-                .OnBeforeSend("onGridBeforeSend"))
-                .RemoteOperations(true)
-                .Width("100%")
-                .AllowColumnResizing(true)
-                .ColumnAutoWidth(true)
-                .Columns(columns =>
-                {
-                    columns.Add().DataField("rowid").Visible(false);
-                    columns.Add().DataField("securitycompanycode").Caption("Kode PE");
-                    columns.Add().DataField("securitycompanyname").Caption("Nama PE");
-                    columns.Add().DataField("simpanangiro").Caption("Simpanan Giro");
-
-                    columns.Add().DataField("cluster").Caption("Deposito < 3 Bulan");
-                    columns.Add().DataField("depositolt3bulan").Caption("Deposito > 3 Bulan");
-                    columns.Add().DataField("depositogt3bulandijaminlps").Caption("Deposito > 3 Bulan Dijamin LPS");
-                    columns.Add().DataField("uangjaminanlkp").Caption("Uang Jaminan LKP").Format("#,##0");
-                    columns.Add().DataField("kasdansetarakas").Caption("Kas dan Setara Kas(Simpanan Giro + Deposito < 3 Bulan + Uang Jaminan LKP)").Format("#,##0");
-                    columns.Add().DataField("mkbd").Caption("MKBD").Format("#,##0");
-                    columns.Add().DataField("mkbdminimum").Caption("MKBD Minimum").Format("#,##0");
-                    columns.Add().DataField("mkbdpermkbdminimum").Caption("MKBD Terhadap MKBD Minimum");
-                    columns.Add().Type(GridCommandColumnType.Buttons).Caption("Action").Buttons(b =>
-                    {
-                        b.Add()
-                    .Hint("Detail")
-                    .Icon("detailslayout")
-                    .OnClick("Detail");
-                    });
-                })
-                .FilterRow(f => f.Visible(true))
-                .ShowBorders(false)
-                .Paging(p =>
-                {
-                    p.PageSize(20);
-                    p.Enabled(true);
-                })
-                .Pager(p =>
-                {
-                    p.ShowInfo(true);
-                }))
+        <div class="row filter-panel" style="padding-top:0px;"> 
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
+                        <div class="row" style="padding-bottom:12.5px">
+                            <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                            <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                        </div>
+                        <div class="row">
+                            <h4 class="headerTable">Balance</h4>
+                        </div>
+                        <div class="row">
+                            @(Html.DevExtreme().DataGrid()
+                                .ID("grid1")
+                                .DataSource(new[] {
+                                    new { rowid = 1, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00156", efek = "MPPX", subrekefek = "DH001234567", quantity = 1875.50 },
+                                    new { rowid = 2, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00278", efek = "BRIS", subrekefek = "DH009876543", quantity = 3420.75 },
+                                    new { rowid = 3, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00103", efek = "BBCA", subrekefek = "DH005678901", quantity = 4950.25 },
+                                    new { rowid = 4, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00299", efek = "RAJA", subrekefek = "DH003456789", quantity = 2130.00 },
+                                    new { rowid = 5, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00187", efek = "BREN", subrekefek = "DH007890123", quantity = 5275.50 },
+                                    new { rowid = 1, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00156", efek = "MPPX", subrekefek = "DH001234567", quantity = 1875.50 },
+                                    new { rowid = 2, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00278", efek = "BRIS", subrekefek = "DH009876543", quantity = 3420.75 },
+                                    new { rowid = 3, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00103", efek = "BBCA", subrekefek = "DH005678901", quantity = 4950.25 },
+                                    new { rowid = 4, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00299", efek = "RAJA", subrekefek = "DH003456789", quantity = 2130.00 },
+                                    new { rowid = 5, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00187", efek = "BREN", subrekefek = "DH007890123", quantity = 5275.50 },
+                                    new { rowid = 1, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00156", efek = "MPPX", subrekefek = "DH001234567", quantity = 1875.50 },
+                                    new { rowid = 2, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00278", efek = "BRIS", subrekefek = "DH009876543", quantity = 3420.75 },
+                                    new { rowid = 3, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00103", efek = "BBCA", subrekefek = "DH005678901", quantity = 4950.25 },
+                                    new { rowid = 4, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00299", efek = "RAJA", subrekefek = "DH003456789", quantity = 2130.00 },
+                                    new { rowid = 5, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00187", efek = "BREN", subrekefek = "DH007890123", quantity = 5275.50 }
+                                    })
+                                .KeyExpr("rowid")
+                                .RemoteOperations(true)
+                                .Width("100%")
+                                .AllowColumnResizing(true)
+                                .ColumnAutoWidth(true)
+                                .Columns(columns =>
+                                {
+                                    columns.Add().DataField("rowid").Visible(false);
+                                    columns.Add().DataField("date").Caption("Tanggal Balance");
+                                    columns.Add().DataField("sid").Caption("SID");
+                                    columns.Add().DataField("tradingid").Caption("Trading ID");
+                                    columns.Add().DataField("efek").Caption("Efek");
+                                    columns.Add().DataField("subrekefek").Caption("Subrekening Efek");
+                                    columns.Add().DataField("quantity").Caption("Price");
+                                })
+                                .FilterRow(f => f.Visible(true))
+                                .ShowBorders(true)
+                                .Scrolling(s => s.ShowScrollbar(ShowScrollbarMode.Always))
+                                .Paging(p =>
+                                {
+                                    p.PageSize(5);
+                                    p.Enabled(true);
+                                })
+                                .Pager(p =>
+                                {
+                                    p.ShowInfo(true);
+                                }))
+                        </div>
+                    </div>
+                    <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
+                        <div class="row" style="padding-bottom:12.5px">
+                            <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                            <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                        </div>
+                        <div class="row">
+                            <h4 class="headerTable">Settlement</h4>
+                        </div>
+                        <div class="row">
+                            @(Html.DevExtreme().DataGrid()
+                                .ID("grid2")
+                                .DataSource(new[] {
+                        new { rowid = 1, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH001234567" },
+                        new { rowid = 2, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH009876543" },
+                        new { rowid = 3, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH005678901" },
+                        new { rowid = 4, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH003456789" },
+                        new { rowid = 5, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH007890123" },
+                        new { rowid = 6, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH002345678" },
+                        new { rowid = 7, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH008901234" },
+                        new { rowid = 8, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH004567890" },
+                        new { rowid = 9, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH006789012" },
+                        new { rowid = 10, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH000123456" },
+                        new { rowid = 11, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH009012345" },
+                        new { rowid = 12, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH005678901" },
+                        new { rowid = 13, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH001234567" },
+                        new { rowid = 14, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH007890123" },
+                        new { rowid = 15, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH003456789" }
+                        })
+                                .KeyExpr("rowid")
+                                .RemoteOperations(true)
+                                .Width("100%")
+                                .AllowColumnResizing(true)
+                                .ColumnAutoWidth(true)
+                                .Columns(columns =>
+                                {
+                                    columns.Add().DataField("rowid").Visible(false);
+                                    columns.Add().DataField("date").Caption("Tanggal Settlement");
+                                    columns.Add().DataField("date2").Caption("Tanggal Trading");
+                                    columns.Add().DataField("sid").Caption("SID");
+                                    columns.Add().DataField("sidcp").Caption("SID CP");
+                                    columns.Add().DataField("fpsettlementcode").Caption("FP Settlement Account Code");
+                                })
+                                .FilterRow(f => f.Visible(true))
+                                .ShowBorders(true)
+                                .Scrolling(s => s.ShowScrollbar(ShowScrollbarMode.Always))
+                                .Paging(p =>
+                                {
+                                    p.PageSize(5);
+                                    p.Enabled(true);
+                                })
+                                .Pager(p =>
+                                {
+                                    p.ShowInfo(true);
+                                }))
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
+                        <div class="row" style="padding-bottom:12.5px">
+                            <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                            <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                        </div>
+                        <div class="row">
+                            <h4 class="headerTable">Clearing</h4>
+                        </div>
+                        <div class="row">
+                            @(Html.DevExtreme().DataGrid()
+                                .ID("grid3")
+                                .DataSource(new[] {
+                        new { rowid = 1, date = "06/10/2023", date3 = "03/10/2023", sid = "IDD260110001523", companycode = "DH", clearingobli = 275000 },
+                        new { rowid = 2, date = "06/10/2023", date3 = "03/10/2023", sid = "IDD260110001523", companycode = "DH", clearingobli = 242500 },
+                        new { rowid = 3, date = "06/10/2023", date3 = "03/10/2023", sid = "IDD260110001523", companycode = "DH", clearingobli = 298000 }
+                        })
+                        
+                                .KeyExpr("rowid")
+                                .RemoteOperations(true)
+                                .Width("100%")
+                                .AllowColumnResizing(true)
+                                .ColumnAutoWidth(true)
+                                .Columns(columns =>
+                                {
+                                    columns.Add().DataField("rowid").Visible(false);
+                                    columns.Add().DataField("date").Caption("Tanggal Settlement");
+                                    columns.Add().DataField("date3").Caption("Tanggal Clearing");
+                                    columns.Add().DataField("sid").Caption("SID");
+                                    columns.Add().DataField("companycode").Caption("Security Company Code");
+                                    columns.Add().DataField("clearingobli").Caption("Clearing Obligation");
+                                })
+                                .FilterRow(f => f.Visible(true))
+                                .ShowBorders(true)
+                                .Scrolling(s => s.ShowScrollbar(ShowScrollbarMode.Always))
+                                .Paging(p =>
+                                {
+                                    p.PageSize(5);
+                                    p.Enabled(true);
+                                })
+                                .Pager(p =>
+                                {
+                                    p.ShowInfo(true);
+                                }))
+                        </div>
+                    </div>
+                    <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
+                        <div class="row" style="padding-bottom:12.5px">
+                            <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                            <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                        </div>
+                        <div class="row">
+                            <h4 class="headerTable">Transaction</h4>
+                        </div>
+                        <div class="row">
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+       
+
     </div> <!-- Closing the card div -->
     <!-- The Modal  Detail-->
     <div class="modal fade" id="ModalSimpanPenggunaanData" tabindex="-1" role="document" aria-hidden="true" data-backdrop="static" data-keyboard="false">
@@ -363,5 +495,18 @@
 <style type="text/css">
     .mandatory {
         color: red;
+    }
+    .filter-panel {
+        margin-bottom: 10px;
+    }
+    .headerTable {
+        box-sizing: border-box;
+        background-color: #971c1d;
+        padding: 10px;
+        margin: 0 auto;
+        display: block;
+        width: 100%;
+        color: #fdfdfd;
+        text-align: center;
     }
 </style>
