@@ -170,13 +170,13 @@ namespace BDA.Helper
             if (periodes != null)
             {
                 periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND periode in (" + periodes.Replace("-", "") + ")";
+                whereQuery = whereQuery += " AND pperiode = " + periodes.Replace("-", "");
             }
 
             if (stringPE != null)
             {
                 stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND securitycompanycode in (" + stringPE + ")";
+                whereQuery = whereQuery += " AND securitycompanycode = " + stringPE;
             }
             var props = new WSQueryProperties();
 
@@ -195,13 +195,13 @@ namespace BDA.Helper
             if (periodes != null)
             {
                 periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND periode in (" + periodes.Replace("-", "") + ")";
+                whereQuery = whereQuery += " AND pperiode = " + periodes.Replace("-", "");
             }
 
             if (stringPE != null)
             {
                 stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND securitycompanycode in (" + stringPE + ")";
+                whereQuery = whereQuery += " AND securitycompanycode = " + stringPE;
             }
             var props = new WSQueryProperties();
 
@@ -220,13 +220,13 @@ namespace BDA.Helper
             if (periodes != null)
             {
                 periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND periode in (" + periodes.Replace("-", "") + ")";
+                whereQuery = whereQuery += " AND pperiode = " + periodes.Replace("-", "");
             }
 
             if (stringPE != null)
             {
                 stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND securitycompanycode in (" + stringPE + ")";
+                whereQuery = whereQuery += " AND securitycompanycode = " + stringPE;
             }
             var props = new WSQueryProperties();
 
@@ -245,13 +245,13 @@ namespace BDA.Helper
             if (periodes != null)
             {
                 periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND periode in (" + periodes.Replace("-", "") + ")";
+                whereQuery = whereQuery += " AND pperiode = " + periodes.Replace("-", "");
             }
 
             if (stringPE != null)
             {
                 stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND securitycompanycode in (" + stringPE + ")";
+                whereQuery = whereQuery += " AND securitycompanycode = " + stringPE;
             }
             var props = new WSQueryProperties();
 
@@ -262,5 +262,482 @@ namespace BDA.Helper
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
         }
 
+        public static WSQueryReturns GetBDAPMDemografiInvestorCG(DataEntities db, DataSourceLoadOptions loadOptions, string periodes, string stringPE, string origin, string tipeInvestor)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+
+            if (periodes != null)
+            {
+                periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND pperiode = " + periodes.Replace("-", "");
+            }
+
+            if (stringPE != null)
+            {
+                stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND securitycompanycode = " + stringPE;
+            }
+
+            if (origin != null)
+            {
+                origin = "'" + origin.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND investor_origin = " + origin;
+            }
+
+            if (tipeInvestor != null)
+            {
+                stringPE = "'" + tipeInvestor.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND investor_type = " + tipeInvestor;
+            }
+            var props = new WSQueryProperties();
+
+            props.Query = @"
+                    select jenis_kelamin gender, cast(sum(investortotalvalue) as bigint) total from pasarmodal.basis_investor_pe
+                    WHERE " + whereQuery + @" group by jenis_kelamin";
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
+        }
+
+        public static WSQueryReturns GetBDAPMDemografiInvestorCU(DataEntities db, DataSourceLoadOptions loadOptions, string periodes, string stringPE, string origin, string tipeInvestor)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+
+            if (periodes != null)
+            {
+                periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND pperiode = " + periodes.Replace("-", "");
+            }
+
+            if (stringPE != null)
+            {
+                stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND securitycompanycode = " + stringPE;
+            }
+
+            if (origin != null)
+            {
+                origin = "'" + origin.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND investor_origin = " + origin;
+            }
+
+            if (tipeInvestor != null)
+            {
+                stringPE = "'" + tipeInvestor.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND investor_type = " + tipeInvestor;
+            }
+            var props = new WSQueryProperties();
+
+            props.Query = @"
+                    select golonganusia ageRange, cast(sum(investortotalvalue) as bigint) total from pasarmodal.basis_investor_pe
+                    WHERE " + whereQuery + @" group by golonganusia order by count(*) desc";
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
+        }
+
+        public static WSQueryReturns GetBDAPMDemografiInvestorCP(DataEntities db, DataSourceLoadOptions loadOptions, string periodes, string stringPE, string origin, string tipeInvestor)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+
+            if (periodes != null)
+            {
+                periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND pperiode = " + periodes.Replace("-", "");
+            }
+
+            if (stringPE != null)
+            {
+                stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND securitycompanycode = " + stringPE;
+            }
+
+            if (origin != null)
+            {
+                origin = "'" + origin.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND investor_origin = " + origin;
+            }
+
+            if (tipeInvestor != null)
+            {
+                stringPE = "'" + tipeInvestor.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND investor_type = " + tipeInvestor;
+            }
+            var props = new WSQueryProperties();
+
+            props.Query = @"
+                    select pendidikan, cast(sum(investortotalvalue) as bigint) total from pasarmodal.basis_investor_pe
+                    WHERE " + whereQuery + @" group by pendidikan order by count(*) desc";
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
+        }
+
+        public static WSQueryReturns GetBDAPMDemografiInvestorCPk(DataEntities db, DataSourceLoadOptions loadOptions, string periodes, string stringPE, string origin, string tipeInvestor)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+
+            if (periodes != null)
+            {
+                periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND pperiode = " + periodes.Replace("-", "");
+            }
+
+            if (stringPE != null)
+            {
+                stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND securitycompanycode = " + stringPE;
+            }
+
+            if (origin != null)
+            {
+                origin = "'" + origin.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND investor_origin = " + origin;
+            }
+
+            if (tipeInvestor != null)
+            {
+                stringPE = "'" + tipeInvestor.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND investor_type = " + tipeInvestor;
+            }
+            var props = new WSQueryProperties();
+
+            props.Query = @"
+                    select pekerjaan occupation, cast(sum(investortotalvalue) as bigint) total from pasarmodal.basis_investor_pe
+                    WHERE " + whereQuery + @" group by pekerjaan order by count(*) desc";
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
+        }
+
+        public static WSQueryReturns GetBDAPMDemografiInvestorCPh(DataEntities db, DataSourceLoadOptions loadOptions, string periodes, string stringPE, string origin, string tipeInvestor)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+
+            if (periodes != null)
+            {
+                periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND pperiode = " + periodes.Replace("-", "");
+            }
+
+            if (stringPE != null)
+            {
+                stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND securitycompanycode = " + stringPE;
+            }
+
+            if (origin != null)
+            {
+                origin = "'" + origin.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND investor_origin = " + origin;
+            }
+
+            if (tipeInvestor != null)
+            {
+                stringPE = "'" + tipeInvestor.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND investor_type = " + tipeInvestor;
+            }
+            var props = new WSQueryProperties();
+
+            props.Query = @"
+                    select pinghasilan_individu name, cast(sum(investortotalvalue) as bigint) value from pasarmodal.basis_investor_pe
+                    WHERE " + whereQuery + @" group by pinghasilan_individu order by count(*) desc";
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
+        }
+
+        public static WSQueryReturns GetBDAPMDemografiInvestorTV(DataEntities db, DataSourceLoadOptions loadOptions, string periodes, string stringPE, string origin, string tipeInvestor)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+
+            if (periodes != null)
+            {
+                periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND pperiode = " + periodes.Replace("-", "");
+            }
+
+            if (stringPE != null)
+            {
+                stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND securitycompanycode = " + stringPE;
+            }
+
+            if (origin != null)
+            {
+                origin = "'" + origin.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND investor_origin = " + origin;
+            }
+
+            if (tipeInvestor != null)
+            {
+                stringPE = "'" + tipeInvestor.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND investor_type = " + tipeInvestor;
+            }
+            var props = new WSQueryProperties();
+
+            props.Query = @"
+                    select cast(sum(investortotalvalue) as bigint) total from pasarmodal.basis_investor_pe
+                    WHERE " + whereQuery;
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
+        }
+
+        public static WSQueryReturns GetBDAPGeospasialInvestorMaps(DataEntities db, DataSourceLoadOptions loadOptions, string periodes, string stringPE, string growthtype, string dimension, string investorOrigin)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+
+            if (periodes != null)
+            {
+                periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND pperiode = " + periodes.Replace("-", "");
+            }
+
+            if (stringPE != null)
+            {
+                stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND securitycompanycode = " + stringPE;
+            }
+
+            if (growthtype != null)
+            {
+                growthtype = "'" + growthtype.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND growth_type = " + growthtype;
+            }
+
+            if (dimension != null)
+            {
+                dimension = "'" + dimension.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND dimension = " + dimension;
+            }
+
+            if (investorOrigin != null)
+            {
+                investorOrigin = "'" + investorOrigin.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND investor_origin = " + investorOrigin;
+            }
+            var props = new WSQueryProperties();
+
+            props.Query = @"
+                    select provinsi as lokasi, sum(current_value) current_value From pasarmodal.pe_segmentation_geo"
+                    + whereQuery + " group by provinsi";
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
+        }
+
+        public static WSQueryReturns GetBDAPGeospasialInvestorLB(DataEntities db, DataSourceLoadOptions loadOptions, string periodes, string stringPE, string growthtype, string dimension, string investorOrigin, string LBType, string province)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            var order = " asc";
+
+            if (LBType == "Lg")
+            {
+                order = "desc";
+            }
+
+            if (periodes != null)
+            {
+                periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND pperiode = " + periodes.Replace("-", "");
+            }
+
+            if (stringPE != null)
+            {
+                stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND securitycompanycode = " + stringPE;
+            }
+
+            if (growthtype != null)
+            {
+                growthtype = "'" + growthtype.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND growth_type = " + growthtype;
+            }
+
+            if (dimension != null)
+            {
+                dimension = "'" + dimension.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND dimension = " + dimension;
+            }
+
+            if (investorOrigin != null)
+            {
+                investorOrigin = "'" + investorOrigin.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND investor_origin = " + investorOrigin;
+            }
+
+            if (province != null)
+            {
+                province = "'" + province.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND provinsi = " + province;
+            }
+            var props = new WSQueryProperties();
+
+
+            if (investorOrigin != null)
+            {
+                if (investorOrigin == "lokal")
+                {
+                    if (province != null)
+                    {
+                        props.Query = @"
+                    select city as Lokasi, investor_type InvestorType, sum(current_value) current_value From pasarmodal.pe_segmentation_geo"
+                            + whereQuery + " group by city order by sum(current_value) " + order + " limit 2";
+                    }
+                    else
+                    {
+                        props.Query = @"
+                    select provinsi as Lokasi, investor_type InvestorType, sum(current_value) current_value From pasarmodal.pe_segmentation_geo"
+                            + whereQuery + " group by provinsi order by sum(current_value) " + order + " limit 2";
+                    }
+                }
+                else
+                {
+                    props.Query = @"
+                    select top 16 country as Lokasi, investor_type InvestorType, sum(current_value) current_value From pasarmodal.pe_segmentation_geo"
+                            + whereQuery + " group by country order by sum(current_value) " + order + " limit 2";
+                }
+            }
+            else {
+                props.Query = @"
+                    select country as lokasi, investor_type InvestorType, sum(current_value) current_value From pasarmodal.pe_segmentation_geo"
+                            + whereQuery + " group by country order by sum(current_value) " + order + " limit 2";
+            }
+
+
+             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
+        }
+
+        public static WSQueryReturns GetBDAPGeospasialInvestorCG(DataEntities db, DataSourceLoadOptions loadOptions, string periodeawal, string periodeakhir, string stringPE, string growthtype, string dimension, string investorOrigin, string province)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            
+            if (periodeawal != null)
+            {
+                periodeawal = "'" + periodeawal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                periodeakhir = "'" + periodeakhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND pperiode between " + periodeawal.Replace("-", "") + " and "+ periodeakhir.Replace(" - ", "");
+            }
+
+            if (stringPE != null)
+            {
+                stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND securitycompanycode = " + stringPE;
+            }
+
+            if (growthtype != null)
+            {
+                growthtype = "'" + growthtype.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND growth_type = " + growthtype;
+            }
+
+            if (dimension != null)
+            {
+                dimension = "'" + dimension.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND dimension = " + dimension;
+            }
+
+            if (investorOrigin != null)
+            {
+                investorOrigin = "'" + investorOrigin.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND investor_origin = " + investorOrigin;
+            }
+            var props = new WSQueryProperties();
+
+            props.Query = @"
+                        select pperiode, sum(current_value) currentValue, sum(prev_value - current_value) growth From pasarmodal.pe_segmentation_geo "
+                            + whereQuery + " group by pperiode order by pperiode";
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
+        }
+
+        public static WSQueryReturns GetBDAPGeospasialInvestorIT(DataEntities db, DataSourceLoadOptions loadOptions, string periodes, string stringPE, string growthtype, string dimension, string investorOrigin, string province)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            if (periodes != null)
+            {
+                periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND pperiode = " + periodes.Replace("-", "");
+            }
+
+            if (stringPE != null)
+            {
+                stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND securitycompanycode = " + stringPE;
+            }
+
+            if (growthtype != null)
+            {
+                growthtype = "'" + growthtype.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND growth_type = " + growthtype;
+            }
+
+            if (dimension != null)
+            {
+                dimension = "'" + dimension.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND dimension = " + dimension;
+            }
+
+            if (investorOrigin != null)
+            {
+                investorOrigin = "'" + investorOrigin.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND investor_origin = " + investorOrigin;
+            }
+            var props = new WSQueryProperties();
+
+
+            props.Query = @"
+                        select investor_type investorType, sum(current_value) currentValue From pasarmodal.pe_segmentation_geo "
+                            + whereQuery + " group by investor_type";
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
+        }
+
+        public static WSQueryReturns GetBDAPGeospasialInvestorIO(DataEntities db, DataSourceLoadOptions loadOptions, string periodes, string stringPE, string growthtype, string dimension, string investorOrigin, string province)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            if (periodes != null)
+            {
+                periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND pperiode = " + periodes.Replace("-", "");
+            }
+
+            if (stringPE != null)
+            {
+                stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND securitycompanycode = " + stringPE;
+            }
+
+            if (growthtype != null)
+            {
+                growthtype = "'" + growthtype.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND growth_type = " + growthtype;
+            }
+
+            if (dimension != null)
+            {
+                dimension = "'" + dimension.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND dimension = " + dimension;
+            }
+
+            if (investorOrigin != null)
+            {
+                investorOrigin = "'" + investorOrigin.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND investor_origin = " + investorOrigin;
+            }
+            var props = new WSQueryProperties();
+
+
+            props.Query = @"
+                        select investor_origin investorOrigin, sum(current_value) currentValue From pasarmodal.pe_segmentation_geo "
+                            + whereQuery + " group by investor_origin";
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
+        }
     }
 }

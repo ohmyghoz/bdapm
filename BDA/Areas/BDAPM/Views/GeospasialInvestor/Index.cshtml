@@ -84,11 +84,11 @@
                     <div class="col-lg-2 form-group">
                         <label>Value</label>
                         @(Html.DevExtreme().SelectBox()
-                            .ID("investorType")
+                            .ID("investorOrigin")
                             .DataSource(d => d.Mvc()
                             .Controller("GeospasialInvestor")
                             .Area("BDAPM")
-                            .LoadAction("getInvestorType")
+                            .LoadAction("getInvestorOrigin")
                             .Key("value"))
                             .ValueExpr("value")
                             .DisplayExpr("text")
@@ -116,7 +116,7 @@
         @*grid*@
         <div class="row filter-panel" style="padding-top:0px;">
             <div class="card-body">
-                @if (ViewBag.investorType == "Lokal")
+                @if (ViewBag.investorOrigin == "Lokal")
                 {
                     <div class="row">
                         <h4 class="headerTable">Growth By Maps</h4>
@@ -144,7 +144,7 @@
                                         pe = new JS("function() { return $(\"#namaPEid\").dxSelectBox(\"instance\").option(\"value\");}"),
                                         growthtype = new JS("function() { return $(\"#growthType\").dxSelectBox(\"instance\").option(\"value\");}"),
                                         dimension = new JS("function() { return $(\"#dimension\").dxSelectBox(\"instance\").option(\"value\");}"),
-                                        investorType = new JS("function() { return $(\"#investorType\").dxSelectBox(\"instance\").option(\"value\");}")
+                                        investorOrigin = new JS("function() { return $(\"#investorOrigin\").dxSelectBox(\"instance\").option(\"value\");}")
                                     }))
                                     .DataSourceOptions(dso => dso.Map("vectorMap_HeatMap_dataSource_map"))
                                     .HoveredColor("blue")
@@ -193,7 +193,7 @@
                                 pe = new JS("function() { return $(\"#namaPEid\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 growthtype = new JS("function() { return $(\"#growthType\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 dimension = new JS("function() { return $(\"#dimension\").dxSelectBox(\"instance\").option(\"value\");}"),
-                                investorType = new JS("function() { return $(\"#investorType\").dxSelectBox(\"instance\").option(\"value\");}"),
+                                investorOrigin = new JS("function() { return $(\"#investorOrigin\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 LBType = "Lg",
                                 province = new JS("function() { return $(\"#province\").val();}")
                             }))
@@ -227,7 +227,7 @@
                                 pe = new JS("function() { return $(\"#namaPEid\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 growthtype = new JS("function() { return $(\"#growthType\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 dimension = new JS("function() { return $(\"#dimension\").dxSelectBox(\"instance\").option(\"value\");}"),
-                                investorType = new JS("function() { return $(\"#investorType\").dxSelectBox(\"instance\").option(\"value\");}"),
+                                investorOrigin = new JS("function() { return $(\"#investorOrigin\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 LBType = "Ls",
                                 province = new JS("function() { return $(\"#province\").val();}")
                             }))
@@ -265,7 +265,7 @@
                                 pe = new JS("function() { return $(\"#namaPEid\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 growthtype = new JS("function() { return $(\"#growthType\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 dimension = new JS("function() { return $(\"#dimension\").dxSelectBox(\"instance\").option(\"value\");}"),
-                                investorType = new JS("function() { return $(\"#investorType\").dxSelectBox(\"instance\").option(\"value\");}"),
+                                investorOrigin = new JS("function() { return $(\"#investorOrigin\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 province = new JS("function() { return $(\"#province\").val();}")
                             }))
                             .Legend(l => l.Visible(false).VerticalAlignment(VerticalEdge.Top).HorizontalAlignment(HorizontalAlignment.Center))
@@ -283,10 +283,14 @@
                             .Series(s => s
                                 .Add()
                                 .ArgumentField("investorType")
-                                .ValueField("perc")
+                                .ValueField("currentValue")
                                 .Label(l => l.Visible(true)
                                 .Connector(c => c.Visible(true))
-                                .BackgroundColor("none"))
+                                .BackgroundColor("none").CustomizeText(@<text>
+                                                                            function(arg) {
+                                                                            return arg.percentText;
+                                                                            }
+                                                                        </text>))
                                 )
                             .DataSource(d => d.Mvc().Controller("GeospasialInvestor").LoadAction("GetChartIT").LoadMethod("Get").LoadParams(new
                             {
@@ -294,7 +298,7 @@
                                 pe = new JS("function() { return $(\"#namaPEid\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 growthtype = new JS("function() { return $(\"#growthType\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 dimension = new JS("function() { return $(\"#dimension\").dxSelectBox(\"instance\").option(\"value\");}"),
-                                investorType = new JS("function() { return $(\"#investorType\").dxSelectBox(\"instance\").option(\"value\");}"),
+                                investorOrigin = new JS("function() { return $(\"#investorOrigin\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 province = new JS("function() { return $(\"#province\").val();}")
                             }))
                             )                       
@@ -311,10 +315,14 @@
                             .Series(s => s
                             .Add()
                             .ArgumentField("investorOrigin")
-                            .ValueField("perc")
+                            .ValueField("currentValue")
                             .Label(l => l.Visible(true)
                             .Connector(c => c.Visible(true))
-                            .BackgroundColor("none"))
+                            .BackgroundColor("none").CustomizeText(@<text>
+                                                                        function(arg) {
+                                                                        return arg.percentText;
+                                                                        }
+                                                                    </text>))
                             )
                             .DataSource(d => d.Mvc().Controller("GeospasialInvestor").LoadAction("GetChartIO").LoadMethod("Get").LoadParams(new
                             {
@@ -322,7 +330,7 @@
                                 pe = new JS("function() { return $(\"#namaPEid\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 growthtype = new JS("function() { return $(\"#growthType\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 dimension = new JS("function() { return $(\"#dimension\").dxSelectBox(\"instance\").option(\"value\");}"),
-                                investorType = new JS("function() { return $(\"#investorType\").dxSelectBox(\"instance\").option(\"value\");}"),
+                                investorOrigin = new JS("function() { return $(\"#investorOrigin\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 province = new JS("function() { return $(\"#province\").val();}")
                             }))
                             )
@@ -419,7 +427,7 @@
             return false;
         } else {
             $.ajax({
-                url: '@Url.Action("SimpanPenggunaanData", "SegmentationSummaryClusterMKBD")',
+                url: '@Url.Action("SimpanPenggunaanData", "GeospasialInvestor")',
                 data: { id: penggunaandataid },
                 dataType: "json",
                 type: "POST",
@@ -452,70 +460,11 @@
         pe = $("#namaPEid").dxSelectBox("instance").option("value");
         growthtype = $("#growthType").dxSelectBox("instance").option("value");
         dimension = $("#dimension").dxSelectBox("instance").option("value");
-        investorType = $("#investorType").dxSelectBox("instance").option("value");
+        investorOrigin = $("#investorOrigin").dxSelectBox("instance").option("value");
 
-        var url = '@Url.Action("Index")?periode=' + periode + '&pe=' + pe + '&growthtype=' + growthtype + '&dimension=' + dimension + '&investorType=' + investorType;
+        var url = '@Url.Action("Index")?periode=' + periode + '&pe=' + pe + '&growthtype=' + growthtype + '&dimension=' + dimension + '&investorOrigin=' + investorOrigin;
         window.location = url;
     }
-
-    function onGridBeforeSend(method, ajaxOptions) {
-        let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
-        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
-        let status = $("#Statusid").dxTagBox("instance").option("value");
-
-        let periodeAwal = null;
-        if (tempPeriodeAwal != null) {
-            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + (tempPeriodeAwal.getMonth() + 1) + '-' + tempPeriodeAwal.getDate();
-        }
-        ajaxOptions.data.namaPE = JSON.stringify(namaPE);
-        ajaxOptions.data.periodeAwal = periodeAwal;
-        ajaxOptions.data.status = JSON.stringify(status);
-    }
-
-    var waitingDialog = (function ($) {
-
-        // Creating modal dialog's DOM
-        var $dialog = $(
-            '<div class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">' +
-            '<div class="modal-dialog modal-m">' +
-            '<div class="modal-content">' +
-            '<div class="modal-header"><h3 style="margin:0;"></h3></div>' +
-            '<div class="modal-body">' +
-            '<div class="progress progress-striped active" style="margin-bottom:0;"><div class="progress-bar" style="width: 100%"></div></div>' +
-            '</div>' +
-            '</div></div></div>');
-
-        return {
-            show: function (message, options) {
-                // Assigning defaults
-                var settings = $.extend({
-                    dialogSize: 'm',
-                    progressType: ''
-                }, options);
-                if (typeof message === 'undefined') {
-                    message = 'Loading';
-                }
-                if (typeof options === 'undefined') {
-                    options = {};
-                }
-                // Configuring dialog
-                $dialog.find('.modal-dialog').attr('class', 'modal-dialog').addClass('modal-' + settings.dialogSize);
-                $dialog.find('.progress-bar').attr('class', 'progress-bar');
-                if (settings.progressType) {
-                    $dialog.find('.progress-bar').addClass('progress-bar-' + settings.progressType);
-                }
-                $dialog.find('h3').text(message);
-                // Opening dialog
-                $dialog.modal();
-            },
-            /**
-                * Closes dialog
-                */
-            hide: function () {
-                $dialog.modal('hide');
-            }
-        }
-    })(jQuery);
 
     function thousandSeparatorDecimal(e) {
         if (e != null)
