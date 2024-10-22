@@ -74,7 +74,6 @@ namespace BDA.Controllers
             DataSourceLoadOptions loadOptions = new DataSourceLoadOptions();
 
             stringPeriodeAwal = DateTime.Now.ToString("yyyy-MM-dd");
-            TempData["pawal"] = stringPeriodeAwal;
 
             db.Database.CommandTimeout = 420;
             var result = Helper.WSQueryPS.GetBDAPMDemografiInvestorTV(db, loadOptions, stringPeriodeAwal, stringNamaPE, origin, tipeInvestor).data.Rows[0];
