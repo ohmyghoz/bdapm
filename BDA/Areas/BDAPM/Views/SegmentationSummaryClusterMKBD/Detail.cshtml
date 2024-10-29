@@ -121,7 +121,7 @@
                 .WordWrapEnabled(true)
                 .Columns(columns =>
                 {
-                    columns.Add().DataField("periode").Caption("Tanggal").DataType(GridColumnDataType.DateTime).Format("dd MMM yyyy");
+                    columns.Add().DataField("periode").Caption("Tanggal").Alignment(HorizontalAlignment.Center); 
                     columns.Add().DataField("securitycompanycode").Caption("Kode PE");
                     columns.Add().DataField("securitycompanyname").Caption("Nama PE").Width(300);
                     columns.Add().DataField("f_level_1").Caption("Konsentrasi Aset Lancar Selain Kas Dan Setara Kas").Width(150);
