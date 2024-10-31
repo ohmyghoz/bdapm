@@ -116,7 +116,6 @@
                                                             </text>).Visible(true).Connector(c => c.Visible(true)).Position(RelativePosition.Outside))
                             )
                             .SeriesTemplate(t => t.NameField("gender"))
-                            .DataSource(d => d.Mvc().Controller("DemografiInvestor").LoadAction("getCHartGender").OnBeforeSend("onGridBeforeSend"))
                             .Legend(l => l.Visible(false).VerticalAlignment(VerticalEdge.Top).HorizontalAlignment(HorizontalAlignment.Center))
                             )
                     </div>
@@ -139,7 +138,6 @@
                                                             </text>).Visible(true).Connector(c => c.Visible(true)).Position(RelativePosition.Outside))
                             )
                             .SeriesTemplate(t => t.NameField("ageRange"))
-                            .DataSource(d => d.Mvc().Controller("DemografiInvestor").LoadAction("getCHartUsia").OnBeforeSend("onGridBeforeSend"))
                             .Legend(l => l.Visible(false).VerticalAlignment(VerticalEdge.Top).HorizontalAlignment(HorizontalAlignment.Center))
                             .ValueAxis(a => a.Add().Title("Total Value Traded"))
                             )
@@ -163,7 +161,6 @@
                                                         </text>).Visible(true).Connector(c => c.Visible(true)).Position(RelativePosition.Outside))
                             )
                             .SeriesTemplate(t => t.NameField("pendidikan"))
-                            .DataSource(d => d.Mvc().Controller("DemografiInvestor").LoadAction("getChartPendidikan").OnBeforeSend("onGridBeforeSend"))
                             .Legend(l => l.Visible(false).VerticalAlignment(VerticalEdge.Top).HorizontalAlignment(HorizontalAlignment.Center))
                             .ValueAxis(a => a.Add().Title("Total Value Traded"))
                             )
@@ -200,7 +197,7 @@
                                                         </tspan>   
                                                     </text></svg>
                                             </text>)
-                            .DataSource(d => d.Mvc().Controller("DemografiInvestor").LoadAction("getChartPekerjaan").OnBeforeSend("onGridBeforeSend")))
+                            )
                     </div>
                     <div class="col-lg-4 form-group" style="padding-right:25px;padding-left:0px">
                         @(
@@ -221,7 +218,6 @@
                                     </text>).Visible(true).Connector(c => c.Visible(true)).Position(RelativePosition.Outside))
                             )
                             .SeriesTemplate(t => t.NameField("occupation"))
-                            .DataSource(d => d.Mvc().Controller("DemografiInvestor").LoadAction("getChartPekerjaan").OnBeforeSend("onGridBeforeSend"))
                             .Legend(l => l.Visible(false).VerticalAlignment(VerticalEdge.Top).HorizontalAlignment(HorizontalAlignment.Center))
                             .ValueAxis(a => a.Add().Title("Total Value Traded"))
                             )
@@ -231,7 +227,6 @@
                         Html.DevExtreme().TreeMap()
                             .ID("ChartPenghasilan")
                             .Title("Penghasilan")
-                            .DataSource(d => d.Mvc().Controller("DemografiInvestor").LoadAction("getChartPenghasilan").OnBeforeSend("onGridBeforeSend"))
                             .LayoutAlgorithm(TreeMapLayoutAlgorithm.Squarified)
                             .Colorizer(c => c.Type(TreeMapColorizerType.Gradient).Range(new double[] { 10000000, 40000000 }).Palette(new[] { "#FFE5E5", "#800000" }).ColorizeGroups(false))
                             )
@@ -427,21 +422,7 @@
         }
     }
 
-    function onGridBeforeSend(method, ajaxOptions) {
-        let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
-        
-        ajaxOptions.data.pe = namaPE;
-        ajaxOptions.data.periode =let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
-        let origin = $("#originList").dxSelectBox("instance").option("value");
-        let tipeInvestor = $("#tipeInvestorList").dxSelectBox("instance").option("value");
-
-        let periodeAwal = null;
-        if (tempPeriodeAwal != null) {
-            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + (tempPeriodeAwal.getMonth() + 1) + '-' + tempPeriodeAwal.getDate();
-        } periodeAwal;
-        ajaxOptions.data.origin = origin;
-        ajaxOptions.data.tipeInvestor = tipeInvestor;
-    }
+    
 
     function thousandSeparatorDecimal(e) {
         if (e != null)
