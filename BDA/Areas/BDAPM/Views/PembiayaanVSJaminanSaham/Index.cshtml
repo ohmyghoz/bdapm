@@ -31,7 +31,7 @@
                     </div>
 
                     <div class="col-lg-4 form-group">
-                        <label>Nama PE</label>
+                        <label>Nama PE<span class="mandatory">*</span></label>
                         @(Html.DevExtreme().SelectBox()
                             .ID("namaPEid")
                             .DataSource(d => d.Mvc()
@@ -56,6 +56,11 @@
                         .ValidationGroup("Filter"))
                 </div>
 
+                <div class="float-right">
+                    <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                    <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                </div>
+
             </div>
         </div>
         @*grid*@
@@ -63,10 +68,10 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
-                        <div class="row" style="padding-bottom:12.5px">
+                        @* <div class="row" style="padding-bottom:12.5px">
                             <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
                             <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
-                        </div>
+                        </div> *@
                         <div class="row">
                             <h4 class="headerTable">Nilai Pembiayaan Reverse Repo</h4>
                         </div>
@@ -82,20 +87,20 @@
                                 .Selection(c => c.Mode(SelectionMode.Single))
                                 .Columns(c =>
                                 {
-                                    c.Add().DataField("Akun");
-                                    c.Add().DataField("Nilai");
+                                    c.Add().DataField("text");
+                                    c.Add().DataField("value");
                                 })
-                                .DataSource(d => d.Mvc().Controller("PembiayaanVSJaminanSaham").LoadAction("getGridNilaiPembiayaanRR").OnBeforeSend("onGridBeforeSend"))
+                                .DataSource(d => d.Mvc().Controller("PembiayaanVSJaminanSaham").LoadAction("getGridNilaiPembiayaanRR"))
                                 .ShowColumnHeaders(false)
                                 .ShowRowLines(true)
                                 )
                         </div>
                     </div>
                     <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
-                        <div class="row" style="padding-bottom:12.5px">
+                        @* <div class="row" style="padding-bottom:12.5px">
                             <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
                             <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
-                        </div>
+                        </div> *@
                         <div class="row">
                             <h4 class="headerTable">Nilai Pembiayaan Margin</h4>
                         </div>
@@ -111,10 +116,10 @@
                                 .Selection(c => c.Mode(SelectionMode.Single))
                                 .Columns(c =>
                                 {
-                                    c.Add().DataField("Akun");
-                                    c.Add().DataField("Nilai");
+                                    c.Add().DataField("text");
+                                    c.Add().DataField("value");
                                 })
-                                .DataSource(d => d.Mvc().Controller("PembiayaanVSJaminanSaham").LoadAction("getGridNilaiPembiayaanM").OnBeforeSend("onGridBeforeSend"))
+                                .DataSource(d => d.Mvc().Controller("PembiayaanVSJaminanSaham").LoadAction("getGridNilaiPembiayaanM"))
                                 .ShowColumnHeaders(false)
                                 .ShowRowLines(true)
                                 )
@@ -123,10 +128,10 @@
                 </div>
                 <div class="row">
                     <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
-                        <div class="row" style="padding-bottom:12.5px">
+                        @* <div class="row" style="padding-bottom:12.5px">
                             <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
                             <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
-                        </div>
+                        </div> *@
                         <div class="row">
                             <h4 class="headerTable">Efek Repo</h4>
                         </div>
@@ -160,18 +165,17 @@
                                     c.Add().DataField("Volume").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
                                     c.Add().DataField("Value").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
                                 })
-                                .DataSource(d => d.Mvc().Controller("PembiayaanVSJaminanSaham").LoadAction("getGridEfekRepo").OnBeforeSend("onGridBeforeSend"))
                                 .ShowRowLines(true)
                                 )
                         </div>
                     </div>
                     <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
-                        <div class="row" style="padding-bottom:12.5px">
+                        @* <div class="row" style="padding-bottom:12.5px">
                             <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
                             <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
-                        </div>
+                        </div> *@
                         <div class="row">
-                            <h4 class="headerTable">Efek Repo</h4>
+                            <h4 class="headerTable">Jaminan Repo</h4>
                         </div>
                         <div class="row">
                             @(Html.DevExtreme().DataGrid()
@@ -203,7 +207,6 @@
                                     c.Add().DataField("Volume").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
                                     c.Add().DataField("Value").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
                                 })
-                                .DataSource(d => d.Mvc().Controller("PembiayaanVSJaminanSaham").LoadAction("getGridJaminanMargin").OnBeforeSend("onGridBeforeSend"))
                                 .ShowRowLines(true)
                                 )
                         </div>
@@ -331,69 +334,167 @@
     function onButtonFilterClicked(e) {
         const res = e.validationGroup.validate();
         if (res.status === "valid") {
-            $("#gridNilaiPembiayaanRR").dxDataGrid("instance").refresh();
-            $("#gridNilaiPembiayaanM").dxDataGrid("instance").refresh();
-            $("#gridEfekRepo").dxDataGrid("instance").refresh();
-            $("#gridJaminanMargin").dxDataGrid("instance").refresh();
+            var tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
+            var namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
+            var periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
+
+            var grid1 = $("#gridEfekRepo").dxDataGrid("instance");
+            var ds1 = DevExpress.data.AspNet.createStore({
+                loadMethod: "GET",
+                loadMode: "processed",
+                loadUrl: '@Url.Action("getGridEfekRepo")?periode=' + periodeAwal + '&pe=' + namaPE
+            });
+            grid1.option('dataSource', ds1);
+
+            var grid2 = $("#gridJaminanMargin").dxDataGrid("instance");
+            var ds2 = DevExpress.data.AspNet.createStore({
+                loadMethod: "GET",
+                loadMode: "processed",
+                loadUrl: '@Url.Action("getGridJaminanMargin")?periode=' + periodeAwal + '&pe=' + namaPE
+            });
+            grid2.option('dataSource', ds2);
         }
     }
 
-    function onGridBeforeSend(method, ajaxOptions) {
-        let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
-        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
+    function ExportToExcel() {
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("LogExportIndex", "PembiayaanVSJaminanSaham")",
+            success: function (response) {
+                if (response.result == "Success") {
+                    var workbook = new ExcelJS.Workbook();
+                    var worksheet1 = workbook.addWorksheet('NP Reverse Repo');
+                    var worksheet2 = workbook.addWorksheet('NP Margin');
+                    var worksheet3 = workbook.addWorksheet('Efek Repo');
+                    var worksheet4 = workbook.addWorksheet('Jaminan Margin');
 
-        let periodeAwal = null;
-        if (tempPeriodeAwal != null) {
-            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + (tempPeriodeAwal.getMonth() + 1) + '-' + tempPeriodeAwal.getDate();
-        }
-        ajaxOptions.data.pe = JSON.stringify(namaPE);
-        ajaxOptions.data.periode = periodeAwal;
-    }
+                    DevExpress.excelExporter.exportDataGrid({
+                        component: $("#gridNilaiPembiayaanRR").dxDataGrid("instance"),
+                        worksheet: worksheet1,
+                        customizeCell: function (options) {
+                            var { gridCell, excelCell } = options;
 
-    var waitingDialog = (function ($) {
+                            if (gridCell.rowType === 'data') {
+                                if (options.gridCell.column.dataType === 'number') {
+                                    excelCell.numFmt = '#,##0';
+                                }
+                            }
+                        }
+                    }).then(() => DevExpress.excelExporter.exportDataGrid({
+                        component: $("#gridNilaiPembiayaanM").dxDataGrid("instance"),
+                        worksheet: worksheet2,
+                        customizeCell: function (options) {
+                            var { gridCell, excelCell } = options;
 
-        // Creating modal dialog's DOM
-        var $dialog = $(
-            '<div class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">' +
-            '<div class="modal-dialog modal-m">' +
-            '<div class="modal-content">' +
-            '<div class="modal-header"><h3 style="margin:0;"></h3></div>' +
-            '<div class="modal-body">' +
-            '<div class="progress progress-striped active" style="margin-bottom:0;"><div class="progress-bar" style="width: 100%"></div></div>' +
-            '</div>' +
-            '</div></div></div>');
+                            if (gridCell.rowType === 'data') {
+                                if (options.gridCell.column.dataType === 'number') {
+                                    excelCell.numFmt = '#,##0';
+                                }
+                            }
+                        }
+                    })).then(() => DevExpress.excelExporter.exportDataGrid({
+                        component: $("#gridEfekRepo").dxDataGrid("instance"),
+                        worksheet: worksheet3,
+                        customizeCell: function (options) {
+                            var { gridCell, excelCell } = options;
 
-        return {
-            show: function (message, options) {
-                // Assigning defaults
-                var settings = $.extend({
-                    dialogSize: 'm',
-                    progressType: ''
-                }, options);
-                if (typeof message === 'undefined') {
-                    message = 'Loading';
+                            if (gridCell.rowType === 'data') {
+                                if (options.gridCell.column.dataType === 'number') {
+                                    excelCell.numFmt = '#,##0';
+                                }
+                            }
+                        }
+                    })).then(() => DevExpress.excelExporter.exportDataGrid({
+                        component: $("#gridJaminanMargin").dxDataGrid("instance"),
+                        worksheet: worksheet4,
+                        customizeCell: function (options) {
+                            var { gridCell, excelCell } = options;
+
+                            if (gridCell.rowType === 'data') {
+                                if (options.gridCell.column.dataType === 'number') {
+                                    excelCell.numFmt = '#,##0';
+                                }
+                            }
+                        }
+                    })).then(function () {
+                        workbook.xlsx.writeBuffer().then(function (buffer) {
+                            saveAs(new Blob([buffer], { type: "application/octet-stream" }), "PembiayaanVSJaminanSaham_" + new Date().toISOString().slice(0, 10) + ".xlsx");
+                        });
+                    });
                 }
-                if (typeof options === 'undefined') {
-                    options = {};
-                }
-                // Configuring dialog
-                $dialog.find('.modal-dialog').attr('class', 'modal-dialog').addClass('modal-' + settings.dialogSize);
-                $dialog.find('.progress-bar').attr('class', 'progress-bar');
-                if (settings.progressType) {
-                    $dialog.find('.progress-bar').addClass('progress-bar-' + settings.progressType);
-                }
-                $dialog.find('h3').text(message);
-                // Opening dialog
-                $dialog.modal();
-            },
-            /**
-                * Closes dialog
-                */
-            hide: function () {
-                $dialog.modal('hide');
             }
-        }
-    })(jQuery);
+        });
+    }
+
+    function ExportToPdf() {
+        var dataGrid = $("#gridNilaiPembiayaanRR").dxDataGrid("instance");
+        dataGrid.option("onExporting", function (e) { });
+        dataGrid.option("onFileSaving", function (e) {
+            var fd = new FormData();
+            fd.append("file", e.data);
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("LogExportPDFIndex", "PembiayaanVSJaminanSaham")",
+                data: { file: fd, name: 'NP Reverse Repo' },
+                processData: false,
+                contentType: false
+            }).done(function (data) {
+                window.location = "@Url.Action("FileIndex", "PembiayaanVSJaminanSaham")"
+            });
+            e.cancel = true;
+        });
+
+        var dataGrid2 = $("#gridNilaiPembiayaanM").dxDataGrid("instance");
+        dataGrid2.option("onExporting", function (e) { });
+        dataGrid2.option("onFileSaving", function (e) {
+            var fd = new FormData();
+            fd.append("file", e.data);
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("LogExportPDFIndex", "PembiayaanVSJaminanSaham")",
+                data: { file: fd, name: 'NP Margin' },
+                processData: false,
+                contentType: false
+            }).done(function (data) {
+                window.location = "@Url.Action("FileIndex", "PembiayaanVSJaminanSaham")"
+            });
+            e.cancel = true;
+        });
+
+        var dataGrid3 = $("#gridEfekRepo").dxDataGrid("instance");
+        dataGrid3.option("onExporting", function (e) { });
+        dataGrid3.option("onFileSaving", function (e) {
+            var fd = new FormData();
+            fd.append("file", e.data);
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("LogExportPDFIndex", "PembiayaanVSJaminanSaham")",
+                data: { file: fd, name: 'Efek Repo' },
+                processData: false,
+                contentType: false
+            }).done(function (data) {
+                window.location = "@Url.Action("FileIndex", "PembiayaanVSJaminanSaham")"
+            });
+            e.cancel = true;
+        });
+
+        var dataGrid4 = $("#gridJaminanMargin").dxDataGrid("instance");
+        dataGrid4.option("onExporting", function (e) { });
+        dataGrid4.option("onFileSaving", function (e) {
+            var fd = new FormData();
+            fd.append("file", e.data);
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("LogExportPDFIndex", "PembiayaanVSJaminanSaham")",
+                data: { file: fd, name: 'Jaminan Margin' },
+                processData: false,
+                contentType: false
+            }).done(function (data) {
+                window.location = "@Url.Action("FileIndex", "PembiayaanVSJaminanSaham")"
+            });
+            e.cancel = true;
+        });
+    }
 
     function thousandSeparatorDecimal(e) {
         if (e != null)

@@ -53,23 +53,16 @@ namespace BDA.Controllers
                 return false;
             }
         }
-        public IActionResult Index(string periode = "", string pe = "", string growthtype = "", string dimension = "Value", string investorOrigin = "Lokal")
+        public IActionResult Index()
         {
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
             var currentNode = mdl.GetCurrentNode();
             string pageTitle = currentNode != null ? currentNode.Title : ""; //menampilkan data menu
             CultureInfo culture = new CultureInfo("id-ID");
             ViewBag.Hive = false;
-            ViewBag.totalValueTraded = 130000000;
-            ViewBag.periode = periode;
-            ViewBag.pe = pe;
-            ViewBag.growthtype = growthtype;
-            ViewBag.dimension = dimension;
-            ViewBag.investorType = investorOrigin;
 
-            db.CheckPermission("Summary Cluster MKBD View", DataEntities.PermissionMessageType.ThrowInvalidOperationException); //check permission nya view/lihat nya
-            ViewBag.Export = db.CheckPermission("Summary Cluster MKBD Export", DataEntities.PermissionMessageType.NoMessage); //check permission export
-            db.InsertAuditTrail("SegmentationSummaryClusterMKBD_Akses_Page", "Akses Page Segmentation Summary Cluster MKBD", pageTitle); //simpan kedalam audit trail
+            db.CheckPermission("Geospasial View", DataEntities.PermissionMessageType.ThrowInvalidOperationException); //check permission nya view/lihat nya
+            db.InsertAuditTrail("geospasial_Akses_Page", "Akses Page geospasial Investor", pageTitle); //simpan kedalam audit trail
 
             return View();
         }
@@ -81,22 +74,8 @@ namespace BDA.Controllers
             var query = new List<StateData>();
             var Regssss = JsonConvert.DeserializeObject<Indonesia>(jsonStringRegs);
 
-            string stringPeriodeAwal = null;
-            string stringNamaPE = null;
-
-            if (periode != null)
-            {
-                stringPeriodeAwal = Convert.ToDateTime(periode).ToString("yyyy-MM-dd");
-                TempData["pawal"] = stringPeriodeAwal;
-            }
-            if (pe != null)
-            {
-                stringNamaPE = pe;
-                TempData["pe"] = stringNamaPE;
-            }
-
             db.Database.CommandTimeout = 420;
-            var result = Helper.WSQueryPS.GetBDAPGeospasialInvestorMaps(db, loadOptions, stringPeriodeAwal, stringNamaPE, growthtype, dimension, investorOrigin);
+            var result = Helper.WSQueryPS.GetBDAPGeospasialInvestorMaps(db, loadOptions, periode, pe, growthtype, dimension, investorOrigin);
 
             foreach (var r in result.data.AsEnumerable())
             {
@@ -370,7 +349,7 @@ namespace BDA.Controllers
                     for (int i = 0; i < dt.Rows.Count; i++)
                     {
                         string namakode = dt.Rows[i]["SecurityCompanyCode"].ToString() + " - " + dt.Rows[i]["SecurityCompanyName"].ToString();
-                        list.Add(new NamaPE() { value = dt.Rows[i]["SecurityCompanySK"].ToString(), text = namakode });
+                        list.Add(new NamaPE() { value = dt.Rows[i]["SecurityCompanyCode"].ToString(), text = namakode });
                     }
 
                     return Json(DataSourceLoader.Load(list, loadOptions));
@@ -405,7 +384,7 @@ namespace BDA.Controllers
             return DataSourceLoader.Load(list, loadOptions);
         }
 
-        public object getInvestorType(DataSourceLoadOptions loadOptions)
+        public object getInvestorOrigin(DataSourceLoadOptions loadOptions)
         {
             var userId = HttpContext.User.Identity.Name;
             string strSQL = db.appSettings.DataConnString;
@@ -430,7 +409,7 @@ namespace BDA.Controllers
 
                 string pageTitle = currentNode != null ? currentNode.Title : "";
 
-                db.CheckPermission("Geospasial Investor Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+                db.CheckPermission("Geospasial Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
                 db.InsertAuditTrail("GeospasialInvestor_Akses_Page", "Export Data", pageTitle);
                 return Json(new { result = "Success" });
             }
@@ -448,7 +427,7 @@ namespace BDA.Controllers
 
                 string pageTitle = currentNode != null ? currentNode.Title : "";
 
-                db.CheckPermission("Geospasial Investor Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+                db.CheckPermission("Geospasial Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
                 db.InsertAuditTrail("GeospasialInvestor_Akses_Page", "Export Data", pageTitle);
 
                 var directory = _env.WebRootPath;

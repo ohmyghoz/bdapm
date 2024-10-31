@@ -53,15 +53,15 @@ namespace BDA.Controllers
             string pageTitle = currentNode != null ? currentNode.Title : ""; //menampilkan data menu
             ViewBag.Hive = false;
 
-            db.CheckPermission("Summary Cluster MKBD View", DataEntities.PermissionMessageType.ThrowInvalidOperationException); //check permission nya view/lihat nya
+            db.CheckPermission("Pembiayaan vs Jaminan Saham View", DataEntities.PermissionMessageType.ThrowInvalidOperationException); //check permission nya view/lihat nya
             ViewBag.Export = db.CheckPermission("Summary Cluster MKBD Export", DataEntities.PermissionMessageType.NoMessage); //check permission export
-            db.InsertAuditTrail("SegmentationSummaryClusterMKBD_Akses_Page", "Akses Page Segmentation Summary Cluster MKBD", pageTitle); //simpan kedalam audit trail
+            db.InsertAuditTrail("PembiayaanVSJaminanSaham_Akses_Page", "Akses Page Pembiayaan VS Jaminan Saham", pageTitle); //simpan kedalam audit trail
 
             return View();
         }
 
         [HttpGet]
-        public object getGridNilaiPembiayaanRR(DataSourceLoadOptions loadOptions, string periode, string pe)
+        public object getGridNilaiPembiayaanRR(DataSourceLoadOptions loadOptions)
         {
             var ret = new List<DefaultList>();
             ret.Add(new DefaultList { text = "reverse repo Surat berharga negara", value = "Formulir 5d51 baris 25"});
@@ -72,7 +72,7 @@ namespace BDA.Controllers
         }
 
         [HttpGet]
-        public object getGridNilaiPembiayaanM(DataSourceLoadOptions loadOptions, string periode, string pe)
+        public object getGridNilaiPembiayaanM(DataSourceLoadOptions loadOptions)
         {
             var ret = new List<DefaultList>();
             ret.Add(new DefaultList { text = "Nilai Pembiayaan Margin", value = "Formulir 5d51 baris 35" });
@@ -235,8 +235,8 @@ namespace BDA.Controllers
 
                 string pageTitle = currentNode != null ? currentNode.Title : "";
 
-                db.CheckPermission("Summary Cluster MKBD Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-                db.InsertAuditTrail("SegmentationSummaryClusterMKBD_Akses_Page", "Export Data", pageTitle);
+                db.CheckPermission("Pembiayaan vs Jaminan Saham Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+                db.InsertAuditTrail("PembiayaanVSJaminanSaham_Akses_Page", "Export Data", pageTitle);
                 return Json(new { result = "Success" });
             }
             catch (Exception ex)
@@ -244,7 +244,7 @@ namespace BDA.Controllers
                 return Json(new { result = db.ProcessExceptionMessage(ex) });
             }
         }
-        public IActionResult ExportPDF(IFormFile file)
+        public IActionResult ExportPDF(IFormFile file, string name)
         {
             try
             {
@@ -253,8 +253,8 @@ namespace BDA.Controllers
 
                 string pageTitle = currentNode != null ? currentNode.Title : "";
 
-                db.CheckPermission("Summary Cluster MKBD Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-                db.InsertAuditTrail("SegmentationSummaryClusterMKBD_Akses_Page", "Export Data", pageTitle);
+                db.CheckPermission("Pembiayaan vs Jaminan Saham Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+                db.InsertAuditTrail("PembiayaanVSJaminanSaham_Akses_Page", "Export Data", pageTitle);
 
                 var directory = _env.WebRootPath;
                 var timeStamp = DateTime.Now.ToString();
@@ -299,7 +299,7 @@ namespace BDA.Controllers
 
                 timeStamp = timeStamp.Replace('/', '-').Replace(" ", "_").Replace(":", "-");
                 TempData["timeStamp"] = timeStamp;
-                var fileName = "SegmentationSummaryClusterMKBD_" + timeStamp + ".pdf";
+                var fileName = "SegmentationSummaryClusterMKBD_" + name + timeStamp + ".pdf";
                 workbook.Save(Path.Combine(directory, fileName), SaveFormat.Pdf);
                 return new EmptyResult();
             }
