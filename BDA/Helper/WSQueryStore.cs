@@ -27,8 +27,9 @@ namespace BDA.Helper
             DataTable dt = wqr.data;
 
             foreach(DataRow dr in dt.Rows)
-            {
+            {                 
                 dr["sid"] = DecryptSID(dr["sid"].ToString());
+                dr["lem"] = dr["lem"].ToString() + dr["sid"].ToString();
                 dr["nama_sid"] = DecryptName(dr["nama_sid"].ToString());
                 dr["full_name"] = DecryptName(dr["full_name"].ToString());
                 dr["email"] = DecryptName(dr["email"].ToString());
@@ -5607,13 +5608,13 @@ namespace BDA.Helper
             if (tableName == "ip_sid")
             {
                 props.Query += @" SELECT 
-                        valid_until + '~' + system + '~' + sid AS lem, * from pasarmodal." + (isHive ? "src_sid" : tableName) + @" x WHERE " + whereQuery + periodWhereQuery;
+                        valid_until + '~' + system + '~' AS lem, * from pasarmodal." + (isHive ? "src_sid" : tableName) + @" x WHERE " + whereQuery + periodWhereQuery;
                 //props.Query += (chk100 == true) ? @" order by x.periode" : @"";
             }
             else if (tableName == "ip_transaction")
             {
                 props.Query += @"
-                        SELECT CAST(y.valid_until AS VARCHAR(20)) + '~' + y.system + '~' + y.sid AS lem, y.*, x.buy_value, x.buy_quantity, x.buy_freq, 
+                        SELECT CAST(y.valid_until AS VARCHAR(20)) + '~' + y.system + '~' AS lem, y.*, x.buy_value, x.buy_quantity, x.buy_freq, 
                         x.sell_value, x.sell_quantity, x.sell_freq, 
                         (x.buy_value - x.sell_value) as net_value, 
                         (x.buy_quantity - x.sell_quantity) as net_quantity,
@@ -5637,7 +5638,7 @@ namespace BDA.Helper
                             from pasarmodal." + (isHive ? "investor_profile_trans" : tableName) + @"
                             where " + whereQuery + periodWhereQuery + @" 
                         )x LEFT OUTER JOIN (
-                            select valid_until, sid, nama_sid, trade_id, tanggal_lahir, tanggal_pendirian, address1, ktp, npwp, status_sid, last_update_sid, system, email, phone_number, fax, passport, occupation, nationality, province, city, periode 
+                            select valid_until, sid, nama_sid, trade_id, tanggal_lahir, tanggal_pendirian, address1, ktp, npwp, status_sid, last_update_sid, system, email, phone_number, fax, passport, occupation, nationality, province, city, periode, full_name, nama_rekening 
                             from pasarmodal." + (isHive ? "src_sid" : "ip_sid") + @" 
                             where " + whereQuery + @"
                         )y ON x.sid = y.sid";
@@ -5645,13 +5646,13 @@ namespace BDA.Helper
             else if (tableName == "ip_ownership")
             {
                 props.Query += @"
-                        SELECT CAST(y.valid_until AS VARCHAR(20)) + '~' + y.system + '~' + y.sid AS lem, y.*, 
+                        SELECT CAST(y.valid_until AS VARCHAR(20)) + '~' + y.system + '~' AS lem, y.*, 
                         securitycode, securityname, rekening_status, accountbalancestatuscode, volume, value 
                         FROM (
                             select sid, securitycode, securityname, rekening_status, accountbalancestatuscode, volume, value  
                             from pasarmodal." + (isHive ? "investor_profile_kpm" : tableName) + @" x WHERE " + whereQuery + periodWhereQuery + @"
                         )x LEFT OUTER JOIN (
-                            select valid_until, sid, nama_sid, trade_id, tanggal_lahir, tanggal_pendirian, address1, ktp, npwp, status_sid, last_update_sid, system, email, phone_number, fax, passport, occupation, nationality, province, city, periode 
+                            select valid_until, sid, nama_sid, trade_id, tanggal_lahir, tanggal_pendirian, address1, ktp, npwp, status_sid, last_update_sid, system, email, phone_number, fax, passport, occupation, nationality, province, city, periode, full_name, nama_rekening 
                             from pasarmodal." + (isHive ? "src_sid" : "ip_sid") + @" 
                             where " + whereQuery + @"
                         )y ON x.sid = y.sid";

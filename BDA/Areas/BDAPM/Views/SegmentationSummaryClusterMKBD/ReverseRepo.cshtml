@@ -140,8 +140,8 @@
                     columns.Add().DataField("no").Caption("No.").Alignment(HorizontalAlignment.Center).Width(50);
                     columns.Add().DataField("securitycode").Caption("Jenis Reverse Repo");
                     columns.Add().DataField("sellername").Caption("Penjual (Lawan Transaksi)").Width(300);
-                    columns.Add().DataField("buyingdate").Caption("Tanggal Pembelian").DataType(GridColumnDataType.DateTime).Format("dd MMM yyyy");
-                    columns.Add().DataField("sellingdate").Caption("Tanggal Penjualan Kembali").DataType(GridColumnDataType.DateTime).Format("dd MMM yyyy");
+                    columns.Add().DataField("buyingdate").Caption("Tanggal Pembelian").Alignment(HorizontalAlignment.Center);
+                    columns.Add().DataField("sellingdate").Caption("Tanggal Penjualan Kembali").Alignment(HorizontalAlignment.Center);
                     columns.Add().DataField("buyingamount").Caption("Nilai Pembelian").Alignment(HorizontalAlignment.Right).Width(130).DataType(GridColumnDataType.Number).Format(",##0");
                     columns.Add().DataField("sellingamount").Caption("Nilai Penjualan Kembali").Alignment(HorizontalAlignment.Right).Width(130).DataType(GridColumnDataType.Number).Format(",##0");
                     columns.Add().DataField("collateralsecuritycode").Caption("Kode Efek Jaminan").Width(130);
