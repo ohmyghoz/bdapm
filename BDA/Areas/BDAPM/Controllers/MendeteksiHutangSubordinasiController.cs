@@ -135,7 +135,7 @@ namespace BDA.Controllers
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
             var currentNode = mdl.GetCurrentNode();
             string pageTitle = currentNode != null ? currentNode.Title : "";
-            db.InsertAuditTrail("MendeteksiHutangSubordinasi_Akses_Page", "user " + userId + " mengakases halaman Segmentation Summary Cluster MKBD untuk digunakan sebagai " + Penggunaan_Data + "", pageTitle);
+            db.InsertAuditTrail("MendeteksiHutangSubordinasi_Akses_Page", "user " + userId + " mengakases halaman Mendeteksi Hutang Subordinasi untuk digunakan sebagai " + Penggunaan_Data + "", pageTitle);
 
             try
             {
