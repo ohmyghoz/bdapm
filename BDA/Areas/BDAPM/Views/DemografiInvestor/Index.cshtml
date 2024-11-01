@@ -283,12 +283,6 @@
 <script type="text/javascript">
 
     $(function () {
-        const startDate = $("#PeriodeAwal").dxDateBox({
-            onValueChanged: function (e) {
-                endDate.option("min", e.value);
-            }
-        }).dxDateBox("instance");
-
         $("#PeriodeAwal").dxValidator({
             validationGroup: "Filter",
             validationRules: [{ type: "required", message: "[Tanggal] harus dipilih" }]
@@ -349,10 +343,10 @@
     function onButtonFilterClicked(e) {
         const res = e.validationGroup.validate();
         if (res.status === "valid") {
-            let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
-            let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");  
-            let origin = $("#origin").dxSelectBox("instance").option("value");
-            let tipeInvestor = $("#tipeInvestor").dxSelectBox("instance").option("value");
+            var namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
+            var tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");  
+            var origin = $("#originList").dxSelectBox("instance").option("value");
+            var tipeInvestor = $("#tipeInvestorList").dxSelectBox("instance").option("value");
             var periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
 
             $.ajax({
@@ -375,7 +369,7 @@
                         var ds2 = DevExpress.data.AspNet.createStore({
                             loadMethod: "GET",
                             loadMode: "processed",
-                            loadUrl: '@Url.Action("getCHartUsia")?periode=' + periodeAwal + '&pe=' + namaPE + '&origin=' + origin + '&tipeInvestor=' + tipeInvestor
+                            loadUrl: '@Url.Action("getChartUsia")?periode=' + periodeAwal + '&pe=' + namaPE + '&origin=' + origin + '&tipeInvestor=' + tipeInvestor
                         });
                         chart2.option('dataSource', ds2);
                         

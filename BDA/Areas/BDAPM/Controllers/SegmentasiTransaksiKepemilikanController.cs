@@ -52,7 +52,7 @@ namespace BDA.Controllers
             string pageTitle = currentNode != null ? currentNode.Title : ""; //menampilkan data menu
             ViewBag.Hive = false;
 
-            db.CheckPermission("Segmentasi Transaksi Dan Kepemilikan MKBD View", DataEntities.PermissionMessageType.ThrowInvalidOperationException); //check permission nya view/lihat nya
+            db.CheckPermission("Segmentasi Transaksi Dan Kepemilikan View", DataEntities.PermissionMessageType.ThrowInvalidOperationException); //check permission nya view/lihat nya
             db.InsertAuditTrail("SegmentasiTransaksiKepemilikan_Akses_Page", "Akses Page Segmentasi Dan Transaksi MKBD", pageTitle); //simpan kedalam audit trail
 
             return View();

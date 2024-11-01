@@ -180,9 +180,7 @@ namespace BDA.Helper
             }
             var props = new WSQueryProperties();
 
-            props.Query = @"
-                    select securitycompanyname as NamaPE, calendardate as TanggalHSOT0, cast(mkbdaccountbalance as bigint) as HSO from pasarmodal.pe_segmentation_hutang_subordinasi_det
-                    WHERE " + whereQuery;
+            props.Query = @"select securitycompanyname as NamaPE, calendardate as TanggalHSOT0, cast(mkbdaccountbalance as bigint) as HSO from pasarmodal.pe_segmentation_hutang_subordinasi_det WHERE " + whereQuery;
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
         }
