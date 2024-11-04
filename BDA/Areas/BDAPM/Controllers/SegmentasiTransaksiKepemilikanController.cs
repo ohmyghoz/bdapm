@@ -206,8 +206,8 @@ namespace BDA.Controllers
             string strSQL = db.appSettings.DataConnString;
             var list = new List<NamaPE>();
 
-            list.Add(new NamaPE { value = "1", text = "Transaksi" });
-            list.Add(new NamaPE { value = "2", text = "Kepemilikan" });
+            list.Add(new NamaPE { value = "Transaction", text = "Transaksi" });
+            list.Add(new NamaPE { value = "Ownership", text = "Kepemilikan" });
             return DataSourceLoader.Load(list, loadOptions);
         }
         public class NamaPE
@@ -215,6 +215,18 @@ namespace BDA.Controllers
             public string value { get; set; }
             public string text { get; set; }
         }
+
+        public FileResult FileIndex()
+        {
+            var directory = _env.WebRootPath;
+            var timeStamp = TempData.Peek("timeStamp").ToString();
+            var fileName = "SegmentasiTransaksiKepemilikan_" + timeStamp + ".pdf";
+            var filePath = Path.Combine(directory, fileName);
+            var fileByte = System.IO.File.ReadAllBytes(filePath);
+            System.IO.File.Delete(filePath);
+            return File(fileByte, "application/pdf", fileName);
+        }
+
         [HttpPost]
         public IActionResult LogExportIndex()
         {

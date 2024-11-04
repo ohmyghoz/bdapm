@@ -24,7 +24,7 @@
                         <label>Tanggal<span class="mandatory">*</span></label>
                         @(Html.DevExtreme().DateBox()
                             .ID("PeriodeAwal")
-                            .DisplayFormat("dd MMM yyyy")
+                            .DisplayFormat("MMM yyyy")
                             .Value(DateTime.Now)
                             .Max(DateTime.Now)
                             .CalendarOptions(c => c.MaxZoomLevel(CalendarZoomLevel.Year).MinZoomLevel(CalendarZoomLevel.Century))
@@ -32,7 +32,7 @@
                     </div>
 
                     <div class="col-lg-4 form-group">
-                        <label>Nama PE</label>
+                        <label>Nama PE<span class="mandatory">*</span></label>
                         @(Html.DevExtreme().SelectBox()
                             .ID("namaPEid")
                             .DataSource(d => d.Mvc()
@@ -48,7 +48,7 @@
                     </div>
 
                     <div class="col-lg-4 form-group">
-                        <label>Jenis</label>
+                        <label>Jenis<span class="mandatory">*</span></label>
                         @(Html.DevExtreme().SelectBox()
                             .ID("JenisData")
                             .DataSource(d => d.Mvc()
@@ -141,7 +141,7 @@
                     <div class="form-group" style="padding-right:25px;padding-left:25px">
                         <div class="row float-right" style="padding-bottom:12.5px">
                             <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
-                            <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                            <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
                         </div>
                         <div class="row float-right">
                             @(Html.DevExtreme().DataGrid()
@@ -251,6 +251,13 @@
         })
     });
 
+    $(function () {
+        $("#JenisData").dxValidator({
+            validationGroup: "Filter",
+            validationRules: [{ type: "required", message: "[Jenis Data] harus dipilih" }]
+        })
+    });
+
     $(window).on('load', function () {
         $("#ModalSimpanPenggunaanData").modal("show");
     });
@@ -327,7 +334,7 @@
             var ds4 = DevExpress.data.AspNet.createStore({
                 loadMethod: "GET",
                 loadMode: "processed",
-                loadUrl: '@Url.Action("getGridSegmentasiTransaksiKepemilikan")?periode=' + periodeAwal + '&pe=' + namaPE
+                loadUrl: '@Url.Action("gridSegmentasiTransaksiKepemilikan")?periode=' + periodeAwal + '&pe=' + namaPE
             });
             grid1.option('dataSource', ds4);
         }
@@ -350,6 +357,7 @@
     }
 
     function ExportToExcel() {
+        alert("haloexl");
         $.ajax({
             type: "POST",
             url: "@Url.Action("LogExportIndex", "SegmentasiTransaksiKepemilikan")",
@@ -380,8 +388,8 @@
         });
     }
 
-    function ExportToPdf() {
-        var dataGrid = $("#getGridSegmentasiTransaksiKepemilikan").dxDataGrid("instance");
+    function ExportToPdf() {        
+        var dataGrid = $("#gridSegmentasiTransaksiKepemilikan").dxDataGrid("instance");
         dataGrid.option("onExporting", function (e) { });
         dataGrid.option("onFileSaving", function (e) {
             var fd = new FormData();
@@ -397,7 +405,6 @@
             });
             e.cancel = true;
         });
-        dataGrid.exportToExcel();
     }
 </script>
 <style>

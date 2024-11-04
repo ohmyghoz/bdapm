@@ -80,30 +80,13 @@ namespace BDA.Controllers
         }
 
         [HttpGet]
-        public object getTotalValueTraded(DataSourceLoadOptions loadOptions, string periode, string pe, string origin, string tipeInvestor)
+        public object getTotalValueTraded(string periode, string pe, string origin, string tipeInvestor)
         {
-            string stringPeriodeAwal = null;
-            string stringNamaPE = null;
-            string totalValue = "";
-
-            if (periode != null)
-            {
-                stringPeriodeAwal = Convert.ToDateTime(periode).ToString("yyyy-MM-dd");
-                TempData["pawal"] = stringPeriodeAwal;
-            }
-            if (pe != null)
-            {
-                stringNamaPE = pe;
-                TempData["pe"] = stringNamaPE;
-            }
+            DataSourceLoadOptions loadOptions = new DataSourceLoadOptions();
 
             db.Database.CommandTimeout = 420;
-            if (periode.Length > 0) //jika ada parameter nya
-            {
-                var result = Helper.WSQueryPS.GetBDAPMDemografiInvestorTV(db, loadOptions, stringPeriodeAwal, stringNamaPE, origin, tipeInvestor);
-                return JsonConvert.SerializeObject(result);
-            }
-            return totalValue;
+            var result = Helper.WSQueryPS.GetBDAPMDemografiInvestorTV(db, loadOptions, periode, pe, origin, tipeInvestor).data.Rows[0];
+            return float.Parse(result["total"].ToString());
         }
 
         [HttpGet]
