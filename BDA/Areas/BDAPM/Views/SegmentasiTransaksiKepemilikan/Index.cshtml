@@ -357,7 +357,6 @@
     }
 
     function ExportToExcel() {
-        alert("haloexl");
         $.ajax({
             type: "POST",
             url: "@Url.Action("LogExportIndex", "SegmentasiTransaksiKepemilikan")",
@@ -367,7 +366,7 @@
                     var worksheet1 = workbook.addWorksheet('Main');
 
                     DevExpress.excelExporter.exportDataGrid({
-                        component: $("#getGridSegmentasiTransaksiKepemilikan").dxDataGrid("instance"),
+                        component: $("#gridSegmentasiTransaksiKepemilikan").dxDataGrid("instance"),
                         worksheet: worksheet1,
                         customizeCell: function (options) {
                             var { gridCell, excelCell } = options;
@@ -388,7 +387,7 @@
         });
     }
 
-    function ExportToPdf() {        
+    function ExportToPdf() {       
         var dataGrid = $("#gridSegmentasiTransaksiKepemilikan").dxDataGrid("instance");
         dataGrid.option("onExporting", function (e) { });
         dataGrid.option("onFileSaving", function (e) {
@@ -401,10 +400,11 @@
                 processData: false,
                 contentType: false
             }).done(function (data) {
-                window.location = "@Url.Action("LogExportPDFIndex", "SegmentasiTransaksiKepemilikan")"
+                window.location = "@Url.Action("FileIndex", "SegmentasiTransaksiKepemilikan")"
             });
             e.cancel = true;
         });
+        dataGrid.exportToExcel();
     }
 </script>
 <style>
