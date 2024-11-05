@@ -330,7 +330,7 @@
             fd.append("file", e.data);
             $.ajax({
                 type: "POST",
-                url: "@Url.Action("LogExportPDFIndex", "MendeteksiHutangSubOrdinasi")",
+                url: "@Url.Action("LogExportIndex", "MendeteksiHutangSubOrdinasi")",
                 data: { file: fd, name: 'grid1' },
                 processData: false,
                 contentType: false
@@ -348,7 +348,7 @@
             fd.append("file", e.data);
             $.ajax({
                 type: "POST",
-                url: "@Url.Action("LogExportPDFIndex", "MendeteksiHutangSubOrdinasi")",
+                url: "@Url.Action("LogExportIndex", "MendeteksiHutangSubOrdinasi")",
                 data: { file: fd, name: 'grid2' },
                 processData: false,
                 contentType: false

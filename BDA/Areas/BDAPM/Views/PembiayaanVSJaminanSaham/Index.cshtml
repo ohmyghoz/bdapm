@@ -428,7 +428,7 @@
             fd.append("file", e.data);
             $.ajax({
                 type: "POST",
-                url: "@Url.Action("LogExportPDFIndex", "PembiayaanVSJaminanSaham")",
+                url: "@Url.Action("LogExportIndex", "PembiayaanVSJaminanSaham")",
                 data: { file: fd, name: 'NP Reverse Repo' },
                 processData: false,
                 contentType: false
@@ -446,7 +446,7 @@
             fd.append("file", e.data);
             $.ajax({
                 type: "POST",
-                url: "@Url.Action("LogExportPDFIndex", "PembiayaanVSJaminanSaham")",
+                url: "@Url.Action("LogExportIndex", "PembiayaanVSJaminanSaham")",
                 data: { file: fd, name: 'NP Margin' },
                 processData: false,
                 contentType: false
@@ -464,7 +464,7 @@
             fd.append("file", e.data);
             $.ajax({
                 type: "POST",
-                url: "@Url.Action("LogExportPDFIndex", "PembiayaanVSJaminanSaham")",
+                url: "@Url.Action("LogExportIndex", "PembiayaanVSJaminanSaham")",
                 data: { file: fd, name: 'Efek Repo' },
                 processData: false,
                 contentType: false
@@ -482,7 +482,7 @@
             fd.append("file", e.data);
             $.ajax({
                 type: "POST",
-                url: "@Url.Action("LogExportPDFIndex", "PembiayaanVSJaminanSaham")",
+                url: "@Url.Action("LogExportIndex", "PembiayaanVSJaminanSaham")",
                 data: { file: fd, name: 'Jaminan Margin' },
                 processData: false,
                 contentType: false
