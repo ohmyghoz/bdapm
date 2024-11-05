@@ -323,7 +323,7 @@
     }
 
     function ExportToPdf() {
-        var dataGrid = $("#gridContainer1").dxDataGrid("instance");
+        var dataGrid = $("#gridContainer").dxDataGrid("instance");
         dataGrid.option("onExporting", function (e) { });
         dataGrid.option("onFileSaving", function (e) {
             var fd = new FormData();
@@ -331,7 +331,7 @@
             $.ajax({
                 type: "POST",
                 url: "@Url.Action("LogExportPDFIndex", "MendeteksiHutangSubOrdinasi")",
-                data: fd,
+                data: { file: fd, name: 'grid1' },
                 processData: false,
                 contentType: false
             }).done(function (data) {
