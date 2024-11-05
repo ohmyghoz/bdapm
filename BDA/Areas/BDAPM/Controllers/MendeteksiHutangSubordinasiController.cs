@@ -198,6 +198,17 @@ namespace BDA.Controllers
             public string value { get; set; }
             public string text { get; set; }
         }
+        public FileResult FileIndex()
+        {
+            var directory = _env.WebRootPath;
+            var timeStamp = TempData.Peek("timeStamp").ToString();
+            var fileName = "MendeteksiHutangSubOrdinasi_" + timeStamp + ".pdf";
+            var filePath = Path.Combine(directory, fileName);
+            var fileByte = System.IO.File.ReadAllBytes(filePath);
+            System.IO.File.Delete(filePath);
+            return File(fileByte, "application/pdf", fileName);
+        }
+
         [HttpPost]
         public IActionResult LogExportIndex()
         {
@@ -232,6 +243,25 @@ namespace BDA.Controllers
                 var directory = _env.WebRootPath;
                 var timeStamp = DateTime.Now.ToString();
                 Workbook workbook = new Workbook(file.OpenReadStream());
+                Worksheet worksheet2 = workbook.Worksheets[0];
+                var columns1 = worksheet2.Cells.Columns.Count;
+                var rows1 = worksheet2.Cells.Rows.Count;
+                var style = workbook.CreateStyle();
+                style.SetBorder(BorderType.TopBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.BottomBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.LeftBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.RightBorder, CellBorderType.Thick, Color.Black);
+
+                //Apply bottom borders from cell F4 till K4
+                for (int r = 0; r <= rows1 - 1; r++)
+                {
+                    for (int col = 0; col <= columns1 - 1; col++)
+                    {
+                        Aspose.Cells.Cell cell = worksheet2.Cells[r, col];
+
+                        cell.SetStyle(style);
+                    }
+                }
 
                 foreach (Worksheet worksheet in workbook.Worksheets)
                 {

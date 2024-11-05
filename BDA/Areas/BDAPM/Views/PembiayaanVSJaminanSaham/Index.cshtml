@@ -443,6 +443,7 @@
             });
             e.cancel = true;
         });
+        dataGrid.exportToExcel();
 
         var dataGrid2 = $("#gridNilaiPembiayaanM").dxDataGrid("instance");
         dataGrid2.option("onExporting", function (e) { });
@@ -460,6 +461,7 @@
             });
             e.cancel = true;
         });
+        dataGrid.exportToExcel();
 
         var dataGrid3 = $("#gridEfekRepo").dxDataGrid("instance");
         dataGrid3.option("onExporting", function (e) { });
@@ -477,6 +479,7 @@
             });
             e.cancel = true;
         });
+        dataGrid.exportToExcel();
 
         var dataGrid4 = $("#gridJaminanMargin").dxDataGrid("instance");
         dataGrid4.option("onExporting", function (e) { });
@@ -494,6 +497,7 @@
             });
             e.cancel = true;
         });
+        dataGrid.exportToExcel();
     }
 
     function thousandSeparatorDecimal(e) {

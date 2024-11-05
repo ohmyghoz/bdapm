@@ -331,7 +331,7 @@
             $.ajax({
                 type: "POST",
                 url: "@Url.Action("LogExportPDFIndex", "MendeteksiHutangSubOrdinasi")",
-                data: { file: fd, name: 'grid1' } ,
+                data: fd,
                 processData: false,
                 contentType: false
             }).done(function (data) {
@@ -339,6 +339,7 @@
             });
             e.cancel = true;
         });
+        dataGrid.exportToExcel();
 
         var dataGrid2 = $("#gridContainer2").dxDataGrid("instance");
         dataGrid2.option("onExporting", function (e) { });
@@ -356,5 +357,6 @@
             });
             e.cancel = true;
         });
+        dataGrid2.exportToExcel();
     }
 </script>

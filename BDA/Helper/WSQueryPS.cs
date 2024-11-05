@@ -280,7 +280,7 @@ namespace BDA.Helper
 
             props.Query = @"
                     select mkbdaccountname Akun, mkbdaccountbalance Nilai From pasarmodal.pe_segmentation_pendanaan_per_mkbd 
-                    WHERE " + whereQuery + "  and mkbdaccountname is not null order by sort_no asc";
+                    WHERE " + whereQuery + "  and mkbdaccountname <> '' order by sort_no asc";
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
         }
@@ -305,7 +305,7 @@ namespace BDA.Helper
 
             props.Query = @"
                     select mkbdaccountname_mkbd Akun, mkbdaccountbalance_mkbd Nilai From pasarmodal.pe_segmentation_pendanaan_per_mkbd 
-                    WHERE " + whereQuery + "  and mkbdaccountname_mkbd is not null order by sort_no asc";
+                    WHERE " + whereQuery + "  and mkbdaccountname_mkbd <> '' order by sort_no asc";
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
         }
