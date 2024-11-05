@@ -198,11 +198,12 @@ namespace BDA.Controllers
             public string value { get; set; }
             public string text { get; set; }
         }
-        public FileResult FileIndex()
+        
+        public FileResult FileIndex(string name)
         {
             var directory = _env.WebRootPath;
             var timeStamp = TempData.Peek("timeStamp").ToString();
-            var fileName = "MendeteksiHutangSubOrdinasi_" + timeStamp + ".pdf";
+            var fileName = "MendeteksiHutangSubOrdinasi_" + name + timeStamp + ".pdf";
             var filePath = Path.Combine(directory, fileName);
             var fileByte = System.IO.File.ReadAllBytes(filePath);
             System.IO.File.Delete(filePath);
@@ -278,8 +279,6 @@ namespace BDA.Controllers
                     textStyle.Number = 3;
                     StyleFlag textFlag = new StyleFlag();
                     textFlag.NumberFormat = true;
-
-                    worksheet.Cells.Columns[9].ApplyStyle(textStyle, textFlag);
 
                     //page setup
                     PageSetup pageSetup = worksheet.PageSetup;

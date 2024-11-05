@@ -328,35 +328,38 @@
         dataGrid.option("onFileSaving", function (e) {
             var fd = new FormData();
             fd.append("file", e.data);
+            fd.append("name", "grid1");
             $.ajax({
                 type: "POST",
-                url: "@Url.Action("LogExportIndex", "MendeteksiHutangSubOrdinasi")",
-                data: { file: fd, name: 'grid1' },
+                url: "@Url.Action("ExportPDF", "MendeteksiHutangSubOrdinasi")",
+                data: fd,
                 processData: false,
                 contentType: false
             }).done(function (data) {
-                window.location = "@Url.Action("FileIndex", "MendeteksiHutangSubOrdinasi")"
+                var dataGrid2 = $("#gridContainer2").dxDataGrid("instance");
+                dataGrid2.option("onExporting", function (e) { });
+                dataGrid2.option("onFileSaving", function (e) {
+                    var fd = new FormData();
+                    fd.append("file", e.data);
+                    fd.append("name", "grid2");
+                    $.ajax({
+                        type: "POST",
+                        url: "@Url.Action("ExportPDF", "MendeteksiHutangSubOrdinasi")",
+                        data: fd,
+                        processData: false,
+                        contentType: false
+                    }).done(function (data) {
+                        window.location = "@Url.Action("FileIndex", "MendeteksiHutangSubOrdinasi", new { name = "grid2" })"
+                    });
+                    e.cancel = true;
+                });
+                dataGrid2.exportToExcel();
+                window.location = "@Url.Action("FileIndex", "MendeteksiHutangSubOrdinasi", new { name = "grid1"})"                
             });
             e.cancel = true;
         });
         dataGrid.exportToExcel();
+        
 
-        var dataGrid2 = $("#gridContainer2").dxDataGrid("instance");
-        dataGrid2.option("onExporting", function (e) { });
-        dataGrid2.option("onFileSaving", function (e) {
-            var fd = new FormData();
-            fd.append("file", e.data);
-            $.ajax({
-                type: "POST",
-                url: "@Url.Action("LogExportIndex", "MendeteksiHutangSubOrdinasi")",
-                data: { file: fd, name: 'grid2' },
-                processData: false,
-                contentType: false
-            }).done(function (data) {
-                window.location = "@Url.Action("FileIndex", "MendeteksiHutangSubOrdinasi")"
-            });
-            e.cancel = true;
-        });
-        dataGrid2.exportToExcel();
     }
 </script>
