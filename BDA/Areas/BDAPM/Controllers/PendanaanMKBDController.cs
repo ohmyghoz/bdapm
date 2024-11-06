@@ -196,11 +196,11 @@ namespace BDA.Controllers
             public string text { get; set; }
         }
 
-        public FileResult FileIndex()
+        public FileResult FileIndex(string name)
         {
             var directory = _env.WebRootPath;
             var timeStamp = TempData.Peek("timeStamp").ToString();
-            var fileName = "PendanaanMKBD_" + timeStamp + ".pdf";
+            var fileName = "PendanaanMKBD_" + name + timeStamp + ".pdf";
             var filePath = Path.Combine(directory, fileName);
             var fileByte = System.IO.File.ReadAllBytes(filePath);
             System.IO.File.Delete(filePath);
@@ -226,7 +226,7 @@ namespace BDA.Controllers
                 return Json(new { result = db.ProcessExceptionMessage(ex) });
             }
         }
-        public IActionResult ExportPDF(IFormFile file)
+        public IActionResult ExportPDF(IFormFile file, string name)
         {
             try
             {
@@ -300,7 +300,7 @@ namespace BDA.Controllers
 
                 timeStamp = timeStamp.Replace('/', '-').Replace(" ", "_").Replace(":", "-");
                 TempData["timeStamp"] = timeStamp;
-                var fileName = "PendanaanMKBD_" + timeStamp + ".pdf";
+                var fileName = "PendanaanMKBD_" + name + timeStamp + ".pdf";
                 workbook.Save(Path.Combine(directory, fileName), SaveFormat.Pdf);
                 return new EmptyResult();
             }

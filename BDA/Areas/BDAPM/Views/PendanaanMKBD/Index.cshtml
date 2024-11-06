@@ -303,19 +303,39 @@
     }
 
     function ExportToPdf() {
-        var dataGrid = $("#gridContainer1").dxDataGrid("instance");
+        var dataGrid = $("#gridPendanaanPE").dxDataGrid("instance");
         dataGrid.option("onExporting", function (e) { });
         dataGrid.option("onFileSaving", function (e) {
             var fd = new FormData();
             fd.append("file", e.data);
+            fd.append("name", "Pendanaan");
             $.ajax({
                 type: "POST",
-                url: "@Url.Action("LogExportIndex", "PendanaanMKBD")",
+                url: "@Url.Action("ExportPDF", "PendanaanMKBD")",
                 data: fd,
                 processData: false,
                 contentType: false
             }).done(function (data) {
-                window.location = "@Url.Action("FileIndex", "PendanaanMKBD")"
+                var dataGrid2 = $("#gridSumberPendanaanPE").dxDataGrid("instance");
+                dataGrid2.option("onExporting", function (e) { });
+                dataGrid2.option("onFileSaving", function (e) {
+                    var fd = new FormData();
+                    fd.append("file", e.data);
+                    fd.append("name", "SumberPendanaan");
+                    $.ajax({
+                        type: "POST",
+                        url: "@Url.Action("ExportPDF", "PendanaanMKBD")",
+                        data: fd,
+                        processData: false,
+                        contentType: false
+                    }).done(function (data) {
+                        window.location = "@Url.Action("FileIndex", "PendanaanMKBD", new { name = "SumberPendanaan" })"
+                    });
+                    e.cancel = true;
+                });
+                dataGrid2.exportToExcel();
+
+                window.location = "@Url.Action("FileIndex", "PendanaanMKBD", new { name = "Pendanaan" })"
             });
             e.cancel = true;
         });

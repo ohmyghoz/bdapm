@@ -426,68 +426,72 @@
         dataGrid.option("onFileSaving", function (e) {
             var fd = new FormData();
             fd.append("file", e.data);
+            fd.append("Name", "NPReverseRepo");
             $.ajax({
                 type: "POST",
-                url: "@Url.Action("LogExportIndex", "PembiayaanVSJaminanSaham")",
-                data: { file: fd, name: 'NP Reverse Repo' },
+                url: "@Url.Action("ExportPDF", "PembiayaanVSJaminanSaham")",
+                data: fd,
                 processData: false,
                 contentType: false
             }).done(function (data) {
-                window.location = "@Url.Action("FileIndex", "PembiayaanVSJaminanSaham")"
-            });
-            e.cancel = true;
-        });
-        dataGrid.exportToExcel();
+                var dataGrid2 = $("#gridNilaiPembiayaanM").dxDataGrid("instance");
+                dataGrid2.option("onExporting", function (e) { });
+                dataGrid2.option("onFileSaving", function (e) {
+                    var fd = new FormData();
+                    fd.append("file", e.data);
+                    fd.append("Name", "NPMargin");
+                    $.ajax({
+                        type: "POST",
+                        url: "@Url.Action("ExportPDF", "PembiayaanVSJaminanSaham")",
+                        data: fd,
+                        processData: false,
+                        contentType: false
+                    }).done(function (data) {
+                        var dataGrid3 = $("#gridEfekRepo").dxDataGrid("instance");
+                        dataGrid3.option("onExporting", function (e) { });
+                        dataGrid3.option("onFileSaving", function (e) {
+                            var fd = new FormData();
+                            fd.append("file", e.data);
+                            fd.append("Name", "EfekRepo");
+                            $.ajax({
+                                type: "POST",
+                                url: "@Url.Action("ExportPDF", "PembiayaanVSJaminanSaham")",
+                                data: fd,
+                                processData: false,
+                                contentType: false
+                            }).done(function (data) {
+                                var dataGrid4 = $("#gridJaminanMargin").dxDataGrid("instance");
+                                dataGrid4.option("onExporting", function (e) { });
+                                dataGrid4.option("onFileSaving", function (e) {
+                                    var fd = new FormData();
+                                    fd.append("file", e.data);
+                                    fd.append("Name", "JaminanMargin");
+                                    $.ajax({
+                                        type: "POST",
+                                        url: "@Url.Action("ExportPDF", "PembiayaanVSJaminanSaham")",
+                                        data: fd,
+                                        processData: false,
+                                        contentType: false
+                                    }).done(function (data) {
+                                        window.location = "@Url.Action("FileIndex", "PembiayaanVSJaminanSaham", new { name = "JaminanMargin" })"
+                                    });
+                                    e.cancel = true;
+                                });
+                                dataGrid4.exportToExcel();
 
-        var dataGrid2 = $("#gridNilaiPembiayaanM").dxDataGrid("instance");
-        dataGrid2.option("onExporting", function (e) { });
-        dataGrid2.option("onFileSaving", function (e) {
-            var fd = new FormData();
-            fd.append("file", e.data);
-            $.ajax({
-                type: "POST",
-                url: "@Url.Action("LogExportIndex", "PembiayaanVSJaminanSaham")",
-                data: { file: fd, name: 'NP Margin' },
-                processData: false,
-                contentType: false
-            }).done(function (data) {
-                window.location = "@Url.Action("FileIndex", "PembiayaanVSJaminanSaham")"
-            });
-            e.cancel = true;
-        });
-        dataGrid.exportToExcel();
+                                window.location = "@Url.Action("FileIndex", "PembiayaanVSJaminanSaham", new { name = "EfekRepo" })"
+                            });
+                            e.cancel = true;
+                        });
+                        dataGrid3.exportToExcel();
 
-        var dataGrid3 = $("#gridEfekRepo").dxDataGrid("instance");
-        dataGrid3.option("onExporting", function (e) { });
-        dataGrid3.option("onFileSaving", function (e) {
-            var fd = new FormData();
-            fd.append("file", e.data);
-            $.ajax({
-                type: "POST",
-                url: "@Url.Action("LogExportIndex", "PembiayaanVSJaminanSaham")",
-                data: { file: fd, name: 'Efek Repo' },
-                processData: false,
-                contentType: false
-            }).done(function (data) {
-                window.location = "@Url.Action("FileIndex", "PembiayaanVSJaminanSaham")"
-            });
-            e.cancel = true;
-        });
-        dataGrid.exportToExcel();
+                        window.location = "@Url.Action("FileIndex", "PembiayaanVSJaminanSaham", new { name = "NPMargin" })"
+                    });
+                    e.cancel = true;
+                });
+                dataGrid2.exportToExcel();
 
-        var dataGrid4 = $("#gridJaminanMargin").dxDataGrid("instance");
-        dataGrid4.option("onExporting", function (e) { });
-        dataGrid4.option("onFileSaving", function (e) {
-            var fd = new FormData();
-            fd.append("file", e.data);
-            $.ajax({
-                type: "POST",
-                url: "@Url.Action("LogExportIndex", "PembiayaanVSJaminanSaham")",
-                data: { file: fd, name: 'Jaminan Margin' },
-                processData: false,
-                contentType: false
-            }).done(function (data) {
-                window.location = "@Url.Action("FileIndex", "PembiayaanVSJaminanSaham")"
+                window.location = "@Url.Action("FileIndex", "PembiayaanVSJaminanSaham", new { name = "NPReverseRepo" })"
             });
             e.cancel = true;
         });
