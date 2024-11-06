@@ -334,7 +334,7 @@
             var ds4 = DevExpress.data.AspNet.createStore({
                 loadMethod: "GET",
                 loadMode: "processed",
-                loadUrl: '@Url.Action("gridSegmentasiTransaksiKepemilikan")?periode=' + periodeAwal + '&pe=' + namaPE
+                loadUrl: '@Url.Action("getGridSegmentasiTransaksiKepemilikan")?periode=' + periodeAwal + '&pe=' + namaPE
             });
             grid1.option('dataSource', ds4);
         }
