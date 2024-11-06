@@ -32,7 +32,7 @@
                     </div>
 
                     <div class="col-lg-3 form-group">
-                        <label>Nama PE<span class="mandatory">*</span></label>
+                        <label>Nama PE</label>
                         @(Html.DevExtreme().SelectBox()
                             .ID("namaPEid")
                             .DataSource(d => d.Mvc()
@@ -296,13 +296,6 @@
         })
     });
 
-    $(function () {
-        $("#namaPEid").dxValidator({
-            validationGroup: "Filter",
-            validationRules: [{ type: "required", message: "[Nama PE] harus dipilih" }]
-        })
-    });
-
     $(window).on('load', function () {
         $("#ModalSimpanPenggunaanData").modal("show");
     });
@@ -350,7 +343,7 @@
             var periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
 
             $.ajax({
-                url: '@Url.Action("getTotalValueTraded", "DemograviInvestor")',
+                url: '@Url.Action("getTotalValueTraded", "DemografiInvestor")',
                 data: { periode: periodeAwal, pe: namaPE, origin: origin, tipeInvestor: tipeInvestor },
                 dataType: "json",
                 type: "GET",

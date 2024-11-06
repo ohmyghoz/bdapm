@@ -56,7 +56,7 @@ namespace BDA.Controllers
             string pageTitle = currentNode != null ? currentNode.Title : ""; //menampilkan data menu
             CultureInfo culture = new CultureInfo("id-ID");
             ViewBag.Hive = false;
-            ViewBag.totalValueTraded = 1;//getTotalValueTraded();
+            //ViewBag.totalValueTraded = getTotalValueTraded();
             
             db.CheckPermission("Demografi Investor View", DataEntities.PermissionMessageType.ThrowInvalidOperationException); //check permission nya view/lihat nya
             db.InsertAuditTrail("DemografiInvestor_Akses_Page", "Akses Page Demografi Investor", pageTitle); //simpan kedalam audit trail
