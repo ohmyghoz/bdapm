@@ -644,13 +644,13 @@ namespace BDA.Helper
                 else
                 {
                     props.Query = @"
-                    select country as Lokasi, investor_type InvestorType, cast(sum(current_value) as bigint) current_value From pasarmodal.pe_segmentation_geo where"
+                    select country as Lokasi, investor_type InvestorType, cast(sum(current_value) as bigint) current_value From pasarmodal.pe_segmentation_geo where "
                             + whereQuery + " group by country, investor_type order by sum(current_value) " + order + " limit 16";
                 }
             }
             else {
                 props.Query = @"
-                    select country as lokasi, investor_type InvestorType, cast(sum(current_value) as bigint) current_value From pasarmodal.pe_segmentation_geo where"
+                    select country as lokasi, investor_type InvestorType, cast(sum(current_value) as bigint) current_value From pasarmodal.pe_segmentation_geo where "
                             + whereQuery + " group by country, investor_type order by sum(current_value) " + order + " limit 16";
             }
 
