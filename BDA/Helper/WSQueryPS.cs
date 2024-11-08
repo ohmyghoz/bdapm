@@ -667,7 +667,7 @@ namespace BDA.Helper
             {
                 periodeawal = "'" + periodeawal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
                 periodeakhir = "'" + periodeakhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND pperiode between " + periodeawal.Replace("-", "") + " and "+ periodeakhir.Replace(" - ", "");
+                whereQuery = whereQuery += " AND pperiode between " + periodeawal.Replace("-", "") + " and "+ periodeakhir.Replace("-", "");
             }
 
             if (stringPE != null)
@@ -906,7 +906,7 @@ namespace BDA.Helper
             var props = new WSQueryProperties();
 
             props.Query = @"
-                    select exchangemembercode as KodeEfek, LiquidHC, LiquidIM, LiquidNK, cast(sum(total_volume) as bigint) as TotalVolume, cast(sum(total_value) as bigint) as TotalValue, cast(sum(total_freq) as bigint) as TotalFreq from pasarmodal.segmentasi_transaksi_kepemilikan
+                    select exchangemembercode as KodeEfek, liquidhc as LiquidHC, liquidim as LiquidIM, liquidnk as LiquidNK, cast(sum(total_volume) as bigint) as TotalVolume, cast(sum(total_value) as bigint) as TotalValue, cast(sum(total_freq) as bigint) as TotalFreq from pasarmodal.segmentasi_transaksi_kepemilikan
                     WHERE " + whereQuery + " group by exchangemembercode, liquidhc, liquidim, liquidnk";
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);

@@ -138,7 +138,7 @@ namespace BDA.Controllers
 
             if (periode != null)
             {
-                stringPeriodeAwal = Convert.ToDateTime(periode).ToString("yyyy-MM-dd");
+                stringPeriodeAwal = Convert.ToDateTime(periode).ToString("yyyy-MM");
                 TempData["pawal"] = stringPeriodeAwal;
             }
             if (pe != null)
@@ -169,12 +169,12 @@ namespace BDA.Controllers
             {
                 if (growthtype == "MoM")
                 {
-                    stringPeriodeAwal = Convert.ToDateTime(periode).AddMonths(-12).ToString("yyyy-MM-dd");
+                    stringPeriodeAwal = Convert.ToDateTime(periode).AddMonths(-12).ToString("yyyy-MM");
                 }
                 else {
-                    stringPeriodeAwal = Convert.ToDateTime(periode).AddYears(-12).ToString("yyyy-MM-dd");
+                    stringPeriodeAwal = Convert.ToDateTime(periode).AddYears(-12).ToString("yyyy-MM");
                 }
-                stringPeriodeAkhir = Convert.ToDateTime(periode).ToString("yyyy-MM-dd");
+                stringPeriodeAkhir = Convert.ToDateTime(periode).ToString("yyyy-MM");
             }
             if (pe != null)
             {
@@ -200,7 +200,7 @@ namespace BDA.Controllers
 
             if (periode != null)
             {
-                stringPeriodeAwal = Convert.ToDateTime(periode).ToString("yyyy-MM-dd");
+                stringPeriodeAwal = Convert.ToDateTime(periode).ToString("yyyy-MM");
                 TempData["pawal"] = stringPeriodeAwal;
             }
             if (pe != null)
@@ -227,7 +227,7 @@ namespace BDA.Controllers
 
             if (periode != null)
             {
-                stringPeriodeAwal = Convert.ToDateTime(periode).ToString("yyyy-MM-dd");
+                stringPeriodeAwal = Convert.ToDateTime(periode).ToString("yyyy-MM");
             }
             if (pe != null)
             {

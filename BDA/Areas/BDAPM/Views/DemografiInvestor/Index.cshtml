@@ -336,10 +336,10 @@
     function onButtonFilterClicked(e) {
         const res = e.validationGroup.validate();
         if (res.status === "valid") {
-            var namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
-            var tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");  
-            var origin = $("#originList").dxSelectBox("instance").option("value");
-            var tipeInvestor = $("#tipeInvestorList ").dxSelectBox("instance").option("value");
+            var namaPE = $("#namaPEid").dxSelectBox("instance").option("value") ?? "";
+            var tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value") ?? "";  
+            var origin = $("#originList").dxSelectBox("instance").option("value") ?? "";
+            var tipeInvestor = $("#tipeInvestorList ").dxSelectBox("instance").option("value") ?? "";
             var periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
 
             $.ajax({

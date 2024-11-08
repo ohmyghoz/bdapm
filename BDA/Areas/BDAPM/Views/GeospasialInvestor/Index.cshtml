@@ -135,7 +135,7 @@
                                 .Name("bubbles")
                                 .DataSource(d => d.Mvc().Controller("GeospasialInvestor").LoadAction("getMaps").LoadMethod("Get").LoadParams(new
                                 {
-                                    periode = new JS("getDateValue()"),
+                                    periode = new JS("function() { return $(\"#PeriodeAwal\").dxDateBox(\"instance\").option(\"value\").getFullYear() + '-' + ($(\"#PeriodeAwal\").dxDateBox(\"instance\").option(\"value\").getMonth() + 1);}"),
                                     pe = new JS("function() { return $(\"#namaPEid\").dxSelectBox(\"instance\").option(\"value\");}"),
                                     growthtype = new JS("function() { return $(\"#growthType\").dxSelectBox(\"instance\").option(\"value\");}"),
                                     dimension = new JS("function() { return $(\"#dimension\").dxSelectBox(\"instance\").option(\"value\");}"),
@@ -182,7 +182,7 @@
                             .Selection(c => c.Mode(SelectionMode.Single))
                             .DataSource(d => d.Mvc().Controller("GeospasialInvestor").LoadAction("GetGridLeaderBoard").LoadMethod("Get").LoadParams(new
                             {
-                                periode = new JS("getDateValue()"),
+                                periode = new JS("function() { return $(\"#PeriodeAwal\").dxDateBox(\"instance\").option(\"value\").getFullYear() + '-' + ($(\"#PeriodeAwal\").dxDateBox(\"instance\").option(\"value\").getMonth() + 1);}"),
                                 pe = new JS("function() { return $(\"#namaPEid\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 growthtype = new JS("function() { return $(\"#growthType\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 dimension = new JS("function() { return $(\"#dimension\").dxSelectBox(\"instance\").option(\"value\");}"),
@@ -216,7 +216,7 @@
                             .Selection(c => c.Mode(SelectionMode.Single))
                             .DataSource(d => d.Mvc().Controller("GeospasialInvestor").LoadAction("GetGridLeaderBoard").LoadMethod("Get").LoadParams(new
                             {
-                                periode = new JS("getDateValue()"),
+                                periode = new JS("function() { return $(\"#PeriodeAwal\").dxDateBox(\"instance\").option(\"value\").getFullYear() + '-' + ($(\"#PeriodeAwal\").dxDateBox(\"instance\").option(\"value\").getMonth() + 1);}"),
                                 pe = new JS("function() { return $(\"#namaPEid\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 growthtype = new JS("function() { return $(\"#growthType\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 dimension = new JS("function() { return $(\"#dimension\").dxSelectBox(\"instance\").option(\"value\");}"),
@@ -254,7 +254,7 @@
                             })
                             .DataSource(d => d.Mvc().Controller("GeospasialInvestor").LoadAction("GetGridDataCVGrowth").LoadMethod("Get").LoadParams(new
                             {
-                                periode = new JS("getDateValue()"),
+                                periode = new JS("function() { return $(\"#PeriodeAwal\").dxDateBox(\"instance\").option(\"value\").getFullYear() + '-' + ($(\"#PeriodeAwal\").dxDateBox(\"instance\").option(\"value\").getMonth() + 1);}"),
                                 pe = new JS("function() { return $(\"#namaPEid\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 growthtype = new JS("function() { return $(\"#growthType\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 dimension = new JS("function() { return $(\"#dimension\").dxSelectBox(\"instance\").option(\"value\");}"),
@@ -287,7 +287,7 @@
                                 )
                             .DataSource(d => d.Mvc().Controller("GeospasialInvestor").LoadAction("GetChartIT").LoadMethod("Get").LoadParams(new
                             {
-                                periode = new JS("getDateValue()"),
+                                periode = new JS("function() { return $(\"#PeriodeAwal\").dxDateBox(\"instance\").option(\"value\").getFullYear() + '-' + ($(\"#PeriodeAwal\").dxDateBox(\"instance\").option(\"value\").getMonth() + 1);}"),
                                 pe = new JS("function() { return $(\"#namaPEid\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 growthtype = new JS("function() { return $(\"#growthType\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 dimension = new JS("function() { return $(\"#dimension\").dxSelectBox(\"instance\").option(\"value\");}"),
@@ -319,7 +319,7 @@
                             )
                             .DataSource(d => d.Mvc().Controller("GeospasialInvestor").LoadAction("GetChartIO").LoadMethod("Get").LoadParams(new
                             {
-                                periode = new JS("getDateValue()"),
+                                periode = new JS("function() { return $(\"#PeriodeAwal\").dxDateBox(\"instance\").option(\"value\").getFullYear() + '-' + ($(\"#PeriodeAwal\").dxDateBox(\"instance\").option(\"value\").getMonth() + 1);}"),
                                 pe = new JS("function() { return $(\"#namaPEid\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 growthtype = new JS("function() { return $(\"#growthType\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 dimension = new JS("function() { return $(\"#dimension\").dxSelectBox(\"instance\").option(\"value\");}"),
@@ -517,17 +517,6 @@
         var chart3 = $("#ChartIO").dxPieChart("instance");
         var ds3 = chart3.option('dataSource');
         chart3.option('dataSource', ds3);
-    }
-
-    function getDateValue(){
-        var tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
-
-        var periodeAwal = null;
-        if (tempPeriodeAwal != null) {
-            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + (tempPeriodeAwal.getMonth() + 1);
-        }
-
-        return periodeAwal;
     }
 
     function vectorMap_customizeTooltip(arg) {
