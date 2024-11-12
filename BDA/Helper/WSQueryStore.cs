@@ -5650,7 +5650,7 @@ namespace BDA.Helper
                 props.Query += @"
                             from pasarmodal." + (isHive ? "investor_profile_trans" : tableName) + @"
                             where " + whereQuery + periodWhereQuery 
-                            //+ (isHive ? "group by sid, trade_id, security_code" :"") 
+                            //+ (isHive ? "group by sid, trade_id, securitycode" :"") 
                             + @" 
                         )x LEFT OUTER JOIN (
                             select valid_until, sid, nama_sid, tanggal_lahir, tanggal_pendirian, address1, ktp, npwp, status_sid, last_update_sid, system, email, phone_number, fax, passport, occupation, nationality, province, city, full_name, nama_rekening 
