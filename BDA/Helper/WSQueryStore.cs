@@ -5584,7 +5584,7 @@ namespace BDA.Helper
             var periodWhereQuery = "";
             //isHive = false;
 
-            if (sistem != null) whereQuery = whereQuery += " AND system = '" + sistem.ToUpper() + "' ";
+            if (sistem != null) whereQuery = whereQuery += " AND UPPER(system) = '" + sistem.ToUpper() + "' ";
 
             if (SID != null) whereQuery = whereQuery += " AND sid = '" + EncryptSID(SID) + "' ";
             else if (tradeId != null) whereQuery = whereQuery += " AND trade_id = '" + tradeId + "' ";
