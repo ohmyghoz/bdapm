@@ -3,6 +3,7 @@ using BDA.Helper.FW;
 using DevExpress.Data.Extensions;
 using DevExpress.XtraRichEdit;
 using DevExtreme.AspNet.Mvc;
+using Microsoft.AspNetCore.Http;
 using Org.BouncyCastle.Asn1.Mozilla;
 using System;
 using System.Collections.Generic;
@@ -5583,7 +5584,7 @@ namespace BDA.Helper
             var periodWhereQuery = "";
             //isHive = false;
 
-            if (sistem != null) whereQuery = whereQuery += " AND system = '" + sistem + "' ";
+            if (sistem != null) whereQuery = whereQuery += " AND system = '" + sistem.ToUpper() + "' ";
 
             if (SID != null) whereQuery = whereQuery += " AND sid = '" + EncryptSID(SID) + "' ";
             else if (tradeId != null) whereQuery = whereQuery += " AND trade_id = '" + tradeId + "' ";
@@ -5603,10 +5604,22 @@ namespace BDA.Helper
                 string periodes = "'" + startPeriod.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
                 periodWhereQuery = " AND " + periodes + " between valid_from and valid_until"; //date_format(CURRENT_DATE(), 'YYYYMMdd')
             }
-            var props = new WSQueryProperties();
 
+            var propsQuery = new WSQueryProperties();
+            propsQuery.Query = "select table_" + (isHive? "hive" : "sql") + @" as queryString from dbo.ref_query where table_id = '" + tableName + "'";
+            DataRow dr = WSQueryHelper.DoQuery(db, propsQuery, loadOptions, false, false).data.Rows[0];
+            string queryString = dr["queryString"].ToString();
+            queryString = queryString.Replace("@wherefilter", whereQuery).Replace("@whereperiode", periodWhereQuery);
+
+            var props = new WSQueryProperties();
+            props.Query = queryString;
+
+            #region OldQuery
+            /*
             if (tableName == "ip_sid")
             {
+
+
                 props.Query += @" SELECT 
                         CONCAT(CAST(valid_until AS VARCHAR(20)), '~', system, '~') AS lem, * from pasarmodal." + (isHive ? "src_sid" : tableName) + @" x WHERE " + whereQuery + periodWhereQuery;
                 //props.Query += (chk100 == true) ? @" order by x.periode" : @"";
@@ -5624,19 +5637,21 @@ namespace BDA.Helper
 
                 if (isHive)
                     props.Query += @"
-                            SUM( IF( transactiontypecode = 'B', value, 0) ) AS buy_value, 
-                            SUM( IF( transactiontypecode = 'B', quantity, 0) ) AS buy_quantity, 
-                            SUM( IF( transactiontypecode = 'B', freq, 0) ) AS buy_freq,
-                            SUM( IF( transactiontypecode = 'S', value, 0) ) AS sell_value, 
-                            SUM( IF( transactiontypecode = 'S', quantity, 0) ) AS sell_quantity, 
-                            SUM( IF( transactiontypecode = 'S', freq, 0) ) AS sell_freq ";
+                            IF( transactiontypecode = 'B', value, 0)  AS buy_value, 
+                            IF( transactiontypecode = 'B', quantity, 0)  AS buy_quantity, 
+                            IF( transactiontypecode = 'B', freq, 0)  AS buy_freq,
+                            IF( transactiontypecode = 'S', value, 0)  AS sell_value, 
+                            IF( transactiontypecode = 'S', quantity, 0)  AS sell_quantity, 
+                            IF( transactiontypecode = 'S', freq, 0)  AS sell_freq ";
                 else
                     props.Query += @"
                             buy_value, buy_quantity, buy_freq, sell_value, sell_quantity, sell_freq ";
 
                 props.Query += @"
                             from pasarmodal." + (isHive ? "investor_profile_trans" : tableName) + @"
-                            where " + whereQuery + periodWhereQuery + (isHive ? "group by sid, trade_id, security_code" :"") + @" 
+                            where " + whereQuery + periodWhereQuery 
+                            //+ (isHive ? "group by sid, trade_id, security_code" :"") 
+                            + @" 
                         )x LEFT OUTER JOIN (
                             select valid_until, sid, nama_sid, tanggal_lahir, tanggal_pendirian, address1, ktp, npwp, status_sid, last_update_sid, system, email, phone_number, fax, passport, occupation, nationality, province, city, full_name, nama_rekening 
                             from pasarmodal." + (isHive ? "src_sid" : "ip_sid") + @" 
@@ -5664,6 +5679,9 @@ namespace BDA.Helper
                         CAST(dm_periode AS VARCHAR(20)) + '~' + system + '~' + sid AS lem, * from pasarmodal." + tableName + @" x WHERE " + whereQuery;
                 props.Query += (chk100 == true) ? @" order by x.is_direct" : @"";
             }
+            */
+
+            #endregion
 
             return DecryptResults( WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive) );
         }
