@@ -1,4 +1,5 @@
 ﻿@using DevExtreme.AspNet.Mvc
+@using DevExtreme.AspNet.Data 
 @{
     Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
     string reportId = "Validasi_Data_Transaksi";
@@ -191,7 +192,91 @@
         </div>
     </div>
 
-    <div class="card-body">
+    /* <div class="card-body">
+        @(Html.DevExtreme().PivotGrid()
+            .ID("pivotgrid")
+            .ShowRowGrandTotals(false)
+            .ShowRowTotals(false)
+            .AllowSortingBySummary(true)
+            .AllowSorting(true)
+            .AllowFiltering(true)
+
+            .Scrolling(s => s.Mode(PivotGridScrollingMode.Virtual))
+            .Height(800)
+            .ShowBorders(true)
+            .FieldPanel(p => p
+            .ShowRowFields(true)
+            .Visible(true)
+            )
+            .DataSource(d => d.Mvc()
+            .Controller("MarketDriven")
+            .LoadAction("GetPivotGrid")
+            )
+            .Fields(f =>
+            {
+                f.Add()
+                .Caption("Transaction Date")
+                .DataField("periode")
+                .Expanded(true)
+
+                .Width(200)
+                .Area(PivotGridArea.Row);
+
+
+                f.Add()
+                .Caption("SID")
+                .DataField("sid")
+                .Expanded(true)
+                .Width(200)
+                .Area(PivotGridArea.Row);
+
+                f.Add()
+                .Caption("SID Name")
+                .DataField("sid_name")
+                .Width(200)
+                .Expanded(true)
+                .Area(PivotGridArea.Row);
+
+                f.Add()
+                .Caption("Investor Code")
+                .DataField("investor_code")
+                .Width(200)
+                .Expanded(true)
+                .Area(PivotGridArea.Row);
+
+                f.Add()
+                .Caption("Security Code")
+                .DataField("securitycode")
+                .Width(200)
+                .Expanded(true)
+                .Area(PivotGridArea.Row);
+
+                f.Add()
+                .Caption("Quantity")
+                .DataField("quantity")
+                .Width(50)
+                .SummaryType(SummaryType.Sum).Format("#,##0")
+                .Area(PivotGridArea.Data);
+
+                f.Add()
+                .Caption("Value")
+                .DataField("value")
+                .Width(50)
+                .SummaryType(SummaryType.Sum).Format("#,##0")
+                .Area(PivotGridArea.Data);
+
+
+            }
+        
+            )  
+            ))
+
+
+
+    </div>*/
+    
+    
+    /* <div class="card-body">
         @(Html.DevExtreme().PivotGrid()
             .ID("pivotgrid")
             .ShowRowGrandTotals(false)
@@ -269,7 +354,7 @@
 
 
 
-    </div>
+    </div>*/
 
    
     <!-- The Modal  Detail-->
@@ -426,11 +511,30 @@
         }
     }
 
-    function onButtonFilterClicked(e) {
-        const res = e.validationGroup.validate();
-        if (res.status === "valid") {
-    $("#grid1").dxDataGrid("instance").refresh();
-        }
+    function onButtonFilterClicked() {
+        
+            let tempDatePickM = $("#datePickM").dxDateBox("instance").option("value");
+            let itemsPerPage = $("#itemsPerPage").dxTagBox("instance").option("value");
+
+            let datePickM = null;
+            if (tempDatePickM != null) {
+                datePickM = tempDatePickM.getFullYear() + (tempDatePickM.getMonth() + 1);
+            }
+            /*
+            $.ajax({
+                url: '@Url.Action("GetPivotGridVDT", "MarketDriven")',
+                data: { datePickM: datePickM, itemsPerPage: itemsPerPage},
+                dataType: "json",
+                type: "POST",
+                success: function (response) {
+                    $("#pivotgrid").dxPivotGrid("instance").refresh();
+                }
+            });*/
+            ajaxOptions.data.periode = datePickM ;
+        
+
+            $("#pivotgrid").dxPivotGrid("instance").refresh();
+        
     }
 
     function onGridBeforeSend(method, ajaxOptions) {
