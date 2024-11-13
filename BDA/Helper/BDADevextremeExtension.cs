@@ -2620,7 +2620,7 @@ namespace BDA.Helper
                     if (row.ColumnName == "accountbalancestatuscode") caption = "Balance Status";
                     if (row.ColumnName == "rekening_status") caption = "Account Status";
                     if (row.ColumnName == "securityname") caption = "Nama Efek";
-                    if (row.ColumnName == "securitycode") continue;
+                    if (row.ColumnName == "securitycode") caption = "Kode Efek";
 
                     if (kode == "ip_sid")
                     {

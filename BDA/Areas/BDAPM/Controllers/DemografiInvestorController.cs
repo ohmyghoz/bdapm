@@ -56,10 +56,9 @@ namespace BDA.Controllers
             string pageTitle = currentNode != null ? currentNode.Title : ""; //menampilkan data menu
             CultureInfo culture = new CultureInfo("id-ID");
             ViewBag.Hive = false;
-            ViewBag.totalValueTraded = getTotalValueTraded();
+            //ViewBag.totalValueTraded = getTotalValueTraded();
             
-            db.CheckPermission("Summary Cluster MKBD View", DataEntities.PermissionMessageType.ThrowInvalidOperationException); //check permission nya view/lihat nya
-            ViewBag.Export = db.CheckPermission("Summary Cluster MKBD Export", DataEntities.PermissionMessageType.NoMessage); //check permission export
+            db.CheckPermission("Demografi Investor View", DataEntities.PermissionMessageType.ThrowInvalidOperationException); //check permission nya view/lihat nya
             db.InsertAuditTrail("DemografiInvestor_Akses_Page", "Akses Page Demografi Investor", pageTitle); //simpan kedalam audit trail
 
             return View();
@@ -81,30 +80,13 @@ namespace BDA.Controllers
         }
 
         [HttpGet]
-        public object getTotalValueTraded(DataSourceLoadOptions loadOptions, string periode, string pe, string origin, string tipeInvestor)
+        public object getTotalValueTraded(string periode, string pe, string origin, string tipeInvestor)
         {
-            string stringPeriodeAwal = null;
-            string stringNamaPE = null;
-            string totalValue = "";
-
-            if (periode != null)
-            {
-                stringPeriodeAwal = Convert.ToDateTime(periode).ToString("yyyy-MM-dd");
-                TempData["pawal"] = stringPeriodeAwal;
-            }
-            if (pe != null)
-            {
-                stringNamaPE = pe;
-                TempData["pe"] = stringNamaPE;
-            }
+            DataSourceLoadOptions loadOptions = new DataSourceLoadOptions();
 
             db.Database.CommandTimeout = 420;
-            if (periode.Length > 0) //jika ada parameter nya
-            {
-                var result = Helper.WSQueryPS.GetBDAPMDemografiInvestorTV(db, loadOptions, stringPeriodeAwal, stringNamaPE, origin, tipeInvestor);
-                return JsonConvert.SerializeObject(result);
-            }
-            return totalValue;
+            var result = Helper.WSQueryPS.GetBDAPMDemografiInvestorTV(db, loadOptions, periode, pe, origin, tipeInvestor).data.Rows[0];
+            return float.Parse(result["total"].ToString());
         }
 
         [HttpGet]
@@ -266,8 +248,7 @@ namespace BDA.Controllers
             }
             return DataSourceLoader.Load(new List<string>(), loadOptions);
         }
-
-        
+               
         
         [HttpPost]
         public ActionResult SimpanPenggunaanData(string id)
@@ -365,90 +346,7 @@ namespace BDA.Controllers
             public string value { get; set; }
             public string text { get; set; }
         }
-        [HttpPost]
-        public IActionResult LogExportIndex()
-        {
-            try
-            {
-                var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
-                var currentNode = mdl.GetCurrentNode();
-
-                string pageTitle = currentNode != null ? currentNode.Title : "";
-
-                db.CheckPermission("Summary Cluster MKBD Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-                db.InsertAuditTrail("SegmentationSummaryClusterMKBD_Akses_Page", "Export Data", pageTitle);
-                return Json(new { result = "Success" });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { result = db.ProcessExceptionMessage(ex) });
-            }
-        }
-        public IActionResult ExportPDF(IFormFile file)
-        {
-            try
-            {
-                var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
-                var currentNode = mdl.GetCurrentNode();
-
-                string pageTitle = currentNode != null ? currentNode.Title : "";
-
-                db.CheckPermission("Summary Cluster MKBD Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-                db.InsertAuditTrail("SegmentationSummaryClusterMKBD_Akses_Page", "Export Data", pageTitle);
-
-                var directory = _env.WebRootPath;
-                var timeStamp = DateTime.Now.ToString();
-                Workbook workbook = new Workbook(file.OpenReadStream());
-
-                foreach (Worksheet worksheet in workbook.Worksheets)
-                {
-                    //prepare logo
-                    string logo_url = Path.Combine(directory, "assets_m\\img\\OJK_Logo.png");
-                    FileStream inFile;
-                    byte[] binaryData;
-                    inFile = new FileStream(logo_url, FileMode.Open, FileAccess.Read);
-                    binaryData = new Byte[inFile.Length];
-                    long bytesRead = inFile.Read(binaryData, 0, (int)inFile.Length);
-
-                    //apply format number
-                    Style textStyle = workbook.CreateStyle();
-                    textStyle.Number = 3;
-                    StyleFlag textFlag = new StyleFlag();
-                    textFlag.NumberFormat = true;
-
-                    worksheet.Cells.Columns[9].ApplyStyle(textStyle, textFlag);
-
-                    //page setup
-                    PageSetup pageSetup = worksheet.PageSetup;
-                    pageSetup.Orientation = PageOrientationType.Landscape;
-                    pageSetup.FitToPagesWide = 1;
-                    pageSetup.FitToPagesTall = 0;
-
-                    //set header
-                    pageSetup.SetHeaderPicture(0, binaryData);
-                    pageSetup.SetHeader(0, "&G");
-                    var img = pageSetup.GetPicture(true, 0);
-                    img.WidthScale = 10;
-                    img.HeightScale = 10;
-
-                    //set footer
-                    pageSetup.SetFooter(0, timeStamp);
-
-                    inFile.Close();
-                }
-
-                timeStamp = timeStamp.Replace('/', '-').Replace(" ", "_").Replace(":", "-");
-                TempData["timeStamp"] = timeStamp;
-                var fileName = "SegmentationSummaryClusterMKBD_" + timeStamp + ".pdf";
-                workbook.Save(Path.Combine(directory, fileName), SaveFormat.Pdf);
-                return new EmptyResult();
-            }
-            catch (Exception ex)
-            {
-                return Json(new { result = db.ProcessExceptionMessage(ex) });
-            }
-        }
-
+        
         
     }
 }

@@ -116,7 +116,6 @@
                                                             </text>).Visible(true).Connector(c => c.Visible(true)).Position(RelativePosition.Outside))
                             )
                             .SeriesTemplate(t => t.NameField("gender"))
-                            .DataSource(d => d.Mvc().Controller("DemografiInvestor").LoadAction("getCHartGender").OnBeforeSend("onGridBeforeSend"))
                             .Legend(l => l.Visible(false).VerticalAlignment(VerticalEdge.Top).HorizontalAlignment(HorizontalAlignment.Center))
                             )
                     </div>
@@ -139,7 +138,6 @@
                                                             </text>).Visible(true).Connector(c => c.Visible(true)).Position(RelativePosition.Outside))
                             )
                             .SeriesTemplate(t => t.NameField("ageRange"))
-                            .DataSource(d => d.Mvc().Controller("DemografiInvestor").LoadAction("getCHartUsia").OnBeforeSend("onGridBeforeSend"))
                             .Legend(l => l.Visible(false).VerticalAlignment(VerticalEdge.Top).HorizontalAlignment(HorizontalAlignment.Center))
                             .ValueAxis(a => a.Add().Title("Total Value Traded"))
                             )
@@ -163,7 +161,6 @@
                                                         </text>).Visible(true).Connector(c => c.Visible(true)).Position(RelativePosition.Outside))
                             )
                             .SeriesTemplate(t => t.NameField("pendidikan"))
-                            .DataSource(d => d.Mvc().Controller("DemografiInvestor").LoadAction("getChartPendidikan").OnBeforeSend("onGridBeforeSend"))
                             .Legend(l => l.Visible(false).VerticalAlignment(VerticalEdge.Top).HorizontalAlignment(HorizontalAlignment.Center))
                             .ValueAxis(a => a.Add().Title("Total Value Traded"))
                             )
@@ -200,7 +197,7 @@
                                                         </tspan>   
                                                     </text></svg>
                                             </text>)
-                            .DataSource(d => d.Mvc().Controller("DemografiInvestor").LoadAction("getChartPekerjaan").OnBeforeSend("onGridBeforeSend")))
+                            )
                     </div>
                     <div class="col-lg-4 form-group" style="padding-right:25px;padding-left:0px">
                         @(
@@ -221,7 +218,6 @@
                                     </text>).Visible(true).Connector(c => c.Visible(true)).Position(RelativePosition.Outside))
                             )
                             .SeriesTemplate(t => t.NameField("occupation"))
-                            .DataSource(d => d.Mvc().Controller("DemografiInvestor").LoadAction("getChartPekerjaan").OnBeforeSend("onGridBeforeSend"))
                             .Legend(l => l.Visible(false).VerticalAlignment(VerticalEdge.Top).HorizontalAlignment(HorizontalAlignment.Center))
                             .ValueAxis(a => a.Add().Title("Total Value Traded"))
                             )
@@ -231,7 +227,6 @@
                         Html.DevExtreme().TreeMap()
                             .ID("ChartPenghasilan")
                             .Title("Penghasilan")
-                            .DataSource(d => d.Mvc().Controller("DemografiInvestor").LoadAction("getChartPenghasilan").OnBeforeSend("onGridBeforeSend"))
                             .LayoutAlgorithm(TreeMapLayoutAlgorithm.Squarified)
                             .Colorizer(c => c.Type(TreeMapColorizerType.Gradient).Range(new double[] { 10000000, 40000000 }).Palette(new[] { "#FFE5E5", "#800000" }).ColorizeGroups(false))
                             )
@@ -240,8 +235,6 @@
             </div>
         </div>
     </div>
-
-
 
 
 <!-- The Modal  Detail-->
@@ -290,12 +283,6 @@
 <script type="text/javascript">
 
     $(function () {
-        const startDate = $("#PeriodeAwal").dxDateBox({
-            onValueChanged: function (e) {
-                endDate.option("min", e.value);
-            }
-        }).dxDateBox("instance");
-
         $("#PeriodeAwal").dxValidator({
             validationGroup: "Filter",
             validationRules: [{ type: "required", message: "[Tanggal] harus dipilih" }]
@@ -306,13 +293,6 @@
         $("#penggunaandataid").dxValidator({
             validationGroup: "Filter",
             validationRules: [{ type: "required", message: "[Penggunaan Data] harus dipilih" }]
-        })
-    });
-
-    $(function () {
-        $("#namaPEid").dxValidator({
-            validationGroup: "Filter",
-            validationRules: [{ type: "required", message: "[Nama PE] harus dipilih" }]
         })
     });
 
@@ -356,42 +336,66 @@
     function onButtonFilterClicked(e) {
         const res = e.validationGroup.validate();
         if (res.status === "valid") {
-            let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
-            let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");  
-            let origin = $("#origin").dxSelectBox("instance").option("value");
-            let tipeInvestor = $("#tipeInvestor").dxSelectBox("instance").option("value");
+            var namaPE = $("#namaPEid").dxSelectBox("instance").option("value") ?? "";
+            var tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value") ?? "";  
+            var origin = $("#originList").dxSelectBox("instance").option("value") ?? "";
+            var tipeInvestor = $("#tipeInvestorList ").dxSelectBox("instance").option("value") ?? "";
+            var periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
 
             $.ajax({
-                url: '@Url.Action("getTotalValueTraded", "DemograviInvestor")',
-                data: { pe: namaPE, periode: tempPeriodeAwal, origin: origin, tipeInvestor: tipeInvestor },
+                url: '@Url.Action("getTotalValueTraded", "DemografiInvestor")',
+                data: { periode: periodeAwal, pe: namaPE, origin: origin, tipeInvestor: tipeInvestor },
                 dataType: "json",
                 type: "GET",
                 success: function (data) {
                     if (data.success == true) {
                         $("#totalValueTraded").val(data.total);
-                        
                         var chart1 = $("#ChartGender").dxChart("instance");
-                        var ds1 = chart1.option('dataSource');
+                        var ds1 = DevExpress.data.AspNet.createStore({
+                            loadMethod: "GET",
+                            loadMode: "processed",
+                            loadUrl: '@Url.Action("getCHartGender")?periode=' + periodeAwal + '&pe=' + namaPE + '&origin=' + origin + '&tipeInvestor=' + tipeInvestor
+                        });
                         chart1.option('dataSource', ds1);
-                        
-                        var chart2 = $("#ChartUsia").dxChart("instance");
-                        var ds2 = chart2.option('dataSource');
-                        chart2.option('dataSource', ds2);
 
+                        var chart2 = $("#ChartUsia").dxChart("instance");
+                        var ds2 = DevExpress.data.AspNet.createStore({
+                            loadMethod: "GET",
+                            loadMode: "processed",
+                            loadUrl: '@Url.Action("getChartUsia")?periode=' + periodeAwal + '&pe=' + namaPE + '&origin=' + origin + '&tipeInvestor=' + tipeInvestor
+                        });
+                        chart2.option('dataSource', ds2);
+                        
                         var chart3 = $("#ChartPendidikan").dxChart("instance");
-                        var ds3 = chart3.option('dataSource');
+                        var ds3 = DevExpress.data.AspNet.createStore({
+                            loadMethod: "GET",
+                            loadMode: "processed",
+                            loadUrl: '@Url.Action("getChartPendidikan")?periode=' + periodeAwal + '&pe=' + namaPE + '&origin=' + origin + '&tipeInvestor=' + tipeInvestor
+                        });
                         chart3.option('dataSource', ds3);
 
                         var chart4 = $("#ChartPekerjaanPie").dxPieChart("instance");
-                        var ds4 = chart4.option('dataSource');
+                        var ds4 = DevExpress.data.AspNet.createStore({
+                            loadMethod: "GET",
+                            loadMode: "processed",
+                            loadUrl: '@Url.Action("getChartPekerjaan")?periode=' + periodeAwal + '&pe=' + namaPE + '&origin=' + origin + '&tipeInvestor=' + tipeInvestor
+                        });
                         chart4.option('dataSource', ds4);
 
                         var chart5 = $("#ChartPekerjaanBar").dxChart("instance");
-                        var ds5 = chart5.option('dataSource');
+                        var ds5 = DevExpress.data.AspNet.createStore({
+                            loadMethod: "GET",
+                            loadMode: "processed",
+                            loadUrl: '@Url.Action("getChartPekerjaan")?periode=' + periodeAwal + '&pe=' + namaPE + '&origin=' + origin + '&tipeInvestor=' + tipeInvestor
+                        });
                         chart5.option('dataSource', ds5);
 
                         var chart6 = $("#ChartPenghasilan").dxTreeMap("instance");
-                        var ds6 = chart6.option('dataSource');
+                        var ds6 = DevExpress.data.AspNet.createStore({
+                            loadMethod: "GET",
+                            loadMode: "processed",
+                            loadUrl: '@Url.Action("getChartPenghasilan")?periode=' + periodeAwal + '&pe=' + namaPE + '&origin=' + origin + '&tipeInvestor=' + tipeInvestor
+                        });
                         chart6.option('dataSource', ds6);
 
                         return "Success !";
@@ -405,21 +409,7 @@
         }
     }
 
-    function onGridBeforeSend(method, ajaxOptions) {
-        let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
-        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
-        let origin = $("#originList").dxSelectBox("instance").option("value");
-        let tipeInvestor = $("#tipeInvestorList").dxSelectBox("instance").option("value");
-
-        let periodeAwal = null;
-        if (tempPeriodeAwal != null) {
-            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + (tempPeriodeAwal.getMonth() + 1) + '-' + tempPeriodeAwal.getDate();
-        }
-        ajaxOptions.data.pe = namaPE;
-        ajaxOptions.data.periode = periodeAwal;
-        ajaxOptions.data.origin = origin;
-        ajaxOptions.data.tipeInvestor = tipeInvestor;
-    }
+    
 
     function thousandSeparatorDecimal(e) {
         if (e != null)

@@ -31,7 +31,7 @@
                     </div>
 
                     <div class="col-lg-4 form-group">
-                        <label>Nama PE</label>
+                        <label>Nama PE<span class="mandatory">*</span></label>
                         @(Html.DevExtreme().SelectBox()
                             .ID("namaPEid")
                             .DataSource(d => d.Mvc()
@@ -56,6 +56,10 @@
                         .ValidationGroup("Filter"))
                 </div>
 
+                <div class="float-right">
+                    <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                    <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                </div>
             </div>
         </div>
         @*grid*@
@@ -63,10 +67,10 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
-                        <div class="row" style="padding-bottom:12.5px">
+                        @* <div class="row" style="padding-bottom:12.5px">
                             <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
                             <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
-                        </div>
+                        </div> *@
                         <div class="row">
                             <h4 class="headerTable">Pendanaan Oleh PE</h4>
                         </div>
@@ -85,17 +89,16 @@
                                     c.Add().DataField("Akun");
                                     c.Add().DataField("Nilai").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
                                 })
-                                .DataSource(d => d.StaticJson().Url("~/js/samplePendanaanPE.json").Key("ID"))
                                 .ShowColumnHeaders(false)
                                 .ShowRowLines(true)
                                 )
                         </div>
                     </div>
                     <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
-                        <div class="row" style="padding-bottom:12.5px">
+                        @* <div class="row" style="padding-bottom:12.5px">
                             <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
                             <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
-                        </div>
+                        </div> *@
                         <div class="row">
                             <h4 class="headerTable">Sumber Pendanaan PE</h4>
                         </div>
@@ -114,7 +117,6 @@
                                     c.Add().DataField("Akun");
                                     c.Add().DataField("Nilai").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
                                 })
-                                .DataSource(d => d.StaticJson().Url("~/js/sampleSumberPendanaanPE.json").Key("ID"))
                                 .ShowColumnHeaders(false)
                                 .ShowRowLines(true)
                                 )
@@ -124,9 +126,6 @@
             </div>
         </div>
     </div>
-
-
-
 
     <!-- The Modal  Detail-->
     <div class="modal fade" id="ModalSimpanPenggunaanData" tabindex="-1" role="document" aria-hidden="true" data-backdrop="static" data-keyboard="false">
@@ -174,12 +173,6 @@
 <script type="text/javascript">
 
     $(function () {
-        const startDate = $("#PeriodeAwal").dxDateBox({
-            onValueChanged: function (e) {
-                endDate.option("min", e.value);
-            }
-        }).dxDateBox("instance");
-
         $("#PeriodeAwal").dxValidator({
             validationGroup: "Filter",
             validationRules: [{ type: "required", message: "[Tanggal] harus dipilih" }]
@@ -243,68 +236,111 @@
     function onButtonFilterClicked(e) {
         const res = e.validationGroup.validate();
         if (res.status === "valid") {
-            $("#grid1").dxDataGrid("instance").refresh();
+            var tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
+            var namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
+            var periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
+
+            var grid1 = $("#gridPendanaanPE").dxDataGrid("instance");
+            var ds1 = DevExpress.data.AspNet.createStore({
+                loadMethod: "GET",
+                loadMode: "processed",
+                loadUrl: '@Url.Action("getGridPendanaanPE")?periode=' + periodeAwal + '&pe=' + namaPE
+            });
+            grid1.option('dataSource', ds1);
+
+            var grid2 = $("#gridSumberPendanaanPE").dxDataGrid("instance");
+            var ds2 = DevExpress.data.AspNet.createStore({
+                loadMethod: "GET",
+                loadMode: "processed",
+                loadUrl: '@Url.Action("getGridSumberPendanaanPE")?periode=' + periodeAwal + '&pe=' + namaPE
+            });
+            grid2.option('dataSource', ds2);
         }
     }
 
-    function onGridBeforeSend(method, ajaxOptions) {
-        let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
-        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
-        let status = $("#Statusid").dxTagBox("instance").option("value");
+    function ExportToExcel() {
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("LogExportIndex", "PendanaanMKBD")",
+            success: function (response) {
+                if (response.result == "Success") {
+                    var workbook = new ExcelJS.Workbook();
+                    var worksheet1 = workbook.addWorksheet('Pendanaan Oleh PE');
+                    var worksheet2 = workbook.addWorksheet('Sumber Pendanaan Oleh PE');
 
-        let periodeAwal = null;
-        if (tempPeriodeAwal != null) {
-            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + (tempPeriodeAwal.getMonth() + 1) + '-' + tempPeriodeAwal.getDate();
-        }
-        ajaxOptions.data.namaPE = JSON.stringify(namaPE);
-        ajaxOptions.data.periodeAwal = periodeAwal;
-        ajaxOptions.data.status = JSON.stringify(status);
-    }
+                    DevExpress.excelExporter.exportDataGrid({
+                        component: $("#gridPendanaanPE").dxDataGrid("instance"),
+                        worksheet: worksheet1,
+                        customizeCell: function (options) {
+                            var { gridCell, excelCell } = options;
 
-    var waitingDialog = (function ($) {
+                            if (gridCell.rowType === 'data') {
+                                if (options.gridCell.column.dataType === 'number') {
+                                    excelCell.numFmt = '#,##0';
+                                }
+                            }
+                        }
+                    }).then(() => DevExpress.excelExporter.exportDataGrid({
+                        component: $("#gridSumberPendanaanPE").dxDataGrid("instance"),
+                        worksheet: worksheet2,
+                        customizeCell: function (options) {
+                            var { gridCell, excelCell } = options;
 
-        // Creating modal dialog's DOM
-        var $dialog = $(
-            '<div class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">' +
-            '<div class="modal-dialog modal-m">' +
-            '<div class="modal-content">' +
-            '<div class="modal-header"><h3 style="margin:0;"></h3></div>' +
-            '<div class="modal-body">' +
-            '<div class="progress progress-striped active" style="margin-bottom:0;"><div class="progress-bar" style="width: 100%"></div></div>' +
-            '</div>' +
-            '</div></div></div>');
-
-        return {
-            show: function (message, options) {
-                // Assigning defaults
-                var settings = $.extend({
-                    dialogSize: 'm',
-                    progressType: ''
-                }, options);
-                if (typeof message === 'undefined') {
-                    message = 'Loading';
+                            if (gridCell.rowType === 'data') {
+                                if (options.gridCell.column.dataType === 'number') {
+                                    excelCell.numFmt = '#,##0';
+                                }
+                            }
+                        }
+                    })).then(function () {
+                        workbook.xlsx.writeBuffer().then(function (buffer) {
+                            saveAs(new Blob([buffer], { type: "application/octet-stream" }), "PendanaanMKBD_" + new Date().toISOString().slice(0, 10) + ".xlsx");
+                        });
+                    });
                 }
-                if (typeof options === 'undefined') {
-                    options = {};
-                }
-                // Configuring dialog
-                $dialog.find('.modal-dialog').attr('class', 'modal-dialog').addClass('modal-' + settings.dialogSize);
-                $dialog.find('.progress-bar').attr('class', 'progress-bar');
-                if (settings.progressType) {
-                    $dialog.find('.progress-bar').addClass('progress-bar-' + settings.progressType);
-                }
-                $dialog.find('h3').text(message);
-                // Opening dialog
-                $dialog.modal();
-            },
-            /**
-                * Closes dialog
-                */
-            hide: function () {
-                $dialog.modal('hide');
             }
-        }
-    })(jQuery);
+        });
+    }
+
+    function ExportToPdf() {
+        var dataGrid = $("#gridPendanaanPE").dxDataGrid("instance");
+        dataGrid.option("onExporting", function (e) { });
+        dataGrid.option("onFileSaving", function (e) {
+            var fd = new FormData();
+            fd.append("file", e.data);
+            fd.append("name", "Pendanaan");
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("ExportPDF", "PendanaanMKBD")",
+                data: fd,
+                processData: false,
+                contentType: false
+            }).done(function (data) {
+                var dataGrid2 = $("#gridSumberPendanaanPE").dxDataGrid("instance");
+                dataGrid2.option("onExporting", function (e) { });
+                dataGrid2.option("onFileSaving", function (e) {
+                    var fd = new FormData();
+                    fd.append("file", e.data);
+                    fd.append("name", "SumberPendanaan");
+                    $.ajax({
+                        type: "POST",
+                        url: "@Url.Action("ExportPDF", "PendanaanMKBD")",
+                        data: fd,
+                        processData: false,
+                        contentType: false
+                    }).done(function (data) {
+                        window.location = "@Url.Action("FileIndex", "PendanaanMKBD", new { name = "SumberPendanaan" })"
+                    });
+                    e.cancel = true;
+                });
+                dataGrid2.exportToExcel();
+
+                window.location = "@Url.Action("FileIndex", "PendanaanMKBD", new { name = "Pendanaan" })"
+            });
+            e.cancel = true;
+        });
+        dataGrid.exportToExcel();
+    }
 
     function thousandSeparatorDecimal(e) {
         if (e != null)

@@ -23,10 +23,12 @@
                     <div class="col-lg-2 form-group">
                         <label>Tanggal<span class="mandatory">*</span></label>
                         @(Html.DevExtreme().DateBox()
-                            .ID("PeriodeAwal")
-                            .DisplayFormat("dd MMM yyyy")
+                            .ID("PeriodeAwal")                            
+                            .DisplayFormat("MMM yyyy")
+                            .Type(DateBoxType.Date)
                             .Value(DateTime.Now)
                             .Max(DateTime.Now)
+                            .CalendarOptions( c=> c.MaxZoomLevel(CalendarZoomLevel.Year).MinZoomLevel(CalendarZoomLevel.Century))
                             .Width("100%"))
                     </div>
 
@@ -43,12 +45,11 @@
                             .DisplayExpr("text")
                             .SearchEnabled(true)
                             .Width("100%")
-                            .Value(ViewBag.pe)
                             )
                     </div>
 
                     <div class="col-lg-2 form-group">
-                        <label>Growth Type</label>
+                        <label>Growth Type<span class="mandatory">*</span></label>
                         @(Html.DevExtreme().SelectBox()
                             .ID("growthType")
                             .DataSource(d => d.Mvc()
@@ -60,12 +61,12 @@
                             .DisplayExpr("text")
                             .SearchEnabled(true)
                             .Width("100%")
-                            .Value(ViewBag.growthtype)
+                            .Value("MoM")
                             )
                     </div>
 
                     <div class="col-lg-2 form-group">
-                        <label>Dimension</label>
+                        <label>Dimension<span class="mandatory">*</span></label>
                         @(Html.DevExtreme().SelectBox()
                             .ID("dimension")
                             .DataSource(d => d.Mvc()
@@ -77,12 +78,12 @@
                             .DisplayExpr("text")
                             .SearchEnabled(true)
                             .Width("100%")
-                            .Value(ViewBag.dimension)
+                            .Value("Value")
                             )
                     </div>
 
                     <div class="col-lg-2 form-group">
-                        <label>Value</label>
+                        <label>Investor Origin</label>
                         @(Html.DevExtreme().SelectBox()
                             .ID("investorOrigin")
                             .DataSource(d => d.Mvc()
@@ -94,7 +95,6 @@
                             .DisplayExpr("text")
                             .SearchEnabled(true)
                             .Width("100%")
-                            .Value(ViewBag.investorType)
                             )
                     </div>
                 </div>
@@ -106,71 +106,64 @@
                         .Text("Tampilkan")
                         .OnClick("onButtonFilterClicked")
                         .ValidationGroup("Filter"))
-                </div>
-                <div class="float-right">
-                    <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:ExportChart();" title="Export"><span class="image fa fa-file-pdf"></span> Export PNG </a>
-                </div>
+                </div>                
 
             </div>
         </div>
         @*grid*@
         <div class="row filter-panel" style="padding-top:0px;">
             <div class="card-body">
-                @if (ViewBag.investorOrigin == "Lokal")
-                {
-                    <div class="row">
-                        <h4 class="headerTable">Growth By Maps</h4>
-                    </div>
-                    <div class="row">
-                        <div class="col-lg-12 form-group" style="padding-right:25px;padding-left:25px">
-                            @(Html.DevExtreme().VectorMap()
-                                .ID("vectorMap")
-                                .Bounds(new double[] { 130, 8, 110, -12 })
-                                .ZoomFactor(0)
-                                .Center(new double[] { 118.108637, -2.317483 })
-                                .Layers(layers =>
+                <div class="row" id="mapchartheader">
+                    <h4 class="headerTable">Growth By Maps</h4>
+                </div>
+                <div class="row" id="mapchart">
+                    <div class="col-lg-12 form-group" style="padding-right:25px;padding-left:25px">
+                        @(Html.DevExtreme().VectorMap()
+                            .ID("vectorMap")
+                            .Bounds(new double[] { 130, 8, 110, -12 })
+                            .ZoomFactor(0)
+                            .Center(new double[] { 118.108637, -2.317483 })
+                            .Layers(layers =>
+                            {
+                                layers.Add()
+                                .DataSource(new JS("IndonesiaContinents"))
+                                .BorderWidth(1)
+                                .BorderColor("#000000")
+                                .Label(z => z.Enabled(false));
+
+                                layers.Add()
+                                .Name("bubbles")
+                                .DataSource(d => d.Mvc().Controller("GeospasialInvestor").LoadAction("getMaps").LoadMethod("Get").LoadParams(new
                                 {
-                                    layers.Add()
-                                    .DataSource(new JS("IndonesiaContinents"))
-                                    .BorderWidth(1)
-                                    .BorderColor("#000000")
-                                    .Label(z => z.Enabled(false));
+                                    periode = new JS("function() { return $(\"#PeriodeAwal\").dxDateBox(\"instance\").option(\"value\").getFullYear() + '-' + ($(\"#PeriodeAwal\").dxDateBox(\"instance\").option(\"value\").getMonth() + 1);}"),
+                                    pe = new JS("function() { return $(\"#namaPEid\").dxSelectBox(\"instance\").option(\"value\");}"),
+                                    growthtype = new JS("function() { return $(\"#growthType\").dxSelectBox(\"instance\").option(\"value\");}"),
+                                    dimension = new JS("function() { return $(\"#dimension\").dxSelectBox(\"instance\").option(\"value\");}"),
+                                    investorOrigin = new JS("function() { return $(\"#investorOrigin\").dxSelectBox(\"instance\").option(\"value\");}")
+                                }))
+                                .DataSourceOptions(dso => dso.Map("vectorMap_HeatMap_dataSource_map"))
+                                .HoveredColor("blue")
+                                .BorderColor("#000000")
+                                .HoveredBorderWidth(2)
+                                .DataField("value")
+                                .Label(x => x.Enabled(true).DataField("name"))
+                                .Opacity(0.9)
+                                .Customize("vectorMap_customizeBubble");
+                            })
+                            .OnClick("MapClick")
+                            .Tooltip(t => t
+                            .Enabled(true)
+                            .CustomizeTooltip("vectorMap_customizeTooltip")
 
-                                    layers.Add()
-                                    .Name("bubbles")
-                                    .DataSource(d => d.Mvc().Controller("GeospasialInvestor").LoadAction("getMaps").LoadMethod("Get").LoadParams(new
-                                    {
-                                        periode = new JS("function() { return $(\"#PeriodeAwal\").dxDateBox(\"instance\").option(\"value\");}"),
-                                        pe = new JS("function() { return $(\"#namaPEid\").dxSelectBox(\"instance\").option(\"value\");}"),
-                                        growthtype = new JS("function() { return $(\"#growthType\").dxSelectBox(\"instance\").option(\"value\");}"),
-                                        dimension = new JS("function() { return $(\"#dimension\").dxSelectBox(\"instance\").option(\"value\");}"),
-                                        investorOrigin = new JS("function() { return $(\"#investorOrigin\").dxSelectBox(\"instance\").option(\"value\");}")
-                                    }))
-                                    .DataSourceOptions(dso => dso.Map("vectorMap_HeatMap_dataSource_map"))
-                                    .HoveredColor("blue")
-                                    .BorderColor("#000000")
-                                    .HoveredBorderWidth(2)
-                                    .DataField("value")
-                                    .Label(x => x.Enabled(true).DataField("name"))
-                                    .Opacity(0.9)
-                                    .Customize("vectorMap_customizeBubble");
-                                })
-                                .OnClick("MapClick")
-                                .Tooltip(t => t
-                                .Enabled(true)
-                                .CustomizeTooltip("vectorMap_customizeTooltip")
-
-                                )
-                                .ControlBar(v => v.Enabled(true))
-                                .PanningEnabled(true)
-                                .ZoomingEnabled(true)
-                                .WheelEnabled(true)
-                                .LoadingIndicator(li => li.Enabled(true).Show(true).Font(f => f.Size(100)).Text("Map Loading"))
-                                )
-                        </div>
+                            )
+                            .ControlBar(v => v.Enabled(true))
+                            .PanningEnabled(true)
+                            .ZoomingEnabled(true)
+                            .WheelEnabled(true)
+                            .LoadingIndicator(li => li.Enabled(true).Show(true).Font(f => f.Size(100)).Text("Map Loading"))
+                            )
                     </div>
-                              
-                }
+                </div>
                 <div class="row">
                     <h4 class="headerTable">Leaderboard</h4>
                 </div>
@@ -189,7 +182,7 @@
                             .Selection(c => c.Mode(SelectionMode.Single))
                             .DataSource(d => d.Mvc().Controller("GeospasialInvestor").LoadAction("GetGridLeaderBoard").LoadMethod("Get").LoadParams(new
                             {
-                                periode = new JS("function() { return $(\"#PeriodeAwal\").dxDateBox(\"instance\").option(\"value\");}"),
+                                periode = new JS("function() { return $(\"#PeriodeAwal\").dxDateBox(\"instance\").option(\"value\").getFullYear() + '-' + ($(\"#PeriodeAwal\").dxDateBox(\"instance\").option(\"value\").getMonth() + 1);}"),
                                 pe = new JS("function() { return $(\"#namaPEid\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 growthtype = new JS("function() { return $(\"#growthType\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 dimension = new JS("function() { return $(\"#dimension\").dxSelectBox(\"instance\").option(\"value\");}"),
@@ -223,7 +216,7 @@
                             .Selection(c => c.Mode(SelectionMode.Single))
                             .DataSource(d => d.Mvc().Controller("GeospasialInvestor").LoadAction("GetGridLeaderBoard").LoadMethod("Get").LoadParams(new
                             {
-                                periode = new JS("function() { return $(\"#PeriodeAwal\").dxDateBox(\"instance\").option(\"value\");}"),
+                                periode = new JS("function() { return $(\"#PeriodeAwal\").dxDateBox(\"instance\").option(\"value\").getFullYear() + '-' + ($(\"#PeriodeAwal\").dxDateBox(\"instance\").option(\"value\").getMonth() + 1);}"),
                                 pe = new JS("function() { return $(\"#namaPEid\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 growthtype = new JS("function() { return $(\"#growthType\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 dimension = new JS("function() { return $(\"#dimension\").dxSelectBox(\"instance\").option(\"value\");}"),
@@ -261,7 +254,7 @@
                             })
                             .DataSource(d => d.Mvc().Controller("GeospasialInvestor").LoadAction("GetGridDataCVGrowth").LoadMethod("Get").LoadParams(new
                             {
-                                periode = new JS("function() { return $(\"#PeriodeAwal\").dxDateBox(\"instance\").option(\"value\");}"),
+                                periode = new JS("function() { return $(\"#PeriodeAwal\").dxDateBox(\"instance\").option(\"value\").getFullYear() + '-' + ($(\"#PeriodeAwal\").dxDateBox(\"instance\").option(\"value\").getMonth() + 1);}"),
                                 pe = new JS("function() { return $(\"#namaPEid\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 growthtype = new JS("function() { return $(\"#growthType\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 dimension = new JS("function() { return $(\"#dimension\").dxSelectBox(\"instance\").option(\"value\");}"),
@@ -294,7 +287,7 @@
                                 )
                             .DataSource(d => d.Mvc().Controller("GeospasialInvestor").LoadAction("GetChartIT").LoadMethod("Get").LoadParams(new
                             {
-                                periode = new JS("function() { return $(\"#PeriodeAwal\").dxDateBox(\"instance\").option(\"value\");}"),
+                                periode = new JS("function() { return $(\"#PeriodeAwal\").dxDateBox(\"instance\").option(\"value\").getFullYear() + '-' + ($(\"#PeriodeAwal\").dxDateBox(\"instance\").option(\"value\").getMonth() + 1);}"),
                                 pe = new JS("function() { return $(\"#namaPEid\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 growthtype = new JS("function() { return $(\"#growthType\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 dimension = new JS("function() { return $(\"#dimension\").dxSelectBox(\"instance\").option(\"value\");}"),
@@ -326,7 +319,7 @@
                             )
                             .DataSource(d => d.Mvc().Controller("GeospasialInvestor").LoadAction("GetChartIO").LoadMethod("Get").LoadParams(new
                             {
-                                periode = new JS("function() { return $(\"#PeriodeAwal\").dxDateBox(\"instance\").option(\"value\");}"),
+                                periode = new JS("function() { return $(\"#PeriodeAwal\").dxDateBox(\"instance\").option(\"value\").getFullYear() + '-' + ($(\"#PeriodeAwal\").dxDateBox(\"instance\").option(\"value\").getMonth() + 1);}"),
                                 pe = new JS("function() { return $(\"#namaPEid\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 growthtype = new JS("function() { return $(\"#growthType\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 dimension = new JS("function() { return $(\"#dimension\").dxSelectBox(\"instance\").option(\"value\");}"),
@@ -389,12 +382,6 @@
 <script type="text/javascript">
 
     $(function () {
-        const startDate = $("#PeriodeAwal").dxDateBox({
-            onValueChanged: function (e) {
-                endDate.option("min", e.value);
-            }
-        }).dxDateBox("instance");
-
         $("#PeriodeAwal").dxValidator({
             validationGroup: "Filter",
             validationRules: [{ type: "required", message: "[Tanggal] harus dipilih" }]
@@ -409,14 +396,29 @@
     });
 
     $(function () {
-        $("#namaPEid").dxValidator({
+        $("#dimension").dxValidator({
             validationGroup: "Filter",
-            validationRules: [{ type: "required", message: "[Nama PE] harus dipilih" }]
+            validationRules: [{ type: "required", message: "[Dimensi] harus dipilih" }]
+        })
+    }); 
+
+    $(function () {
+        $("#growthType").dxValidator({
+            validationGroup: "Filter",
+            validationRules: [{ type: "required", message: "[Growth Type] harus dipilih" }]
         })
     });
 
     $(window).on('load', function () {
-        $("#ModalSimpanPenggunaanData").modal("show");
+        if ($("#investorOrigin").dxSelectBox("instance").option("value") == "Lokal") {
+            $('#mapchartheader').show();
+            $('#mapchart').show();
+            $("#vectorMap").dxVectorMap("instance").render();
+        } else {
+            $('#mapchartheader').hide();
+            $('#mapchart').hide();
+        }
+        $("#ModalSimpanPenggunaanData").modal("show");        
     });
 
     $("#btnSavePenggunaanData").click(function () {
@@ -456,14 +458,31 @@
     }
 
     function onButtonFilterClicked(e) {
-        periode = $("#PeriodeAwal").dxDateBox("instance").option("value");
-        pe = $("#namaPEid").dxSelectBox("instance").option("value");
-        growthtype = $("#growthType").dxSelectBox("instance").option("value");
-        dimension = $("#dimension").dxSelectBox("instance").option("value");
-        investorOrigin = $("#investorOrigin").dxSelectBox("instance").option("value");
+        var dataGrid = $("#gridLBLargest").dxDataGrid("instance").refresh();
+        var dataGrid2 = $("#gridLBLowest").dxDataGrid("instance").refresh();
 
-        var url = '@Url.Action("Index")?periode=' + periode + '&pe=' + pe + '&growthtype=' + growthtype + '&dimension=' + dimension + '&investorOrigin=' + investorOrigin;
-        window.location = url;
+        var chart1 = $("#ChartSeriesCVGrowth").dxChart("instance");
+        var ds1 = chart1.option('dataSource');
+        chart1.option('dataSource', ds1);
+
+        var chart2 = $("#ChartIT").dxPieChart("instance");
+        var ds2 = chart2.option('dataSource');
+        chart2.option('dataSource', ds2);
+
+        var chart3 = $("#ChartIO").dxPieChart("instance");
+        var ds3 = chart3.option('dataSource');
+        chart3.option('dataSource', ds3);
+        if ($("#investorOrigin").dxSelectBox("instance").option("value") == "Lokal") {
+            $('#mapchartheader').show();
+            $('#mapchart').show();
+            var widget = $("#vectorMap").dxVectorMap("instance");
+            var ds4 = widget.option("layers[1].dataSource");
+            widget.option('layers[1].dataSource', ds4);
+            widget.render()
+        } else {
+            $('#mapchartheader').hide();
+            $('#mapchart').hide();
+        }
     }
 
     function thousandSeparatorDecimal(e) {
@@ -474,19 +493,6 @@
     function thousandSeparatorDecimal2(e) {
         if (e != null)
             return e.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 });
-    }
-
-    function ExportChart() {
-        var chart1 = $("#ChartGender").dxChart("instance"),
-            chart2 = $("#ChartUsia").dxChart("instance"),
-            chart3 = $("#ChartPendidikan").dxChart("instance"),
-            chart4 = $("#ChartPekerjaan").dxChart("instance"),
-            chart5 = $("#ChartPenghasilan").dxTreeMap("instance");
-
-        DevExpress.viz.exportWidgets([[chart1, chart2, chart3], [chart4, chart5]], {
-            fileName: "chartDemografiInvestor",
-            format: 'PNG'
-        });
     }
 
     function MapClick(e) {

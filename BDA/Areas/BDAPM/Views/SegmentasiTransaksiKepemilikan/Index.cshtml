@@ -24,14 +24,15 @@
                         <label>Tanggal<span class="mandatory">*</span></label>
                         @(Html.DevExtreme().DateBox()
                             .ID("PeriodeAwal")
-                            .DisplayFormat("dd MMM yyyy")
+                            .DisplayFormat("MMM yyyy")
                             .Value(DateTime.Now)
                             .Max(DateTime.Now)
+                            .CalendarOptions(c => c.MaxZoomLevel(CalendarZoomLevel.Year).MinZoomLevel(CalendarZoomLevel.Century))
                             .Width("100%"))
                     </div>
 
                     <div class="col-lg-4 form-group">
-                        <label>Nama PE</label>
+                        <label>Nama PE<span class="mandatory">*</span></label>
                         @(Html.DevExtreme().SelectBox()
                             .ID("namaPEid")
                             .DataSource(d => d.Mvc()
@@ -47,7 +48,7 @@
                     </div>
 
                     <div class="col-lg-4 form-group">
-                        <label>Jenis</label>
+                        <label>Jenis<span class="mandatory">*</span></label>
                         @(Html.DevExtreme().SelectBox()
                             .ID("JenisData")
                             .DataSource(d => d.Mvc()
@@ -95,7 +96,6 @@
                                                             return (arg.percent * 100).toFixed(2) + "%";
                                                         }
                                                         </text>).Visible(true).Connector(c => c.Visible(true))))
-                            .DataSource(d => d.StaticJson().Url("~/js/sampleLiquidHC.json").Key("ID"))
                             )
                     </div>
                     <div class="col-lg-4 form-group" style="padding-right:25px;padding-left:25px">
@@ -115,7 +115,6 @@
                                                             return (arg.percent * 100).toFixed(2) + "%";
                                                         }
                                                         </text>).Visible(true).Connector(c => c.Visible(true))))
-                            .DataSource(d => d.StaticJson().Url("~/js/sampleLiquidIM.json").Key("ID"))
                             )
                     </div>
                     <div class="col-lg-4 form-group" style="padding-right:25px;padding-left:25px">
@@ -135,7 +134,6 @@
                                                             return (arg.percent * 100).toFixed(2) + "%";
                                                         }
                                                         </text>).Visible(true).Connector(c => c.Visible(true))))
-                            .DataSource(d => d.StaticJson().Url("~/js/sampleLiquidNK.json").Key("ID"))
                             )
                     </div>
                 </div>
@@ -143,7 +141,7 @@
                     <div class="form-group" style="padding-right:25px;padding-left:25px">
                         <div class="row float-right" style="padding-bottom:12.5px">
                             <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
-                            <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                            <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
                         </div>
                         <div class="row float-right">
                             @(Html.DevExtreme().DataGrid()
@@ -178,7 +176,6 @@
                                     c.Add().DataField("TotalValue").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
                                     c.Add().DataField("TotalFreq").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
                                 })
-                                .DataSource(d => d.StaticJson().Url("~/js/sampleGridSK.json").Key("ID"))
                                 .ShowRowLines(true)
                                 )
                         </div>
@@ -234,12 +231,6 @@
 <script type="text/javascript">
 
     $(function () {
-        const startDate = $("#PeriodeAwal").dxDateBox({
-            onValueChanged: function (e) {
-                endDate.option("min", e.value);
-            }
-        }).dxDateBox("instance");
-
         $("#PeriodeAwal").dxValidator({
             validationGroup: "Filter",
             validationRules: [{ type: "required", message: "[Tanggal] harus dipilih" }]
@@ -257,6 +248,13 @@
         $("#namaPEid").dxValidator({
             validationGroup: "Filter",
             validationRules: [{ type: "required", message: "[Nama PE] harus dipilih" }]
+        })
+    });
+
+    $(function () {
+        $("#JenisData").dxValidator({
+            validationGroup: "Filter",
+            validationRules: [{ type: "required", message: "[Jenis Data] harus dipilih" }]
         })
     });
 
@@ -303,72 +301,110 @@
     function onButtonFilterClicked(e) {
         const res = e.validationGroup.validate();
         if (res.status === "valid") {
-            $("#grid1").dxDataGrid("instance").refresh();
+            var tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
+            var namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
+            var periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0');
+            var jt = $("#JenisData").dxSelectBox("instance").option("value");
+
+            var chart1 = $("#PieLiquidHC").dxPieChart("instance");
+            var ds1 = DevExpress.data.AspNet.createStore({
+                loadMethod: "GET",
+                loadMode: "processed",
+                loadUrl: '@Url.Action("getPieliquidHC")?periode=' + periodeAwal + '&pe=' + namaPE + '&jenisTransaksi=' + jt
+            });
+            chart1.option('dataSource', ds1);
+
+            var chart2 = $("#PieLiquidIM").dxPieChart("instance");
+            var ds2 = DevExpress.data.AspNet.createStore({
+                loadMethod: "GET",
+                loadMode: "processed",
+                loadUrl: '@Url.Action("getPieliquidIM")?periode=' + periodeAwal + '&pe=' + namaPE + '&jenisTransaksi=' + jt
+            });
+            chart2.option('dataSource', ds2);
+
+            var chart3 = $("#PieLiquidNK").dxPieChart("instance");
+            var ds3 = DevExpress.data.AspNet.createStore({
+                loadMethod: "GET",
+                loadMode: "processed",
+                loadUrl: '@Url.Action("getPieliquidNK")?periode=' + periodeAwal + '&pe=' + namaPE + '&jenisTransaksi=' + jt
+            });
+            chart3.option('dataSource', ds3);
+
+            var grid1 = $("#gridSegmentasiTransaksiKepemilikan").dxDataGrid("instance");
+            var ds4 = DevExpress.data.AspNet.createStore({
+                loadMethod: "GET",
+                loadMode: "processed",
+                loadUrl: '@Url.Action("getGridSegmentasiTransaksiKepemilikan")?periode=' + periodeAwal + '&pe=' + namaPE
+            });
+            grid1.option('dataSource', ds4);
         }
     }
 
-    function onGridBeforeSend(method, ajaxOptions) {
-        let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
-        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
-        let status = $("#Statusid").dxTagBox("instance").option("value");
+    function getDateValue() {
+        var tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
 
-        let periodeAwal = null;
+        var periodeAwal = null;
         if (tempPeriodeAwal != null) {
-            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + (tempPeriodeAwal.getMonth() + 1) + '-' + tempPeriodeAwal.getDate();
+            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + (tempPeriodeAwal.getMonth() + 1);
         }
-        ajaxOptions.data.namaPE = JSON.stringify(namaPE);
-        ajaxOptions.data.periodeAwal = periodeAwal;
-        ajaxOptions.data.status = JSON.stringify(status);
+
+        return periodeAwal;
     }
-
-    var waitingDialog = (function ($) {
-
-        // Creating modal dialog's DOM
-        var $dialog = $(
-            '<div class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">' +
-            '<div class="modal-dialog modal-m">' +
-            '<div class="modal-content">' +
-            '<div class="modal-header"><h3 style="margin:0;"></h3></div>' +
-            '<div class="modal-body">' +
-            '<div class="progress progress-striped active" style="margin-bottom:0;"><div class="progress-bar" style="width: 100%"></div></div>' +
-            '</div>' +
-            '</div></div></div>');
-
-        return {
-            show: function (message, options) {
-                // Assigning defaults
-                var settings = $.extend({
-                    dialogSize: 'm',
-                    progressType: ''
-                }, options);
-                if (typeof message === 'undefined') {
-                    message = 'Loading';
-                }
-                if (typeof options === 'undefined') {
-                    options = {};
-                }
-                // Configuring dialog
-                $dialog.find('.modal-dialog').attr('class', 'modal-dialog').addClass('modal-' + settings.dialogSize);
-                $dialog.find('.progress-bar').attr('class', 'progress-bar');
-                if (settings.progressType) {
-                    $dialog.find('.progress-bar').addClass('progress-bar-' + settings.progressType);
-                }
-                $dialog.find('h3').text(message);
-                // Opening dialog
-                $dialog.modal();
-            },
-            /**
-                * Closes dialog
-                */
-            hide: function () {
-                $dialog.modal('hide');
-            }
-        }
-    })(jQuery);
 
     function thousandSeparatorDecimal(e) {
         if (e != null)
             return e.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    }
+
+    function ExportToExcel() {
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("LogExportIndex", "SegmentasiTransaksiKepemilikan")",
+            success: function (response) {
+                if (response.result == "Success") {
+                    var workbook = new ExcelJS.Workbook();
+                    var worksheet1 = workbook.addWorksheet('Main');
+
+                    DevExpress.excelExporter.exportDataGrid({
+                        component: $("#gridSegmentasiTransaksiKepemilikan").dxDataGrid("instance"),
+                        worksheet: worksheet1,
+                        customizeCell: function (options) {
+                            var { gridCell, excelCell } = options;
+
+                            if (gridCell.rowType === 'data') {
+                                if (options.gridCell.column.dataType === 'number') {
+                                    excelCell.numFmt = '#,##0';
+                                }
+                            }
+                        }
+                    }).then(function () {
+                        workbook.xlsx.writeBuffer().then(function (buffer) {
+                            saveAs(new Blob([buffer], { type: "application/octet-stream" }), "SegmentasiTransaksiKepemilikan_" + new Date().toISOString().slice(0, 10) + ".xlsx");
+                        });
+                    });
+                }
+            }
+        });
+    }
+
+    function ExportToPdf() {       
+        var dataGrid = $("#gridSegmentasiTransaksiKepemilikan").dxDataGrid("instance");
+        dataGrid.option("onExporting", function (e) { });
+        dataGrid.option("onFileSaving", function (e) {
+            var fd = new FormData();
+            fd.append("file", e.data);
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("ExportPDF", "SegmentasiTransaksiKepemilikan")",
+                data: fd,
+                processData: false,
+                contentType: false
+            }).done(function (data) {
+                window.location = "@Url.Action("FileIndex", "SegmentasiTransaksiKepemilikan")"
+            });
+            e.cancel = true;
+        });
+        dataGrid.exportToExcel();
     }
 </script>
 <style>

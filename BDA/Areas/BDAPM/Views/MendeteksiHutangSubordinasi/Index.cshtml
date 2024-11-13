@@ -31,7 +31,7 @@
                     </div>
 
                     <div class="col-lg-4 form-group">
-                        <label>Nama PE</label>
+                        <label>Nama PE<span class="mandatory">*</span></label>
                         @(Html.DevExtreme().SelectBox()
                             .ID("namaPEid")
                             .DataSource(d => d.Mvc()
@@ -58,7 +58,7 @@
 
                 <div class="float-right">
                     <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
-                    <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                    <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
                 </div>
             </div>
         </div>
@@ -68,37 +68,37 @@
                 <div class="row float-right">                    
                     <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
                         <div class="row">
-                            @(Html.DevExtreme().DataGrid()
-                                .ID("gridContainer")
-                                .KeyExpr("ID")
-                                .RemoteOperations(true)
-                                .Width("100%")
-                                .AllowColumnResizing(true)
-                                .ColumnFixing(c => c.Enabled(true))
-                                .Scrolling(s => s.ShowScrollbar(ShowScrollbarMode.Always))
-                                .FilterRow(f => f.Visible(true))
-                                .ShowBorders(true)
-                                .Selection(c => c.Mode(SelectionMode.Single))
-                                .Paging(p =>
-                                {
-                                    p.PageSize(15);
-                                    p.Enabled(true);
+                            @(
+                            Html.DevExtreme().DataGrid()
+                            .ID("gridContainer")
+                            .KeyExpr("ID")
+                            .RemoteOperations(true)
+                            .Width("100%")
+                            .AllowColumnResizing(true)
+                            .ColumnFixing(c => c.Enabled(true))
+                            .Scrolling(s => s.ShowScrollbar(ShowScrollbarMode.Always))
+                            .FilterRow(f => f.Visible(true))
+                            .ShowBorders(true)
+                            .Selection(c => c.Mode(SelectionMode.Single))
+                            .Paging(p =>
+                            {
+                                p.PageSize(15);
+                                p.Enabled(true);
 
-                                })
-                                .Pager(p =>
-                                {
-                                    p.Visible(true);
-                                    p.ShowInfo(true);
-                                })
-                                .Columns(c =>
-                                {
-                                    c.Add().DataField("NamaPE");
-                                    c.Add().DataField("TanggalHSOT0").Caption("Tanggal HSO (T0)");
-                                    c.Add().DataField("HSO").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
-                                })
-                                .DataSource(d => d.Mvc().Controller("MendeteksiHutangSubordinasi").LoadAction("getGrid1").OnBeforeSend("onGridBeforeSend"))
-                                .ShowRowLines(true)
-                                )
+                            })
+                            .Pager(p =>
+                            {
+                                p.Visible(true);
+                                p.ShowInfo(true);
+                            })
+                            .Columns(c =>
+                            {
+                                c.Add().DataField("NamaPE");
+                                c.Add().DataField("TanggalHSOT0").Caption("Tanggal HSO (T0)");
+                                c.Add().DataField("HSO").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
+                            })
+                            .ShowRowLines(true)
+                            )
                         </div>
                     </div>
 
@@ -132,7 +132,6 @@
                                     c.Add().DataField("BuyingDate");
                                     c.Add().DataField("ReverseRepo").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
                                 })
-                                .DataSource(d => d.Mvc().Controller("MendeteksiHutangSubordinasi").LoadAction("getGrid2").OnBeforeSend("onGridBeforeSend"))
                                 .ShowRowLines(true)
                                 )
                         </div>
@@ -160,7 +159,7 @@
                                     .ID("penggunaandataid")
                                     .DataSource(d => d.Mvc()
                                     .Controller("PenggunaanData")
-                                    .Area("BDAPM")
+                                    .Area("Website")
                                     .LoadAction("GetPenggunaanData")
                                     .Key("value"))
                                     .ValueExpr("value")
@@ -190,12 +189,6 @@
 <script type="text/javascript">
 
     $(function () {
-        const startDate = $("#PeriodeAwal").dxDateBox({
-            onValueChanged: function (e) {
-                endDate.option("min", e.value);
-            }
-        }).dxDateBox("instance");
-
         $("#PeriodeAwal").dxValidator({
             validationGroup: "Filter",
             validationRules: [{ type: "required", message: "[Tanggal] harus dipilih" }]
@@ -228,7 +221,7 @@
             return false;
         } else {
             $.ajax({
-                url: '@Url.Action("SimpanPenggunaanData", "endeteksiHutangSubordinasi")',
+                url: '@Url.Action("SimpanPenggunaanData", "MendeteksiHutangSubordinasi")',
                 data: { id: penggunaandataid },
                 dataType: "json",
                 type: "POST",
@@ -256,27 +249,117 @@
     function onButtonFilterClicked(e) {
         const res = e.validationGroup.validate();
         if (res.status === "valid") {
-            $("#gridContainer").dxDataGrid("instance").refresh();
-            $("#gridContainer2").dxDataGrid("instance").refresh();
+            var tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
+            var namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
+            var periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
+
+            var grid1 = $("#gridContainer").dxDataGrid("instance");
+            var ds1 = DevExpress.data.AspNet.createStore({
+                loadMethod: "GET",
+                loadMode: "processed",
+                loadUrl: '@Url.Action("getGrid1")?periode=' + periodeAwal + '&pe=' + namaPE
+            });
+            grid1.option('dataSource', ds1);
+            
+            var grid2 = $("#gridContainer2").dxDataGrid("instance");
+            var ds2 = DevExpress.data.AspNet.createStore({
+                loadMethod: "GET",
+                loadMode: "processed",
+                loadUrl: '@Url.Action("getGrid2")?periode=' + periodeAwal + '&pe=' + namaPE
+            });
+            grid2.option('dataSource', ds2);
         }
     }
 
-    function onGridBeforeSend(method, ajaxOptions) {
-        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
-        let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
-        
-        let periodeAwal = null;
-        if (tempPeriodeAwal != null) {
-            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
-        }
-
-        ajaxOptions.data.periode = periodeAwal;
-        ajaxOptions.data.pe = namaPE;
-    }
-
+    
     function thousandSeparatorDecimal(e) {
         e = parseFloat(e);
         if (e != null)
             return e.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    }
+
+    function ExportToExcel() {
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("LogExportIndex", "MendeteksiHutangSubOrdinasi")",
+            success: function (response) {
+                if (response.result == "Success") {
+                    var workbook = new ExcelJS.Workbook();
+                    var worksheet1 = workbook.addWorksheet('Sheet1');
+                    var worksheet2 = workbook.addWorksheet('Sheet2');
+
+                    DevExpress.excelExporter.exportDataGrid({
+                        component: $("#gridContainer").dxDataGrid("instance"),
+                        worksheet: worksheet1,
+                        customizeCell: function (options) {
+                            var { gridCell, excelCell } = options;
+
+                            if (gridCell.rowType === 'data') {
+                                if (options.gridCell.column.dataType === 'number') {
+                                    excelCell.numFmt = '#,##0';
+                                }
+                            }
+                        }
+                    }).then(() => DevExpress.excelExporter.exportDataGrid({
+                        component: $("#gridContainer2").dxDataGrid("instance"),
+                        worksheet: worksheet2,
+                        customizeCell: function (options) {
+                            var { gridCell, excelCell } = options;
+
+                            if (gridCell.rowType === 'data') {
+                                if (options.gridCell.column.dataType === 'number') {
+                                    excelCell.numFmt = '#,##0';
+                                }
+                            }
+                        }
+                    })).then(function () {
+                        workbook.xlsx.writeBuffer().then(function (buffer) {
+                            saveAs(new Blob([buffer], { type: "application/octet-stream" }), "MendeteksiHutangSubOrdinasi_" + new Date().toISOString().slice(0, 10) + ".xlsx");
+                        });
+                    });
+                }
+            }
+        });
+    }
+
+    function ExportToPdf() {
+        var dataGrid = $("#gridContainer").dxDataGrid("instance");
+        dataGrid.option("onExporting", function (e) { });
+        dataGrid.option("onFileSaving", function (e) {
+            var fd = new FormData();
+            fd.append("file", e.data);
+            fd.append("name", "grid1");
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("ExportPDF", "MendeteksiHutangSubOrdinasi")",
+                data: fd,
+                processData: false,
+                contentType: false
+            }).done(function (data) {
+                var dataGrid2 = $("#gridContainer2").dxDataGrid("instance");
+                dataGrid2.option("onExporting", function (e) { });
+                dataGrid2.option("onFileSaving", function (e) {
+                    var fd = new FormData();
+                    fd.append("file", e.data);
+                    fd.append("name", "grid2");
+                    $.ajax({
+                        type: "POST",
+                        url: "@Url.Action("ExportPDF", "MendeteksiHutangSubOrdinasi")",
+                        data: fd,
+                        processData: false,
+                        contentType: false
+                    }).done(function (data) {
+                        window.location = "@Url.Action("FileIndex", "MendeteksiHutangSubOrdinasi", new { name = "grid2" })"
+                    });
+                    e.cancel = true;
+                });
+                dataGrid2.exportToExcel();
+                window.location = "@Url.Action("FileIndex", "MendeteksiHutangSubOrdinasi", new { name = "grid1"})"                
+            });
+            e.cancel = true;
+        });
+        dataGrid.exportToExcel();
+        
+
     }
 </script>

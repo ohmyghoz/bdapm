@@ -54,9 +54,8 @@ namespace BDA.Controllers
             string pageTitle = currentNode != null ? currentNode.Title : ""; //menampilkan data menu
             ViewBag.Hive = false;
 
-            db.CheckPermission("Summary Cluster MKBD View", DataEntities.PermissionMessageType.ThrowInvalidOperationException); //check permission nya view/lihat nya
-            ViewBag.Export = db.CheckPermission("Summary Cluster MKBD Export", DataEntities.PermissionMessageType.NoMessage); //check permission export
-            db.InsertAuditTrail("SegmentationSummaryClusterMKBD_Akses_Page", "Akses Page Segmentation Summary Cluster MKBD", pageTitle); //simpan kedalam audit trail
+            db.CheckPermission("Hutang Subordinasi View", DataEntities.PermissionMessageType.ThrowInvalidOperationException); //check permission nya view/lihat nya
+            db.InsertAuditTrail("MendeteksiHutangSubordinasi_Akses_Page", "Akses Page Hutang Subordinasi", pageTitle); //simpan kedalam audit trail
 
             return View();
         }
@@ -136,7 +135,7 @@ namespace BDA.Controllers
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
             var currentNode = mdl.GetCurrentNode();
             string pageTitle = currentNode != null ? currentNode.Title : "";
-            db.InsertAuditTrail("MendeteksiHutangSubordinasi_Akses_Page", "user " + userId + " mengakases halaman Segmentation Summary Cluster MKBD untuk digunakan sebagai " + Penggunaan_Data + "", pageTitle);
+            db.InsertAuditTrail("MendeteksiHutangSubordinasi_Akses_Page", "user " + userId + " mengakases halaman Mendeteksi Hutang Subordinasi untuk digunakan sebagai " + Penggunaan_Data + "", pageTitle);
 
             try
             {
@@ -199,6 +198,18 @@ namespace BDA.Controllers
             public string value { get; set; }
             public string text { get; set; }
         }
+        
+        public FileResult FileIndex(string name)
+        {
+            var directory = _env.WebRootPath;
+            var timeStamp = TempData.Peek("timeStamp").ToString();
+            var fileName = "MendeteksiHutangSubOrdinasi_" + name + timeStamp + ".pdf";
+            var filePath = Path.Combine(directory, fileName);
+            var fileByte = System.IO.File.ReadAllBytes(filePath);
+            System.IO.File.Delete(filePath);
+            return File(fileByte, "application/pdf", fileName);
+        }
+
         [HttpPost]
         public IActionResult LogExportIndex()
         {
@@ -209,8 +220,8 @@ namespace BDA.Controllers
 
                 string pageTitle = currentNode != null ? currentNode.Title : "";
 
-                db.CheckPermission("Summary Cluster MKBD Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-                db.InsertAuditTrail("SegmentationSummaryClusterMKBD_Akses_Page", "Export Data", pageTitle);
+                db.CheckPermission("Hutang Subordinasi Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+                db.InsertAuditTrail("MendeteksiHutangSubOrdinasi_Akses_Page", "Export Data", pageTitle);
                 return Json(new { result = "Success" });
             }
             catch (Exception ex)
@@ -218,7 +229,7 @@ namespace BDA.Controllers
                 return Json(new { result = db.ProcessExceptionMessage(ex) });
             }
         }
-        public IActionResult ExportPDF(IFormFile file)
+        public IActionResult ExportPDF(IFormFile file, string name)
         {
             try
             {
@@ -227,12 +238,31 @@ namespace BDA.Controllers
 
                 string pageTitle = currentNode != null ? currentNode.Title : "";
 
-                db.CheckPermission("Summary Cluster MKBD Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-                db.InsertAuditTrail("SegmentationSummaryClusterMKBD_Akses_Page", "Export Data", pageTitle);
+                db.CheckPermission("Hutang Subordinasi Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+                db.InsertAuditTrail("MendeteksiHutangSubOrdinasi_Akses_Page", "Export Data", pageTitle);
 
                 var directory = _env.WebRootPath;
                 var timeStamp = DateTime.Now.ToString();
                 Workbook workbook = new Workbook(file.OpenReadStream());
+                Worksheet worksheet2 = workbook.Worksheets[0];
+                var columns1 = worksheet2.Cells.Columns.Count;
+                var rows1 = worksheet2.Cells.Rows.Count;
+                var style = workbook.CreateStyle();
+                style.SetBorder(BorderType.TopBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.BottomBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.LeftBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.RightBorder, CellBorderType.Thick, Color.Black);
+
+                //Apply bottom borders from cell F4 till K4
+                for (int r = 0; r <= rows1 - 1; r++)
+                {
+                    for (int col = 0; col <= columns1 - 1; col++)
+                    {
+                        Aspose.Cells.Cell cell = worksheet2.Cells[r, col];
+
+                        cell.SetStyle(style);
+                    }
+                }
 
                 foreach (Worksheet worksheet in workbook.Worksheets)
                 {
@@ -249,8 +279,6 @@ namespace BDA.Controllers
                     textStyle.Number = 3;
                     StyleFlag textFlag = new StyleFlag();
                     textFlag.NumberFormat = true;
-
-                    worksheet.Cells.Columns[9].ApplyStyle(textStyle, textFlag);
 
                     //page setup
                     PageSetup pageSetup = worksheet.PageSetup;
@@ -273,7 +301,7 @@ namespace BDA.Controllers
 
                 timeStamp = timeStamp.Replace('/', '-').Replace(" ", "_").Replace(":", "-");
                 TempData["timeStamp"] = timeStamp;
-                var fileName = "SegmentationSummaryClusterMKBD_" + timeStamp + ".pdf";
+                var fileName = "MendeteksiHutangSubOrdinasi_" + name + timeStamp + ".pdf";
                 workbook.Save(Path.Combine(directory, fileName), SaveFormat.Pdf);
                 return new EmptyResult();
             }
