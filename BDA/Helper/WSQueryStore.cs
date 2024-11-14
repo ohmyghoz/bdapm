@@ -1,9 +1,11 @@
 ﻿using BDA.DataModel;
 using BDA.Helper.FW;
 using DevExpress.Data.Extensions;
+using DevExpress.XtraCharts.Native;
 using DevExpress.XtraRichEdit;
 using DevExtreme.AspNet.Mvc;
 using Microsoft.AspNetCore.Http;
+using Microsoft.CodeAnalysis.Elfie.Diagnostics;
 using Org.BouncyCastle.Asn1.Mozilla;
 using System;
 using System.Collections.Generic;
@@ -94,6 +96,31 @@ namespace BDA.Helper
             if (s.Length < 2) return s;
             int idx = Array.IndexOf(keyName, s.Substring(0, 1));
             return ((idx >= 0 ? idx.ToString(): s.Substring(0, 1)) + s.Substring(1)).Replace("O", "IOII").Replace("A", "IOOI").Replace("U", "IIOO").Replace("E", "IOIO");            
+        }
+        #endregion
+
+        #region SimpleQuery
+        private static WSQueryReturns ExecuteSimpleSQL(string connString, string queryString)
+        {
+            var result = new WSQueryReturns();
+            using (var conn = new SqlConnection(connString))
+            {
+                string countQuery = @"select count(*) from (" + queryString + @") cntquery";
+                using (var cmd = new SqlCommand(countQuery, conn))
+                {
+                    cmd.CommandTimeout = 300;
+                    conn.Open();
+                    var dt = new DataTable();
+                    if (result.totalCount == null || result.totalCount > 0) //hemat 1 kali call 
+                    {
+                        cmd.CommandText = queryString;
+                        var adap = new SqlDataAdapter(cmd);
+                        adap.Fill(dt);
+                    }
+                    result.data = dt;
+                }
+                return result;
+            }
         }
         #endregion
 
@@ -5605,9 +5632,12 @@ namespace BDA.Helper
                 periodWhereQuery = " AND " + periodes + " between valid_from and valid_until"; //date_format(CURRENT_DATE(), 'YYYYMMdd')
             }
 
-            var propsQuery = new WSQueryProperties();
-            propsQuery.Query = "select table_" + (isHive? "hive" : "sql") + @" as queryString from dbo.ref_query where table_id = '" + tableName + "'";
-            DataRow dr = WSQueryHelper.DoQuery(db, propsQuery, loadOptions, false, false).data.Rows[0];
+            string sqlGetQuery = "select table_" + (isHive ? "hive" : "sql") + @" as queryString from dbo.ref_query where table_id = '" + tableName + "'";
+            //var propsQuery = new WSQueryProperties();
+            //propsQuery.Query = sqlGetQuery;
+            //DataRow dr = WSQueryHelper.DoQuery(db, propsQuery, loadOptions, false, false).data.Rows[0];
+            
+            DataRow dr = ExecuteSimpleSQL(db.appSettings.DataConnString, sqlGetQuery).data.Rows[0]; 
             string queryString = dr["queryString"].ToString();
             queryString = queryString.Replace("@wherefilter", whereQuery).Replace("@whereperiode", periodWhereQuery);
 
