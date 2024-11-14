@@ -2556,6 +2556,7 @@ namespace BDA.Helper
             {
                 //string left7 = "";
                 bool isInput = false;
+                bool allowFilter = true;
                 var caption = cultInfo.ToTitleCase(row.ColumnName.Replace("dm_", "").Replace("_", " "));
                 caption = caption.Replace("Ljk", "LJK");
                 caption = caption.Replace("Cif", "CIF");
@@ -2615,6 +2616,7 @@ namespace BDA.Helper
                         caption = "Nama SID";
                         width = 300;
                         visible = true;
+                        allowFilter = false;
                     }
 
                     if (row.ColumnName == "accountbalancestatuscode") caption = "Balance Status";
@@ -2721,7 +2723,7 @@ namespace BDA.Helper
                             
                         }
                         else
-                            grid.Columns(c => c.Add().Caption(caption).DataField(row.ColumnName).Width(width).Visible(visible).DataType(colDataType).Format(format));
+                            grid.Columns(c => c.Add().Caption(caption).DataField(row.ColumnName).Width(width).Visible(visible).DataType(colDataType).Format(format).AllowFiltering(allowFilter));
                     }
                 }
             }

@@ -33,13 +33,13 @@
 
                     <div class="col-lg-4 form-group">
                         <label>Nomor SID<span class="one-mandatory">**</span></label>
-                        @(Html.DevExtreme().TextBox().ID("tbSID").Placeholder("Nomor SID").InputAttr("aria-label", "Nomor SID").ShowClearButton(true).ValueChangeEvent("change").OnValueChanged("tb_valueChanged").Width("100%").Value(vbSID))
+                        @(Html.DevExtreme().TextBox().ID("tbSID").Placeholder("Nomor SID").InputAttr("aria-label", "Nomor SID").ShowClearButton(true).ValueChangeEvent("change").OnValueChanged("tb_valueChanged").Width("100%").Value(vbSID).MaxLength(15))
                     </div>
                     @if (ViewBag.FullFilter)
                     {
                         <div class="col-lg-4 form-group">
                             <label>Trading Id<span class="one-mandatory">**</span></label>
-                            @(Html.DevExtreme().TextBox().ID("tbTradeId").Placeholder("Trade Id").InputAttr("aria-label", "Nomor Trade").ShowClearButton(true).ValueChangeEvent("change").OnValueChanged("tb_valueChanged").Width("100%"))
+                            @(Html.DevExtreme().TextBox().ID("tbTradeId").Placeholder("Trade Id").InputAttr("aria-label", "Nomor Trade").ShowClearButton(true).ValueChangeEvent("change").OnValueChanged("tb_valueChanged").Width("100%").MaxLength(10))
                         </div>
                         <div class="col-lg-4 form-group">
                             <label>Nama SID<span class="one-mandatory">**</span></label>                            
@@ -64,12 +64,12 @@
                         </div>
                         <div class="col-lg-4 form-group">
                             <label>Nomor KTP<span class="one-mandatory">**</span></label>
-                            @(Html.DevExtreme().TextBox().ID("tbKTP").Placeholder("Nomor KTP").InputAttr("aria-label", "Nomor KTP").ShowClearButton(true).ValueChangeEvent("change").OnValueChanged("tb_valueChanged").Width("100%"))
+                            @(Html.DevExtreme().TextBox().ID("tbKTP").Placeholder("Nomor KTP").InputAttr("aria-label", "Nomor KTP").ShowClearButton(true).ValueChangeEvent("change").OnValueChanged("tb_valueChanged").Width("100%").MaxLength(16))
                         </div>
 
                         <div class="col-lg-4 form-group">
                             <label>Nomor NPWP<span class="one-mandatory">**</span></label>
-                            @(Html.DevExtreme().TextBox().ID("tbNPWP").Placeholder("Nomor NPWP").InputAttr("aria-label", "Nomor NPWP").ShowClearButton(true).ValueChangeEvent("change").OnValueChanged("tb_valueChanged").Width("100%"))
+                            @(Html.DevExtreme().TextBox().ID("tbNPWP").Placeholder("Nomor NPWP").InputAttr("aria-label", "Nomor NPWP").ShowClearButton(true).ValueChangeEvent("change").OnValueChanged("tb_valueChanged").Width("100%").MaxLength(16))
                         </div>
 
                         @if (Model.kode.IndexOf("ip_relation") == 0)
