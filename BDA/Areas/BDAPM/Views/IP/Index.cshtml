@@ -348,6 +348,10 @@
     const resetFilter = { tbSID: 0, tbTradeId: 0, tbNamaSID: 0, tbKTP: 0, tbNPWP: 0 }
     const maxItems = @maxItems;
 
+    function GetRowNumber(cellElement, cellInfo) { 
+        cellElement.text(cellInfo.row.rowIndex + 1) 
+    }
+
     function onCellPrepared(e) {
         let listColumn = ["nama_sid", "no_rekening", "tanggal_lahir", "tanggal_pendirian", "address1", "ktp", "npwp", "status_sid", "last_update_sid", "system", "sre", "email", "phone_number", "fax", "passport", "occupation", "nationality", "province", "city"];
         if (e.rowType === "data" && e.column.dataField === "sid") {
