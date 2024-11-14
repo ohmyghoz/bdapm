@@ -1269,6 +1269,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Areas\BDAPM\Views\MM\" />
+    <Folder Include="wwwroot\tempData\" />
     <Folder Include="wwwroot\temp\" />
   </ItemGroup>
   <ItemGroup>
