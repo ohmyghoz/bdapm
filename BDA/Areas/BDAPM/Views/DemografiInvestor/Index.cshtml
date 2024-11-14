@@ -349,6 +349,7 @@
                 type: "GET",
                 success: function (data) {
                     if (data.success == true) {
+                        alert(data.total);
                         $("#totalValueTraded").val(data.total);
                         var chart1 = $("#ChartGender").dxChart("instance");
                         var ds1 = DevExpress.data.AspNet.createStore({
