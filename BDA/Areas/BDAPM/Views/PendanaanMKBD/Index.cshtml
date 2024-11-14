@@ -343,6 +343,7 @@
     }
 
     function thousandSeparatorDecimal(e) {
+        e = parseFloat(e);
         if (e != null)
             return e.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
     }
