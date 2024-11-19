@@ -42,6 +42,7 @@
                             .DisplayExpr("text")
                             .SearchEnabled(true)
                             .Width("100%")
+                            .Placeholder("(ALL)")
                             )
                     </div>
 
@@ -54,7 +55,9 @@
                             .MaxDisplayedTags(3)
                             .SearchEnabled(true)
                             .OnSelectionChanged("onSelectionChanged")
-                            .Width("100%"))
+                            .Width("100%")
+                            .Placeholder("(ALL)")
+                            )
                     </div>
 
                 </div>
@@ -67,14 +70,6 @@
                         .OnClick("onButtonFilterClicked")
                         .ValidationGroup("Filter"))
                 </div>
-
-@*                 <div class="float-right">
-                    @if (ViewBag.Export)
-                    {
-                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();"><span class="image fa fa-file-excel"></span> Export Excel</a>
-                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
-                    }
-                </div> *@
             </div>
         </div>
         <div class="row">
