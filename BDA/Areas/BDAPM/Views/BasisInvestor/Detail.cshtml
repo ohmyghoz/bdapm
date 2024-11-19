@@ -16,6 +16,14 @@
 {
     @Html.AntiForgeryToken()
 
+    <style>
+        .dx-datagrid-headers {
+            background-color: #a01905 !important;
+            color: #ffffff !important;
+        }
+
+    </style>
+
     <div class="card card-default">
         @*filter*@
         <div class="row filter-panel" style="padding-top:0px;">
@@ -163,7 +171,7 @@
             <br />
             <div class="gridview-div">
                  @(Html.DevExtreme().DataGrid()
-                    .ID("grid1")
+                    .ID("gridDetail")
                     //.DataSource(d => d.Mvc()
                         //.Controller("SegmentationSummaryClusterMKBD")
                         //.LoadAction("GetGridDataDetail")
@@ -246,6 +254,51 @@
 <script>
 
     $(function () {
+
+        var dummyData = [
+            {
+                sid: "IDD1305P3058119",
+                fullname: "HENDRA GUNAWAN",
+                newsre: "Client",
+                invlasttrxindays: 0,
+                invtrxfreq: "22.734",
+                invtotalval: "969.525.474.800"
+            },
+            {
+                sid: "IDD1406C3737410",
+                fullname: "YUANITA",
+                newsre: "Client",
+                invlasttrxindays: 0,
+                invtrxfreq: "23.673",
+                invtotalval: "892.897.793.800"
+            }, {
+                sid: "IDD1803P4705077",
+                fullname: "SWAN TJANAKA",
+                newsre: "Client",
+                invlasttrxindays: 2,
+                invtrxfreq: "4.552",
+                invtotalval: "136.025.277.500"
+            },
+            {
+                sid: "IDD2101B3289682",
+                fullname: "FRANKY OESMAN WIDJAJA",
+                newsre: "Client",
+                invlasttrxindays: 3,
+                invtrxfreq: "1.431",
+                invtotalval: "81.167.770.000"
+            },
+            {
+                sid: "IDD280684948566",
+                fullname: "SUINI PHAN",
+                newsre: "Client",
+                invlasttrxindays: 1,
+                invtrxfreq: "2.367",
+                invtotalval: "89.308.256.000"
+            }
+        ];
+
+        $("#gridDetail").dxDataGrid("option", "dataSource", dummyData);
+
         const startDate = $("#PeriodeAwal").dxDateBox({
             onValueChanged: function (e) {
                 endDate.option("min", e.value);

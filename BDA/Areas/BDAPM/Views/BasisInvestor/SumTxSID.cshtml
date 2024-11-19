@@ -16,6 +16,16 @@
 {
     @Html.AntiForgeryToken()
 
+    <style>
+
+        .header-table {
+            background-color: #a01905 !important;
+            color: #ffffff !important;
+            margin-bottom: 0;
+        }
+
+    </style>
+
     <div class="card card-default">
         @*filter*@
         <div class="row filter-panel" style="padding-top:0px;">
@@ -124,28 +134,28 @@
             <br />
 
             <div class="gridview-div">
-                <header class="bg-danger"><h5 class="text-white">&nbsp;Transaction Summary</h5></header>
+                <header class="header-table"><h5>&nbsp;Transaction Summary</h5></header>
                 @(Html.DevExtreme().DataGrid()
-                    .ID("gridtrx")
+                    .ID("gridTRX")
+                    .OnCellPrepared("gridOnCellPrepared")
                     //.DataSource(d => d.Mvc()
                     //.Controller("SegmentationSummaryClusterMKBD")
                     //.LoadAction("GetGridDataDetail")
                     //.Key("rowid")
                     //.OnBeforeSend("onGridBeforeSend"))
-                    .RemoteOperations(true)
                     .Width("100%")
                     .AllowColumnResizing(true)
                     .ColumnAutoWidth(true)
-                    .Columns(columns =>
-                    {
-                        columns.Add().DataField("pe").Caption("PE");
-                        columns.Add().DataField("sid").Caption("SID");
-                        columns.Add().DataField("invcode").Caption("Investor Code");
-                        columns.Add().DataField("seccode").Caption("Security Code");
-                        columns.Add().DataField("trxsys").Caption("Transaction System");
-                        columns.Add().DataField("ttltrxpreq").Caption("Total Transaction Frequency");
-                        columns.Add().DataField("ttltrxvol").Caption("Total Transaction Volume");
-                        columns.Add().DataField("ttltrxval").Caption("Total Transaction Value");
+                    .Columns(c  => 
+                    { 
+                        c.Add().DataField("pe").Caption("PE");
+                        c.Add().DataField("sid").Caption("SID");
+                        c.Add().DataField("invcode").Caption("Investor Code");
+                        c.Add().DataField("seccode").Caption("Security Code");
+                        c.Add().DataField("trxsys").Caption("Transaction System");
+                        c.Add().DataField("ttltrxfreq").Caption("Total Transaction Frequency");
+                        c.Add().DataField("ttltrxvol").Caption("Total Transaction Volume");
+                        c.Add().DataField("ttltrxval").Caption("Total Transaction Value");
                     })
                     .ColumnResizingMode(ColumnResizingMode.Widget)
                     .FilterRow(f => f.Visible(true))
@@ -160,6 +170,7 @@
                     {
                         p.ShowInfo(true);
                     })
+                    //.RowAlternationEnabled(false)
                     )
             </div>
         </div>
@@ -173,43 +184,46 @@
             </div>
             <br />
             <div class="gridview-div">
-                <header class="bg-danger"><h5 class="text-white">&nbsp;SRE Summary</h5></header>
+                <header class="header-table"><h5>&nbsp;SRE Summary</h5></header>
                 @(Html.DevExtreme().DataGrid()
-                    .ID("gridsre")
+                    .ID("gridSRE")
+                    .OnCellPrepared("gridOnCellPrepared")
                     //.DataSource(d => d.Mvc()
                     //.Controller("SegmentationSummaryClusterMKBD")
                     //.LoadAction("GetGridDataDetail")
                     //.Key("rowid")
                     //.OnBeforeSend("onGridBeforeSend"))
-                    .RemoteOperations(true)
                     .Width("100%")
                     .AllowColumnResizing(true)
                     .ColumnAutoWidth(true)
-                    .Columns(columns =>
+                    .Columns(c => 
                     {
-                        columns.Add().DataField("pe").Caption("PE");
-                        columns.Add().DataField("sid").Caption("SID");
-                        columns.Add().DataField("secphytcode").Caption("Security Physical Type Code");
-                        columns.Add().DataField("stlactowntcode").Caption("Settlement Account Owner Type Code");
-                        columns.Add().DataField("stlacttcode").Caption("Settlement Account Type Code");
-                        columns.Add().DataField("actblcstscode").Caption("Account Balance Status Code");
-                        columns.Add().DataField("portoamount").Caption("Portofolio Amount");
-                        columns.Add().DataField("portoqty").Caption("Portofolio Quatity");
+                        c.Add().DataField("pe").Caption("PE");
+                        c.Add().DataField("sid").Caption("SID");
+                        c.Add().DataField("secphytcode").Caption("Security Physical Type Code");
+                        c.Add().DataField("stlactowntcode").Caption("Settlement Account Owner Type Code");
+                        c.Add().DataField("stlacttcode").Caption("Settlement Account Type Code");
+                        c.Add().DataField("actblcstscode").Caption("Account Balance Status Code");
+                        c.Add().DataField("portoamount").Caption("Portofolio Amount");
+                        c.Add().DataField("portoqty").Caption("Portofolio Quatity");
                     })
                     .ColumnResizingMode(ColumnResizingMode.Widget)
                     .FilterRow(f => f.Visible(true))
                     .ShowBorders(false)
                     //.RowAlternationEnabled(false)
                     .Paging(p =>
-                    {
-                        p.PageSize(20);
-                        p.Enabled(true);
-                    })
+                        {
+                            p.PageSize(20);
+                            p.Enabled(true);
+                        })
                     .Pager(p =>
-                    {
-                        p.ShowInfo(true);
-                    })
+                        {
+                            p.ShowInfo(true);
+                        })
+                    //.RowAlternationEnabled(false)
                     )
+                  
+
             </div>
         </div>
 
@@ -260,6 +274,89 @@
 <script>
 
     $(function () {
+
+        var dummyDataTRX = [
+            {
+                pe: "DR",
+                sid: "P30581",
+                invcode: "P30581",
+                seccode: "ANTM",
+                trxsys: "Bursa",
+                ttltrxfreq: "107.187",
+                ttltrxvol: "4.015.450.910",
+                ttltrxval: "154.692.485.634.032.000"
+            },
+            {
+                pe: "DR",
+                sid: "P30581",
+                invcode: "P30581",
+                seccode: "BBRI",
+                trxsys: "Bursa",
+                ttltrxfreq: "23.685",
+                ttltrxvol: "912.879.993",
+                ttltrxval: "34.915.586.398.464.800"
+            },
+            {
+                pe: "DR",
+                sid: "P30581",
+                invcode: "P30581",
+                seccode: "GIAA",
+                trxsys: "Bursa",
+                ttltrxfreq: "7.648",
+                ttltrxvol: "301.816.848",
+                ttltrxval: "11.511.222.925.740.000"
+            },
+            {
+                pe: "DR",
+                sid: "P30581",
+                invcode: "P30581",
+                seccode: "WSKT",
+                trxsys: "Bursa",
+                ttltrxfreq: "7.565",
+                ttltrxvol: "273.229.644",
+                ttltrxval: "10.575.929.850.194.900"
+            },
+            {
+                pe: "DR",
+                sid: "P30581",
+                invcode: "P30581",
+                seccode: "TLKM",
+                trxsys: "Bursa",
+                ttltrxfreq: "7.812",
+                ttltrxvol: "247.043.910",
+                ttltrxval: "9.268.220.237.295.000"
+            },
+
+        ];
+
+        var dummyDataSRE = [
+            {
+                id: 1,
+				pe: "DR",
+				sid: "503538",
+				secphytcode: "SL",
+				stlactowntcode: "ID",
+				stlacttcode: "1",
+				actblcstscode: "1",
+				portoamount: "8.145.110.603.250",
+				portoqty: "2.261.134.486"
+			}, 
+			{
+                id: 2,
+				pe: "DR",
+				sid: "503538",
+				secphytcode: "SL",
+				stlactowntcode: "ID",
+				stlacttcode: "4",
+				actblcstscode: "1",
+				portoamount: "347.330.287.500.000",
+				portoqty: "115.128.450.000"
+			}
+        ];
+
+        loadGridData("gridTRX", dummyDataTRX);
+        loadGridData("gridSRE", dummyDataSRE);
+
         const startDate = $("#PeriodeAwal").dxDateBox({
             onValueChanged: function (e) {
                 endDate.option("min", e.value);
@@ -319,6 +416,43 @@
             });
         }
     });
+
+    function loadGridData(gridName, data) {
+        var id = "#" + gridName;
+        $(id).dxDataGrid("option", "dataSource", data);
+    }
+
+    function gridOnCellPrepared(e) {
+        @* var values = {};
+        var mergeColumns = 10;
+
+        if (isNaN(e.rowIndex))
+            return;
+
+        if (e.columnIndex < mergeColumns) {
+            if (e.rowIndex == 0 || values[e.columnIndex] != e.value) {
+                values[e.columnIndex] = e.value;
+                for (var i = e.columnIndex + 1; i < mergeColumns; i++) {
+                    values[i] = undefined;
+                }
+            } else {
+                e.cellElement.css("font-size", "0");
+            }
+        } *@
+
+        var col = [0, 1, 2]
+
+        if (e.rowType !== "data" || !col.includes(e.columnIndex)) {
+            return;
+        }
+        if (e.rowIndex % 5 === 0) {
+            e.cellElement.rowSpan = 5;
+            e.cellElement.innerHTML = "<div>My Text</div>";
+        }
+        else {
+            e.cellElement.css("font-size", "0");
+        }
+    }
 
     function onSelectionChanged(e) {
         if (e.addedItems.length > 0) {

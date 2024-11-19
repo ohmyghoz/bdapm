@@ -13,6 +13,28 @@
 {
     @Html.AntiForgeryToken()
 
+    <style>
+        .info-icon {
+            color: white;
+            vertical-align: middle
+        }
+
+        .tooltip-inner {
+            text-align: justify;
+            max-width: 640px;
+            width: 640px;
+        }
+
+        .card-header {
+            background-color: #a01905 !important;
+        }
+
+        #no-axes .dxc-axes-group {
+            display: none;
+        }
+
+    </style>
+
     <div class="card card-default">
         @*filter*@
         <div class="row filter-panel" style="padding-top:0px;">
@@ -43,7 +65,7 @@
                     </div>
 
                     <div class="col-lg-2 form-group">
-                        <label>PE<span class="mandatory">*</span></label>
+                        <label>PE@* <span class="mandatory">*</span> *@</label>
                         @(Html.DevExtreme().SelectBox()
                             .ID("namaPEid")
                             .DataSource(d => d.Mvc()
@@ -58,41 +80,63 @@
                             )
                     </div>
 
+                    @{
+                        var invType = new string [] { "Individu", "Institusi" };
+                    }
+
                     <div class="col-lg-2 form-group">
                         <label>Investor Type@*<span class="mandatory">*</span>*@</label>
-                        @(Html.DevExtreme().TagBox()
+                        @(Html.DevExtreme().SelectBox()
                             .ID("InvstType")
-                            .DataSource(new[] { "(All)", "Individu", "Institusi" })
+                            .DataSource(invType)
                             .SearchEnabled(true)
                             .OnSelectionChanged("onSelectionChanged")
                             .Width("100%"))
                     </div>
+
+                    @{
+                        var invOrigin = new[] { "Asing", "Lokal" };
+                    }
 
                     <div class="col-lg-2 form-group">
                         <label>Investor Origin@*<span class="mandatory">*</span>*@</label>
-                        @(Html.DevExtreme().TagBox()
+                        @(Html.DevExtreme().SelectBox()
                             .ID("InvstOrigin")
-                            .DataSource(new[] { "(All)", "Asing", "Lokal" })
+                            .DataSource(invOrigin)
                             .SearchEnabled(true)
                             .OnSelectionChanged("onSelectionChanged")
                             .Width("100%"))
                     </div>
+
+                    @{
+                        var inpRange = new[] { 
+                            new { Text = "1 Bulan", Value = "1" },
+                            new { Text = "6 Bulan", Value = "6" }, 
+                            new { Text = "12 Bulan", Value = "12" }
+                        };
+                    }
 
                     <div class="col-lg-2 form-group">
                         <label>Input Range@*<span class="mandatory">*</span>*@</label>
-                        @(Html.DevExtreme().TagBox()
+                        @(Html.DevExtreme().SelectBox()
                             .ID("InpRange")
-                            .DataSource(new[] { "1 Bulan", "6 Bulan", "12 Bulan" })
+                            .DataSource(inpRange)
+                            .ValueExpr("Value")
+                            .DisplayExpr("Text")
                             .SearchEnabled(true)
                             .OnSelectionChanged("onSelectionChanged")
                             .Width("100%"))
                     </div>
 
+                    @{
+                        var market = new[] { "Burse" };
+                    }
+
                     <div class="col-lg-2 form-group">
                         <label>Market@*<span class="mandatory">*</span>*@</label>
-                        @(Html.DevExtreme().TagBox()
+                        @(Html.DevExtreme().SelectBox()
                             .ID("Market")
-                            .DataSource(new[] { "Bursa" })
+                            .DataSource(market)
                             .SearchEnabled(true)
                             .OnSelectionChanged("onSelectionChanged")
                             .Width("100%"))
@@ -114,55 +158,55 @@
         <div class="row justify-content-center">
             <div class="col-12 col-sm-6 col-md-4 col-lg-2 d-flex align-items-stretch">
                 <div class="card text-center">
-                    <div class="card-header bg-danger text-white d-flex align-items-center justify-content-center h-100">
+                    <div class="card-header text-white d-flex align-items-center justify-content-center h-100">
                         Total Clients
                     </div>
-                    <div class="small-card-body">
-                        <p class="card-text font-weight-bold">99.999</p>
+                    <div class="small-card-body clickChart">
+                        <p id="totalClients" class="card-text font-weight-bold">-</p>
                     </div>
                 </div>
             </div>
 
             <div class="col-12 col-sm-6 col-md-4 col-lg-2 d-flex align-items-stretch">
                 <div class="card text-center">
-                    <div class="card-header bg-danger text-white d-flex align-items-center justify-content-center h-100">
+                    <div class="card-header text-white d-flex align-items-center justify-content-center h-100">
                         Active Client
-                    </div>
-                    <div class="small-card-body">
-                        <p class="card-text font-weight-bold">99.999</p>
+                    </div> 
+                    <div class="small-card-body clickChart">
+                        <p id="activeClient" class="card-text font-weight-bold">-</p>
                     </div>
                 </div>
             </div>
 
             <div class="col-12 col-sm-6 col-md-4 col-lg-2 d-flex align-items-stretch">
                 <div class="card text-center">
-                    <div class="card-header bg-danger text-white d-flex align-items-center justify-content-center h-100">
+                    <div class="card-header text-white d-flex align-items-center justify-content-center h-100">
                         Transaction Frequency
                     </div>
-                    <div class="small-card-body">
-                        <p class="card-text font-weight-bold">9.999.999</p>
+                    <div class="small-card-body clickChart">
+                        <p id="trxFreq" class="card-text font-weight-bold">-</p>
                     </div>
                 </div>
             </div>
 
             <div class="col-12 col-sm-6 col-md-4 col-lg-2 d-flex align-items-stretch">
                 <div class="card text-center">
-                    <div class="card-header bg-danger text-white d-flex align-items-center justify-content-center h-100">
+                    <div class="card-header text-white d-flex align-items-center justify-content-center h-100">
                         Traded Value
                     </div>
-                    <div class="small-card-body">
-                        <p class="card-text font-weight-bold">99.999.999.999.999</p>
+                    <div class="small-card-body clickChart">
+                        <p id="tradedValue" class="card-text font-weight-bold">-</p>
                     </div>
                 </div>
             </div>
 
             <div class="col-12 col-sm-6 col-md-4 col-lg-2 d-flex align-items-stretch">
                 <div class="card text-center">
-                    <div class="card-header bg-danger text-white d-flex align-items-center justify-content-center h-100">
+                    <div class="card-header text-white d-flex align-items-center justify-content-center h-100">
                         Client Liquid Amount
                     </div>
-                    <div class="small-card-body">
-                        <p class="card-text font-weight-bold">99.999.999.999.999</p>
+                    <div class="small-card-body clickChart">
+                        <p id="clientLiquidAmt" class="card-text font-weight-bold">-</p>
                     </div>
                 </div>
             </div>
@@ -170,121 +214,243 @@
         <br />
 
         <div class="row justify-content-center">
-            <div class="col-xl-12">
+            <div id="no-axes" class="col-xl-4">
                 <div class="card text-center">
-
-                    <div class="card-header bg-danger text-white h-100">
-                        Presentase By Segment <i class="fa fa-info float-right" title="TEST INFO"></i>
+                    <div class="card-header text-white h-100">
+                        Presentase By Segment <span id="tooltipGraph" class="fa fa-info-circle info-icon float-right" data-toggle="tooltip" data-placement="auto" data-html="true" title="<p><b>Investor Total Value adalah nilai tengah atau median dari keseluruhan nasabah yang termasuk kategori nasabah tersebut (bukan melainkan total transaksi secara keseluruhan)</b></p>"></span>
                     </div>
 
-                    <div class="card-body">
-                        <div id="chartContainer1"></div>
+                    <div class="card-body pt-0 pb-0 clickChart">
+                        <div class="row">
+                            <div class="col-6 pt-0 pb-0 ">
+                                <div class="row">
+                                    <div class="col-12 text-left text-nowrap mx-auto pt-14 pb-2"><small>% Transaction Freq</small></div>
+                                    <br /><br />
+                                    <div class="col-12 text-left text-nowrap mx-auto pt-4 pb-4"><small><b>Champion</b></small></div>
+                                    <br /><br />
+                                    <div class="col-12 text-left text-nowrap mx-auto pt-4"><small>% Total Client</small></div>
+                                    <br /><br />
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div id="chartContainer1">BARCHART</div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="card-body">
-                        <div id="chartContainer2"></div>
+                    <div class="card-body pt-0 pb-0 clickChart">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="row">
+                                    <div class="col-12 text-left text-nowrap mx-auto pt-14 pb-2"><small>% Transaction Freq</small></div>
+                                    <br /><br />
+                                    <div class="col-12 text-left text-nowrap mx-auto pt-4 pb-4"><small><b>Potential Loyalist</b></small></div>
+                                    <br /><br />
+                                    <div class="col-12 text-left text-nowrap mx-auto pt-4"><small>% Total Client</small></div>
+                                    <br /><br />
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div id="chartContainer2">BARCHART</div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="card-body">
-                        <div id="chartContainer3"></div>
+                    <div class="card-body pt-0 pb-0 clickChart">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="row">
+                                    <div class="col-12 text-left text-nowrap mx-auto pt-14 pb-2"><small>% Transaction Freq</small></div>
+                                    <br /><br />
+                                    <div class="col-12 text-left text-nowrap mx-auto pt-4 pb-4"><small><b>Promising</b></small></div>
+                                    <br /><br />
+                                    <div class="col-12 text-left text-nowrap mx-auto pt-4"><small>% Total Client</small></div>
+                                    <br /><br />
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div id="chartContainer3">BARCHART</div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="card-body">
-                        <div id="chartContainer4"></div>
+                    <div class="card-body pt-0 pb-0 clickChart">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="row">
+                                    <div class="col-12 text-left text-nowrap mx-auto pt-14 pb-2"><small>% Transaction Freq</small></div>
+                                    <br /><br />
+                                    <div class="col-12 text-left text-nowrap mx-auto pt-4 pb-4"><small><b>Recent Customer</b></small></div>
+                                    <br /><br />
+                                    <div class="col-12 text-left text-nowrap mx-auto pt-4"><small>% Total Client</small></div>
+                                    <br /><br />
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div id="chartContainer4">BARCHART</div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="card-body">
-                        <div id="chartContainer5"></div>
+                    <div class="card-body pt-0 pb-0 clickChart">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="row">
+                                    <div class="col-12 text-left text-nowrap mx-auto pt-14 pb-2"><small>% Transaction Freq</small></div>
+                                    <br /><br />
+                                    <div class="col-12 text-left text-nowrap mx-auto pt-4 pb-4"><small><b>At Risk</b></small></div>
+                                    <br /><br />
+                                    <div class="col-12 text-left text-nowrap mx-auto pt-4"><small>% Total Client</small></div>
+                                    <br /><br />
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div id="chartContainer5">BARCHART</div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="card-body">
-                        <div id="chartContainer6"></div>
+                    <div class="card-body pt-0 pb-0 clickChart">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="row">
+                                    <div class="col-12 text-left text-nowrap mx-auto pt-14 pb-2"><small>% Transaction Freq</small></div>
+                                    <br /><br />
+                                    <div class="col-12 text-left text-nowrap mx-auto pt-4 pb-4"><small><b>Churn</b></small></div>
+                                    <br /><br />
+                                    <div class="col-12 text-left text-nowrap mx-auto pt-4"><small>% Total Client</small></div>
+                                    <br /><br />
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div id="chartContainer6">BARCHART</div>
+                            </div>
+                        </div>
                     </div>
 
                 </div>
             </div>
-            <div class="col-s-4">
-                <div class="card text-center">
-                    <div class="card-header bg-danger text-white h-100">
-                        Recency
+
+            <div class="col-xl-5">
+                <div class="row">
+                    <div class="col-xs-4">
+                        <div class="card text-center">
+                            <div class="card-header text-white h-100">
+                                Recency
+                            </div>
+                            <div id="donutChart1" class="card-body pt-1 pb-1 pl-1 pr-1 clickChart">
+                                DONUT
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body donutchart1">
-                        DONUT
+                    <div class="col-xs-4">
+                        <div class="card text-center">
+                            <div class="card-header text-white h-100">
+                                Frequency
+                            </div>
+                            <div id="donutChart2" class="card-body pt-1 pb-1 pl-1 pr-1 clickChart">
+                                DONUT
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-4">
+                        <div class="card text-center">
+                            <div class="card-header text-white h-100">
+                                Monetary
+                            </div>
+                            <div id="donutChart3" class="card-body pt-1 pb-1 pl-1 pr-1 clickChart">
+                                DONUT
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-s-4">
-                <div class="card text-center">
-                    <div class="card-header bg-danger text-white h-100">
-                        Frequency
+
+                <div class="row mx-auto">
+                    <div class="col-xl-2">
+                        @{
+                            var chrtFilter = new[] {
+                    new { Text = "Jumlah SID", Value = 1 },
+                    new { Text = "Tx Freq.", Value = 2 }
+                    };
+                        }
+
+                        @(Html.DevExtreme().SelectBox()
+                            .ID("FilterChart")
+                            .DataSource(chrtFilter)
+                            .ValueExpr("Value")
+                            .DisplayExpr("Text")
+                            .Value("sid")
+                            .OnSelectionChanged("onSelectionChanged")
+                            .OnInitialized("initFilterPie")
+                            .Width(150))
+
                     </div>
-                    <div class="card-body donutchart1">
-                        DONUT
+
+                    <div class="col-xl-2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+
+                    <div class="col-xl-8">
+
+                        <p style="font-size: 12px;line-height: 24px;font-weight: normal;color: #848484;padding: 0;margin: 0;">
+                            <span style="width: 15px; height: 15px; margin:auto; display: inline-block; border: 1px solid gray; vertical-align: middle; border-radius: 2px; background: #7d3b3b "></span> <b>High</b>
+                            <span style="width: 15px; height: 15px; margin:auto; display: inline-block; border: 1px solid gray; vertical-align: middle; border-radius: 2px; background: #bcbcbc "></span> <b>Low</b>
+                            <span style="width: 15px; height: 15px; margin:auto; display: inline-block; border: 1px solid gray; vertical-align: middle; border-radius: 2px; background: #a1928e "></span> <b>Middle</b>
+                            
+                        </p>
                     </div>
+                    
                 </div>
-            </div>
-            <div class="col-s-4">
-                <div class="card text-center">
-                    <div class="card-header bg-danger text-white h-100">
-                        Monetary
-                    </div>
-                    <div class="card-body donutchart1">
-                        DONUT
+
+                <div class="row">
+                    <div class="col-xl-12">
+                        <div class="card text-center">
+                            <div class="card-header text-white h-100">
+                                Last Transaction Days vs Investor Value <span id="tooltipScatter" class="fa fa-info-circle info-icon float-right" data-toggle="tooltip" data-placement="auto" data-html="true" title="<p>Champion = telah berinvestasi baru-baru ini, sering, dan dengan jumlah tinggi. <b>Mereka adalah investor yang paling berharga dan paling setia, yang kemungkinan akan berinvestasi lagi</b> dan merespons dengan baik penawaran dan promosi baru.</p><br /><p>Potential Loyalist = telah berinvestasi baru-baru ini dengan frekuensi rata-rata. <b>Mereka telah menunjukkan minat dan potensi dalam berinvestasi,</b> tetapi belum membentuk pola reguler atau komitmen yang tinggi.</p><br /><p>Promising = telah berinvestasi baru-baru ini, tetapi belum menghabiskan banyak. <b>Mereka adalah investor baru atau sesekali,</b> yang mungkin membutuhkan lebih banyak waktu atau bimbingan untuk menjadi lebih percaya diri dan aktif dalam berinvestasi.</p><br /><p>At Risk Customer = <b>belum berinvestasi selama beberapa waktu, tetapi telah sering berinvestasi dan dengan jumlah tinggi di masa lalu.</b> Mereka mungkin telah beralih ke platform atau pasar lain, atau kehilangan minat atau kepercayaan diri dalam berinvestasi.</p><br /><p>Recent Customer = telah berinvestasi baru-baru ini dengan frekuensi rendah</p><br /><p>Churn = <b>sudah lama tidak berinvestasi, dan jarang berinvestasi dan dengan jumlah yang rendah.</b> Mereka mungkin tidak aktif atau tidak tertarik untuk berinvestasi, atau memiliki sumber daya atau selera risiko yang sangat rendah.</p><br />"></span>
+                            </div>
+                            <div id="scatterPlot1" class="card-body pt-1 pb-1 pl-1 pr-1 mx-auto">
+                                SCATTER
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-s-4">
-                <div class="card text-center">
-                    <div class="card-header bg-danger text-white h-100">
-                        New Client vs Client
-                    </div>
-                    <div class="card-body donutchart1">
-                        DONUT
+            <div class="col-xl-3">
+                <div class="row mx-auto">
+                    <div class="col-xs-12 mx-auto">
+                        <div class="card text-center">
+                            <div class="card-header text-white h-100">
+                                New Client vs Client
+                            </div>
+                            <div id="donutChart4" class="card-body pt-1 pb-1 pl-1 pr-1 mx-auto clickChart">
+                                DONUT
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="col-s-4">
-                <div class="card text-center">
-                    <div class="card-header bg-danger text-white h-100">
-                        Investor Origin
-                    </div>
-                    <div class="card-body donutchart1">
-                        DONUT
+                <div class="row mx-auto">
+                    <div class="col-xs-12 mx-auto">
+                        <div class="card text-center">
+                            <div class="card-header text-white h-100">
+                                Investor Origin
+                            </div>
+                            <div id="donutChart5" class="card-body pt-1 pb-1 pl-1 pr-1 mx-auto clickChart">
+                                DONUT
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="col-s-4">
-                <div class="card text-center">
-                    <div class="card-header bg-danger text-white h-100">
-                        Investor Type
-                    </div>
-                    <div class="card-body donutchart1">
-                        DONUT
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                @(Html.DevExtreme().TagBox()
-                    .ID("FilterChart")
-                    .DataSource(new[] { "Jumlah SID", "Tx Freq." })
-                    .SearchEnabled(true)
-                    .OnSelectionChanged("onSelectionChanged")
-                    .Width("100%"))
-            </div>
-        </div>
-        <div class="row justify-content-center">
-            <div class="col-xl-12">
-                <div class="card text-center">
-                    <div class="card-header bg-danger text-white h-100">
-                        Last Transaction Days vs Investor Value <i class="fa fa-info float-right" title="TEST INFO"></i>
-                    </div>
-                    <div class="card-body" id="scatterplot1">
-                        SCATTER
+                <div class="row mx-auto">
+                    <div class="col-xs-12 mx-auto">
+                        <div class="card text-center">
+                            <div class="card-header text-white h-100">
+                                Investor Type
+                            </div>
+                            <div id="donutChart6" class="card-body pt-1 pb-1 pl-1 pr-1 mx-auto clickChart">
+                                DONUT
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -337,25 +503,52 @@
 
 
 <script>
-    // DONUT START
+    
     $(function () {
-        $(".donutchart1").dxPieChart({
+
+        $('[data-toggle="tooltip"]').tooltip()
+        createBarChart();
+        createDonutChart();
+        createScatterPlot();
+        $('.clickChart').on('click', onClickChart);
+
+    });
+
+
+    function initFilterPie(e) {
+        const v = e.component.option("Value");
+        if (v === null) {
+            e.component.option("Value", 1);
+        }
+    }
+
+    function onClickChart() {
+        alert("CLICKED!");
+    }
+
+    function formatNumber(value) {
+        return 
+    }
+    
+    // DONUT START
+
+    function createDonutChart() {
+        $("#donutChart1").dxPieChart({
             dataSource: [
                 { category: "High", value: 0.450 },
-                { category: "Medium", value: 0.250 },
-                { category: "Low", value: 0.300 }
+                { category: "Low", value: 0.300 },
+                { category: "Medium", value: 0.250 }
             ],
-            size: {
-                width: '100%',
-                height: 150
-            },
-            sizeGroup: "donutGrp",
             legend: {
-                visible: true,
-                position: "outside",
-                horizontalAlignment: "center",
-                verticalAlignment: "bottom"
+                visible: false
             },
+            size: {
+                width: 110,
+                height: 200
+            },
+            innerRadius: 0.6,
+            diameter: 0.9,
+            palette: ["#7d3b3b", "#bcbcbc", "#a1928e"],
             series: {
                 argumentField: "category",
                 valueField: "value",
@@ -364,9 +557,13 @@
                     visible: true,
                     position: "inside",
                     backgroundColor: "none",
+                    font: {
+                        color: "#000000",
+                        weight: 650
+                    },
                     format: {
                         type: "percent",
-                        precision: 1
+                        precision: 2
                     }
                 }
             },
@@ -377,409 +574,679 @@
                 right: 0
             }
         });
-    });
+
+        $("#donutChart2").dxPieChart({
+            dataSource: [
+                { category: "High", value: 0.450 },
+                { category: "Low", value: 0.300 },
+                { category: "Medium", value: 0.250 }
+            ],
+            legend: {
+                visible: false
+            },
+            size: {
+                width: 110,
+                height: 200
+            },
+            innerRadius: 0.6,
+            diameter: 0.9,
+            palette: ["#7d3b3b", "#bcbcbc", "#a1928e"],
+            series: {
+                argumentField: "category",
+                valueField: "value",
+                type: "donut",
+                label: {
+                    visible: true,
+                    position: "inside",
+                    backgroundColor: "none",
+                    font: {
+                        color: "#000000",
+                        weight: 650
+                    },
+                    format: {
+                        type: "percent",
+                        precision: 2
+                    }
+                }
+            },
+            margin: {
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0
+            }
+        });
+
+        $("#donutChart3").dxPieChart({
+            dataSource: [
+                { category: "High", value: 0.450 },
+                { category: "Low", value: 0.300 },
+                { category: "Medium", value: 0.250 }
+            ],
+            legend: {
+                visible: false
+            },
+            size: {
+                width: 110,
+                height: 200
+            },
+            innerRadius: 0.6,
+            diameter: 0.9,
+            palette: ["#7d3b3b", "#bcbcbc", "#a1928e"],
+            series: {
+                argumentField: "category",
+                valueField: "value",
+                type: "donut",
+                label: {
+                    visible: true,
+                    position: "inside",
+                    backgroundColor: "none",
+                    font: {
+                        color: "#000000",
+                        weight: 650
+                    },
+                    format: {
+                        type: "percent",
+                        precision: 2
+                    }
+                }
+            },
+            margin: {
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0
+            }
+        });
+
+        $("#donutChart4").dxPieChart({
+            dataSource: [
+                { category: "Client", value: 0.750 },
+                { category: "New Client", value: 0.250 },
+            ],
+            size: {
+                width: 170,
+                height: 250
+            },
+            innerRadius: 0.6,
+            diameter: 0.9,
+            palette: ["#7d3b3b", "#bcbcbc", "#a1928e"],
+            series: {
+                argumentField: "category",
+                valueField: "value",
+                type: "donut",
+                label: {
+                    visible: true,
+                    position: "inside",
+                    backgroundColor: "none",
+                    font: {
+                        color: "#000000",
+                        weight: 650
+                    },
+                    size: 14,
+                    format: {
+                        type: "percent",
+                        precision: 2
+                    }
+                }
+            },
+            legend: {
+                orientation: 'vertical',
+                itemTextPosition: 'right',
+                horizontalAlignment: 'center',
+                verticalAlignment: 'bottom',
+                columnCount: 3,
+                paddingTopBottom: 1,
+                paddingLeftRight: 1,
+                rowItemSpacing: 4,
+                margin: 1
+            },
+            margin: {
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0
+            }
+        });
+
+        $("#donutChart5").dxPieChart({
+            dataSource: [
+                { category: "Asing", value: 0.055 },
+                { category: "Lokal", value: 0.945 },
+            ],
+            size: {
+                width: 170,
+                height: 250
+            },
+            innerRadius: 0.6,
+            diameter: 0.9,
+            palette: ["#7d3b3b", "#bcbcbc", "#a1928e"],
+            series: {
+                argumentField: "category",
+                valueField: "value",
+                type: "donut",
+                label: {
+                    visible: true,
+                    position: "inside",
+                    backgroundColor: "none",
+                    font: {
+                        color: "#000000",
+                        weight: 650
+                    },
+                    size: 14,
+                    format: {
+                        type: "percent",
+                        precision: 2
+                    }
+                }
+            },
+            legend: {
+                orientation: 'vertical',
+                itemTextPosition: 'right',
+                horizontalAlignment: 'center',
+                verticalAlignment: 'bottom',
+                columnCount: 3,
+                paddingTopBottom: 1,
+                paddingLeftRight: 1,
+                rowItemSpacing: 4,
+                margin: 1
+            },
+            margin: {
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0
+            }
+        });
+
+        $("#donutChart6").dxPieChart({
+            dataSource: [
+                { category: "Individu", value: 0.945 },
+                { category: "Institusi", value: 0.055 },
+            ],
+            size: {
+                width: 170,
+                height: 250
+            },
+            innerRadius: 0.6,
+            diameter: 0.9,
+            palette: ["#7d3b3b", "#bcbcbc", "#a1928e"],
+            series: {
+                argumentField: "category",
+                valueField: "value",
+                type: "donut",
+                label: {
+                    visible: true,
+                    position: "inside",
+                    backgroundColor: "none",
+                    font: {
+                        color: "#000000",
+                        weight: 650
+                    },
+                    size: 14,
+                    format: {
+                        type: "percent",
+                        precision: 2
+                    }
+                }
+            },
+            legend: {
+                orientation: 'vertical',
+                itemTextPosition: 'right',
+                horizontalAlignment: 'center',
+                verticalAlignment: 'bottom',
+                columnCount: 3,
+                paddingTopBottom: 1,
+                paddingLeftRight: 1,
+                rowItemSpacing: 4,
+                margin: 1
+            },
+            margin: {
+                top: 0,
+                bottom: 0,
+                left: 0,
+                right: 0
+            }
+        });
+    
+    }
+
 
     // DONUT END
 
     // VERT.BAR START
-    $(function () {
+
+    function createBarChart() {
         $("#chartContainer1").dxChart({
-            commonAxisSettings: {
-                grid: {
-                    visible: false
-                }
-            },
-            dataSource: [
-                { category: "% Transaction Freq", value: 0.745 },
-                { category: "% Total Client", value: 0.251 }
-            ],
+            dataSource: [{
+                category: "a",
+                value: 0.745,
+                type: "a"
+            }, {
+                category: "a",
+                value: 0.251,
+                type: "b"
+            }],
             rotated: true,
-            series: [{
+            commonSeriesSettings: {
                 argumentField: "category",
                 valueField: "value",
                 type: "bar",
-                color: "darkred",
                 label: {
                     visible: true,
+                    backgroundColor: "none",
+                    font: {
+                        color: "#000000",
+                        weight: 650
+                    },
                     format: {
                         type: "percent",
-                        precision: 1
-                    },
+                        position: "top",
+                        precision: 2
+                    }
                 }
-            }],
+            },
+            seriesTemplate: {
+                nameField: 'type'
+            },
+            palette: ["#7d3b3b", "#bcbcbc"],
             legend: {
                 visible: false
             },
+            argumentAxis: {
+                grid: { visible: false },
+                tick: { visible: false },
+                label: { visible: false }
+            },
             valueAxis: {
-                label: {
-                    format: {
-                        type: "percent",
-                        precision: 1
-                    }
-                }
+                grid: { visible: false },
+                tick: { visible: false },
+                label: { visible: false }
             },
             size: {
                 height: 200,
-                width: '100%'  
-            },
-            title: {
-                text: "Champions",
-                verticalAlignment: "center",
-                horizontalAlignment: "center",
-                margin: {
-                    left: 10
-                }
+                width: '100%'
             }
         });
-    });
 
-    $(function () {
         $("#chartContainer2").dxChart({
-            commonAxisSettings: {
-                grid: {
-                    visible: false
-                }
-            },
-            dataSource: [
-                { category: "% Transaction Freq", value: 0.745 },
-                { category: "% Total Client", value: 0.251 }
-            ],
+            dataSource: [{
+                category: "a",
+                value: 0.745,
+                type: "a"
+            }, {
+                category: "a",
+                value: 0.251,
+                type: "b"
+            }],
             rotated: true,
-            series: [{
+            commonSeriesSettings: {
                 argumentField: "category",
                 valueField: "value",
                 type: "bar",
-                color: "darkred",
                 label: {
                     visible: true,
+                    backgroundColor: "none",
+                    font: {
+                        color: "#000000",
+                        weight: 650
+                    },
                     format: {
                         type: "percent",
-                        precision: 1
-                    },
+                        position: "top",
+                        precision: 2
+                    }
                 }
-            }],
+            },
+            seriesTemplate: {
+                nameField: 'type'
+            },
+            palette: ["#7d3b3b", "#bcbcbc"],
             legend: {
                 visible: false
             },
-            valueAxis: {
-                label: {
-                    format: {
-                        type: "percent",
-                        precision: 1
-                    }
-                }
-            }
-            ,
-            size: {
-                height: 200, 
-                width: '100%'
+            argumentAxis: {
+                grid: { visible: false },
+                tick: { visible: false },
+                label: { visible: false }
             },
-            title: {
-                text: "Potential Loyalist",
-                verticalAlignment: "center",
-                horizontalAlignment: "center",
-                margin: {
-                    left: 10
-                }
+            valueAxis: {
+                grid: { visible: false },
+                tick: { visible: false },
+                label: { visible: false }
+            },
+            size: {
+                height: 200,
+                width: '100%'
             }
         });
-    });
 
-    $(function () {
         $("#chartContainer3").dxChart({
-            commonAxisSettings: {
-                grid: {
-                    visible: false
-                }
-            },
-            dataSource: [
-                { category: "% Transaction Freq", value: 0.745 },
-                { category: "% Total Client", value: 0.251 }
-            ],
+            dataSource: [{
+                category: "a",
+                value: 0.745,
+                type: "a"
+            }, {
+                category: "a",
+                value: 0.251,
+                type: "b"
+            }],
             rotated: true,
-            series: [{
+            commonSeriesSettings: {
                 argumentField: "category",
                 valueField: "value",
                 type: "bar",
-                color: "darkred",
                 label: {
                     visible: true,
+                    backgroundColor: "none",
+                    font: {
+                        color: "#000000",
+                        weight: 650
+                    },
                     format: {
                         type: "percent",
-                        precision: 1
-                    },
+                        position: "top",
+                        precision: 2
+                    }
                 }
-            }],
+            },
+            seriesTemplate: {
+                nameField: 'type'
+            },
+            palette: ["#7d3b3b", "#bcbcbc"],
             legend: {
                 visible: false
             },
-            valueAxis: {
-                label: {
-                    format: {
-                        type: "percent",
-                        precision: 1
-                    }
-                }
-            }
-            ,
-            size: {
-                height: 200, 
-                width: '100%'
+            argumentAxis: {
+                grid: { visible: false },
+                tick: { visible: false },
+                label: { visible: false }
             },
-            title: {
-                text: "Promising",
-                verticalAlignment: "center",
-                horizontalAlignment: "center",
-                margin: {
-                    left: 10
-                }
+            valueAxis: {
+                grid: { visible: false },
+                tick: { visible: false },
+                label: { visible: false }
+            },
+            size: {
+                height: 200,
+                width: '100%'
             }
         });
-    });
 
-    $(function () {
         $("#chartContainer4").dxChart({
-            commonAxisSettings: {
-                grid: {
-                    visible: false
-                }
-            },
-            dataSource: [
-                { category: "% Transaction Freq", value: 0.745 },
-                { category: "% Total Client", value: 0.251 }
-            ],
+            dataSource: [{
+                category: "a",
+                value: 0.745,
+                type: "a"
+            }, {
+                category: "a",
+                value: 0.251,
+                type: "b"
+            }],
             rotated: true,
-            series: [{
+            commonSeriesSettings: {
                 argumentField: "category",
                 valueField: "value",
                 type: "bar",
-                color: "darkred",
                 label: {
                     visible: true,
+                    backgroundColor: "none",
+                    font: {
+                        color: "#000000",
+                        weight: 650
+                    },
                     format: {
                         type: "percent",
-                        precision: 1
-                    },
+                        position: "top",
+                        precision: 2
+                    }
                 }
-            }],
+            },
+            seriesTemplate: {
+                nameField: 'type'
+            },
+            palette: ["#7d3b3b", "#bcbcbc"],
             legend: {
                 visible: false
             },
-            valueAxis: {
-                label: {
-                    format: {
-                        type: "percent",
-                        precision: 1
-                    }
-                }
-            }
-            ,
-            size: {
-                height: 200, 
-                width: '100%'
+            argumentAxis: {
+                grid: { visible: false },
+                tick: { visible: false },
+                label: { visible: false }
             },
-            title: {
-                text: "Recent Customer",
-                verticalAlignment: "center",
-                horizontalAlignment: "center",
-                margin: {
-                    left: 10
-                }
+            valueAxis: {
+                grid: { visible: false },
+                tick: { visible: false },
+                label: { visible: false }
+            },
+            size: {
+                height: 200,
+                width: '100%'
             }
         });
-    });
 
-    $(function () {
         $("#chartContainer5").dxChart({
-            commonAxisSettings: {
-                grid: {
-                    visible: false
-                }
-            },
-            dataSource: [
-                { category: "% Transaction Freq", value: 0.745 },
-                { category: "% Total Client", value: 0.251 }
-            ],
+            dataSource: [{
+                category: "a",
+                value: 0.745,
+                type: "a"
+            }, {
+                category: "a",
+                value: 0.251,
+                type: "b"
+            }],
             rotated: true,
-            series: [{
+            commonSeriesSettings: {
                 argumentField: "category",
                 valueField: "value",
                 type: "bar",
-                color: "darkred",
                 label: {
                     visible: true,
+                    backgroundColor: "none",
+                    font: {
+                        color: "#000000",
+                        weight: 650
+                    },
                     format: {
                         type: "percent",
-                        precision: 1
-                    },
+                        position: "top",
+                        precision: 2
+                    }
                 }
-            }],
+            },
+            seriesTemplate: {
+                nameField: 'type'
+            },
+            palette: ["#7d3b3b", "#bcbcbc"],
             legend: {
                 visible: false
             },
-            valueAxis: {
-                label: {
-                    format: {
-                        type: "percent",
-                        precision: 1
-                    }
-                }
-            }
-            ,
-            size: {
-                height: 200, 
-                width: '100%'
+            argumentAxis: {
+                grid: { visible: false },
+                tick: { visible: false },
+                label: { visible: false }
             },
-            title: {
-                text: "At Risk",
-                verticalAlignment: "center",
-                horizontalAlignment: "center",
-                margin: {
-                    left: 10
-                }
+            valueAxis: {
+                grid: { visible: false },
+                tick: { visible: false },
+                label: { visible: false }
+            },
+            size: {
+                height: 200,
+                width: '100%'
             }
         });
-    });
 
-    $(function () {
         $("#chartContainer6").dxChart({
-            commonAxisSettings: {
-                grid: {
-                    visible: false
-                }
-            },
-            dataSource: [
-                { category: "% Transaction Freq", value: 0.745 },
-                { category: "% Total Client", value: 0.251 }
-            ],
+            dataSource: [{
+                category: "a",
+                value: 0.745,
+                type: "a"
+            }, {
+                category: "a",
+                value: 0.251,
+                type: "b"
+            }],
             rotated: true,
-            series: [{
+            commonSeriesSettings: {
                 argumentField: "category",
                 valueField: "value",
                 type: "bar",
-                color: "darkred",
                 label: {
                     visible: true,
+                    backgroundColor: "none",
+                    font: {
+                        color: "#000000",
+                        weight: 650
+                    },
                     format: {
                         type: "percent",
-                        precision: 1
-                    },
+                        position: "top",
+                        precision: 2
+                    }
                 }
-            }],
+            },
+            seriesTemplate: {
+                nameField: 'type'
+            },
+            palette: ["#7d3b3b", "#bcbcbc"],
             legend: {
                 visible: false
             },
-            valueAxis: {
-                label: {
-                    format: {
-                        type: "percent",
-                        precision: 1
-                    }
-                }
-            }
-            ,
-            size: {
-                height: 200, 
-                width: '100%'
+            argumentAxis: {
+                grid: { visible: false },
+                tick: { visible: false },
+                label: { visible: false }
             },
-            title: {
-                text: "Churn",
-                verticalAlignment: "center",
-                horizontalAlignment: "center",
-                margin: {
-                    left: 10
-                }
+            valueAxis: {
+                grid: { visible: false },
+                tick: { visible: false },
+                label: { visible: false }
+            },
+            size: {
+                height: 200,
+                width: '100%'
             }
         });
-    });
+    }
+
 
     // VERT.BAR END
 
     // SCATTER START
-    const dataSource = generateDataSource();
 
-    $('#scatterplot1').dxChart({
-        dataSource,
-        commonSeriesSettings: {
-            type: 'scatter',
-        },
-        series: [{
-            argumentField: 'x1',
-            valueField: 'y1',
+    function createScatterPlot() {
+        var data = [{
+            total1: 9.5,
+            total2: 168.8,
+            total3: 127.2,
+            day1: 2.4,
+            day2: 8.8,
+            day3: 40.1,
+            sid1: 25.4,
+            sid2: 5.3,
+            sid3: 31.6,
         }, {
-            argumentField: 'x2',
-            valueField: 'y2',
-            point: {
-                symbol: 'triangleDown',
-            },
-        }],
-        argumentAxis: {
-            grid: {
-                visible: true,
-            },
-            tickInterval: 5,
-            minorGrid: {
-                visible: true,
-            },
-        },
-        valueAxis: {
-            tickInterval: 50,
-        },
-        legend: {
-            visible: false,
-        },
-        commonPaneSettings: {
-            border: {
-                visible: true,
-            },
-        },
-    });
+            total4: 82.8,
+            total5: 91.7,
+            total6: 90.8,
+            day4: 21.9,
+            day5: 4.6,
+            day6: 8.0,
+            sid4: 26.7,
+            sid4: 5.4,
+            sid4: 8.9,
+        }, {
+            total4: 16.7,
+            total5: 80.7,
+            total6: 21.1,
+            day4: 3.8,
+            day5: 7.0,
+            day6: 2.7,
+            sid4: 22.8,
+            sid5: 8.4,
+            sid6: 12.9,
+        }, {
+            total1: 62.8,
+            total2: 52.4,
+            total3: 96.7,
+            day1: 14.4,
+            day2: 4.0,
+            day3: 5.9,
+            sid1: 23.0,
+            sid2: 7.8,
+            sid3: 6.1,
+        }];
 
-    function generateDataSource() {
-        const b1 = random(-100, 100) / 10;
-        const b2 = random(-100, 100) / 10;
-        let k1 = random(-100, 100) / 10;
-        let k2 = random(-100, 100) / 10;
-        const ds = [];
-        let i;
-        let x1;
-        let x2;
-        let y1;
-        let y2;
-        let isNegativeDelta;
-        let delta1;
-        let delta2;
-
-        if (k1 < 0.1 && k1 >= 0) { k1 = 0.1; }
-        if (k1 > -0.1 && k1 < 0) { k1 = -0.1; }
-        if (k2 < 0.1 && k2 >= 0) { k2 = 0.1; }
-        if (k2 > -0.1 && k2 < 0) { k2 = -0.1; }
-
-        const deviation1 = Math.abs(k1 * 8);
-        const deviation2 = Math.abs(k2 * 8);
-        for (i = 0; i < 30; i += 1) {
-            x1 = random(1, 20);
-            x2 = random(1, 20);
-
-            isNegativeDelta = random(0, 1) === 0;
-            delta1 = deviation1 * Math.random();
-            delta2 = deviation2 * Math.random();
-            if (isNegativeDelta) {
-                delta1 = -delta1;
-                delta2 = -delta2;
+        $('#scatterPlot1').dxChart({
+            dataSource: data,
+            commonSeriesSettings: {
+                type: 'bubble',
+            },
+            argumentAxis: {
+                title: 'Total Value'
+            },
+            valueAxis: {
+                label: {
+                    customizeText() {
+                        return `${this.value}M`;
+                    },
+                },
+                grid: { visible: false },
+                title: 'Investor Last Transactions in Days'
+            },
+            legend: {
+                position: 'inside',
+                horizontalAlignment: 'right',
+                border: {
+                    visible: false,
+                },
+            },
+            palette: ["#87594f", "#524f4f", "#bab3a6", "#7d3b3b", "#c05a5a", "#2b1515"],
+            series: [{
+                name: 'At Risk',
+                argumentField: 'total1',
+                valueField: 'day1',
+                sizeField: 'sid1',
+            }, {
+                name: 'Champion',
+                argumentField: 'total2',
+                valueField: 'day2',
+                sizeField: 'sid2',
+            }, {
+                name: 'Churn',
+                argumentField: 'total3',
+                valueField: 'day3',
+                sizeField: 'sid3',
+            }, {
+                name: 'Potential Loyalist',
+                argumentField: 'total4',
+                valueField: 'day4',
+                sizeField: 'sid4',
+            }, {
+                name: 'Promising',
+                argumentField: 'total5',
+                valueField: 'day5',
+                sizeField: 'sid5',
+            }, {
+                name: 'Recent Customer',
+                argumentField: 'total6',
+                valueField: 'day6',
+                sizeField: 'sid6',
+            }],
+            onSeriesClick(e) {
+                const series = e.target;
+                if (series.isVisible()) {
+                    series.hide();
+                } else {
+                    series.show();
+                }
+            },
+            size: {
+                height: 500,
+                width: 360
             }
-            y1 = k1 * x1 + b1 + delta1;
-            y2 = k2 * x2 + b2 + delta2;
-
-            ds.push({
-                x1, y1, x2, y2,
-            });
-        }
-        return ds;
-    }
-
-    function random(min, max) {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
+        });
     }
 
     // SCATTER END
@@ -806,12 +1273,12 @@
         })
     });
 
-    $(function () {
+@*     $(function () {
         $("#namaPEid").dxValidator({
             validationGroup: "Filter",
             validationRules: [{ type: "required", message: "[Nama PE] harus dipilih" }]
         })
-    });
+    }); *@
 
     $(window).on('load', function () {
         $("#ModalSimpanPenggunaanData").modal("show");
@@ -846,10 +1313,6 @@
             });
         }
     });
-
-    function loadBarCharts(title, id) {
-       
-    }
 
     function ExportToPdf() {
         $.ajax({
@@ -907,30 +1370,6 @@
         }
     }
 
-    function onButtonFilterClicked(e) {
-        const res = e.validationGroup.validate();
-        if (res.status === "valid") {
-            $("#grid1").dxDataGrid("instance").refresh();
-        }
-    }
-
-    function onGridBeforeSend(method, ajaxOptions) {
-        let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
-        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
-        let status = $("#Statusid").dxTagBox("instance").option("value");
-
-        let periodeAwal = null;
-        if (tempPeriodeAwal != null) {
-            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + (tempPeriodeAwal.getMonth() + 1) + '-' + tempPeriodeAwal.getDate();
-        }
-        ajaxOptions.data.namaPE = JSON.stringify(namaPE);
-        ajaxOptions.data.periodeAwal = periodeAwal;
-        ajaxOptions.data.status = JSON.stringify(status);
-    }
-
-    function onLJKOpened(e) {
-        e.component.content().find('.dx-list-select-all').hide();
-    }
 
     function Detail(e) {
         var keys = e.row.key;
@@ -983,6 +1422,130 @@
             }
         }
     })(jQuery);
+
+    function loadChartData(id, data) {
+        var selector = "#" + id;
+        $(selector).dxChart("option", "dataSource", data);
+    }
+
+
+    function onButtonFilterClicked(e) {
+        const res = e.validationGroup.validate();
+        if (res.status === "valid") {
+            let tempPeriodeAwal = $("#Periode").dxDateBox("instance").option("value");
+            let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
+            let invType = $("#InvstType").dxSelectBox("instance").option("value");
+            let invOrigin = $("#InvstOrigin").dxSelectBox("instance").option("value");
+            let inpRange = $("#InpRange").dxSelectBox("instance").option("value");
+            let market = $("#Market").dxSelectBox("instance").option("value");
+            let filterChart = $("#FilterChart").dxSelectBox("instance").option("value");
+            
+            let fruits = [{
+                category: "a",
+                value: 0.23,
+                type: "a"
+            }, {
+                category: "a",
+                value: 0.77,
+                type: "b"
+            }];
+
+            $("#chartContainer1").dxChart("option", "dataSource", fruits);
+
+            let periodeAwal = null;
+            if (tempPeriodeAwal != null) {
+                periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
+            }
+
+            let totalClient = null;
+            let txInvFreq = null;
+
+            $.ajax({
+                url: '@Url.Action("GetCardTotalClients", "BasisInvestor")',
+                data: { periodeAwal: periodeAwal, namaPE: namaPE, invType: invType, invOrigin: invOrigin, inRange: inpRange, market: market },
+                dataType: "json",
+                type: "POST",
+                success: function (response) {
+                    totalClient = response.data[0].total_clients;
+                    $('#totalClients').text(new Intl.NumberFormat("id").format(totalClient))
+                }
+            });
+
+            $.ajax({
+                url: '@Url.Action("GetCardActiveClient", "BasisInvestor")',
+                data: { periodeAwal: periodeAwal, namaPE: namaPE, invType: invType, invOrigin: invOrigin, inRange: inpRange, market: market },
+                dataType: "json",
+                type: "POST",
+                success: function (response) {
+                    $('#activeClient').text(new Intl.NumberFormat("id").format(response.data[0].active_clients))
+                }
+            });
+
+            $.ajax({
+                url: '@Url.Action("GetCardTrxFreq", "BasisInvestor")',
+                data: { periodeAwal: periodeAwal, namaPE: namaPE, invType: invType, invOrigin: invOrigin, inRange: inpRange, market: market },
+                dataType: "json",
+                type: "POST",
+                success: function (response) {
+                    txInvFreq = response.data[0].trx_freq;
+                    $('#trxFreq').text(new Intl.NumberFormat("id").format(txInvFreq))
+                }
+            });
+
+            $.ajax({
+                url: '@Url.Action("GetCardtradedValue", "BasisInvestor")',
+                data: { periodeAwal: periodeAwal, namaPE: namaPE, invType: invType, invOrigin: invOrigin, inRange: inpRange, market: market },
+                dataType: "json",
+                type: "POST",
+                success: function (response) {
+                    $('#tradedValue').text(new Intl.NumberFormat("id").format(response.data[0].traded_value))
+                }
+            });
+
+            $.ajax({
+                url: '@Url.Action("GetCardClientLiquidAmt", "BasisInvestor")',
+                data: { periodeAwal: periodeAwal, namaPE: namaPE, invType: invType, invOrigin: invOrigin, inRange: inpRange, market: market },
+                dataType: "json",
+                type: "POST",
+                success: function (response) {
+                    $('#clientLiquidAmt').text(new Intl.NumberFormat("id").format(response.data[0].client_liquid_amt))
+                }
+            });
+
+            @* var basisInvestors = ['CHAMPION', 'POTENTIAL LOYALIST', 'PROMISING', 'RECENT CUSTOMER', 'AT RISK', 'CHURN'];
+            var data = [];
+
+            $.each(basisInvestors, function (index, val) { 
+                data = [];
+
+                $.ajax({
+                    url: '@Url.Action("GetSegmentsTrxFreq", "BasisInvestor")',
+                    data: { periodeAwal: periodeAwal, namaPE: namaPE, basisInvestor: val },
+                    dataType: "json",
+                    type: "POST",
+                    success: function (response) {
+                        data.push({ category: "% Transaction Freq", value: response.data[0].res });
+                    }
+                });
+
+                $.ajax({
+                    url: '@Url.Action("GetSegmentsTotalClients", "BasisInvestor")',
+                    data: { periodeAwal: periodeAwal, namaPE: namaPE, basisInvestor: val },
+                    dataType: "json",
+                    type: "POST",
+                    success: function (response) {
+                        data.push({ category: "% Total Client", value: response.data[0].res });
+                    }
+                });
+
+                var idx = index + 1;
+
+                $("#chartContainer" + idx).dxChart("option", "dataSource", temp);
+            
+            }); *@
+
+        }
+    }
 </script>
 
 <style type="text/css">

@@ -5745,5 +5745,334 @@ namespace BDA.Helper
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
         }
+
+        #region query PS07, PS07B, PS07C
+
+        public static string PS07Filters(string periode, string pe, string invType, string invOrigin, string inRange, string market)
+        {
+            string whereQuery = "";
+
+            if (periode != null)
+            {
+                string periodes = "'" + periode.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND pperiode in (" + periodes + ")";
+            }
+
+            if (pe != null)
+            {
+                string namaPE = "'" + pe.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND pe in (" + namaPE + ")";
+            }
+
+            if (invType != null)
+            {
+                string invt = "'" + invType.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND investor_type in (" + invt + ")";
+            }
+
+            if (invOrigin != null)
+            {
+                string invo = "'" + invOrigin.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND investor_origin in (" + invo + ")";
+            }
+            if (inRange != null)
+            {
+                string range = "'" + inRange.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND inputrange in (" + range + ")";
+            }
+
+            if (market != null)
+            {
+                string mkt = "'" + market.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND market in (" + mkt + ")";
+            }
+
+            return whereQuery;
+        }
+
+        public static WSQueryReturns GetPS07TotalClientsQuery(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string invType, string invOrigin, string inRange, string market, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            isHive = false;
+
+            whereQuery += PS07Filters(periode, pe, invType, invOrigin, inRange, market);
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                props.Query = @"
+                        SELECT sid, nama_sid from pasarmodal.src_sid WHERE nama_sid like '%BIO%' AND is_active=1 LIMIT 100";
+            }
+            else
+            {
+                props.Query = @"
+                        SELECT COUNT(DISTINCT sid) AS total_clients from pasarmodal.ps_basis_inv_pe WHERE " + whereQuery + @"";
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+
+        public static WSQueryReturns GetPS07ActiveClientQuery(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string invType, string invOrigin, string inRange, string market, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "sre_status = 'FREE'";
+            isHive = false;
+
+            whereQuery += PS07Filters(periode, pe, invType, invOrigin, inRange, market);
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                props.Query = @"
+                        SELECT sid, nama_sid from pasarmodal.src_sid WHERE nama_sid like '%BIO%' AND is_active=1 LIMIT 100";
+            }
+            else
+            {
+                props.Query = @"
+                        SELECT COUNT(DISTINCT sid) AS active_clients from pasarmodal.ps_basis_inv_pe WHERE " + whereQuery + @"";
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+
+        public static WSQueryReturns GetPS07TrxFreqQuery(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string invType, string invOrigin, string inRange, string market, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            isHive = false;
+
+            whereQuery += PS07Filters(periode, pe, invType, invOrigin, inRange, market);
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                props.Query = @"
+                        SELECT sid, nama_sid from pasarmodal.src_sid WHERE nama_sid like '%BIO%' AND is_active=1 LIMIT 100";
+            }
+            else
+            {
+                props.Query = @"
+                        SELECT SUM(investortransactionfreq) AS trx_freq from pasarmodal.ps_basis_inv_pe WHERE " + whereQuery + @"";
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+
+        public static WSQueryReturns GetPS07TradedValueQuery(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string invType, string invOrigin, string inRange, string market, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            isHive = false;
+
+            whereQuery += PS07Filters(periode, pe, invType, invOrigin, inRange, market);
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                props.Query = @"
+                        SELECT sid, nama_sid from pasarmodal.src_sid WHERE nama_sid like '%BIO%' AND is_active=1 LIMIT 100";
+            }
+            else
+            {
+                props.Query = @"
+                        SELECT SUM(investortotalvalue) AS traded_value from pasarmodal.ps_basis_inv_pe WHERE " + whereQuery + @"";
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+
+        public static WSQueryReturns GetPS07ClientLiquidAmtQuery(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string invType, string invOrigin, string inRange, string market, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            isHive = false;
+
+            whereQuery += PS07Filters(periode, pe, invType, invOrigin, inRange, market);
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                props.Query = @"
+                        SELECT sid, nama_sid from pasarmodal.src_sid WHERE nama_sid like '%BIO%' AND is_active=1 LIMIT 100";
+            }
+            else
+            {
+                props.Query = @"
+                        SELECT SUM(portfolioamount) AS client_liquid_amt from pasarmodal.ps_basis_inv_pe WHERE " + whereQuery + @"";
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+
+        public static WSQueryReturns GetPS07SegmentsClientTotals(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string invType, string invOrigin, string inRange, string market, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            isHive = false;
+
+            whereQuery += PS07Filters(periode, pe, invType, invOrigin, inRange, market);
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                props.Query = @"
+                        SELECT sid, nama_sid from pasarmodal.src_sid WHERE nama_sid like '%BIO%' AND is_active=1 LIMIT 100";
+            }
+            else
+            {
+                props.Query = @"SELECT COUNT(DISTINCT sid) FROM pasarmodal.ps_basis_inv_pe WHERE " + whereQuery + @"";
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+
+        public static WSQueryReturns GetPS07SegmentsTrxFreqTotals(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string invType, string invOrigin, string inRange, string market, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            isHive = false;
+
+            whereQuery += PS07Filters(periode, pe, invType, invOrigin, inRange, market);
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                props.Query = @"
+                        SELECT sid, nama_sid from pasarmodal.src_sid WHERE nama_sid like '%BIO%' AND is_active=1 LIMIT 100";
+            }
+            else
+            {
+                props.Query = @"SELECT SUM(investortransactionfreq) FROM pasarmodal.ps_basis_inv_pe WHERE " + whereQuery + @"";
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+
+        //public static WSQueryReturns GetPS07SegmentsTrxFreq(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string startPeriod, string stringPE, string basisInvestor, bool isHive = false)
+        //{
+        //    bool isC = false;
+        //    var whereQuery = "1=1";
+        //    var basisInvestorQuery = "basis_investor_1 LIKE '" + basisInvestor + "'";
+        //    isHive = false;
+
+        //    if (startPeriod != null)
+        //    {
+        //        string periodes = "'" + startPeriod.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+        //        whereQuery = whereQuery += " AND pperiode in (" + periodes + ")";
+        //    }
+
+        //    if (stringPE != null)
+        //    {
+        //        stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+        //        whereQuery = whereQuery += " AND pe in (" + stringPE + ")";
+        //    }
+
+        //    var props = new WSQueryProperties();
+        //    if (isHive == true)
+        //    {
+        //        props.Query = @"
+        //                SELECT sid, nama_sid from pasarmodal.src_sid WHERE nama_sid like '%BIO%' AND is_active=1 LIMIT 100";
+        //    }
+        //    else
+        //    {
+        //        props.Query = @"
+        //                SELECT 
+        //                    (CASE
+        //                        WHEN (SELECT COUNT(DISTINCT sid) FROM pasarmodal.ps_basis_inv_pe WHERE " + whereQuery + ") = 0 " +
+        //                        "THEN ROUND(0, 2) " +
+        //                        "ELSE ROUND(COUNT(DISTINCT sid) * 100.0 / (SELECT COUNT(DISTINCT sid) FROM pasarmodal.ps_basis_inv_pe WHERE " + whereQuery + "), 2) END " +
+        //                        "FROM pasarmodal.ps_basis_inv_pe WHERE " + basisInvestorQuery + " AND " + whereQuery + ") AS res" + @"";
+        //    }
+
+        //    return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        //}
+
+        //public static WSQueryReturns GetPS07SegmentsTotalClients(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string startPeriod, string stringPE, string basisInvestor, string sreStatus, bool isHive = false)
+        //{
+        //    bool isC = false;
+        //    var whereQuery = "1=1";
+        //    isHive = false;
+
+        //    if (startPeriod != null)
+        //    {
+        //        string periodes = "'" + startPeriod.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+        //        whereQuery = whereQuery += " AND pperiode in (" + periodes + ")";
+        //    }
+
+        //    if (stringPE != null)
+        //    {
+        //        stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+        //        whereQuery = whereQuery += " AND pe in (" + stringPE + ")";
+        //    }
+
+        //    if (basisInvestor != null)
+        //    {
+        //        basisInvestor = "'" + basisInvestor.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+        //        whereQuery = whereQuery += " AND basis_investor_1 LIKE " + basisInvestor + "";
+        //    }
+
+        //    if (sreStatus != null)
+        //    {
+        //        sreStatus = "'" + sreStatus.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+        //        whereQuery = whereQuery += " AND basis_investor_1 LIKE " + basisInvestor + "";
+        //    }
+
+        //    var props = new WSQueryProperties();
+        //    if (isHive == true)
+        //    {
+        //        props.Query = @"
+        //                SELECT sid, nama_sid from pasarmodal.src_sid WHERE nama_sid like '%BIO%' AND is_active=1 LIMIT 100";
+        //    }
+        //    else
+        //    {
+        //        props.Query = @"
+        //                SELECT 
+        //                    (CASE
+        //                        WHEN (SELECT SUM(investortransactionfreq) FROM pasarmodal.ps_basis_inv_pe WHERE " + whereQuery + ") = 0 " +
+        //                        "THEN ROUND(0, 2) " +
+        //                        "ELSE ROUND(SUM(investortransactionfreq) * 100.0 / (SELECT SUM(investortransactionfreq) FROM pasarmodal.ps_basis_inv_pe WHERE " + whereQuery + "), 2) END " +
+        //                        "FROM pasarmodal.ps_basis_inv_pe WHERE " + basisInvestorQuery + " AND " + whereQuery + ") AS res" + @"";
+        //    }
+
+        //    return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        //}
+
+
+        //public static WSQueryReturns CntDistSIDQuery(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string startPeriod, string stringPE, string basisInvestor, bool isHive = false)
+        //{
+        //    bool isC = false;
+        //    var whereQuery = "1=1";
+        //    var basisInvestorQuery = "basis_investor_1 LIKE '" + basisInvestor + "'";
+        //    isHive = false;
+
+        //    if (startPeriod != null)
+        //    {
+        //        string periodes = "'" + startPeriod.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+        //        whereQuery = whereQuery += " AND pperiode in (" + periodes + ")";
+        //    }
+
+        //    if (stringPE != null)
+        //    {
+        //        stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+        //        whereQuery = whereQuery += " AND pe in (" + stringPE + ")";
+        //    }
+
+        //    var props = new WSQueryProperties();
+        //    if (isHive == true)
+        //    {
+        //        props.Query = @"
+        //                SELECT sid, nama_sid from pasarmodal.src_sid WHERE nama_sid like '%BIO%' AND is_active=1 LIMIT 100";
+        //    }
+        //    else
+        //    {
+        //        props.Query = @"SELECT COUNT(DISTINCT sid) FROM pasarmodal.ps_basis_inv_pe WHERE " + whereQuery + @"";
+        //    }
+
+        //    return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        //}
+
+
+        #endregion
     }
 }
