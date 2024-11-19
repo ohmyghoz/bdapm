@@ -5755,13 +5755,13 @@ namespace BDA.Helper
             if (periode != null)
             {
                 string periodes = "'" + periode.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery += " AND pperiode in (" + periodes + ")";
+                whereQuery += " AND pperiode in (" + periodes.Replace("-", "") + ")";
             }
 
             if (pe != null)
             {
                 string namaPE = "'" + pe.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery += " AND pe in (" + namaPE + ")";
+                whereQuery += " AND exchangemembercode in (" + namaPE + ")";
             }
 
             if (invType != null)
@@ -5790,11 +5790,11 @@ namespace BDA.Helper
             return whereQuery;
         }
 
-        public static WSQueryReturns GetPS07TotalClientsQuery(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string invType, string invOrigin, string inRange, string market, bool isHive = false)
+        public static WSQueryReturns GetPS07TotalClientsQuery(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string invType, string invOrigin, string inRange, string market, bool isHive = true)
         {
             bool isC = false;
             var whereQuery = "1=1";
-            isHive = false;
+            isHive = true;
 
             whereQuery += PS07Filters(periode, pe, invType, invOrigin, inRange, market);
 
@@ -5802,13 +5802,13 @@ namespace BDA.Helper
             if (isHive == true)
             {
                 props.Query = @"
-                        SELECT sid, nama_sid from pasarmodal.src_sid WHERE nama_sid like '%BIO%' AND is_active=1 LIMIT 100";
+                        SELECT COUNT(sid) AS total_clients from pasarmodal.basis_investor_pe WHERE " + whereQuery + @""; ;
             }
-            else
-            {
-                props.Query = @"
-                        SELECT COUNT(DISTINCT sid) AS total_clients from pasarmodal.ps_basis_inv_pe WHERE " + whereQuery + @"";
-            }
+            //else
+            //{
+            //    props.Query = @"
+            //            SELECT COUNT(DISTINCT sid) AS total_clients from pasarmodal.ps_basis_inv_pe WHERE " + whereQuery + @"";
+            //}
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
         }
