@@ -14,6 +14,10 @@ using System.Collections.Generic;
 public partial class master_sid
 {
     public string sid { get; set; }
+    public string nama_sid { get; set; }
+    public string system { get; set; }
+    public Nullable<int> periode { get; set; }
+    public Nullable<System.DateTime> lastsync { get; set; }
 }
 
 }

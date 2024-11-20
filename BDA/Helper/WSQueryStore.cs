@@ -5164,7 +5164,7 @@ namespace BDA.Helper
                             cast(cast(total_balance as BIGINT)  as string) as total_balance,
                             cast(cast(total_aset_lancar as BIGINT)  as string) as total_aset_lancar,
                             cast(cast(persentase as BIGINT)  as string) as persentase,
-                            cast(cast(fairmarketvalue as BIGINT)  as string) as fairmarketvalue,flag,periode
+                            CASE WHEN cast(cast(fairmarketvalue as BIGINT) as string) is null then '0' else cast(cast(fairmarketvalue as BIGINT) as string) END as fairmarketvalue,flag,periode
                         FROM pasarmodal." + tableName + @" x
                         WHERE " + whereQuery + @"";
                 }

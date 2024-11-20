@@ -1282,7 +1282,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BusinessLayer\BusinessLayer.csproj" />
-    <ProjectReference Include="..\DataModel\DataModel.csproj" />
   </ItemGroup>
   <ProjectExtensions>
     <VisualStudio>

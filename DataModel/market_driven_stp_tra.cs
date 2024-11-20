@@ -11,16 +11,17 @@ namespace BDA.DataModel
 using System;
 using System.Collections.Generic;
 
-public partial class log_monitoring_bda_slik_sum
+public partial class market_driven_stp_tra
 {
-    public long row_id { get; set; }
-    public string segmentasi { get; set; }
-    public System.DateTime bulan_laporan { get; set; }
-    public string kode_kondisi { get; set; }
-    public Nullable<decimal> total_account { get; set; }
-    public Nullable<decimal> baki_debet { get; set; }
-    public string pfeed { get; set; }
-    public Nullable<System.DateTime> pyearmonth { get; set; }
+    public int settledate { get; set; }
+    public int tradedatesk { get; set; }
+    public string sid { get; set; }
+    public int investorcode { get; set; }
+    public string securitycode { get; set; }
+    public string transactiontypecode { get; set; }
+    public double volume { get; set; }
+    public string cpinvestorcode { get; set; }
+    public int periode { get; set; }
 }
 
 }

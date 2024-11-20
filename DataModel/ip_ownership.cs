@@ -26,7 +26,7 @@ public partial class ip_ownership
     public string accountbalancestatuscode { get; set; }
     public Nullable<long> volume { get; set; }
     public Nullable<decimal> value { get; set; }
-    public string sistem { get; set; }
+    public string system { get; set; }
     public string periode { get; set; }
 }
 

@@ -13,10 +13,8 @@ using System.Collections.Generic;
 
 public partial class market_driven_stp_settlement_new1
 {
-    public System.DateTime dm_periode { get; set; }
-    public long rowid { get; set; }
-    public Nullable<System.DateTime> tradingdatesk { get; set; }
-    public Nullable<System.DateTime> settlementtransactiondatesk { get; set; }
+    public int tradingdatesk { get; set; }
+    public int settlementtransactiondatesk { get; set; }
     public string fpinvestorid { get; set; }
     public string tradingid { get; set; }
     public string fpsettlementaccountcode { get; set; }
@@ -24,9 +22,9 @@ public partial class market_driven_stp_settlement_new1
     public string cpsettlementaccountcode { get; set; }
     public string settlementinstructiontypecode { get; set; }
     public string cpinvestorid { get; set; }
-    public Nullable<long> settlementquantity { get; set; }
-    public Nullable<long> settlementexposureamount { get; set; }
-    public Nullable<System.DateTime> periode { get; set; }
+    public double settlementquantity { get; set; }
+    public double settlementexposureamount { get; set; }
+    public int periode { get; set; }
 }
 
 }

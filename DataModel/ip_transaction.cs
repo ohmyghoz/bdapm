@@ -31,7 +31,7 @@ public partial class ip_transaction
     public Nullable<decimal> net_value { get; set; }
     public Nullable<long> net_quantity { get; set; }
     public Nullable<int> net_freq { get; set; }
-    public string sistem { get; set; }
+    public string system { get; set; }
     public string periode { get; set; }
 }
 

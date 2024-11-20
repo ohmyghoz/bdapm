@@ -84,7 +84,6 @@ public partial class DataEntities : DbContext
     public virtual DbSet<master_ljk> master_ljk { get; set; }
     public virtual DbSet<master_ljk_type> master_ljk_type { get; set; }
     public virtual DbSet<master_office_ljk> master_office_ljk { get; set; }
-    public virtual DbSet<master_sid> master_sid { get; set; }
     public virtual DbSet<master_user_ideb> master_user_ideb { get; set; }
     public virtual DbSet<MasterKota> MasterKota { get; set; }
     public virtual DbSet<MasterPenggunaanData> MasterPenggunaanData { get; set; }
@@ -97,9 +96,8 @@ public partial class DataEntities : DbContext
     public virtual DbSet<osida_nik_tidak_konsisten_det> osida_nik_tidak_konsisten_det { get; set; }
     public virtual DbSet<osida_nik_tidak_konsisten_mst> osida_nik_tidak_konsisten_mst { get; set; }
     public virtual DbSet<osida_pembanding_populasi_chart> osida_pembanding_populasi_chart { get; set; }
-    public virtual DbSet<pasarmodal_market_driven_rg_ng> pasarmodal_market_driven_rg_ng { get; set; }
     public virtual DbSet<pe_segmentation_basis_investor> pe_segmentation_basis_investor { get; set; }
-    public virtual DbSet<pe_segmentation_detail_basis_investor> pe_segmentation_detail_basis_investor { get; set; }
+    public virtual DbSet<pe_segmentation_detail_basis_investor_sre> pe_segmentation_detail_basis_investor_sre { get; set; }
     public virtual DbSet<pe_segmentation_geo> pe_segmentation_geo { get; set; }
     public virtual DbSet<pe_segmentation_pendanaan_per_mkbd> pe_segmentation_pendanaan_per_mkbd { get; set; }
     public virtual DbSet<pe_segmentation_summary_transaction_sid> pe_segmentation_summary_transaction_sid { get; set; }
@@ -112,6 +110,7 @@ public partial class DataEntities : DbContext
     public virtual DbSet<ref_credit_usages> ref_credit_usages { get; set; }
     public virtual DbSet<ref_ownership_document_temp> ref_ownership_document_temp { get; set; }
     public virtual DbSet<ref_pekerjaan_temp> ref_pekerjaan_temp { get; set; }
+    public virtual DbSet<ref_query> ref_query { get; set; }
     public virtual DbSet<ReportDef> ReportDef { get; set; }
     public virtual DbSet<RptGrid> RptGrid { get; set; }
     public virtual DbSet<RptGrid_Param> RptGrid_Param { get; set; }
@@ -134,7 +133,12 @@ public partial class DataEntities : DbContext
     public virtual DbSet<market_driven_ape_growth1> market_driven_ape_growth1 { get; set; }
     public virtual DbSet<market_driven_rg_ng1> market_driven_rg_ng1 { get; set; }
     public virtual DbSet<market_driven_stp_balance1> market_driven_stp_balance1 { get; set; }
+    public virtual DbSet<market_driven_stp_clearing> market_driven_stp_clearing { get; set; }
     public virtual DbSet<market_driven_stp_settlement_new1> market_driven_stp_settlement_new1 { get; set; }
+    public virtual DbSet<market_driven_stp_tra> market_driven_stp_tra { get; set; }
+    public virtual DbSet<market_driven_sum_trades> market_driven_sum_trades { get; set; }
+    public virtual DbSet<market_driven_validasi_data_tra> market_driven_validasi_data_tra { get; set; }
+    public virtual DbSet<master_sid> master_sid { get; set; }
     public virtual DbSet<mm_spv> mm_spv { get; set; }
     public virtual DbSet<mm_total> mm_total { get; set; }
     public virtual DbSet<pe_segmentation_bridging_detail> pe_segmentation_bridging_detail { get; set; }
@@ -149,6 +153,7 @@ public partial class DataEntities : DbContext
     public virtual DbSet<pe_segmentation_hutang_subordinasi_det> pe_segmentation_hutang_subordinasi_det { get; set; }
     public virtual DbSet<pe_segmentation_pembiayaan_vs_jaminan_saham> pe_segmentation_pembiayaan_vs_jaminan_saham { get; set; }
     public virtual DbSet<pe_segmentation_sum_cluster_mkbd> pe_segmentation_sum_cluster_mkbd { get; set; }
+    public virtual DbSet<src_sid> src_sid { get; set; }
     public virtual DbSet<vw_getMasterLJK> vw_getMasterLJK { get; set; }
     public virtual DbSet<vw_getMasterOfficeLJK> vw_getMasterOfficeLJK { get; set; }
     public virtual DbSet<vw_JarakAntarAktivitas> vw_JarakAntarAktivitas { get; set; }
@@ -159,6 +164,24 @@ public partial class DataEntities : DbContext
     public virtual DbSet<vw_PeriodTableHive> vw_PeriodTableHive { get; set; }
     public virtual DbSet<vw_RefDeskripsiKategori> vw_RefDeskripsiKategori { get; set; }
     public virtual DbSet<vw_TableDictionary> vw_TableDictionary { get; set; }
+
+    public virtual ObjectResult<CheckSID_Result> CheckSID(string key, string value)
+    {
+        var keyParameter = key != null ?
+            new ObjectParameter("Key", key) :
+            new ObjectParameter("Key", typeof(string));
+
+        var valueParameter = value != null ?
+            new ObjectParameter("Value", value) :
+            new ObjectParameter("Value", typeof(string));
+
+        return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<CheckSID_Result>("CheckSID", keyParameter, valueParameter);
+    }
+
+    public virtual ObjectResult<decryptor_Result> decryptor()
+    {
+        return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<decryptor_Result>("decryptor");
+    }
 
     public virtual ObjectResult<FW_userPermission_Result> FW_userPermission(string user_id, string mod_kode, string role_name)
     {

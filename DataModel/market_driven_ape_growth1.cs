@@ -13,34 +13,32 @@ using System.Collections.Generic;
 
 public partial class market_driven_ape_growth1
 {
-    public System.DateTime dm_periode { get; set; }
-    public long rowid { get; set; }
     public string history_type { get; set; }
-    public Nullable<System.DateTime> periode_lvl0 { get; set; }
-    public Nullable<System.DateTime> periode_lvl1 { get; set; }
-    public Nullable<System.DateTime> periode_lvl2 { get; set; }
+    public int periode_lvl0 { get; set; }
+    public int periode_lvl1 { get; set; }
+    public int periode_lvl2 { get; set; }
     public string security_code { get; set; }
     public string security_name { get; set; }
-    public Nullable<long> volume { get; set; }
-    public Nullable<decimal> value { get; set; }
-    public Nullable<int> freq { get; set; }
-    public Nullable<decimal> turnover { get; set; }
-    public Nullable<long> weight { get; set; }
-    public Nullable<int> lowvalue { get; set; }
-    public Nullable<int> highvalue { get; set; }
-    public Nullable<int> price { get; set; }
-    public Nullable<long> listedshares { get; set; }
-    public Nullable<double> bmc { get; set; }
-    public Nullable<double> changeprice { get; set; }
-    public Nullable<double> mc { get; set; }
-    public Nullable<double> point { get; set; }
-    public Nullable<int> ranking_point { get; set; }
-    public Nullable<int> ranking_changeprice { get; set; }
-    public Nullable<double> net_volume { get; set; }
-    public Nullable<double> net_value { get; set; }
+    public string volume { get; set; }
+    public string value { get; set; }
+    public double freq { get; set; }
+    public string turnover { get; set; }
+    public string weight { get; set; }
+    public string lowvalue { get; set; }
+    public string highvalue { get; set; }
+    public string price { get; set; }
+    public string listedshares { get; set; }
+    public string bmc { get; set; }
+    public string changeprice { get; set; }
+    public string mc { get; set; }
+    public string point { get; set; }
+    public string ranking_point { get; set; }
+    public string ranking_changeprice { get; set; }
+    public string net_volume { get; set; }
+    public string net_value { get; set; }
     public string flag_volume { get; set; }
     public string flag_value { get; set; }
-    public Nullable<System.DateTime> periode { get; set; }
+    public int periode { get; set; }
 }
 
 }

@@ -11,7 +11,7 @@ namespace BDA.DataModel
 using System;
 using System.Collections.Generic;
 
-public partial class pe_segmentation_detail_basis_investor
+public partial class pe_segmentation_detail_basis_investor_sre
 {
     public System.DateTime dm_periode { get; set; }
     public long rowid { get; set; }

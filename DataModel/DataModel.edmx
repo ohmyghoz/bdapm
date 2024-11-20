@@ -64,7 +64,6 @@
     <EntitySet Name="master_ljk" EntityType="DataModel.Store.master_ljk" store:Type="Tables" Schema="dbo" />
     <EntitySet Name="master_ljk_type" EntityType="DataModel.Store.master_ljk_type" store:Type="Tables" Schema="dbo" />
     <EntitySet Name="master_office_ljk" EntityType="DataModel.Store.master_office_ljk" store:Type="Tables" Schema="dbo" />
-    <EntitySet Name="master_sid" EntityType="DataModel.Store.master_sid" store:Type="Tables" Schema="dbo" />
     <EntitySet Name="master_user_ideb" EntityType="DataModel.Store.master_user_ideb" store:Type="Tables" Schema="dbo" />
     <EntitySet Name="MasterKota" EntityType="DataModel.Store.MasterKota" store:Type="Tables" Schema="dbo" />
     <EntitySet Name="MasterPenggunaanData" EntityType="DataModel.Store.MasterPenggunaanData" store:Type="Tables" Schema="dbo" />
@@ -77,25 +76,8 @@
     <EntitySet Name="osida_nik_tidak_konsisten_det" EntityType="DataModel.Store.osida_nik_tidak_konsisten_det" store:Type="Tables" Schema="dbo" />
     <EntitySet Name="osida_nik_tidak_konsisten_mst" EntityType="DataModel.Store.osida_nik_tidak_konsisten_mst" store:Type="Tables" Schema="dbo" />
     <EntitySet Name="osida_pembanding_populasi_chart" EntityType="DataModel.Store.osida_pembanding_populasi_chart" store:Type="Tables" Schema="dbo" />
-    <EntitySet Name="pasarmodal_market_driven_rg_ng" EntityType="DataModel.Store.pasarmodal_market_driven_rg_ng" store:Type="Tables" store:Schema="dbo" store:Name="pasarmodal_market_driven_rg_ng">
-      <DefiningQuery>SELECT 
-[pasarmodal_market_driven_rg_ng].[history_type] AS [history_type], 
-[pasarmodal_market_driven_rg_ng].[periode_lvl1] AS [periode_lvl1], 
-[pasarmodal_market_driven_rg_ng].[periode_lvl2] AS [periode_lvl2], 
-[pasarmodal_market_driven_rg_ng].[periode_lvl3] AS [periode_lvl3], 
-[pasarmodal_market_driven_rg_ng].[security_code] AS [security_code], 
-[pasarmodal_market_driven_rg_ng].[market] AS [market], 
-[pasarmodal_market_driven_rg_ng].[volume] AS [volume], 
-[pasarmodal_market_driven_rg_ng].[value] AS [value], 
-[pasarmodal_market_driven_rg_ng].[freq] AS [freq], 
-[pasarmodal_market_driven_rg_ng].[low] AS [low], 
-[pasarmodal_market_driven_rg_ng].[high] AS [high], 
-[pasarmodal_market_driven_rg_ng].[close] AS [close], 
-[pasarmodal_market_driven_rg_ng].[periode] AS [periode]
-FROM [dbo].[pasarmodal_market_driven_rg_ng] AS [pasarmodal_market_driven_rg_ng]</DefiningQuery>
-    </EntitySet>
     <EntitySet Name="pe_segmentation_basis_investor" EntityType="DataModel.Store.pe_segmentation_basis_investor" store:Type="Tables" Schema="dbo" />
-    <EntitySet Name="pe_segmentation_detail_basis_investor" EntityType="DataModel.Store.pe_segmentation_detail_basis_investor" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="pe_segmentation_detail_basis_investor_sre" EntityType="DataModel.Store.pe_segmentation_detail_basis_investor_sre" store:Type="Tables" Schema="dbo" />
     <EntitySet Name="pe_segmentation_geo" EntityType="DataModel.Store.pe_segmentation_geo" store:Type="Tables" Schema="dbo" />
     <EntitySet Name="pe_segmentation_pendanaan_per_mkbd" EntityType="DataModel.Store.pe_segmentation_pendanaan_per_mkbd" store:Type="Tables" Schema="dbo" />
     <EntitySet Name="pe_segmentation_summary_transaction_sid" EntityType="DataModel.Store.pe_segmentation_summary_transaction_sid" store:Type="Tables" Schema="dbo" />
@@ -170,6 +152,13 @@ FROM [dbo].[PM_dimSecurityCompanies] AS [PM_dimSecurityCompanies]</DefiningQuery
     <EntitySet Name="ref_credit_usages" EntityType="DataModel.Store.ref_credit_usages" store:Type="Tables" Schema="dbo" />
     <EntitySet Name="ref_ownership_document_temp" EntityType="DataModel.Store.ref_ownership_document_temp" store:Type="Tables" Schema="dbo" />
     <EntitySet Name="ref_pekerjaan_temp" EntityType="DataModel.Store.ref_pekerjaan_temp" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="ref_query" EntityType="DataModel.Store.ref_query" store:Type="Tables" store:Schema="dbo" store:Name="ref_query">
+      <DefiningQuery>SELECT 
+[ref_query].[table_id] AS [table_id], 
+[ref_query].[table_sql] AS [table_sql], 
+[ref_query].[table_hive] AS [table_hive]
+FROM [dbo].[ref_query] AS [ref_query]</DefiningQuery>
+    </EntitySet>
     <EntitySet Name="ReportDef" EntityType="DataModel.Store.ReportDef" store:Type="Tables" Schema="dbo" />
     <EntitySet Name="RptGrid" EntityType="DataModel.Store.RptGrid" store:Type="Tables" Schema="dbo" />
     <EntitySet Name="RptGrid_Param" EntityType="DataModel.Store.RptGrid_Param" store:Type="Tables" Schema="dbo" />
@@ -260,10 +249,164 @@ FROM [pasarmodal].[dim_exchange_members] AS [dim_exchange_members]</DefiningQuer
     <EntitySet Name="ip_relation_transaction" EntityType="DataModel.Store.ip_relation_transaction" store:Type="Tables" Schema="pasarmodal" />
     <EntitySet Name="ip_sid" EntityType="DataModel.Store.ip_sid" store:Type="Tables" Schema="pasarmodal" />
     <EntitySet Name="ip_transaction" EntityType="DataModel.Store.ip_transaction" store:Type="Tables" Schema="pasarmodal" />
-    <EntitySet Name="market_driven_ape_growth1" EntityType="DataModel.Store.market_driven_ape_growth1" store:Type="Tables" Schema="pasarmodal" Table="market_driven_ape_growth" />
-    <EntitySet Name="market_driven_rg_ng1" EntityType="DataModel.Store.market_driven_rg_ng1" store:Type="Tables" Schema="pasarmodal" Table="market_driven_rg_ng" />
-    <EntitySet Name="market_driven_stp_balance1" EntityType="DataModel.Store.market_driven_stp_balance1" store:Type="Tables" Schema="pasarmodal" Table="market_driven_stp_balance" />
-    <EntitySet Name="market_driven_stp_settlement_new1" EntityType="DataModel.Store.market_driven_stp_settlement_new1" store:Type="Tables" Schema="pasarmodal" Table="market_driven_stp_settlement_new" />
+    <EntitySet Name="market_driven_ape_growth1" EntityType="DataModel.Store.market_driven_ape_growth1" store:Type="Tables" store:Schema="pasarmodal" store:Name="market_driven_ape_growth">
+      <DefiningQuery>SELECT 
+[market_driven_ape_growth1].[history_type] AS [history_type], 
+[market_driven_ape_growth1].[periode_lvl0] AS [periode_lvl0], 
+[market_driven_ape_growth1].[periode_lvl1] AS [periode_lvl1], 
+[market_driven_ape_growth1].[periode_lvl2] AS [periode_lvl2], 
+[market_driven_ape_growth1].[security_code] AS [security_code], 
+[market_driven_ape_growth1].[security_name] AS [security_name], 
+[market_driven_ape_growth1].[volume] AS [volume], 
+[market_driven_ape_growth1].[value] AS [value], 
+[market_driven_ape_growth1].[freq] AS [freq], 
+[market_driven_ape_growth1].[turnover] AS [turnover], 
+[market_driven_ape_growth1].[weight] AS [weight], 
+[market_driven_ape_growth1].[lowvalue] AS [lowvalue], 
+[market_driven_ape_growth1].[highvalue] AS [highvalue], 
+[market_driven_ape_growth1].[price] AS [price], 
+[market_driven_ape_growth1].[listedshares] AS [listedshares], 
+[market_driven_ape_growth1].[bmc] AS [bmc], 
+[market_driven_ape_growth1].[changeprice] AS [changeprice], 
+[market_driven_ape_growth1].[mc] AS [mc], 
+[market_driven_ape_growth1].[point] AS [point], 
+[market_driven_ape_growth1].[ranking_point] AS [ranking_point], 
+[market_driven_ape_growth1].[ranking_changeprice] AS [ranking_changeprice], 
+[market_driven_ape_growth1].[net_volume] AS [net_volume], 
+[market_driven_ape_growth1].[net_value] AS [net_value], 
+[market_driven_ape_growth1].[flag_volume] AS [flag_volume], 
+[market_driven_ape_growth1].[flag_value] AS [flag_value], 
+[market_driven_ape_growth1].[periode] AS [periode]
+FROM [pasarmodal].[market_driven_ape_growth] AS [market_driven_ape_growth1]</DefiningQuery>
+    </EntitySet>
+    <EntitySet Name="market_driven_rg_ng1" EntityType="DataModel.Store.market_driven_rg_ng1" store:Type="Tables" store:Schema="pasarmodal" store:Name="market_driven_rg_ng">
+      <DefiningQuery>SELECT 
+[market_driven_rg_ng1].[history_type] AS [history_type], 
+[market_driven_rg_ng1].[periode_lvl1] AS [periode_lvl1], 
+[market_driven_rg_ng1].[periode_lvl2] AS [periode_lvl2], 
+[market_driven_rg_ng1].[periode_lvl3] AS [periode_lvl3], 
+[market_driven_rg_ng1].[security_code] AS [security_code], 
+[market_driven_rg_ng1].[market] AS [market], 
+[market_driven_rg_ng1].[volume] AS [volume], 
+[market_driven_rg_ng1].[value] AS [value], 
+[market_driven_rg_ng1].[freq] AS [freq], 
+[market_driven_rg_ng1].[low] AS [low], 
+[market_driven_rg_ng1].[high] AS [high], 
+[market_driven_rg_ng1].[close] AS [close], 
+[market_driven_rg_ng1].[periode] AS [periode]
+FROM [pasarmodal].[market_driven_rg_ng] AS [market_driven_rg_ng1]</DefiningQuery>
+    </EntitySet>
+    <EntitySet Name="market_driven_stp_balance1" EntityType="DataModel.Store.market_driven_stp_balance1" store:Type="Tables" store:Schema="pasarmodal" store:Name="market_driven_stp_balance">
+      <DefiningQuery>SELECT 
+[market_driven_stp_balance1].[tanggal_balance] AS [tanggal_balance], 
+[market_driven_stp_balance1].[sid] AS [sid], 
+[market_driven_stp_balance1].[trading_id] AS [trading_id], 
+[market_driven_stp_balance1].[efek] AS [efek], 
+[market_driven_stp_balance1].[subrekening_efek] AS [subrekening_efek], 
+[market_driven_stp_balance1].[quantity] AS [quantity], 
+[market_driven_stp_balance1].[price] AS [price], 
+[market_driven_stp_balance1].[periode] AS [periode]
+FROM [pasarmodal].[market_driven_stp_balance] AS [market_driven_stp_balance1]</DefiningQuery>
+    </EntitySet>
+    <EntitySet Name="market_driven_stp_clearing" EntityType="DataModel.Store.market_driven_stp_clearing" store:Type="Tables" store:Schema="pasarmodal" store:Name="market_driven_stp_clearing">
+      <DefiningQuery>SELECT 
+[market_driven_stp_clearing].[clearingdatesk] AS [clearingdatesk], 
+[market_driven_stp_clearing].[settlementdatesk] AS [settlementdatesk], 
+[market_driven_stp_clearing].[investorid] AS [investorid], 
+[market_driven_stp_clearing].[securitycode] AS [securitycode], 
+[market_driven_stp_clearing].[securitycompanycode] AS [securitycompanycode], 
+[market_driven_stp_clearing].[clearingobligationquantity] AS [clearingobligationquantity], 
+[market_driven_stp_clearing].[periode] AS [periode]
+FROM [pasarmodal].[market_driven_stp_clearing] AS [market_driven_stp_clearing]</DefiningQuery>
+    </EntitySet>
+    <EntitySet Name="market_driven_stp_settlement_new1" EntityType="DataModel.Store.market_driven_stp_settlement_new1" store:Type="Tables" store:Schema="pasarmodal" store:Name="market_driven_stp_settlement_new">
+      <DefiningQuery>SELECT 
+[market_driven_stp_settlement_new1].[tradingdatesk] AS [tradingdatesk], 
+[market_driven_stp_settlement_new1].[settlementtransactiondatesk] AS [settlementtransactiondatesk], 
+[market_driven_stp_settlement_new1].[fpinvestorid] AS [fpinvestorid], 
+[market_driven_stp_settlement_new1].[tradingid] AS [tradingid], 
+[market_driven_stp_settlement_new1].[fpsettlementaccountcode] AS [fpsettlementaccountcode], 
+[market_driven_stp_settlement_new1].[securitycode] AS [securitycode], 
+[market_driven_stp_settlement_new1].[cpsettlementaccountcode] AS [cpsettlementaccountcode], 
+[market_driven_stp_settlement_new1].[settlementinstructiontypecode] AS [settlementinstructiontypecode], 
+[market_driven_stp_settlement_new1].[cpinvestorid] AS [cpinvestorid], 
+[market_driven_stp_settlement_new1].[settlementquantity] AS [settlementquantity], 
+[market_driven_stp_settlement_new1].[settlementexposureamount] AS [settlementexposureamount], 
+[market_driven_stp_settlement_new1].[periode] AS [periode]
+FROM [pasarmodal].[market_driven_stp_settlement_new] AS [market_driven_stp_settlement_new1]</DefiningQuery>
+    </EntitySet>
+    <EntitySet Name="market_driven_stp_tra" EntityType="DataModel.Store.market_driven_stp_tra" store:Type="Tables" store:Schema="pasarmodal" store:Name="market_driven_stp_tra">
+      <DefiningQuery>SELECT 
+[market_driven_stp_tra].[settledate] AS [settledate], 
+[market_driven_stp_tra].[tradedatesk] AS [tradedatesk], 
+[market_driven_stp_tra].[sid] AS [sid], 
+[market_driven_stp_tra].[investorcode] AS [investorcode], 
+[market_driven_stp_tra].[securitycode] AS [securitycode], 
+[market_driven_stp_tra].[transactiontypecode] AS [transactiontypecode], 
+[market_driven_stp_tra].[volume] AS [volume], 
+[market_driven_stp_tra].[cpinvestorcode] AS [cpinvestorcode], 
+[market_driven_stp_tra].[periode] AS [periode]
+FROM [pasarmodal].[market_driven_stp_tra] AS [market_driven_stp_tra]</DefiningQuery>
+    </EntitySet>
+    <EntitySet Name="market_driven_sum_trades" EntityType="DataModel.Store.market_driven_sum_trades" store:Type="Tables" store:Schema="pasarmodal" store:Name="market_driven_sum_trades">
+      <DefiningQuery>SELECT 
+[market_driven_sum_trades].[calendarsk] AS [calendarsk], 
+[market_driven_sum_trades].[closingvalue] AS [closingvalue], 
+[market_driven_sum_trades].[tradingvolume] AS [tradingvolume], 
+[market_driven_sum_trades].[tradingvalue] AS [tradingvalue], 
+[market_driven_sum_trades].[marketcapitalizationamount] AS [marketcapitalizationamount], 
+[market_driven_sum_trades].[value_buy] AS [value_buy], 
+[market_driven_sum_trades].[value_sell] AS [value_sell], 
+[market_driven_sum_trades].[net_value] AS [net_value], 
+[market_driven_sum_trades].[flag_value] AS [flag_value], 
+[market_driven_sum_trades].[volume_buy] AS [volume_buy], 
+[market_driven_sum_trades].[volume_sell] AS [volume_sell], 
+[market_driven_sum_trades].[net_volume] AS [net_volume], 
+[market_driven_sum_trades].[flag_volume] AS [flag_volume], 
+[market_driven_sum_trades].[periode] AS [periode]
+FROM [pasarmodal].[market_driven_sum_trades] AS [market_driven_sum_trades]</DefiningQuery>
+    </EntitySet>
+    <EntitySet Name="market_driven_validasi_data_tra" EntityType="DataModel.Store.market_driven_validasi_data_tra" store:Type="Tables" store:Schema="pasarmodal" store:Name="market_driven_validasi_data_tra">
+      <DefiningQuery>SELECT 
+[market_driven_validasi_data_tra].[tradeno] AS [tradeno], 
+[market_driven_validasi_data_tra].[tradedatesk] AS [tradedatesk], 
+[market_driven_validasi_data_tra].[tradingdatetime] AS [tradingdatetime], 
+[market_driven_validasi_data_tra].[tradinghourcode] AS [tradinghourcode], 
+[market_driven_validasi_data_tra].[tradingminutecode] AS [tradingminutecode], 
+[market_driven_validasi_data_tra].[securitycode] AS [securitycode], 
+[market_driven_validasi_data_tra].[transactiontypecode] AS [transactiontypecode], 
+[market_driven_validasi_data_tra].[exchangemembercode] AS [exchangemembercode], 
+[market_driven_validasi_data_tra].[investorcode] AS [investorcode], 
+[market_driven_validasi_data_tra].[investororigincode] AS [investororigincode], 
+[market_driven_validasi_data_tra].[cpemcode] AS [cpemcode], 
+[market_driven_validasi_data_tra].[cpinvestorcode] AS [cpinvestorcode], 
+[market_driven_validasi_data_tra].[quantity] AS [quantity], 
+[market_driven_validasi_data_tra].[listingboardcode] AS [listingboardcode], 
+[market_driven_validasi_data_tra].[value] AS [value], 
+[market_driven_validasi_data_tra].[transactionboardcode] AS [transactionboardcode], 
+[market_driven_validasi_data_tra].[sid] AS [sid], 
+[market_driven_validasi_data_tra].[lokal_asing_sid] AS [lokal_asing_sid], 
+[market_driven_validasi_data_tra].[countryinvestor] AS [countryinvestor], 
+[market_driven_validasi_data_tra].[provinceinvestor] AS [provinceinvestor], 
+[market_driven_validasi_data_tra].[typeinvestor] AS [typeinvestor], 
+[market_driven_validasi_data_tra].[countrycpinvestor] AS [countrycpinvestor], 
+[market_driven_validasi_data_tra].[provincecpinvestor] AS [provincecpinvestor], 
+[market_driven_validasi_data_tra].[typecpinvestor] AS [typecpinvestor], 
+[market_driven_validasi_data_tra].[flag_minute] AS [flag_minute], 
+[market_driven_validasi_data_tra].[confirmation] AS [confirmation], 
+[market_driven_validasi_data_tra].[sid_name] AS [sid_name], 
+[market_driven_validasi_data_tra].[periode] AS [periode]
+FROM [pasarmodal].[market_driven_validasi_data_tra] AS [market_driven_validasi_data_tra]</DefiningQuery>
+    </EntitySet>
+    <EntitySet Name="master_sid" EntityType="DataModel.Store.master_sid" store:Type="Tables" store:Schema="pasarmodal" store:Name="master_sid">
+      <DefiningQuery>SELECT 
+[master_sid].[sid] AS [sid], 
+[master_sid].[nama_sid] AS [nama_sid], 
+[master_sid].[system] AS [system], 
+[master_sid].[periode] AS [periode], 
+[master_sid].[lastsync] AS [lastsync]
+FROM [pasarmodal].[master_sid] AS [master_sid]</DefiningQuery>
+    </EntitySet>
     <EntitySet Name="mm_spv" EntityType="DataModel.Store.mm_spv" store:Type="Tables" Schema="pasarmodal" />
     <EntitySet Name="mm_total" EntityType="DataModel.Store.mm_total" store:Type="Tables" Schema="pasarmodal" />
     <EntitySet Name="pe_segmentation_bridging_detail" EntityType="DataModel.Store.pe_segmentation_bridging_detail" store:Type="Tables" store:Schema="pasarmodal" store:Name="pe_segmentation_bridging_detail">
@@ -433,6 +576,7 @@ FROM [pasarmodal].[pe_segmentation_det_reverse_repo_sum_new] AS [pe_segmentation
 [pe_segmentation_sum_cluster_mkbd].[periode] AS [periode]
 FROM [pasarmodal].[pe_segmentation_sum_cluster_mkbd] AS [pe_segmentation_sum_cluster_mkbd]</DefiningQuery>
     </EntitySet>
+    <EntitySet Name="src_sid" EntityType="DataModel.Store.src_sid" store:Type="Tables" Schema="pasarmodal" />
     <EntitySet Name="vw_getMasterLJK" EntityType="DataModel.Store.vw_getMasterLJK" store:Type="Views" store:Schema="dbo" store:Name="vw_getMasterLJK">
       <DefiningQuery>SELECT 
 [vw_getMasterLJK].[CompositeKey] AS [CompositeKey], 
@@ -1784,12 +1928,6 @@ FROM [dbo].[vw_TableDictionary] AS [vw_TableDictionary]</DefiningQuery>
     <Property Name="p_date" Type="varchar" MaxLength="50" />
     <Property Name="sync_date" Type="datetime" />
   </EntityType>
-  <EntityType Name="master_sid">
-    <Key>
-      <PropertyRef Name="sid" />
-    </Key>
-    <Property Name="sid" Type="varchar" Nullable="false" MaxLength="15" />
-  </EntityType>
   <EntityType Name="master_user_ideb">
     <Key>
       <PropertyRef Name="user_id" />
@@ -2019,39 +2157,6 @@ FROM [dbo].[vw_TableDictionary] AS [vw_TableDictionary]</DefiningQuery>
     <Property Name="dm_plafon_231_hari_terakhir" Type="decimal" Precision="38" Scale="6" />
     <Property Name="dm_jumlah_rekening_231_hari_terakhir" Type="int" />
   </EntityType>
-  <!--Errors Found During Generation:
-warning 6002: The table/view 'BDAPM.dbo.pasarmodal_market_driven_rg_ng' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.
--->
-  <EntityType Name="pasarmodal_market_driven_rg_ng">
-    <Key>
-      <PropertyRef Name="history_type" />
-      <PropertyRef Name="periode_lvl1" />
-      <PropertyRef Name="periode_lvl2" />
-      <PropertyRef Name="periode_lvl3" />
-      <PropertyRef Name="security_code" />
-      <PropertyRef Name="market" />
-      <PropertyRef Name="volume" />
-      <PropertyRef Name="value" />
-      <PropertyRef Name="freq" />
-      <PropertyRef Name="low" />
-      <PropertyRef Name="high" />
-      <PropertyRef Name="close" />
-      <PropertyRef Name="periode" />
-    </Key>
-    <Property Name="history_type" Type="nvarchar" Nullable="false" MaxLength="50" />
-    <Property Name="periode_lvl1" Type="char" Nullable="false" MaxLength="10" />
-    <Property Name="periode_lvl2" Type="char" Nullable="false" MaxLength="10" />
-    <Property Name="periode_lvl3" Type="char" Nullable="false" MaxLength="10" />
-    <Property Name="security_code" Type="nvarchar" Nullable="false" MaxLength="50" />
-    <Property Name="market" Type="nvarchar" Nullable="false" MaxLength="50" />
-    <Property Name="volume" Type="bigint" Nullable="false" />
-    <Property Name="value" Type="float" Nullable="false" />
-    <Property Name="freq" Type="int" Nullable="false" />
-    <Property Name="low" Type="smallint" Nullable="false" />
-    <Property Name="high" Type="smallint" Nullable="false" />
-    <Property Name="close" Type="smallint" Nullable="false" />
-    <Property Name="periode" Type="char" Nullable="false" MaxLength="10" />
-  </EntityType>
   <EntityType Name="pe_segmentation_basis_investor">
     <Key>
       <PropertyRef Name="dm_periode" />
@@ -2116,7 +2221,7 @@ warning 6002: The table/view 'BDAPM.dbo.pasarmodal_market_driven_rg_ng' does not
     <Property Name="inputrange" Type="int" />
     <Property Name="pyearmonth" Type="date" />
   </EntityType>
-  <EntityType Name="pe_segmentation_detail_basis_investor">
+  <EntityType Name="pe_segmentation_detail_basis_investor_sre">
     <Key>
       <PropertyRef Name="dm_periode" />
       <PropertyRef Name="rowid" />
@@ -2448,6 +2553,17 @@ warning 6002: The table/view 'BDAPM.dbo.PM_dimSecurityCompanies' does not have a
     <Property Name="dm_kode_profesi_debitur" Type="varchar" Nullable="false" MaxLength="200" />
     <Property Name="dm_profesi_debitur" Type="varchar" MaxLength="200" />
   </EntityType>
+  <!--Errors Found During Generation:
+warning 6002: The table/view 'BDAPM.dbo.ref_query' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.
+-->
+  <EntityType Name="ref_query">
+    <Key>
+      <PropertyRef Name="table_id" />
+    </Key>
+    <Property Name="table_id" Type="varchar" Nullable="false" MaxLength="50" />
+    <Property Name="table_sql" Type="varchar(max)" />
+    <Property Name="table_hive" Type="varchar(max)" />
+  </EntityType>
   <EntityType Name="ReportDef">
     <Key>
       <PropertyRef Name="rdef_kode" />
@@ -2753,7 +2869,7 @@ warning 6002: The table/view 'BDAPM.pasarmodal.dim_exchange_members' does not ha
     <Property Name="accountbalancestatuscode" Type="varchar" MaxLength="20" />
     <Property Name="volume" Type="bigint" />
     <Property Name="value" Type="decimal" Precision="38" Scale="6" />
-    <Property Name="sistem" Type="varchar" MaxLength="30" />
+    <Property Name="system" Type="varchar" MaxLength="30" />
     <Property Name="periode" Type="varchar" MaxLength="10" />
   </EntityType>
   <EntityType Name="ip_relation_ownership">
@@ -2831,7 +2947,7 @@ warning 6002: The table/view 'BDAPM.pasarmodal.dim_exchange_members' does not ha
     <Property Name="nama_sid" Type="varchar" MaxLength="100" />
     <Property Name="trade_id" Type="varchar" MaxLength="50" />
     <Property Name="ktp" Type="varchar" MaxLength="20" />
-    <Property Name="sistem" Type="varchar" MaxLength="30" />
+    <Property Name="system" Type="varchar" MaxLength="30" />
     <Property Name="kitas_skd_number" Type="varchar" MaxLength="30" />
     <Property Name="email" Type="varchar" MaxLength="100" />
     <Property Name="ap4_mobile_phone" Type="varchar" MaxLength="20" />
@@ -2948,6 +3064,8 @@ warning 6002: The table/view 'BDAPM.pasarmodal.dim_exchange_members' does not ha
     <Property Name="valid_from" Type="varchar" MaxLength="10" />
     <Property Name="valid_until" Type="varchar" MaxLength="10" />
     <Property Name="is_active" Type="varchar" MaxLength="10" />
+    <Property Name="periode" Type="varchar" MaxLength="10" />
+    <Property Name="sre" Type="varchar" MaxLength="30" />
   </EntityType>
   <EntityType Name="ip_transaction">
     <Key>
@@ -2972,99 +3090,303 @@ warning 6002: The table/view 'BDAPM.pasarmodal.dim_exchange_members' does not ha
     <Property Name="net_value" Type="decimal" Precision="38" Scale="6" />
     <Property Name="net_quantity" Type="bigint" />
     <Property Name="net_freq" Type="int" />
-    <Property Name="sistem" Type="varchar" MaxLength="30" />
+    <Property Name="system" Type="varchar" MaxLength="30" />
     <Property Name="periode" Type="varchar" MaxLength="10" />
   </EntityType>
+  <!--Errors Found During Generation:
+warning 6002: The table/view 'BDAPM.pasarmodal.market_driven_ape_growth' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.
+-->
   <EntityType Name="market_driven_ape_growth1">
     <Key>
-      <PropertyRef Name="dm_periode" />
-      <PropertyRef Name="rowid" />
+      <PropertyRef Name="history_type" />
+      <PropertyRef Name="periode_lvl0" />
+      <PropertyRef Name="periode_lvl1" />
+      <PropertyRef Name="periode_lvl2" />
+      <PropertyRef Name="security_code" />
+      <PropertyRef Name="security_name" />
+      <PropertyRef Name="volume" />
+      <PropertyRef Name="value" />
+      <PropertyRef Name="freq" />
+      <PropertyRef Name="turnover" />
+      <PropertyRef Name="weight" />
+      <PropertyRef Name="price" />
+      <PropertyRef Name="listedshares" />
+      <PropertyRef Name="bmc" />
+      <PropertyRef Name="changeprice" />
+      <PropertyRef Name="mc" />
+      <PropertyRef Name="point" />
+      <PropertyRef Name="ranking_point" />
+      <PropertyRef Name="ranking_changeprice" />
+      <PropertyRef Name="flag_volume" />
+      <PropertyRef Name="flag_value" />
+      <PropertyRef Name="periode" />
     </Key>
-    <Property Name="dm_periode" Type="date" Nullable="false" />
-    <Property Name="rowid" Type="bigint" Nullable="false" StoreGeneratedPattern="Identity" />
-    <Property Name="history_type" Type="varchar" MaxLength="25" />
-    <Property Name="periode_lvl0" Type="date" />
-    <Property Name="periode_lvl1" Type="date" />
-    <Property Name="periode_lvl2" Type="date" />
-    <Property Name="security_code" Type="varchar" MaxLength="25" />
-    <Property Name="security_name" Type="varchar" MaxLength="100" />
-    <Property Name="volume" Type="bigint" />
-    <Property Name="value" Type="decimal" Precision="38" Scale="6" />
-    <Property Name="freq" Type="int" />
-    <Property Name="turnover" Type="decimal" Precision="38" Scale="6" />
-    <Property Name="weight" Type="bigint" />
-    <Property Name="lowvalue" Type="int" />
-    <Property Name="highvalue" Type="int" />
-    <Property Name="price" Type="int" />
-    <Property Name="listedshares" Type="bigint" />
-    <Property Name="bmc" Type="float" />
-    <Property Name="changeprice" Type="float" />
-    <Property Name="mc" Type="float" />
-    <Property Name="point" Type="float" />
-    <Property Name="ranking_point" Type="int" />
-    <Property Name="ranking_changeprice" Type="int" />
-    <Property Name="net_volume" Type="float" />
-    <Property Name="net_value" Type="float" />
-    <Property Name="flag_volume" Type="varchar" MaxLength="50" />
-    <Property Name="flag_value" Type="varchar" MaxLength="50" />
-    <Property Name="periode" Type="date" />
+    <Property Name="history_type" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="periode_lvl0" Type="int" Nullable="false" />
+    <Property Name="periode_lvl1" Type="int" Nullable="false" />
+    <Property Name="periode_lvl2" Type="int" Nullable="false" />
+    <Property Name="security_code" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="security_name" Type="nvarchar" Nullable="false" MaxLength="100" />
+    <Property Name="volume" Type="nvarchar" Nullable="false" MaxLength="100" />
+    <Property Name="value" Type="nvarchar" Nullable="false" MaxLength="100" />
+    <Property Name="freq" Type="float" Nullable="false" />
+    <Property Name="turnover" Type="nvarchar" Nullable="false" MaxLength="100" />
+    <Property Name="weight" Type="nvarchar" Nullable="false" MaxLength="100" />
+    <Property Name="lowvalue" Type="nvarchar" MaxLength="50" />
+    <Property Name="highvalue" Type="nvarchar" MaxLength="50" />
+    <Property Name="price" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="listedshares" Type="nvarchar" Nullable="false" MaxLength="100" />
+    <Property Name="bmc" Type="nvarchar" Nullable="false" MaxLength="100" />
+    <Property Name="changeprice" Type="nvarchar" Nullable="false" MaxLength="100" />
+    <Property Name="mc" Type="nvarchar" Nullable="false" MaxLength="100" />
+    <Property Name="point" Type="nvarchar" Nullable="false" MaxLength="100" />
+    <Property Name="ranking_point" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="ranking_changeprice" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="net_volume" Type="nvarchar" MaxLength="100" />
+    <Property Name="net_value" Type="nvarchar" MaxLength="100" />
+    <Property Name="flag_volume" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="flag_value" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="periode" Type="int" Nullable="false" />
   </EntityType>
+  <!--Errors Found During Generation:
+warning 6002: The table/view 'BDAPM.pasarmodal.market_driven_rg_ng' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.
+-->
   <EntityType Name="market_driven_rg_ng1">
     <Key>
-      <PropertyRef Name="dm_periode" />
-      <PropertyRef Name="rowid" />
+      <PropertyRef Name="history_type" />
+      <PropertyRef Name="periode_lvl1" />
+      <PropertyRef Name="periode_lvl2" />
+      <PropertyRef Name="periode_lvl3" />
+      <PropertyRef Name="security_code" />
+      <PropertyRef Name="market" />
+      <PropertyRef Name="volume" />
+      <PropertyRef Name="value" />
+      <PropertyRef Name="freq" />
+      <PropertyRef Name="low" />
+      <PropertyRef Name="high" />
+      <PropertyRef Name="close" />
+      <PropertyRef Name="periode" />
     </Key>
-    <Property Name="dm_periode" Type="date" Nullable="false" />
-    <Property Name="rowid" Type="bigint" Nullable="false" StoreGeneratedPattern="Identity" />
-    <Property Name="history_type" Type="varchar" MaxLength="15" />
-    <Property Name="periode_lvl1" Type="date" />
-    <Property Name="periode_lvl2" Type="date" />
-    <Property Name="periode_lvl3" Type="date" />
-    <Property Name="security_code" Type="varchar" MaxLength="10" />
-    <Property Name="market" Type="varchar" MaxLength="10" />
-    <Property Name="volume" Type="bigint" />
-    <Property Name="value" Type="decimal" Precision="38" Scale="6" />
-    <Property Name="freq" Type="int" />
-    <Property Name="low" Type="int" />
-    <Property Name="high" Type="int" />
-    <Property Name="close" Type="int" />
-    <Property Name="periode" Type="date" />
+    <Property Name="history_type" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="periode_lvl1" Type="int" Nullable="false" />
+    <Property Name="periode_lvl2" Type="int" Nullable="false" />
+    <Property Name="periode_lvl3" Type="int" Nullable="false" />
+    <Property Name="security_code" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="market" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="volume" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="value" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="freq" Type="bigint" Nullable="false" />
+    <Property Name="low" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="high" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="close" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="periode" Type="int" Nullable="false" />
   </EntityType>
+  <!--Errors Found During Generation:
+warning 6002: The table/view 'BDAPM.pasarmodal.market_driven_stp_balance' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.
+-->
   <EntityType Name="market_driven_stp_balance1">
     <Key>
-      <PropertyRef Name="dm_periode" />
-      <PropertyRef Name="rowid" />
+      <PropertyRef Name="tanggal_balance" />
+      <PropertyRef Name="sid" />
+      <PropertyRef Name="trading_id" />
+      <PropertyRef Name="efek" />
+      <PropertyRef Name="subrekening_efek" />
+      <PropertyRef Name="quantity" />
+      <PropertyRef Name="price" />
+      <PropertyRef Name="periode" />
     </Key>
-    <Property Name="dm_periode" Type="date" Nullable="false" />
-    <Property Name="rowid" Type="bigint" Nullable="false" StoreGeneratedPattern="Identity" />
-    <Property Name="tanggal_balance" Type="date" />
-    <Property Name="sid" Type="varchar" MaxLength="25" />
-    <Property Name="trading_id" Type="varchar" MaxLength="50" />
-    <Property Name="efek" Type="varchar" MaxLength="25" />
-    <Property Name="subrekening_efek" Type="varchar" MaxLength="100" />
-    <Property Name="quantity" Type="int" />
-    <Property Name="price" Type="bigint" />
-    <Property Name="periode" Type="date" />
+    <Property Name="tanggal_balance" Type="int" Nullable="false" />
+    <Property Name="sid" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="trading_id" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="efek" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="subrekening_efek" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="quantity" Type="float" Nullable="false" />
+    <Property Name="price" Type="float" Nullable="false" />
+    <Property Name="periode" Type="int" Nullable="false" />
   </EntityType>
+  <!--Errors Found During Generation:
+warning 6002: The table/view 'BDAPM.pasarmodal.market_driven_stp_clearing' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.
+-->
+  <EntityType Name="market_driven_stp_clearing">
+    <Key>
+      <PropertyRef Name="clearingdatesk" />
+      <PropertyRef Name="settlementdatesk" />
+      <PropertyRef Name="investorid" />
+      <PropertyRef Name="securitycode" />
+      <PropertyRef Name="securitycompanycode" />
+      <PropertyRef Name="periode" />
+    </Key>
+    <Property Name="clearingdatesk" Type="int" Nullable="false" />
+    <Property Name="settlementdatesk" Type="int" Nullable="false" />
+    <Property Name="investorid" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="securitycode" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="securitycompanycode" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="clearingobligationquantity" Type="nvarchar" MaxLength="50" />
+    <Property Name="periode" Type="int" Nullable="false" />
+  </EntityType>
+  <!--Errors Found During Generation:
+warning 6002: The table/view 'BDAPM.pasarmodal.market_driven_stp_settlement_new' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.
+-->
   <EntityType Name="market_driven_stp_settlement_new1">
     <Key>
-      <PropertyRef Name="dm_periode" />
-      <PropertyRef Name="rowid" />
+      <PropertyRef Name="tradingdatesk" />
+      <PropertyRef Name="settlementtransactiondatesk" />
+      <PropertyRef Name="fpinvestorid" />
+      <PropertyRef Name="tradingid" />
+      <PropertyRef Name="fpsettlementaccountcode" />
+      <PropertyRef Name="securitycode" />
+      <PropertyRef Name="cpsettlementaccountcode" />
+      <PropertyRef Name="settlementinstructiontypecode" />
+      <PropertyRef Name="cpinvestorid" />
+      <PropertyRef Name="settlementquantity" />
+      <PropertyRef Name="settlementexposureamount" />
+      <PropertyRef Name="periode" />
     </Key>
-    <Property Name="dm_periode" Type="date" Nullable="false" />
-    <Property Name="rowid" Type="bigint" Nullable="false" StoreGeneratedPattern="Identity" />
-    <Property Name="tradingdatesk" Type="date" />
-    <Property Name="settlementtransactiondatesk" Type="date" />
-    <Property Name="fpinvestorid" Type="varchar" MaxLength="25" />
-    <Property Name="tradingid" Type="varchar" MaxLength="25" />
-    <Property Name="fpsettlementaccountcode" Type="varchar" MaxLength="25" />
-    <Property Name="securitycode" Type="varchar" MaxLength="25" />
-    <Property Name="cpsettlementaccountcode" Type="varchar" MaxLength="25" />
-    <Property Name="settlementinstructiontypecode" Type="varchar" MaxLength="25" />
-    <Property Name="cpinvestorid" Type="varchar" MaxLength="25" />
-    <Property Name="settlementquantity" Type="bigint" />
-    <Property Name="settlementexposureamount" Type="bigint" />
-    <Property Name="periode" Type="date" />
+    <Property Name="tradingdatesk" Type="int" Nullable="false" />
+    <Property Name="settlementtransactiondatesk" Type="int" Nullable="false" />
+    <Property Name="fpinvestorid" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="tradingid" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="fpsettlementaccountcode" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="securitycode" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="cpsettlementaccountcode" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="settlementinstructiontypecode" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="cpinvestorid" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="settlementquantity" Type="float" Nullable="false" />
+    <Property Name="settlementexposureamount" Type="float" Nullable="false" />
+    <Property Name="periode" Type="int" Nullable="false" />
+  </EntityType>
+  <!--Errors Found During Generation:
+warning 6002: The table/view 'BDAPM.pasarmodal.market_driven_stp_tra' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.
+-->
+  <EntityType Name="market_driven_stp_tra">
+    <Key>
+      <PropertyRef Name="settledate" />
+      <PropertyRef Name="tradedatesk" />
+      <PropertyRef Name="investorcode" />
+      <PropertyRef Name="securitycode" />
+      <PropertyRef Name="transactiontypecode" />
+      <PropertyRef Name="volume" />
+      <PropertyRef Name="cpinvestorcode" />
+      <PropertyRef Name="periode" />
+    </Key>
+    <Property Name="settledate" Type="int" Nullable="false" />
+    <Property Name="tradedatesk" Type="int" Nullable="false" />
+    <Property Name="sid" Type="nvarchar" MaxLength="50" />
+    <Property Name="investorcode" Type="int" Nullable="false" />
+    <Property Name="securitycode" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="transactiontypecode" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="volume" Type="float" Nullable="false" />
+    <Property Name="cpinvestorcode" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="periode" Type="int" Nullable="false" />
+  </EntityType>
+  <!--Errors Found During Generation:
+warning 6002: The table/view 'BDAPM.pasarmodal.market_driven_sum_trades' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.
+-->
+  <EntityType Name="market_driven_sum_trades">
+    <Key>
+      <PropertyRef Name="calendarsk" />
+      <PropertyRef Name="closingvalue" />
+      <PropertyRef Name="tradingvolume" />
+      <PropertyRef Name="tradingvalue" />
+      <PropertyRef Name="marketcapitalizationamount" />
+      <PropertyRef Name="value_buy" />
+      <PropertyRef Name="value_sell" />
+      <PropertyRef Name="net_value" />
+      <PropertyRef Name="flag_value" />
+      <PropertyRef Name="volume_buy" />
+      <PropertyRef Name="volume_sell" />
+      <PropertyRef Name="net_volume" />
+      <PropertyRef Name="flag_volume" />
+      <PropertyRef Name="periode" />
+    </Key>
+    <Property Name="calendarsk" Type="int" Nullable="false" />
+    <Property Name="closingvalue" Type="float" Nullable="false" />
+    <Property Name="tradingvolume" Type="float" Nullable="false" />
+    <Property Name="tradingvalue" Type="float" Nullable="false" />
+    <Property Name="marketcapitalizationamount" Type="float" Nullable="false" />
+    <Property Name="value_buy" Type="float" Nullable="false" />
+    <Property Name="value_sell" Type="float" Nullable="false" />
+    <Property Name="net_value" Type="float" Nullable="false" />
+    <Property Name="flag_value" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="volume_buy" Type="float" Nullable="false" />
+    <Property Name="volume_sell" Type="float" Nullable="false" />
+    <Property Name="net_volume" Type="float" Nullable="false" />
+    <Property Name="flag_volume" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="periode" Type="int" Nullable="false" />
+  </EntityType>
+  <!--Errors Found During Generation:
+warning 6002: The table/view 'BDAPM.pasarmodal.market_driven_validasi_data_tra' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.
+-->
+  <EntityType Name="market_driven_validasi_data_tra">
+    <Key>
+      <PropertyRef Name="tradeno" />
+      <PropertyRef Name="tradedatesk" />
+      <PropertyRef Name="tradingdatetime" />
+      <PropertyRef Name="tradinghourcode" />
+      <PropertyRef Name="tradingminutecode" />
+      <PropertyRef Name="securitycode" />
+      <PropertyRef Name="transactiontypecode" />
+      <PropertyRef Name="exchangemembercode" />
+      <PropertyRef Name="investorcode" />
+      <PropertyRef Name="investororigincode" />
+      <PropertyRef Name="cpemcode" />
+      <PropertyRef Name="cpinvestorcode" />
+      <PropertyRef Name="quantity" />
+      <PropertyRef Name="value" />
+      <PropertyRef Name="transactionboardcode" />
+      <PropertyRef Name="lokal_asing_sid" />
+      <PropertyRef Name="countryinvestor" />
+      <PropertyRef Name="provinceinvestor" />
+      <PropertyRef Name="typeinvestor" />
+      <PropertyRef Name="countrycpinvestor" />
+      <PropertyRef Name="provincecpinvestor" />
+      <PropertyRef Name="typecpinvestor" />
+      <PropertyRef Name="flag_minute" />
+      <PropertyRef Name="confirmation" />
+      <PropertyRef Name="sid_name" />
+      <PropertyRef Name="periode" />
+    </Key>
+    <Property Name="tradeno" Type="int" Nullable="false" />
+    <Property Name="tradedatesk" Type="int" Nullable="false" />
+    <Property Name="tradingdatetime" Type="datetime2" Nullable="false" />
+    <Property Name="tradinghourcode" Type="int" Nullable="false" />
+    <Property Name="tradingminutecode" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="securitycode" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="transactiontypecode" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="exchangemembercode" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="investorcode" Type="int" Nullable="false" />
+    <Property Name="investororigincode" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="cpemcode" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="cpinvestorcode" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="quantity" Type="int" Nullable="false" />
+    <Property Name="listingboardcode" Type="nvarchar" MaxLength="50" />
+    <Property Name="value" Type="int" Nullable="false" />
+    <Property Name="transactionboardcode" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="sid" Type="nvarchar" MaxLength="50" />
+    <Property Name="lokal_asing_sid" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="countryinvestor" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="provinceinvestor" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="typeinvestor" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="countrycpinvestor" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="provincecpinvestor" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="typecpinvestor" Type="nvarchar" Nullable="false" MaxLength="50" />
+    <Property Name="flag_minute" Type="datetime2" Nullable="false" />
+    <Property Name="confirmation" Type="bit" Nullable="false" />
+    <Property Name="sid_name" Type="nvarchar" Nullable="false" MaxLength="100" />
+    <Property Name="periode" Type="int" Nullable="false" />
+  </EntityType>
+  <!--Errors Found During Generation:
+warning 6002: The table/view 'BDAPM.pasarmodal.master_sid' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.
+-->
+  <EntityType Name="master_sid">
+    <Key>
+      <PropertyRef Name="sid" />
+    </Key>
+    <Property Name="sid" Type="varchar" Nullable="false" MaxLength="25" />
+    <Property Name="nama_sid" Type="varchar" MaxLength="300" />
+    <Property Name="system" Type="varchar" MaxLength="50" />
+    <Property Name="periode" Type="int" />
+    <Property Name="lastsync" Type="datetime" />
   </EntityType>
   <EntityType Name="mm_spv">
     <Key>
@@ -3351,6 +3673,17 @@ warning 6002: The table/view 'BDAPM.pasarmodal.pe_segmentation_sum_cluster_mkbd'
     <Property Name="mkbdpermkbdminimum" Type="float" />
     <Property Name="cluster" Type="varchar" MaxLength="50" />
     <Property Name="periode" Type="varchar" Nullable="false" MaxLength="50" />
+  </EntityType>
+  <EntityType Name="src_sid">
+    <Key>
+      <PropertyRef Name="dm_periode" />
+      <PropertyRef Name="rowid" />
+    </Key>
+    <Property Name="dm_periode" Type="date" Nullable="false" />
+    <Property Name="rowid" Type="bigint" Nullable="false" StoreGeneratedPattern="Identity" />
+    <Property Name="sid" Type="varchar" MaxLength="25" />
+    <Property Name="nama_sid" Type="varchar" MaxLength="100" />
+    <Property Name="system" Type="varchar" MaxLength="30" />
   </EntityType>
   <!--Errors Found During Generation:
 warning 6002: The table/view 'BDAPM.dbo.vw_getMasterLJK' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.
@@ -4172,6 +4505,11 @@ warning 6002: The table/view 'BDAPM.dbo.vw_TableDictionary' does not have a prim
     <Parameter Name="containmentBias" Type="float" Mode="In" />
     <Parameter Name="minScoreHint" Type="float" Mode="In" />
   </Function>
+  <Function Name="CheckSID" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="SGR">
+    <Parameter Name="Key" Type="varchar" Mode="In" />
+    <Parameter Name="Value" Type="varchar(max)" Mode="In" />
+  </Function>
+  <Function Name="decryptor" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="SGR" />
   <!--Errors Found During Generation:
 warning 6013: The table/view 'BDAPM.dbo.master_user_ideb2' does not have a primary key defined and no valid primary key could be inferred. This table/view has been excluded. To use the entity, you will need to review your schema, add the correct keys, and uncomment it.
 
@@ -4195,6 +4533,101 @@ warning 6013: The table/view 'BDAPM.dbo.master_user_ideb2' does not have a prima
   <Property Name="updated_datetime" Type="nvarchar(max)" />
   <Property Name="user_status_flag" Type="nvarchar(max)" />
   <Property Name="p_date" Type="nvarchar(max)" />
+</EntityType>
+Errors Found During Generation:
+warning 6013: The table/view 'BDAPM.dbo.ps_basis_inv_det_sre' does not have a primary key defined and no valid primary key could be inferred. This table/view has been excluded. To use the entity, you will need to review your schema, add the correct keys, and uncomment it.
+
+<EntityType Name="ps_basis_inv_det_sre">
+  <Property Name="basedate" Type="date" />
+  <Property Name="pe" Type="varchar" MaxLength="3" />
+  <Property Name="sid" Type="varchar" MaxLength="14" />
+  <Property Name="tradeid" Type="varchar" MaxLength="6" />
+  <Property Name="sre" Type="varchar" MaxLength="14" />
+  <Property Name="securitycode" Type="varchar" MaxLength="4" />
+  <Property Name="securityphysicaltypecode" Type="varchar" MaxLength="2" />
+  <Property Name="portfolioquantity" Type="int" />
+  <Property Name="portfolioamount" Type="bigint" />
+  <Property Name="accountbalancestatuscode" Type="int" />
+  <Property Name="settlementaccountownertypecode" Type="varchar" MaxLength="2" />
+  <Property Name="settlementaccounttypecode" Type="int" />
+  <Property Name="yearmonth" Type="date" />
+  <Property Name="pyearmonth" Type="date" />
+  <Property Name="pperiode" Type="date" />
+  <Property Name="prange" Type="int" />
+</EntityType>
+Errors Found During Generation:
+warning 6013: The table/view 'BDAPM.dbo.ps_basis_inv_det_trx' does not have a primary key defined and no valid primary key could be inferred. This table/view has been excluded. To use the entity, you will need to review your schema, add the correct keys, and uncomment it.
+
+<EntityType Name="ps_basis_inv_det_trx">
+  <Property Name="yearmonth" Type="date" />
+  <Property Name="basedate" Type="date" />
+  <Property Name="inputrange" Type="int" />
+  <Property Name="pe" Type="varchar" MaxLength="3" />
+  <Property Name="market" Type="varchar" MaxLength="10" />
+  <Property Name="transactionsystem" Type="varchar" MaxLength="20" />
+  <Property Name="investorcode" Type="varchar" MaxLength="20" />
+  <Property Name="securitycode" Type="varchar" MaxLength="4" />
+  <Property Name="securitytypecode" Type="varchar" MaxLength="20" />
+  <Property Name="securitytype" Type="varchar" MaxLength="30" />
+  <Property Name="total_transaction_frequency" Type="int" />
+  <Property Name="total_transaction_volume" Type="int" />
+  <Property Name="total_transaction_value" Type="bigint" />
+  <Property Name="pyearmonth" Type="date" />
+  <Property Name="pperiode" Type="date" />
+  <Property Name="prange" Type="int" />
+</EntityType>
+Errors Found During Generation:
+warning 6013: The table/view 'BDAPM.dbo.ps_basis_inv_pe' does not have a primary key defined and no valid primary key could be inferred. This table/view has been excluded. To use the entity, you will need to review your schema, add the correct keys, and uncomment it.
+
+<EntityType Name="ps_basis_inv_pe">
+  <Property Name="exchangemembercode" Type="varchar" MaxLength="2" />
+  <Property Name="tradeid" Type="varchar" MaxLength="6" />
+  <Property Name="sid" Type="varchar" MaxLength="14" />
+  <Property Name="nama_sid" Type="varchar" MaxLength="100" />
+  <Property Name="full_name" Type="varchar" MaxLength="200" />
+  <Property Name="sre001" Type="varchar" MaxLength="14" />
+  <Property Name="sre_status" Type="varchar" MaxLength="10" />
+  <Property Name="investor_type" Type="varchar" MaxLength="20" />
+  <Property Name="investor_origin" Type="varchar" MaxLength="20" />
+  <Property Name="country" Type="varchar" MaxLength="30" />
+  <Property Name="provinsi" Type="varchar" MaxLength="50" />
+  <Property Name="kota" Type="varchar" MaxLength="50" />
+  <Property Name="jenis_kelamin" Type="varchar" MaxLength="10" />
+  <Property Name="golonganusia" Type="varchar" MaxLength="50" />
+  <Property Name="pendidikan" Type="varchar" MaxLength="4" />
+  <Property Name="pekerjaan" Type="varchar" MaxLength="30" />
+  <Property Name="penghasilan_individu" Type="varchar" MaxLength="50" />
+  <Property Name="pengahasilan_institusi" Type="varchar" MaxLength="50" />
+  <Property Name="createddate" Type="date" />
+  <Property Name="new_sre" Type="varchar" MaxLength="3" />
+  <Property Name="market" Type="varchar" MaxLength="10" />
+  <Property Name="investorlasttransactiondate" Type="date" />
+  <Property Name="investorlasttransactionindays" Type="int" />
+  <Property Name="maxpelasttransactionindays" Type="int" />
+  <Property Name="investorrecencyscore" Type="int" />
+  <Property Name="investortransactionfreq" Type="int" />
+  <Property Name="investortotalvalue" Type="bigint" />
+  <Property Name="maxinvestorfreq" Type="int" />
+  <Property Name="maxnvestorvalueinpe" Type="int" />
+  <Property Name="q1_r" Type="varchar" MaxLength="5" />
+  <Property Name="q3_r" Type="varchar" MaxLength="5" />
+  <Property Name="q1_f" Type="varchar" MaxLength="5" />
+  <Property Name="q3_f" Type="varchar" MaxLength="5" />
+  <Property Name="q1_m" Type="varchar" MaxLength="5" />
+  <Property Name="q3_m" Type="varchar" MaxLength="5" />
+  <Property Name="r" Type="varchar" MaxLength="5" />
+  <Property Name="f" Type="varchar" MaxLength="5" />
+  <Property Name="m" Type="varchar" MaxLength="5" />
+  <Property Name="basis_investor" Type="varchar" MaxLength="20" />
+  <Property Name="basis_investor_1" Type="varchar" MaxLength="20" />
+  <Property Name="portfolioamount" Type="bigint" />
+  <Property Name="portfolioquantity" Type="int" />
+  <Property Name="yearmonth" Type="date" />
+  <Property Name="basedate" Type="date" />
+  <Property Name="inputrange" Type="int" />
+  <Property Name="pyearmonth" Type="date" />
+  <Property Name="pperiode" Type="date" />
+  <Property Name="prange" Type="int" />
 </EntityType>
 Errors Found During Generation:
 warning 6013: The table/view 'BDAPM.dbo.ref_kategori_debitur_temp' does not have a primary key defined and no valid primary key could be inferred. This table/view has been excluded. To use the entity, you will need to review your schema, add the correct keys, and uncomment it.
@@ -4225,12 +4658,113 @@ warning 6013: The table/view 'BDAPM.dbo.TestHWC' does not have a primary key def
   <Property Name="dm_nilai_agunan_njop" Type="bigint" />
   <Property Name="dm_nilai_agunan_ljk" Type="bigint" />
   <Property Name="dm_pperiode" Type="int" />
+</EntityType>
+Errors Found During Generation:
+warning 6013: The table/view 'BDAPM.pasarmodal.ps_basis_inv_det_sre' does not have a primary key defined and no valid primary key could be inferred. This table/view has been excluded. To use the entity, you will need to review your schema, add the correct keys, and uncomment it.
+
+<EntityType Name="ps_basis_inv_det_sre1">
+  <Property Name="basedate" Type="date" />
+  <Property Name="pe" Type="varchar" MaxLength="3" />
+  <Property Name="sid" Type="varchar" MaxLength="14" />
+  <Property Name="tradeid" Type="varchar" MaxLength="6" />
+  <Property Name="sre" Type="varchar" MaxLength="14" />
+  <Property Name="securitycode" Type="varchar" MaxLength="4" />
+  <Property Name="securityphysicaltypecode" Type="varchar" MaxLength="2" />
+  <Property Name="portfolioquantity" Type="int" />
+  <Property Name="portfolioamount" Type="bigint" />
+  <Property Name="accountbalancestatuscode" Type="int" />
+  <Property Name="settlementaccountownertypecode" Type="varchar" MaxLength="2" />
+  <Property Name="settlementaccounttypecode" Type="int" />
+  <Property Name="yearmonth" Type="date" />
+  <Property Name="pyearmonth" Type="date" />
+  <Property Name="pperiode" Type="date" />
+  <Property Name="prange" Type="int" />
+</EntityType>
+Errors Found During Generation:
+warning 6013: The table/view 'BDAPM.pasarmodal.ps_basis_inv_det_trx' does not have a primary key defined and no valid primary key could be inferred. This table/view has been excluded. To use the entity, you will need to review your schema, add the correct keys, and uncomment it.
+
+<EntityType Name="ps_basis_inv_det_trx1">
+  <Property Name="yearmonth" Type="date" />
+  <Property Name="basedate" Type="date" />
+  <Property Name="inputrange" Type="int" />
+  <Property Name="pe" Type="varchar" MaxLength="3" />
+  <Property Name="market" Type="varchar" MaxLength="10" />
+  <Property Name="transactionsystem" Type="varchar" MaxLength="20" />
+  <Property Name="investorcode" Type="varchar" MaxLength="20" />
+  <Property Name="securitycode" Type="varchar" MaxLength="4" />
+  <Property Name="securitytypecode" Type="varchar" MaxLength="20" />
+  <Property Name="securitytype" Type="varchar" MaxLength="30" />
+  <Property Name="total_transaction_frequency" Type="int" />
+  <Property Name="total_transaction_volume" Type="int" />
+  <Property Name="total_transaction_value" Type="bigint" />
+  <Property Name="pyearmonth" Type="date" />
+  <Property Name="pperiode" Type="date" />
+  <Property Name="prange" Type="int" />
+</EntityType>
+Errors Found During Generation:
+warning 6013: The table/view 'BDAPM.pasarmodal.ps_basis_inv_pe' does not have a primary key defined and no valid primary key could be inferred. This table/view has been excluded. To use the entity, you will need to review your schema, add the correct keys, and uncomment it.
+
+<EntityType Name="ps_basis_inv_pe1">
+  <Property Name="exchangemembercode" Type="varchar" MaxLength="2" />
+  <Property Name="tradeid" Type="varchar" MaxLength="6" />
+  <Property Name="sid" Type="varchar" MaxLength="14" />
+  <Property Name="nama_sid" Type="varchar" MaxLength="100" />
+  <Property Name="full_name" Type="varchar" MaxLength="200" />
+  <Property Name="sre001" Type="varchar" MaxLength="14" />
+  <Property Name="sre_status" Type="varchar" MaxLength="10" />
+  <Property Name="investor_type" Type="varchar" MaxLength="20" />
+  <Property Name="investor_origin" Type="varchar" MaxLength="20" />
+  <Property Name="country" Type="varchar" MaxLength="30" />
+  <Property Name="provinsi" Type="varchar" MaxLength="50" />
+  <Property Name="kota" Type="varchar" MaxLength="50" />
+  <Property Name="jenis_kelamin" Type="varchar" MaxLength="10" />
+  <Property Name="golonganusia" Type="varchar" MaxLength="50" />
+  <Property Name="pendidikan" Type="varchar" MaxLength="4" />
+  <Property Name="pekerjaan" Type="varchar" MaxLength="30" />
+  <Property Name="penghasilan_individu" Type="varchar" MaxLength="50" />
+  <Property Name="pengahasilan_institusi" Type="varchar" MaxLength="50" />
+  <Property Name="createddate" Type="date" />
+  <Property Name="new_sre" Type="varchar" MaxLength="3" />
+  <Property Name="market" Type="varchar" MaxLength="10" />
+  <Property Name="investorlasttransactiondate" Type="date" />
+  <Property Name="investorlasttransactionindays" Type="int" />
+  <Property Name="maxpelasttransactionindays" Type="int" />
+  <Property Name="investorrecencyscore" Type="int" />
+  <Property Name="investortransactionfreq" Type="int" />
+  <Property Name="investortotalvalue" Type="bigint" />
+  <Property Name="maxinvestorfreq" Type="int" />
+  <Property Name="maxnvestorvalueinpe" Type="int" />
+  <Property Name="q1_r" Type="varchar" MaxLength="5" />
+  <Property Name="q3_r" Type="varchar" MaxLength="5" />
+  <Property Name="q1_f" Type="varchar" MaxLength="5" />
+  <Property Name="q3_f" Type="varchar" MaxLength="5" />
+  <Property Name="q1_m" Type="varchar" MaxLength="5" />
+  <Property Name="q3_m" Type="varchar" MaxLength="5" />
+  <Property Name="r" Type="varchar" MaxLength="5" />
+  <Property Name="f" Type="varchar" MaxLength="5" />
+  <Property Name="m" Type="varchar" MaxLength="5" />
+  <Property Name="basis_investor" Type="varchar" MaxLength="20" />
+  <Property Name="basis_investor_1" Type="varchar" MaxLength="20" />
+  <Property Name="portfolioamount" Type="bigint" />
+  <Property Name="portfolioquantity" Type="int" />
+  <Property Name="yearmonth" Type="date" />
+  <Property Name="basedate" Type="date" />
+  <Property Name="inputrange" Type="int" />
+  <Property Name="pyearmonth" Type="date" />
+  <Property Name="pperiode" Type="date" />
+  <Property Name="prange" Type="int" />
 </EntityType>-->
 </Schema>
 </edmx:StorageModels><!-- CSDL content -->
     <edmx:ConceptualModels>
  <Schema Namespace="DataModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
         <EntityContainer Name="DataEntities" annotation:LazyLoadingEnabled="true" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation">
+<FunctionImport Name="CheckSID" ReturnType="Collection(DataModel.CheckSID_Result)">
+<Parameter Name="Key" Mode="In" Type="String" />
+<Parameter Name="Value" Mode="In" Type="String" />
+</FunctionImport>
+<FunctionImport Name="decryptor" ReturnType="Collection(DataModel.decryptor_Result)">
+</FunctionImport>
 <FunctionImport Name="FW_userPermission" ReturnType="Collection(DataModel.FW_userPermission_Result)">
 <Parameter Name="user_id" Mode="In" Type="String" />
 <Parameter Name="mod_kode" Mode="In" Type="String" />
@@ -4508,7 +5042,6 @@ warning 6013: The table/view 'BDAPM.dbo.TestHWC' does not have a primary key def
     <EntitySet Name="master_ljk" EntityType="DataModel.master_ljk" />
     <EntitySet Name="master_ljk_type" EntityType="DataModel.master_ljk_type" />
     <EntitySet Name="master_office_ljk" EntityType="DataModel.master_office_ljk" />
-    <EntitySet Name="master_sid" EntityType="DataModel.master_sid" />
     <EntitySet Name="master_user_ideb" EntityType="DataModel.master_user_ideb" />
     <EntitySet Name="MasterKota" EntityType="DataModel.MasterKota" />
     <EntitySet Name="MasterPenggunaanData" EntityType="DataModel.MasterPenggunaanData" />
@@ -4521,9 +5054,8 @@ warning 6013: The table/view 'BDAPM.dbo.TestHWC' does not have a primary key def
     <EntitySet Name="osida_nik_tidak_konsisten_det" EntityType="DataModel.osida_nik_tidak_konsisten_det" />
     <EntitySet Name="osida_nik_tidak_konsisten_mst" EntityType="DataModel.osida_nik_tidak_konsisten_mst" />
     <EntitySet Name="osida_pembanding_populasi_chart" EntityType="DataModel.osida_pembanding_populasi_chart" />
-    <EntitySet Name="pasarmodal_market_driven_rg_ng" EntityType="DataModel.pasarmodal_market_driven_rg_ng" />
     <EntitySet Name="pe_segmentation_basis_investor" EntityType="DataModel.pe_segmentation_basis_investor" />
-    <EntitySet Name="pe_segmentation_detail_basis_investor" EntityType="DataModel.pe_segmentation_detail_basis_investor" />
+    <EntitySet Name="pe_segmentation_detail_basis_investor_sre" EntityType="DataModel.pe_segmentation_detail_basis_investor_sre" />
     <EntitySet Name="pe_segmentation_geo" EntityType="DataModel.pe_segmentation_geo" />
     <EntitySet Name="pe_segmentation_pendanaan_per_mkbd" EntityType="DataModel.pe_segmentation_pendanaan_per_mkbd" />
     <EntitySet Name="pe_segmentation_summary_transaction_sid" EntityType="DataModel.pe_segmentation_summary_transaction_sid" />
@@ -4536,6 +5068,7 @@ warning 6013: The table/view 'BDAPM.dbo.TestHWC' does not have a primary key def
     <EntitySet Name="ref_credit_usages" EntityType="DataModel.ref_credit_usages" />
     <EntitySet Name="ref_ownership_document_temp" EntityType="DataModel.ref_ownership_document_temp" />
     <EntitySet Name="ref_pekerjaan_temp" EntityType="DataModel.ref_pekerjaan_temp" />
+    <EntitySet Name="ref_query" EntityType="DataModel.ref_query" />
     <EntitySet Name="ReportDef" EntityType="DataModel.ReportDef" />
     <EntitySet Name="RptGrid" EntityType="DataModel.RptGrid" />
     <EntitySet Name="RptGrid_Param" EntityType="DataModel.RptGrid_Param" />
@@ -4558,7 +5091,12 @@ warning 6013: The table/view 'BDAPM.dbo.TestHWC' does not have a primary key def
     <EntitySet Name="market_driven_ape_growth1" EntityType="DataModel.market_driven_ape_growth1" />
     <EntitySet Name="market_driven_rg_ng1" EntityType="DataModel.market_driven_rg_ng1" />
     <EntitySet Name="market_driven_stp_balance1" EntityType="DataModel.market_driven_stp_balance1" />
+    <EntitySet Name="market_driven_stp_clearing" EntityType="DataModel.market_driven_stp_clearing" />
     <EntitySet Name="market_driven_stp_settlement_new1" EntityType="DataModel.market_driven_stp_settlement_new1" />
+    <EntitySet Name="market_driven_stp_tra" EntityType="DataModel.market_driven_stp_tra" />
+    <EntitySet Name="market_driven_sum_trades" EntityType="DataModel.market_driven_sum_trades" />
+    <EntitySet Name="market_driven_validasi_data_tra" EntityType="DataModel.market_driven_validasi_data_tra" />
+    <EntitySet Name="master_sid" EntityType="DataModel.master_sid" />
     <EntitySet Name="mm_spv" EntityType="DataModel.mm_spv" />
     <EntitySet Name="mm_total" EntityType="DataModel.mm_total" />
     <EntitySet Name="pe_segmentation_bridging_detail" EntityType="DataModel.pe_segmentation_bridging_detail" />
@@ -4573,6 +5111,7 @@ warning 6013: The table/view 'BDAPM.dbo.TestHWC' does not have a primary key def
     <EntitySet Name="pe_segmentation_hutang_subordinasi_det" EntityType="DataModel.pe_segmentation_hutang_subordinasi_det" />
     <EntitySet Name="pe_segmentation_pembiayaan_vs_jaminan_saham" EntityType="DataModel.pe_segmentation_pembiayaan_vs_jaminan_saham" />
     <EntitySet Name="pe_segmentation_sum_cluster_mkbd" EntityType="DataModel.pe_segmentation_sum_cluster_mkbd" />
+    <EntitySet Name="src_sid" EntityType="DataModel.src_sid" />
     <EntitySet Name="vw_getMasterLJK" EntityType="DataModel.vw_getMasterLJK" />
     <EntitySet Name="vw_getMasterOfficeLJK" EntityType="DataModel.vw_getMasterOfficeLJK" />
     <EntitySet Name="vw_JarakAntarAktivitas" EntityType="DataModel.vw_JarakAntarAktivitas" />
@@ -4692,6 +5231,10 @@ warning 6013: The table/view 'BDAPM.dbo.TestHWC' does not have a primary key def
       <End Role="Thread_Post" EntitySet="Thread_Post" />
     </AssociationSet>
   </EntityContainer>
+ <ComplexType Name="CheckSID_Result">
+</ComplexType>
+ <ComplexType Name="decryptor_Result">
+</ComplexType>
  <ComplexType Name="FW_userPermission_Result">
 <Property Type="String" Name="UserId" Nullable="true" />
 <Property Type="String" Name="RoleName" Nullable="true" />
@@ -6055,12 +6598,6 @@ warning 6013: The table/view 'BDAPM.dbo.TestHWC' does not have a primary key def
     <Property Name="p_date" Type="String" MaxLength="50" Unicode="false" FixedLength="false" />
     <Property Name="sync_date" Type="DateTime" />
   </EntityType>
-  <EntityType Name="master_sid">
-    <Key>
-      <PropertyRef Name="sid" />
-    </Key>
-    <Property Name="sid" Type="String" Nullable="false" MaxLength="15" Unicode="false" FixedLength="false" />
-  </EntityType>
   <EntityType Name="master_user_ideb">
     <Key>
       <PropertyRef Name="user_id" />
@@ -6295,36 +6832,6 @@ warning 6013: The table/view 'BDAPM.dbo.TestHWC' does not have a primary key def
     <Property Name="dm_plafon_231_hari_terakhir" Type="Decimal" Precision="38" Scale="6" />
     <Property Name="dm_jumlah_rekening_231_hari_terakhir" Type="Int32" />
   </EntityType>
-  <EntityType Name="pasarmodal_market_driven_rg_ng">
-    <Key>
-      <PropertyRef Name="history_type" />
-      <PropertyRef Name="periode_lvl1" />
-      <PropertyRef Name="periode_lvl2" />
-      <PropertyRef Name="periode_lvl3" />
-      <PropertyRef Name="security_code" />
-      <PropertyRef Name="market" />
-      <PropertyRef Name="volume" />
-      <PropertyRef Name="value" />
-      <PropertyRef Name="freq" />
-      <PropertyRef Name="low" />
-      <PropertyRef Name="high" />
-      <PropertyRef Name="close" />
-      <PropertyRef Name="periode" />
-    </Key>
-    <Property Name="history_type" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
-    <Property Name="periode_lvl1" Type="String" Nullable="false" MaxLength="10" Unicode="false" FixedLength="true" />
-    <Property Name="periode_lvl2" Type="String" Nullable="false" MaxLength="10" Unicode="false" FixedLength="true" />
-    <Property Name="periode_lvl3" Type="String" Nullable="false" MaxLength="10" Unicode="false" FixedLength="true" />
-    <Property Name="security_code" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
-    <Property Name="market" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
-    <Property Name="volume" Type="Int64" Nullable="false" />
-    <Property Name="value" Type="Double" Nullable="false" />
-    <Property Name="freq" Type="Int32" Nullable="false" />
-    <Property Name="low" Type="Int16" Nullable="false" />
-    <Property Name="high" Type="Int16" Nullable="false" />
-    <Property Name="close" Type="Int16" Nullable="false" />
-    <Property Name="periode" Type="String" Nullable="false" MaxLength="10" Unicode="false" FixedLength="true" />
-  </EntityType>
   <EntityType Name="pe_segmentation_basis_investor">
     <Key>
       <PropertyRef Name="dm_periode" />
@@ -6389,7 +6896,7 @@ warning 6013: The table/view 'BDAPM.dbo.TestHWC' does not have a primary key def
     <Property Name="inputrange" Type="Int32" />
     <Property Name="pyearmonth" Type="DateTime" />
   </EntityType>
-  <EntityType Name="pe_segmentation_detail_basis_investor">
+  <EntityType Name="pe_segmentation_detail_basis_investor_sre">
     <Key>
       <PropertyRef Name="dm_periode" />
       <PropertyRef Name="rowid" />
@@ -6715,6 +7222,14 @@ warning 6013: The table/view 'BDAPM.dbo.TestHWC' does not have a primary key def
     <Property Name="dm_kode_profesi_debitur" Type="String" Nullable="false" MaxLength="200" Unicode="false" FixedLength="false" />
     <Property Name="dm_profesi_debitur" Type="String" MaxLength="200" Unicode="false" FixedLength="false" />
   </EntityType>
+  <EntityType Name="ref_query">
+    <Key>
+      <PropertyRef Name="table_id" />
+    </Key>
+    <Property Name="table_id" Type="String" Nullable="false" MaxLength="50" Unicode="false" FixedLength="false" />
+    <Property Name="table_sql" Type="String" MaxLength="Max" Unicode="false" FixedLength="false" />
+    <Property Name="table_hive" Type="String" MaxLength="Max" Unicode="false" FixedLength="false" />
+  </EntityType>
   <EntityType Name="ReportDef">
     <Key>
       <PropertyRef Name="rdef_kode" />
@@ -7028,7 +7543,7 @@ warning 6013: The table/view 'BDAPM.dbo.TestHWC' does not have a primary key def
     <Property Name="accountbalancestatuscode" Type="String" MaxLength="20" Unicode="false" FixedLength="false" />
     <Property Name="volume" Type="Int64" />
     <Property Name="value" Type="Decimal" Precision="38" Scale="6" />
-    <Property Name="sistem" Type="String" MaxLength="30" Unicode="false" FixedLength="false" />
+    <Property Name="system" Type="String" MaxLength="30" Unicode="false" FixedLength="false" />
     <Property Name="periode" Type="String" MaxLength="10" Unicode="false" FixedLength="false" />
   </EntityType>
   <EntityType Name="ip_relation_ownership">
@@ -7106,7 +7621,7 @@ warning 6013: The table/view 'BDAPM.dbo.TestHWC' does not have a primary key def
     <Property Name="nama_sid" Type="String" MaxLength="100" Unicode="false" FixedLength="false" />
     <Property Name="trade_id" Type="String" MaxLength="50" Unicode="false" FixedLength="false" />
     <Property Name="ktp" Type="String" MaxLength="20" Unicode="false" FixedLength="false" />
-    <Property Name="sistem" Type="String" MaxLength="30" Unicode="false" FixedLength="false" />
+    <Property Name="system" Type="String" MaxLength="30" Unicode="false" FixedLength="false" />
     <Property Name="kitas_skd_number" Type="String" MaxLength="30" Unicode="false" FixedLength="false" />
     <Property Name="email" Type="String" MaxLength="100" Unicode="false" FixedLength="false" />
     <Property Name="ap4_mobile_phone" Type="String" MaxLength="20" Unicode="false" FixedLength="false" />
@@ -7223,6 +7738,8 @@ warning 6013: The table/view 'BDAPM.dbo.TestHWC' does not have a primary key def
     <Property Name="valid_from" Type="String" MaxLength="10" Unicode="false" FixedLength="false" />
     <Property Name="valid_until" Type="String" MaxLength="10" Unicode="false" FixedLength="false" />
     <Property Name="is_active" Type="String" MaxLength="10" Unicode="false" FixedLength="false" />
+    <Property Name="periode" Type="String" MaxLength="10" Unicode="false" FixedLength="false" />
+    <Property Name="sre" Type="String" MaxLength="30" Unicode="false" FixedLength="false" />
   </EntityType>
   <EntityType Name="ip_transaction">
     <Key>
@@ -7247,99 +7764,276 @@ warning 6013: The table/view 'BDAPM.dbo.TestHWC' does not have a primary key def
     <Property Name="net_value" Type="Decimal" Precision="38" Scale="6" />
     <Property Name="net_quantity" Type="Int64" />
     <Property Name="net_freq" Type="Int32" />
-    <Property Name="sistem" Type="String" MaxLength="30" Unicode="false" FixedLength="false" />
+    <Property Name="system" Type="String" MaxLength="30" Unicode="false" FixedLength="false" />
     <Property Name="periode" Type="String" MaxLength="10" Unicode="false" FixedLength="false" />
   </EntityType>
   <EntityType Name="market_driven_ape_growth1">
     <Key>
-      <PropertyRef Name="dm_periode" />
-      <PropertyRef Name="rowid" />
+      <PropertyRef Name="history_type" />
+      <PropertyRef Name="periode_lvl0" />
+      <PropertyRef Name="periode_lvl1" />
+      <PropertyRef Name="periode_lvl2" />
+      <PropertyRef Name="security_code" />
+      <PropertyRef Name="security_name" />
+      <PropertyRef Name="volume" />
+      <PropertyRef Name="value" />
+      <PropertyRef Name="freq" />
+      <PropertyRef Name="turnover" />
+      <PropertyRef Name="weight" />
+      <PropertyRef Name="price" />
+      <PropertyRef Name="listedshares" />
+      <PropertyRef Name="bmc" />
+      <PropertyRef Name="changeprice" />
+      <PropertyRef Name="mc" />
+      <PropertyRef Name="point" />
+      <PropertyRef Name="ranking_point" />
+      <PropertyRef Name="ranking_changeprice" />
+      <PropertyRef Name="flag_volume" />
+      <PropertyRef Name="flag_value" />
+      <PropertyRef Name="periode" />
     </Key>
-    <Property Name="dm_periode" Type="DateTime" Nullable="false" />
-    <Property Name="rowid" Type="Int64" Nullable="false" a:StoreGeneratedPattern="Identity" xmlns:a="http://schemas.microsoft.com/ado/2009/02/edm/annotation"/>
-    <Property Name="history_type" Type="String" MaxLength="25" Unicode="false" FixedLength="false" />
-    <Property Name="periode_lvl0" Type="DateTime" />
-    <Property Name="periode_lvl1" Type="DateTime" />
-    <Property Name="periode_lvl2" Type="DateTime" />
-    <Property Name="security_code" Type="String" MaxLength="25" Unicode="false" FixedLength="false" />
-    <Property Name="security_name" Type="String" MaxLength="100" Unicode="false" FixedLength="false" />
-    <Property Name="volume" Type="Int64" />
-    <Property Name="value" Type="Decimal" Precision="38" Scale="6" />
-    <Property Name="freq" Type="Int32" />
-    <Property Name="turnover" Type="Decimal" Precision="38" Scale="6" />
-    <Property Name="weight" Type="Int64" />
-    <Property Name="lowvalue" Type="Int32" />
-    <Property Name="highvalue" Type="Int32" />
-    <Property Name="price" Type="Int32" />
-    <Property Name="listedshares" Type="Int64" />
-    <Property Name="bmc" Type="Double" />
-    <Property Name="changeprice" Type="Double" />
-    <Property Name="mc" Type="Double" />
-    <Property Name="point" Type="Double" />
-    <Property Name="ranking_point" Type="Int32" />
-    <Property Name="ranking_changeprice" Type="Int32" />
-    <Property Name="net_volume" Type="Double" />
-    <Property Name="net_value" Type="Double" />
-    <Property Name="flag_volume" Type="String" MaxLength="50" Unicode="false" FixedLength="false" />
-    <Property Name="flag_value" Type="String" MaxLength="50" Unicode="false" FixedLength="false" />
-    <Property Name="periode" Type="DateTime" />
+    <Property Name="history_type" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="periode_lvl0" Type="Int32" Nullable="false" />
+    <Property Name="periode_lvl1" Type="Int32" Nullable="false" />
+    <Property Name="periode_lvl2" Type="Int32" Nullable="false" />
+    <Property Name="security_code" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="security_name" Type="String" Nullable="false" MaxLength="100" Unicode="true" FixedLength="false" />
+    <Property Name="volume" Type="String" Nullable="false" MaxLength="100" Unicode="true" FixedLength="false" />
+    <Property Name="value" Type="String" Nullable="false" MaxLength="100" Unicode="true" FixedLength="false" />
+    <Property Name="freq" Type="Double" Nullable="false" />
+    <Property Name="turnover" Type="String" Nullable="false" MaxLength="100" Unicode="true" FixedLength="false" />
+    <Property Name="weight" Type="String" Nullable="false" MaxLength="100" Unicode="true" FixedLength="false" />
+    <Property Name="lowvalue" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="highvalue" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="price" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="listedshares" Type="String" Nullable="false" MaxLength="100" Unicode="true" FixedLength="false" />
+    <Property Name="bmc" Type="String" Nullable="false" MaxLength="100" Unicode="true" FixedLength="false" />
+    <Property Name="changeprice" Type="String" Nullable="false" MaxLength="100" Unicode="true" FixedLength="false" />
+    <Property Name="mc" Type="String" Nullable="false" MaxLength="100" Unicode="true" FixedLength="false" />
+    <Property Name="point" Type="String" Nullable="false" MaxLength="100" Unicode="true" FixedLength="false" />
+    <Property Name="ranking_point" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="ranking_changeprice" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="net_volume" Type="String" MaxLength="100" Unicode="true" FixedLength="false" />
+    <Property Name="net_value" Type="String" MaxLength="100" Unicode="true" FixedLength="false" />
+    <Property Name="flag_volume" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="flag_value" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="periode" Type="Int32" Nullable="false" />
   </EntityType>
   <EntityType Name="market_driven_rg_ng1">
     <Key>
-      <PropertyRef Name="dm_periode" />
-      <PropertyRef Name="rowid" />
+      <PropertyRef Name="history_type" />
+      <PropertyRef Name="periode_lvl1" />
+      <PropertyRef Name="periode_lvl2" />
+      <PropertyRef Name="periode_lvl3" />
+      <PropertyRef Name="security_code" />
+      <PropertyRef Name="market" />
+      <PropertyRef Name="volume" />
+      <PropertyRef Name="value" />
+      <PropertyRef Name="freq" />
+      <PropertyRef Name="low" />
+      <PropertyRef Name="high" />
+      <PropertyRef Name="close" />
+      <PropertyRef Name="periode" />
     </Key>
-    <Property Name="dm_periode" Type="DateTime" Nullable="false" />
-    <Property Name="rowid" Type="Int64" Nullable="false" a:StoreGeneratedPattern="Identity" xmlns:a="http://schemas.microsoft.com/ado/2009/02/edm/annotation"/>
-    <Property Name="history_type" Type="String" MaxLength="15" Unicode="false" FixedLength="false" />
-    <Property Name="periode_lvl1" Type="DateTime" />
-    <Property Name="periode_lvl2" Type="DateTime" />
-    <Property Name="periode_lvl3" Type="DateTime" />
-    <Property Name="security_code" Type="String" MaxLength="10" Unicode="false" FixedLength="false" />
-    <Property Name="market" Type="String" MaxLength="10" Unicode="false" FixedLength="false" />
-    <Property Name="volume" Type="Int64" />
-    <Property Name="value" Type="Decimal" Precision="38" Scale="6" />
-    <Property Name="freq" Type="Int32" />
-    <Property Name="low" Type="Int32" />
-    <Property Name="high" Type="Int32" />
-    <Property Name="close" Type="Int32" />
-    <Property Name="periode" Type="DateTime" />
+    <Property Name="history_type" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="periode_lvl1" Type="Int32" Nullable="false" />
+    <Property Name="periode_lvl2" Type="Int32" Nullable="false" />
+    <Property Name="periode_lvl3" Type="Int32" Nullable="false" />
+    <Property Name="security_code" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="market" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="volume" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="value" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="freq" Type="Int64" Nullable="false" />
+    <Property Name="low" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="high" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="close" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="periode" Type="Int32" Nullable="false" />
   </EntityType>
   <EntityType Name="market_driven_stp_balance1">
     <Key>
-      <PropertyRef Name="dm_periode" />
-      <PropertyRef Name="rowid" />
+      <PropertyRef Name="tanggal_balance" />
+      <PropertyRef Name="sid" />
+      <PropertyRef Name="trading_id" />
+      <PropertyRef Name="efek" />
+      <PropertyRef Name="subrekening_efek" />
+      <PropertyRef Name="quantity" />
+      <PropertyRef Name="price" />
+      <PropertyRef Name="periode" />
     </Key>
-    <Property Name="dm_periode" Type="DateTime" Nullable="false" />
-    <Property Name="rowid" Type="Int64" Nullable="false" a:StoreGeneratedPattern="Identity" xmlns:a="http://schemas.microsoft.com/ado/2009/02/edm/annotation"/>
-    <Property Name="tanggal_balance" Type="DateTime" />
-    <Property Name="sid" Type="String" MaxLength="25" Unicode="false" FixedLength="false" />
-    <Property Name="trading_id" Type="String" MaxLength="50" Unicode="false" FixedLength="false" />
-    <Property Name="efek" Type="String" MaxLength="25" Unicode="false" FixedLength="false" />
-    <Property Name="subrekening_efek" Type="String" MaxLength="100" Unicode="false" FixedLength="false" />
-    <Property Name="quantity" Type="Int32" />
-    <Property Name="price" Type="Int64" />
-    <Property Name="periode" Type="DateTime" />
+    <Property Name="tanggal_balance" Type="Int32" Nullable="false" />
+    <Property Name="sid" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="trading_id" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="efek" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="subrekening_efek" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="quantity" Type="Double" Nullable="false" />
+    <Property Name="price" Type="Double" Nullable="false" />
+    <Property Name="periode" Type="Int32" Nullable="false" />
+  </EntityType>
+  <EntityType Name="market_driven_stp_clearing">
+    <Key>
+      <PropertyRef Name="clearingdatesk" />
+      <PropertyRef Name="settlementdatesk" />
+      <PropertyRef Name="investorid" />
+      <PropertyRef Name="securitycode" />
+      <PropertyRef Name="securitycompanycode" />
+      <PropertyRef Name="periode" />
+    </Key>
+    <Property Name="clearingdatesk" Type="Int32" Nullable="false" />
+    <Property Name="settlementdatesk" Type="Int32" Nullable="false" />
+    <Property Name="investorid" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="securitycode" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="securitycompanycode" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="clearingobligationquantity" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="periode" Type="Int32" Nullable="false" />
   </EntityType>
   <EntityType Name="market_driven_stp_settlement_new1">
     <Key>
-      <PropertyRef Name="dm_periode" />
-      <PropertyRef Name="rowid" />
+      <PropertyRef Name="tradingdatesk" />
+      <PropertyRef Name="settlementtransactiondatesk" />
+      <PropertyRef Name="fpinvestorid" />
+      <PropertyRef Name="tradingid" />
+      <PropertyRef Name="fpsettlementaccountcode" />
+      <PropertyRef Name="securitycode" />
+      <PropertyRef Name="cpsettlementaccountcode" />
+      <PropertyRef Name="settlementinstructiontypecode" />
+      <PropertyRef Name="cpinvestorid" />
+      <PropertyRef Name="settlementquantity" />
+      <PropertyRef Name="settlementexposureamount" />
+      <PropertyRef Name="periode" />
     </Key>
-    <Property Name="dm_periode" Type="DateTime" Nullable="false" />
-    <Property Name="rowid" Type="Int64" Nullable="false" a:StoreGeneratedPattern="Identity" xmlns:a="http://schemas.microsoft.com/ado/2009/02/edm/annotation"/>
-    <Property Name="tradingdatesk" Type="DateTime" />
-    <Property Name="settlementtransactiondatesk" Type="DateTime" />
-    <Property Name="fpinvestorid" Type="String" MaxLength="25" Unicode="false" FixedLength="false" />
-    <Property Name="tradingid" Type="String" MaxLength="25" Unicode="false" FixedLength="false" />
-    <Property Name="fpsettlementaccountcode" Type="String" MaxLength="25" Unicode="false" FixedLength="false" />
-    <Property Name="securitycode" Type="String" MaxLength="25" Unicode="false" FixedLength="false" />
-    <Property Name="cpsettlementaccountcode" Type="String" MaxLength="25" Unicode="false" FixedLength="false" />
-    <Property Name="settlementinstructiontypecode" Type="String" MaxLength="25" Unicode="false" FixedLength="false" />
-    <Property Name="cpinvestorid" Type="String" MaxLength="25" Unicode="false" FixedLength="false" />
-    <Property Name="settlementquantity" Type="Int64" />
-    <Property Name="settlementexposureamount" Type="Int64" />
-    <Property Name="periode" Type="DateTime" />
+    <Property Name="tradingdatesk" Type="Int32" Nullable="false" />
+    <Property Name="settlementtransactiondatesk" Type="Int32" Nullable="false" />
+    <Property Name="fpinvestorid" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="tradingid" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="fpsettlementaccountcode" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="securitycode" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="cpsettlementaccountcode" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="settlementinstructiontypecode" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="cpinvestorid" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="settlementquantity" Type="Double" Nullable="false" />
+    <Property Name="settlementexposureamount" Type="Double" Nullable="false" />
+    <Property Name="periode" Type="Int32" Nullable="false" />
+  </EntityType>
+  <EntityType Name="market_driven_stp_tra">
+    <Key>
+      <PropertyRef Name="settledate" />
+      <PropertyRef Name="tradedatesk" />
+      <PropertyRef Name="investorcode" />
+      <PropertyRef Name="securitycode" />
+      <PropertyRef Name="transactiontypecode" />
+      <PropertyRef Name="volume" />
+      <PropertyRef Name="cpinvestorcode" />
+      <PropertyRef Name="periode" />
+    </Key>
+    <Property Name="settledate" Type="Int32" Nullable="false" />
+    <Property Name="tradedatesk" Type="Int32" Nullable="false" />
+    <Property Name="sid" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="investorcode" Type="Int32" Nullable="false" />
+    <Property Name="securitycode" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="transactiontypecode" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="volume" Type="Double" Nullable="false" />
+    <Property Name="cpinvestorcode" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="periode" Type="Int32" Nullable="false" />
+  </EntityType>
+  <EntityType Name="market_driven_sum_trades">
+    <Key>
+      <PropertyRef Name="calendarsk" />
+      <PropertyRef Name="closingvalue" />
+      <PropertyRef Name="tradingvolume" />
+      <PropertyRef Name="tradingvalue" />
+      <PropertyRef Name="marketcapitalizationamount" />
+      <PropertyRef Name="value_buy" />
+      <PropertyRef Name="value_sell" />
+      <PropertyRef Name="net_value" />
+      <PropertyRef Name="flag_value" />
+      <PropertyRef Name="volume_buy" />
+      <PropertyRef Name="volume_sell" />
+      <PropertyRef Name="net_volume" />
+      <PropertyRef Name="flag_volume" />
+      <PropertyRef Name="periode" />
+    </Key>
+    <Property Name="calendarsk" Type="Int32" Nullable="false" />
+    <Property Name="closingvalue" Type="Double" Nullable="false" />
+    <Property Name="tradingvolume" Type="Double" Nullable="false" />
+    <Property Name="tradingvalue" Type="Double" Nullable="false" />
+    <Property Name="marketcapitalizationamount" Type="Double" Nullable="false" />
+    <Property Name="value_buy" Type="Double" Nullable="false" />
+    <Property Name="value_sell" Type="Double" Nullable="false" />
+    <Property Name="net_value" Type="Double" Nullable="false" />
+    <Property Name="flag_value" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="volume_buy" Type="Double" Nullable="false" />
+    <Property Name="volume_sell" Type="Double" Nullable="false" />
+    <Property Name="net_volume" Type="Double" Nullable="false" />
+    <Property Name="flag_volume" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="periode" Type="Int32" Nullable="false" />
+  </EntityType>
+  <EntityType Name="market_driven_validasi_data_tra">
+    <Key>
+      <PropertyRef Name="tradeno" />
+      <PropertyRef Name="tradedatesk" />
+      <PropertyRef Name="tradingdatetime" />
+      <PropertyRef Name="tradinghourcode" />
+      <PropertyRef Name="tradingminutecode" />
+      <PropertyRef Name="securitycode" />
+      <PropertyRef Name="transactiontypecode" />
+      <PropertyRef Name="exchangemembercode" />
+      <PropertyRef Name="investorcode" />
+      <PropertyRef Name="investororigincode" />
+      <PropertyRef Name="cpemcode" />
+      <PropertyRef Name="cpinvestorcode" />
+      <PropertyRef Name="quantity" />
+      <PropertyRef Name="value" />
+      <PropertyRef Name="transactionboardcode" />
+      <PropertyRef Name="lokal_asing_sid" />
+      <PropertyRef Name="countryinvestor" />
+      <PropertyRef Name="provinceinvestor" />
+      <PropertyRef Name="typeinvestor" />
+      <PropertyRef Name="countrycpinvestor" />
+      <PropertyRef Name="provincecpinvestor" />
+      <PropertyRef Name="typecpinvestor" />
+      <PropertyRef Name="flag_minute" />
+      <PropertyRef Name="confirmation" />
+      <PropertyRef Name="sid_name" />
+      <PropertyRef Name="periode" />
+    </Key>
+    <Property Name="tradeno" Type="Int32" Nullable="false" />
+    <Property Name="tradedatesk" Type="Int32" Nullable="false" />
+    <Property Name="tradingdatetime" Type="DateTime" Nullable="false" />
+    <Property Name="tradinghourcode" Type="Int32" Nullable="false" />
+    <Property Name="tradingminutecode" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="securitycode" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="transactiontypecode" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="exchangemembercode" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="investorcode" Type="Int32" Nullable="false" />
+    <Property Name="investororigincode" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="cpemcode" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="cpinvestorcode" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="quantity" Type="Int32" Nullable="false" />
+    <Property Name="listingboardcode" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="value" Type="Int32" Nullable="false" />
+    <Property Name="transactionboardcode" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="sid" Type="String" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="lokal_asing_sid" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="countryinvestor" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="provinceinvestor" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="typeinvestor" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="countrycpinvestor" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="provincecpinvestor" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="typecpinvestor" Type="String" Nullable="false" MaxLength="50" Unicode="true" FixedLength="false" />
+    <Property Name="flag_minute" Type="DateTime" Nullable="false" />
+    <Property Name="confirmation" Type="Boolean" Nullable="false" />
+    <Property Name="sid_name" Type="String" Nullable="false" MaxLength="100" Unicode="true" FixedLength="false" />
+    <Property Name="periode" Type="Int32" Nullable="false" />
+  </EntityType>
+  <EntityType Name="master_sid">
+    <Key>
+      <PropertyRef Name="sid" />
+    </Key>
+    <Property Name="sid" Type="String" Nullable="false" MaxLength="25" Unicode="false" FixedLength="false" />
+    <Property Name="nama_sid" Type="String" MaxLength="300" Unicode="false" FixedLength="false" />
+    <Property Name="system" Type="String" MaxLength="50" Unicode="false" FixedLength="false" />
+    <Property Name="periode" Type="Int32" />
+    <Property Name="lastsync" Type="DateTime" />
   </EntityType>
   <EntityType Name="mm_spv">
     <Key>
@@ -7596,6 +8290,17 @@ warning 6013: The table/view 'BDAPM.dbo.TestHWC' does not have a primary key def
     <Property Name="mkbdpermkbdminimum" Type="Double" />
     <Property Name="cluster" Type="String" MaxLength="50" Unicode="false" FixedLength="false" />
     <Property Name="periode" Type="String" Nullable="false" MaxLength="50" Unicode="false" FixedLength="false" />
+  </EntityType>
+  <EntityType Name="src_sid">
+    <Key>
+      <PropertyRef Name="dm_periode" />
+      <PropertyRef Name="rowid" />
+    </Key>
+    <Property Name="dm_periode" Type="DateTime" Nullable="false" />
+    <Property Name="rowid" Type="Int64" Nullable="false" a:StoreGeneratedPattern="Identity" xmlns:a="http://schemas.microsoft.com/ado/2009/02/edm/annotation"/>
+    <Property Name="sid" Type="String" MaxLength="25" Unicode="false" FixedLength="false" />
+    <Property Name="nama_sid" Type="String" MaxLength="100" Unicode="false" FixedLength="false" />
+    <Property Name="system" Type="String" MaxLength="30" Unicode="false" FixedLength="false" />
   </EntityType>
   <EntityType Name="vw_getMasterLJK">
     <Key>
@@ -8108,6 +8813,18 @@ warning 6013: The table/view 'BDAPM.dbo.TestHWC' does not have a primary key def
     <edmx:Mappings>
 <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
   <EntityContainerMapping StorageEntityContainer="DataModelStoreContainer" CdmEntityContainer="DataEntities">
+ <FunctionImportMapping FunctionImportName="CheckSID" FunctionName="DataModel.Store.CheckSID">
+ <ResultMapping>
+ <ComplexTypeMapping TypeName="DataModel.CheckSID_Result">
+ </ComplexTypeMapping>
+ </ResultMapping>
+ </FunctionImportMapping>
+ <FunctionImportMapping FunctionImportName="decryptor" FunctionName="DataModel.Store.decryptor">
+ <ResultMapping>
+ <ComplexTypeMapping TypeName="DataModel.decryptor_Result">
+ </ComplexTypeMapping>
+ </ResultMapping>
+ </FunctionImportMapping>
  <FunctionImportMapping FunctionImportName="FW_userPermission" FunctionName="DataModel.Store.FW_userPermission">
  <ResultMapping>
  <ComplexTypeMapping TypeName="DataModel.FW_userPermission_Result">
@@ -9633,13 +10350,6 @@ warning 6013: The table/view 'BDAPM.dbo.TestHWC' does not have a primary key def
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
-    <EntitySetMapping Name="master_sid">
-      <EntityTypeMapping TypeName="DataModel.master_sid">
-        <MappingFragment StoreEntitySet="master_sid">
-          <ScalarProperty Name="sid" ColumnName="sid" />
-        </MappingFragment>
-      </EntityTypeMapping>
-    </EntitySetMapping>
     <EntitySetMapping Name="master_user_ideb">
       <EntityTypeMapping TypeName="DataModel.master_user_ideb">
         <MappingFragment StoreEntitySet="master_user_ideb">
@@ -9875,25 +10585,6 @@ warning 6013: The table/view 'BDAPM.dbo.TestHWC' does not have a primary key def
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
-    <EntitySetMapping Name="pasarmodal_market_driven_rg_ng">
-      <EntityTypeMapping TypeName="DataModel.pasarmodal_market_driven_rg_ng">
-        <MappingFragment StoreEntitySet="pasarmodal_market_driven_rg_ng">
-          <ScalarProperty Name="history_type" ColumnName="history_type" />
-          <ScalarProperty Name="periode_lvl1" ColumnName="periode_lvl1" />
-          <ScalarProperty Name="periode_lvl2" ColumnName="periode_lvl2" />
-          <ScalarProperty Name="periode_lvl3" ColumnName="periode_lvl3" />
-          <ScalarProperty Name="security_code" ColumnName="security_code" />
-          <ScalarProperty Name="market" ColumnName="market" />
-          <ScalarProperty Name="volume" ColumnName="volume" />
-          <ScalarProperty Name="value" ColumnName="value" />
-          <ScalarProperty Name="freq" ColumnName="freq" />
-          <ScalarProperty Name="low" ColumnName="low" />
-          <ScalarProperty Name="high" ColumnName="high" />
-          <ScalarProperty Name="close" ColumnName="close" />
-          <ScalarProperty Name="periode" ColumnName="periode" />
-        </MappingFragment>
-      </EntityTypeMapping>
-    </EntitySetMapping>
     <EntitySetMapping Name="pe_segmentation_basis_investor">
       <EntityTypeMapping TypeName="DataModel.pe_segmentation_basis_investor">
         <MappingFragment StoreEntitySet="pe_segmentation_basis_investor">
@@ -9958,9 +10649,9 @@ warning 6013: The table/view 'BDAPM.dbo.TestHWC' does not have a primary key def
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
-    <EntitySetMapping Name="pe_segmentation_detail_basis_investor">
-      <EntityTypeMapping TypeName="DataModel.pe_segmentation_detail_basis_investor">
-        <MappingFragment StoreEntitySet="pe_segmentation_detail_basis_investor">
+    <EntitySetMapping Name="pe_segmentation_detail_basis_investor_sre">
+      <EntityTypeMapping TypeName="DataModel.pe_segmentation_detail_basis_investor_sre">
+        <MappingFragment StoreEntitySet="pe_segmentation_detail_basis_investor_sre">
           <ScalarProperty Name="dm_periode" ColumnName="dm_periode" />
           <ScalarProperty Name="rowid" ColumnName="rowid" />
           <ScalarProperty Name="basedate" ColumnName="basedate" />
@@ -10293,6 +10984,15 @@ warning 6013: The table/view 'BDAPM.dbo.TestHWC' does not have a primary key def
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
+    <EntitySetMapping Name="ref_query">
+      <EntityTypeMapping TypeName="DataModel.ref_query">
+        <MappingFragment StoreEntitySet="ref_query">
+          <ScalarProperty Name="table_id" ColumnName="table_id" />
+          <ScalarProperty Name="table_sql" ColumnName="table_sql" />
+          <ScalarProperty Name="table_hive" ColumnName="table_hive" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
     <EntitySetMapping Name="ReportDef">
       <EntityTypeMapping TypeName="DataModel.ReportDef">
         <MappingFragment StoreEntitySet="ReportDef">
@@ -10586,7 +11286,7 @@ warning 6013: The table/view 'BDAPM.dbo.TestHWC' does not have a primary key def
           <ScalarProperty Name="accountbalancestatuscode" ColumnName="accountbalancestatuscode" />
           <ScalarProperty Name="volume" ColumnName="volume" />
           <ScalarProperty Name="value" ColumnName="value" />
-          <ScalarProperty Name="sistem" ColumnName="sistem" />
+          <ScalarProperty Name="system" ColumnName="system" />
           <ScalarProperty Name="periode" ColumnName="periode" />
         </MappingFragment>
       </EntityTypeMapping>
@@ -10664,7 +11364,7 @@ warning 6013: The table/view 'BDAPM.dbo.TestHWC' does not have a primary key def
           <ScalarProperty Name="nama_sid" ColumnName="nama_sid" />
           <ScalarProperty Name="trade_id" ColumnName="trade_id" />
           <ScalarProperty Name="ktp" ColumnName="ktp" />
-          <ScalarProperty Name="sistem" ColumnName="sistem" />
+          <ScalarProperty Name="system" ColumnName="system" />
           <ScalarProperty Name="kitas_skd_number" ColumnName="kitas_skd_number" />
           <ScalarProperty Name="email" ColumnName="email" />
           <ScalarProperty Name="ap4_mobile_phone" ColumnName="ap4_mobile_phone" />
@@ -10781,6 +11481,8 @@ warning 6013: The table/view 'BDAPM.dbo.TestHWC' does not have a primary key def
           <ScalarProperty Name="valid_from" ColumnName="valid_from" />
           <ScalarProperty Name="valid_until" ColumnName="valid_until" />
           <ScalarProperty Name="is_active" ColumnName="is_active" />
+          <ScalarProperty Name="periode" ColumnName="periode" />
+          <ScalarProperty Name="sre" ColumnName="sre" />
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
@@ -10805,7 +11507,7 @@ warning 6013: The table/view 'BDAPM.dbo.TestHWC' does not have a primary key def
           <ScalarProperty Name="net_value" ColumnName="net_value" />
           <ScalarProperty Name="net_quantity" ColumnName="net_quantity" />
           <ScalarProperty Name="net_freq" ColumnName="net_freq" />
-          <ScalarProperty Name="sistem" ColumnName="sistem" />
+          <ScalarProperty Name="system" ColumnName="system" />
           <ScalarProperty Name="periode" ColumnName="periode" />
         </MappingFragment>
       </EntityTypeMapping>
@@ -10813,8 +11515,6 @@ warning 6013: The table/view 'BDAPM.dbo.TestHWC' does not have a primary key def
     <EntitySetMapping Name="market_driven_ape_growth1">
       <EntityTypeMapping TypeName="DataModel.market_driven_ape_growth1">
         <MappingFragment StoreEntitySet="market_driven_ape_growth1">
-          <ScalarProperty Name="dm_periode" ColumnName="dm_periode" />
-          <ScalarProperty Name="rowid" ColumnName="rowid" />
           <ScalarProperty Name="history_type" ColumnName="history_type" />
           <ScalarProperty Name="periode_lvl0" ColumnName="periode_lvl0" />
           <ScalarProperty Name="periode_lvl1" ColumnName="periode_lvl1" />
@@ -10847,8 +11547,6 @@ warning 6013: The table/view 'BDAPM.dbo.TestHWC' does not have a primary key def
     <EntitySetMapping Name="market_driven_rg_ng1">
       <EntityTypeMapping TypeName="DataModel.market_driven_rg_ng1">
         <MappingFragment StoreEntitySet="market_driven_rg_ng1">
-          <ScalarProperty Name="dm_periode" ColumnName="dm_periode" />
-          <ScalarProperty Name="rowid" ColumnName="rowid" />
           <ScalarProperty Name="history_type" ColumnName="history_type" />
           <ScalarProperty Name="periode_lvl1" ColumnName="periode_lvl1" />
           <ScalarProperty Name="periode_lvl2" ColumnName="periode_lvl2" />
@@ -10868,8 +11566,6 @@ warning 6013: The table/view 'BDAPM.dbo.TestHWC' does not have a primary key def
     <EntitySetMapping Name="market_driven_stp_balance1">
       <EntityTypeMapping TypeName="DataModel.market_driven_stp_balance1">
         <MappingFragment StoreEntitySet="market_driven_stp_balance1">
-          <ScalarProperty Name="dm_periode" ColumnName="dm_periode" />
-          <ScalarProperty Name="rowid" ColumnName="rowid" />
           <ScalarProperty Name="tanggal_balance" ColumnName="tanggal_balance" />
           <ScalarProperty Name="sid" ColumnName="sid" />
           <ScalarProperty Name="trading_id" ColumnName="trading_id" />
@@ -10881,11 +11577,22 @@ warning 6013: The table/view 'BDAPM.dbo.TestHWC' does not have a primary key def
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
+    <EntitySetMapping Name="market_driven_stp_clearing">
+      <EntityTypeMapping TypeName="DataModel.market_driven_stp_clearing">
+        <MappingFragment StoreEntitySet="market_driven_stp_clearing">
+          <ScalarProperty Name="clearingdatesk" ColumnName="clearingdatesk" />
+          <ScalarProperty Name="settlementdatesk" ColumnName="settlementdatesk" />
+          <ScalarProperty Name="investorid" ColumnName="investorid" />
+          <ScalarProperty Name="securitycode" ColumnName="securitycode" />
+          <ScalarProperty Name="securitycompanycode" ColumnName="securitycompanycode" />
+          <ScalarProperty Name="clearingobligationquantity" ColumnName="clearingobligationquantity" />
+          <ScalarProperty Name="periode" ColumnName="periode" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
     <EntitySetMapping Name="market_driven_stp_settlement_new1">
       <EntityTypeMapping TypeName="DataModel.market_driven_stp_settlement_new1">
         <MappingFragment StoreEntitySet="market_driven_stp_settlement_new1">
-          <ScalarProperty Name="dm_periode" ColumnName="dm_periode" />
-          <ScalarProperty Name="rowid" ColumnName="rowid" />
           <ScalarProperty Name="tradingdatesk" ColumnName="tradingdatesk" />
           <ScalarProperty Name="settlementtransactiondatesk" ColumnName="settlementtransactiondatesk" />
           <ScalarProperty Name="fpinvestorid" ColumnName="fpinvestorid" />
@@ -10898,6 +11605,86 @@ warning 6013: The table/view 'BDAPM.dbo.TestHWC' does not have a primary key def
           <ScalarProperty Name="settlementquantity" ColumnName="settlementquantity" />
           <ScalarProperty Name="settlementexposureamount" ColumnName="settlementexposureamount" />
           <ScalarProperty Name="periode" ColumnName="periode" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="market_driven_stp_tra">
+      <EntityTypeMapping TypeName="DataModel.market_driven_stp_tra">
+        <MappingFragment StoreEntitySet="market_driven_stp_tra">
+          <ScalarProperty Name="settledate" ColumnName="settledate" />
+          <ScalarProperty Name="tradedatesk" ColumnName="tradedatesk" />
+          <ScalarProperty Name="sid" ColumnName="sid" />
+          <ScalarProperty Name="investorcode" ColumnName="investorcode" />
+          <ScalarProperty Name="securitycode" ColumnName="securitycode" />
+          <ScalarProperty Name="transactiontypecode" ColumnName="transactiontypecode" />
+          <ScalarProperty Name="volume" ColumnName="volume" />
+          <ScalarProperty Name="cpinvestorcode" ColumnName="cpinvestorcode" />
+          <ScalarProperty Name="periode" ColumnName="periode" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="market_driven_sum_trades">
+      <EntityTypeMapping TypeName="DataModel.market_driven_sum_trades">
+        <MappingFragment StoreEntitySet="market_driven_sum_trades">
+          <ScalarProperty Name="calendarsk" ColumnName="calendarsk" />
+          <ScalarProperty Name="closingvalue" ColumnName="closingvalue" />
+          <ScalarProperty Name="tradingvolume" ColumnName="tradingvolume" />
+          <ScalarProperty Name="tradingvalue" ColumnName="tradingvalue" />
+          <ScalarProperty Name="marketcapitalizationamount" ColumnName="marketcapitalizationamount" />
+          <ScalarProperty Name="value_buy" ColumnName="value_buy" />
+          <ScalarProperty Name="value_sell" ColumnName="value_sell" />
+          <ScalarProperty Name="net_value" ColumnName="net_value" />
+          <ScalarProperty Name="flag_value" ColumnName="flag_value" />
+          <ScalarProperty Name="volume_buy" ColumnName="volume_buy" />
+          <ScalarProperty Name="volume_sell" ColumnName="volume_sell" />
+          <ScalarProperty Name="net_volume" ColumnName="net_volume" />
+          <ScalarProperty Name="flag_volume" ColumnName="flag_volume" />
+          <ScalarProperty Name="periode" ColumnName="periode" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="market_driven_validasi_data_tra">
+      <EntityTypeMapping TypeName="DataModel.market_driven_validasi_data_tra">
+        <MappingFragment StoreEntitySet="market_driven_validasi_data_tra">
+          <ScalarProperty Name="tradeno" ColumnName="tradeno" />
+          <ScalarProperty Name="tradedatesk" ColumnName="tradedatesk" />
+          <ScalarProperty Name="tradingdatetime" ColumnName="tradingdatetime" />
+          <ScalarProperty Name="tradinghourcode" ColumnName="tradinghourcode" />
+          <ScalarProperty Name="tradingminutecode" ColumnName="tradingminutecode" />
+          <ScalarProperty Name="securitycode" ColumnName="securitycode" />
+          <ScalarProperty Name="transactiontypecode" ColumnName="transactiontypecode" />
+          <ScalarProperty Name="exchangemembercode" ColumnName="exchangemembercode" />
+          <ScalarProperty Name="investorcode" ColumnName="investorcode" />
+          <ScalarProperty Name="investororigincode" ColumnName="investororigincode" />
+          <ScalarProperty Name="cpemcode" ColumnName="cpemcode" />
+          <ScalarProperty Name="cpinvestorcode" ColumnName="cpinvestorcode" />
+          <ScalarProperty Name="quantity" ColumnName="quantity" />
+          <ScalarProperty Name="listingboardcode" ColumnName="listingboardcode" />
+          <ScalarProperty Name="value" ColumnName="value" />
+          <ScalarProperty Name="transactionboardcode" ColumnName="transactionboardcode" />
+          <ScalarProperty Name="sid" ColumnName="sid" />
+          <ScalarProperty Name="lokal_asing_sid" ColumnName="lokal_asing_sid" />
+          <ScalarProperty Name="countryinvestor" ColumnName="countryinvestor" />
+          <ScalarProperty Name="provinceinvestor" ColumnName="provinceinvestor" />
+          <ScalarProperty Name="typeinvestor" ColumnName="typeinvestor" />
+          <ScalarProperty Name="countrycpinvestor" ColumnName="countrycpinvestor" />
+          <ScalarProperty Name="provincecpinvestor" ColumnName="provincecpinvestor" />
+          <ScalarProperty Name="typecpinvestor" ColumnName="typecpinvestor" />
+          <ScalarProperty Name="flag_minute" ColumnName="flag_minute" />
+          <ScalarProperty Name="confirmation" ColumnName="confirmation" />
+          <ScalarProperty Name="sid_name" ColumnName="sid_name" />
+          <ScalarProperty Name="periode" ColumnName="periode" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="master_sid">
+      <EntityTypeMapping TypeName="DataModel.master_sid">
+        <MappingFragment StoreEntitySet="master_sid">
+          <ScalarProperty Name="sid" ColumnName="sid" />
+          <ScalarProperty Name="nama_sid" ColumnName="nama_sid" />
+          <ScalarProperty Name="system" ColumnName="system" />
+          <ScalarProperty Name="periode" ColumnName="periode" />
+          <ScalarProperty Name="lastsync" ColumnName="lastsync" />
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>
@@ -11152,6 +11939,17 @@ warning 6013: The table/view 'BDAPM.dbo.TestHWC' does not have a primary key def
           <ScalarProperty Name="mkbdpermkbdminimum" ColumnName="mkbdpermkbdminimum" />
           <ScalarProperty Name="cluster" ColumnName="cluster" />
           <ScalarProperty Name="periode" ColumnName="periode" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="src_sid">
+      <EntityTypeMapping TypeName="DataModel.src_sid">
+        <MappingFragment StoreEntitySet="src_sid">
+          <ScalarProperty Name="dm_periode" ColumnName="dm_periode" />
+          <ScalarProperty Name="rowid" ColumnName="rowid" />
+          <ScalarProperty Name="sid" ColumnName="sid" />
+          <ScalarProperty Name="nama_sid" ColumnName="nama_sid" />
+          <ScalarProperty Name="system" ColumnName="system" />
         </MappingFragment>
       </EntityTypeMapping>
     </EntitySetMapping>

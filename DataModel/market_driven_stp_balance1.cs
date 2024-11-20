@@ -13,16 +13,14 @@ using System.Collections.Generic;
 
 public partial class market_driven_stp_balance1
 {
-    public System.DateTime dm_periode { get; set; }
-    public long rowid { get; set; }
-    public Nullable<System.DateTime> tanggal_balance { get; set; }
+    public int tanggal_balance { get; set; }
     public string sid { get; set; }
     public string trading_id { get; set; }
     public string efek { get; set; }
     public string subrekening_efek { get; set; }
-    public Nullable<int> quantity { get; set; }
-    public Nullable<long> price { get; set; }
-    public Nullable<System.DateTime> periode { get; set; }
+    public double quantity { get; set; }
+    public double price { get; set; }
+    public int periode { get; set; }
 }
 
 }

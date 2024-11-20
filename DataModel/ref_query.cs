@@ -11,15 +11,11 @@ namespace BDA.DataModel
 using System;
 using System.Collections.Generic;
 
-public partial class osint_node_wordpair
+public partial class ref_query
 {
-    public long rowid { get; set; }
-    public System.DateTime dm_pperiode_scrapping { get; set; }
-    public string dm_key_word { get; set; }
-    public string dm_token { get; set; }
-    public string dm_score { get; set; }
-    public Nullable<int> dm_pday_scrapping { get; set; }
-    public string dm_pcategory_scrapping { get; set; }
+    public string table_id { get; set; }
+    public string table_sql { get; set; }
+    public string table_hive { get; set; }
 }
 
 }

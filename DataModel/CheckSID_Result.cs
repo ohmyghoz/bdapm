@@ -11,15 +11,8 @@ namespace BDA.DataModel
 using System;
 using System.Collections.Generic;
 
-public partial class log_monitoring_bda_slik_det
+public partial class CheckSID_Result
 {
-    public long row_id { get; set; }
-    public string segmentasi { get; set; }
-    public System.DateTime bulan_laporan { get; set; }
-    public Nullable<System.DateTime> tanggal_cetak { get; set; }
-    public Nullable<System.DateTime> tanggal_terima { get; set; }
-    public Nullable<decimal> selisih_waktu { get; set; }
-    public Nullable<System.DateTime> pyearmonth { get; set; }
 }
 
 }

@@ -19,7 +19,7 @@ public partial class ip_sid
     public string nama_sid { get; set; }
     public string trade_id { get; set; }
     public string ktp { get; set; }
-    public string sistem { get; set; }
+    public string system { get; set; }
     public string kitas_skd_number { get; set; }
     public string email { get; set; }
     public string ap4_mobile_phone { get; set; }
@@ -136,6 +136,8 @@ public partial class ip_sid
     public string valid_from { get; set; }
     public string valid_until { get; set; }
     public string is_active { get; set; }
+    public string periode { get; set; }
+    public string sre { get; set; }
 }
 
 }

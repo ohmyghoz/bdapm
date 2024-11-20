@@ -11,17 +11,8 @@ namespace BDA.DataModel
 using System;
 using System.Collections.Generic;
 
-public partial class osint_edge_wordpair
+public partial class decryptor_Result
 {
-    public long rowid { get; set; }
-    public System.DateTime dm_pperiode_scrapping { get; set; }
-    public string dm_key_word { get; set; }
-    public string dm_bigram { get; set; }
-    public string dm_freq { get; set; }
-    public string dm_node1 { get; set; }
-    public string dm_node2 { get; set; }
-    public Nullable<int> dm_pday_scrapping { get; set; }
-    public string dm_pcategory_scrapping { get; set; }
 }
 
 }

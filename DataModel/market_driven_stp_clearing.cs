@@ -11,16 +11,15 @@ namespace BDA.DataModel
 using System;
 using System.Collections.Generic;
 
-public partial class osint_tfidf_wordcloud
+public partial class market_driven_stp_clearing
 {
-    public long rowid { get; set; }
-    public System.DateTime dm_pperiode_scrapping { get; set; }
-    public string dm_key_word { get; set; }
-    public string dm_token { get; set; }
-    public string dm_score { get; set; }
-    public Nullable<int> dm_freq { get; set; }
-    public Nullable<int> dm_pday_scrapping { get; set; }
-    public string dm_pcategory_scrapping { get; set; }
+    public int clearingdatesk { get; set; }
+    public int settlementdatesk { get; set; }
+    public string investorid { get; set; }
+    public string securitycode { get; set; }
+    public string securitycompanycode { get; set; }
+    public string clearingobligationquantity { get; set; }
+    public int periode { get; set; }
 }
 
 }

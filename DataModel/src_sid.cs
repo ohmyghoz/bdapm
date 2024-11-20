@@ -11,16 +11,13 @@ namespace BDA.DataModel
 using System;
 using System.Collections.Generic;
 
-public partial class BDA_Log_PerMonth
+public partial class src_sid
 {
+    public System.DateTime dm_periode { get; set; }
     public long rowid { get; set; }
-    public string member_type_code { get; set; }
-    public string member_code { get; set; }
-    public Nullable<System.DateTime> periode { get; set; }
-    public string user_id { get; set; }
-    public Nullable<long> max_act_count { get; set; }
-    public Nullable<long> min_act_count { get; set; }
-    public Nullable<double> avg_act_count { get; set; }
+    public string sid { get; set; }
+    public string nama_sid { get; set; }
+    public string system { get; set; }
 }
 
 }
