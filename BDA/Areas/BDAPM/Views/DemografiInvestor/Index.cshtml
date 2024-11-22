@@ -22,7 +22,7 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-lg-3 form-group">
-                        <label>Tanggal<span class="mandatory">*</span></label>
+                        <label>Periode<span class="mandatory">*</span></label>
                         @(Html.DevExtreme().DateBox()
                             .ID("PeriodeAwal")
                             .DisplayFormat("dd MMM yyyy")
@@ -348,62 +348,54 @@
                 dataType: "json",
                 type: "GET",
                 success: function (data) {
-                    if (data.success == true) {
-                        $("#totalValueTraded").val(data.total);
-                        var chart1 = $("#ChartGender").dxChart("instance");
-                        var ds1 = DevExpress.data.AspNet.createStore({
-                            loadMethod: "GET",
-                            loadMode: "processed",
-                            loadUrl: '@Url.Action("getCHartGender")?periode=' + periodeAwal + '&pe=' + namaPE + '&origin=' + origin + '&tipeInvestor=' + tipeInvestor
-                        });
-                        chart1.option('dataSource', ds1);
+                    $("#totalValueTraded").val(data);
+                    var chart1 = $("#ChartGender").dxChart("instance");
+                    var ds1 = DevExpress.data.AspNet.createStore({
+                        loadMethod: "GET",
+                        loadMode: "processed",
+                        loadUrl: '@Url.Action("getCHartGender")?periode=' + periodeAwal + '&pe=' + namaPE + '&origin=' + origin + '&tipeInvestor=' + tipeInvestor
+                    });
+                    chart1.option('dataSource', ds1);
 
-                        var chart2 = $("#ChartUsia").dxChart("instance");
-                        var ds2 = DevExpress.data.AspNet.createStore({
-                            loadMethod: "GET",
-                            loadMode: "processed",
-                            loadUrl: '@Url.Action("getChartUsia")?periode=' + periodeAwal + '&pe=' + namaPE + '&origin=' + origin + '&tipeInvestor=' + tipeInvestor
-                        });
-                        chart2.option('dataSource', ds2);
+                    var chart2 = $("#ChartUsia").dxChart("instance");
+                    var ds2 = DevExpress.data.AspNet.createStore({
+                        loadMethod: "GET",
+                        loadMode: "processed",
+                        loadUrl: '@Url.Action("getChartUsia")?periode=' + periodeAwal + '&pe=' + namaPE + '&origin=' + origin + '&tipeInvestor=' + tipeInvestor
+                    });
+                    chart2.option('dataSource', ds2);
                         
-                        var chart3 = $("#ChartPendidikan").dxChart("instance");
-                        var ds3 = DevExpress.data.AspNet.createStore({
-                            loadMethod: "GET",
-                            loadMode: "processed",
-                            loadUrl: '@Url.Action("getChartPendidikan")?periode=' + periodeAwal + '&pe=' + namaPE + '&origin=' + origin + '&tipeInvestor=' + tipeInvestor
-                        });
-                        chart3.option('dataSource', ds3);
+                    var chart3 = $("#ChartPendidikan").dxChart("instance");
+                    var ds3 = DevExpress.data.AspNet.createStore({
+                        loadMethod: "GET",
+                        loadMode: "processed",
+                        loadUrl: '@Url.Action("getChartPendidikan")?periode=' + periodeAwal + '&pe=' + namaPE + '&origin=' + origin + '&tipeInvestor=' + tipeInvestor
+                    });
+                    chart3.option('dataSource', ds3);
 
-                        var chart4 = $("#ChartPekerjaanPie").dxPieChart("instance");
-                        var ds4 = DevExpress.data.AspNet.createStore({
-                            loadMethod: "GET",
-                            loadMode: "processed",
-                            loadUrl: '@Url.Action("getChartPekerjaan")?periode=' + periodeAwal + '&pe=' + namaPE + '&origin=' + origin + '&tipeInvestor=' + tipeInvestor
-                        });
-                        chart4.option('dataSource', ds4);
+                    var chart4 = $("#ChartPekerjaanPie").dxPieChart("instance");
+                    var ds4 = DevExpress.data.AspNet.createStore({
+                        loadMethod: "GET",
+                        loadMode: "processed",
+                        loadUrl: '@Url.Action("getChartPekerjaan")?periode=' + periodeAwal + '&pe=' + namaPE + '&origin=' + origin + '&tipeInvestor=' + tipeInvestor
+                    });
+                    chart4.option('dataSource', ds4);
 
-                        var chart5 = $("#ChartPekerjaanBar").dxChart("instance");
-                        var ds5 = DevExpress.data.AspNet.createStore({
-                            loadMethod: "GET",
-                            loadMode: "processed",
-                            loadUrl: '@Url.Action("getChartPekerjaan")?periode=' + periodeAwal + '&pe=' + namaPE + '&origin=' + origin + '&tipeInvestor=' + tipeInvestor
-                        });
-                        chart5.option('dataSource', ds5);
+                    var chart5 = $("#ChartPekerjaanBar").dxChart("instance");
+                    var ds5 = DevExpress.data.AspNet.createStore({
+                        loadMethod: "GET",
+                        loadMode: "processed",
+                        loadUrl: '@Url.Action("getChartPekerjaan")?periode=' + periodeAwal + '&pe=' + namaPE + '&origin=' + origin + '&tipeInvestor=' + tipeInvestor
+                    });
+                    chart5.option('dataSource', ds5);
 
-                        var chart6 = $("#ChartPenghasilan").dxTreeMap("instance");
-                        var ds6 = DevExpress.data.AspNet.createStore({
-                            loadMethod: "GET",
-                            loadMode: "processed",
-                            loadUrl: '@Url.Action("getChartPenghasilan")?periode=' + periodeAwal + '&pe=' + namaPE + '&origin=' + origin + '&tipeInvestor=' + tipeInvestor
-                        });
-                        chart6.option('dataSource', ds6);
-
-                        return "Success !";
-                    }
-                    else if (data.success == false) {
-                        alert(data.message);
-                        return "Failed !";
-                    }
+                    var chart6 = $("#ChartPenghasilan").dxTreeMap("instance");
+                    var ds6 = DevExpress.data.AspNet.createStore({
+                        loadMethod: "GET",
+                        loadMode: "processed",
+                        loadUrl: '@Url.Action("getChartPenghasilan")?periode=' + periodeAwal + '&pe=' + namaPE + '&origin=' + origin + '&tipeInvestor=' + tipeInvestor
+                    });
+                    chart6.option('dataSource', ds6);
                 }
             });
         }

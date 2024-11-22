@@ -1,5 +1,4 @@
-﻿@using DevExtreme.AspNet.Mvc
-@{
+﻿@{
     Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
     string reportId = "Segmentation_Summary_Cluster_MKBD";
     var p = (string[])ViewBag.period;
@@ -13,221 +12,215 @@
 {
     @Html.AntiForgeryToken()
 
-    <div class="card card-default">
+        <div class="card card-default">
         @*filter*@
-        <div class="row filter-panel" style="padding-top:0px;">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-lg-4 form-group">
-                        <label>Tanggal<span class="mandatory">*</span></label>
+            <div class="row filter-panel" style="padding-top:0px;">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-4 form-group">
+                            <label>Tanggal<span class="mandatory">*</span></label>
                         @(Html.DevExtreme().DateBox()
-                            .ID("PeriodeAwal")
-                            .DisplayFormat("dd MMM yyyy")
-                            //.Value(periodeAwal1 == null ? DateTime.Now : periodeAwal1)
-                            .Value(DateTime.Now)
-                            .Max(DateTime.Now)
-                            .Width("100%"))
-                    </div>
+                                .ID("PeriodeAwal")
+                                .DisplayFormat("dd MMM yyyy")
+                                .Value(DateTime.Now)
+                                .Max(DateTime.Now)
+                                .Width("100%"))
+                        </div>
 
-                    <div class="col-lg-4 form-group">
-                        <label>Nama PE</label>
+                        <div class="col-lg-4 form-group">
+                            <label>Nama PE</label>
                         @(Html.DevExtreme().SelectBox()
-                            .ID("namaPEid")
-                            .DataSource(d => d.Mvc()
-                            .Controller("SegmentationSummaryClusterMKBD")
-                            .Area("BDAPM")
-                            .LoadAction("GetNamaPE")
-                            .Key("value"))
-                            .ValueExpr("value")
-                            .DisplayExpr("text")
-                            .SearchEnabled(true)
-                            .Width("100%")
-                            )
-                    </div>
+                                .ID("namaPEid")
+                                .DataSource(d => d.Mvc()
+                                .Controller("SegmentationSummaryClusterMKBD")
+                                .Area("BDAPM")
+                                .LoadAction("GetNamaPE")
+                                .Key("value"))
+                                .ValueExpr("value")
+                                .DisplayExpr("text")
+                                .SearchEnabled(true)
+                                .Width("100%")
+                                .Placeholder("(ALL)")
+                                )
+                        </div>
 
-                    <div class="col-lg-4 form-group">
-                        <label>Status@*<span class="mandatory">*</span>*@</label>
+                        <div class="col-lg-4 form-group">
+                            <label>Status@*<span class="mandatory">*</span>*@</label>
                         @(Html.DevExtreme().TagBox()
-                            .ID("Statusid")
-                            .DataSource(new[] { "Alert", "Normal" })
-                            .ShowSelectionControls(true)
-                            .MaxDisplayedTags(3)
-                            .SearchEnabled(true)
-                            .OnSelectionChanged("onSelectionChanged")
-                            .Width("100%"))
+                                .ID("Statusid")
+                                .DataSource(new[] { "Alert", "Normal" })
+                                .ShowSelectionControls(true)
+                                .MaxDisplayedTags(3)
+                                .SearchEnabled(true)
+                                .OnSelectionChanged("onSelectionChanged")
+                                .Width("100%")
+                                .Placeholder("(ALL)")
+                                )
+                        </div>
+
                     </div>
 
-                </div>
-
-                <div class="float-left">
+                    <div class="float-left">
                     @(Html.DevExtreme().Button()
-                        .ID("Filter")
-                        .Type(ButtonType.Default)
-                        .Text("Tampilkan")
-                        .OnClick("onButtonFilterClicked")
-                        .ValidationGroup("Filter"))
+                            .ID("Filter")
+                            .Type(ButtonType.Default)
+                            .Text("Tampilkan")
+                            .OnClick("onButtonFilterClicked")
+                            .ValidationGroup("Filter"))
+                    </div>
                 </div>
-
-@*                 <div class="float-right">
-                    @if (ViewBag.Export)
-                    {
-                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();"><span class="image fa fa-file-excel"></span> Export Excel</a>
-                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
-                    }
-                </div> *@
             </div>
-        </div>
-        <div class="row">
-            <div class="col-lg-6">
+            <div class="row">
+                <div class="col-lg-6">
                 @(Html.DevExtreme().PieChart()
-                    .ID("pie-chart")
-                    .Type(PieChartType.Donut)
-                    .Palette(VizPalette.Carmine)
-                    .Title("Jumlah Cluster")
-                    .Legend(l => l
-                    .HorizontalAlignment(HorizontalAlignment.Right)
-                    .VerticalAlignment(VerticalEdge.Top)
-                    .Margin(0)
-                    )
-                    .Export(e => e.Enabled(true))
-                    .Series(s => s
-                    .Add()
-                    .ArgumentField("status")
-                    .ValueField("total")
-                    .Label(l => l
-                    .Visible(true)                   
-                    .Connector(c => c.Visible(true))
-                    ))
-                    .DataSource(d => d.Mvc()
-                    .Controller("SegmentationSummaryClusterMKBD")
-                    .LoadAction("GetChartClusterSearch")
-                    .OnBeforeSend("onGridBeforeSend")))
-            </div>
+                        .ID("pie-chart")
+                        .Type(PieChartType.Donut)
+                        .Palette(VizPalette.Carmine)
+                        .Title("Jumlah Cluster")
+                        .Legend(l => l
+                        .HorizontalAlignment(HorizontalAlignment.Right)
+                        .VerticalAlignment(VerticalEdge.Top)
+                        .Margin(0)
+                        )
+                        .Export(e => e.Enabled(true))
+                        .Series(s => s
+                        .Add()
+                        .ArgumentField("status")
+                        .ValueField("total")
+                        .Label(l => l
+                        .Visible(true)
+                        .Connector(c => c.Visible(true))
+                        ))
+                        .DataSource(d => d.Mvc()
+                        .Controller("SegmentationSummaryClusterMKBD")
+                        .LoadAction("GetChartClusterSearch")
+                        .OnBeforeSend("onGridBeforeSend")))
+                </div>
 
-            <div class="col-lg-6">
+                <div class="col-lg-6">
                 @(Html.DevExtreme().Chart()
-                    .ID("bar-chart")
-                    .Title("Cluster PE Berdasarkan Persentase MKBD dibandingkan MKBD Dipersyaratkan")
-                    .Export(e => e.Enabled(true))
-                    .Series(s => s
-                    .Add()
-                    .ArgumentField("cluster")
-                    .ValueField("total")
-                    .Name("Cluster PE")
-                    .Type(SeriesType.Bar)
-                    .Color("#f5403d")
-                    .Label(l => l
-                    .Visible(true)
-                    .Format(f => f
-                    .Type(Format.FixedPoint)
-                    .Precision(0))))
-                    .DataSource(d => d.Mvc()
-                    .Controller("SegmentationSummaryClusterMKBD")
-                    .LoadAction("GetChartClusterBarSearch")
-                    .OnBeforeSend("onGridBeforeSend")))
+                        .ID("bar-chart")
+                        .Title("Cluster PE Berdasarkan Persentase MKBD dibandingkan MKBD Dipersyaratkan")
+                        .Export(e => e.Enabled(true))
+                        .Series(s => s
+                        .Add()
+                        .ArgumentField("cluster")
+                        .ValueField("total")
+                        .Name("Cluster PE")
+                        .Type(SeriesType.Bar)
+                        .Color("#f5403d")
+                        .Label(l => l
+                        .Visible(true)
+                        .Format(f => f
+                        .Type(Format.FixedPoint)
+                        .Precision(0))))
+                        .DataSource(d => d.Mvc()
+                        .Controller("SegmentationSummaryClusterMKBD")
+                        .LoadAction("GetChartClusterBarSearch")
+                        .OnBeforeSend("onGridBeforeSend")))
+                </div>
             </div>
-        </div>
-        <br />
-        <br />
+            <br />
+            <br />
         @*grid*@
-        <div class="row filter-panel" style="padding-top:0px;">
-            <div class="card-body">
-                <div class="float-right">
+            <div class="row filter-panel" style="padding-top:0px;">
+                <div class="card-body">
+                    <div class="float-right">
                     @if (ViewBag.Export)
                     {
-                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcelIndex();"><span class="image fa fa-file-excel"></span> Export Excel</a>
-                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdfIndex();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcelIndex();"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdfIndex();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
                     }
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="gridview-div">
+            <div class="gridview-div">
             @(Html.DevExtreme().DataGrid()
-                .ID("grid1")
-                .ShowBorders(true).Width("100%").ShowColumnLines(true).ShowRowLines(true)
-                .DataSource(d => d.Mvc()
-                .Controller("SegmentationSummaryClusterMKBD")
-                .LoadAction("GetGridData")
-                .Key("securitycompanycode")
-                .OnBeforeSend("onGridBeforeSend"))
-                .RemoteOperations(true)
-                .Width("100%")
-                .AllowColumnResizing(true)
-                .ColumnAutoWidth(true)
-                .WordWrapEnabled(true)
-                .Columns(columns =>
-                {
-                    columns.Add().DataField("no").Caption("No.").Alignment(HorizontalAlignment.Center);
-                    columns.Add().DataField("securitycompanycode").Caption("Kode PE").Alignment(HorizontalAlignment.Center);
-                    columns.Add().DataField("securitycompanyname").Caption("Nama PE").Width(300);
-                    columns.Add().DataField("simpanangiro").Caption("Simpanan Giro").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
-                    columns.Add().DataField("depositolt3bulan").Caption("Deposito < 3 Bulan").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
-                    columns.Add().DataField("depositogt3bulandijaminlps").Caption("Deposito > 3 Bulan Dijamin LPS").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
-                    columns.Add().DataField("uangjaminanlkp").Caption("Uang Jaminan LKP").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
-                    columns.Add().DataField("kasdansetarakas").Caption("Kas dan Setara Kas (Simpanan Giro + Deposito < 3 Bulan + Uang Jaminan LKP)").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
-                    columns.Add().DataField("mkbd").Caption("MKBD").Format("#,##0").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0"); 
-                    columns.Add().DataField("mkbdminimum").Caption("MKBD Minimum").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0"); 
-                    columns.Add().DataField("mkbdpermkbdminimum").Caption("MKBD Terhadap MKBD Minimum").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
-                    @* columns.Add().DataField("status").Caption("Status"); *@
-                    columns.Add().DataField("status").Visible(false);
-                    columns.Add().Type(GridCommandColumnType.Buttons).Caption("Action").Buttons(b =>
+                    .ID("grid1")
+                    .ShowBorders(true).Width("100%").ShowColumnLines(true).ShowRowLines(true)
+                    .DataSource(d => d.Mvc()
+                    .Controller("SegmentationSummaryClusterMKBD")
+                    .LoadAction("GetGridData")
+                    .Key("securitycompanycode")
+                    .OnBeforeSend("onGridBeforeSend"))
+                    .RemoteOperations(true)
+                    .Width("100%")
+                    .AllowColumnResizing(true)
+                    .ColumnAutoWidth(true)
+                    .WordWrapEnabled(true)
+                    .Columns(columns =>
                     {
-                        b.Add()
-                    .Hint("Detail")
-                    .Icon("detailslayout")
-                    .OnClick("Detail");
-                    });
-                })
-                .FilterRow(f => f.Visible(true))
-                .ShowBorders(false)
-                .Paging(p =>
-                {
-                    p.PageSize(20);
-                    p.Enabled(true);
-                })
-                .Pager(p =>
-                {
-                    p.ShowInfo(true);
-                }))
-        </div>
+                        columns.Add().DataField("no").Caption("No.").Alignment(HorizontalAlignment.Center);
+                        columns.Add().DataField("securitycompanycode").Caption("Kode PE").Alignment(HorizontalAlignment.Center);
+                        columns.Add().DataField("securitycompanyname").Caption("Nama PE").Width(300);
+                        columns.Add().DataField("simpanangiro").Caption("Simpanan Giro").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+                        columns.Add().DataField("depositolt3bulan").Caption("Deposito < 3 Bulan").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+                        columns.Add().DataField("depositogt3bulandijaminlps").Caption("Deposito > 3 Bulan Dijamin LPS").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+                        columns.Add().DataField("uangjaminanlkp").Caption("Uang Jaminan LKP").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+                        columns.Add().DataField("kasdansetarakas").Caption("Kas dan Setara Kas (Simpanan Giro + Deposito < 3 Bulan + Uang Jaminan LKP)").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+                        columns.Add().DataField("mkbd").Caption("MKBD").Format("#,##0").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+                        columns.Add().DataField("mkbdminimum").Caption("MKBD Minimum").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+                        columns.Add().DataField("mkbdpermkbdminimum").Caption("MKBD Terhadap MKBD Minimum").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+                        @* columns.Add().DataField("status").Caption("Status"); *@
+                        columns.Add().DataField("status").Visible(false);
+                        columns.Add().Type(GridCommandColumnType.Buttons).Caption("Action").Buttons(b =>
+                        {
+                            b.Add()
+                        .Hint("Detail")
+                        .Icon("detailslayout")
+                        .OnClick("Detail");
+                        });
+                    })
+                    .FilterRow(f => f.Visible(true))
+                    .ShowBorders(false)
+                    .Paging(p =>
+                    {
+                        p.PageSize(20);
+                        p.Enabled(true);
+                    })
+                    .Pager(p =>
+                    {
+                        p.ShowInfo(true);
+                    }))
+            </div>
 
-        <!-- The Modal  Detail-->
-        <div class="modal fade" id="ModalSimpanPenggunaanData" tabindex="-1" role="document" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header" style="background-color:#0066b2">
-                        <h4 class="modal-title" style="text-align:left">
-                            <font color="white">Pilih Penggunaan Data</font>
-                        </h4>
-                    </div><!--Modal Header-->
-                    <!-- Modal body -->
-                    <div class="modal-body">
-                        <form id="StrukturFormDetail" method="POST" action="" class="form-horizontal row-border">
-                            <div class="row" style="padding: 0 10px 0 10px;">
+            <!-- The Modal  Detail-->
+            <div class="modal fade" id="ModalSimpanPenggunaanData" tabindex="-1" role="document" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header" style="background-color:#0066b2">
+                            <h4 class="modal-title" style="text-align:left">
+                                <font color="white">Pilih Penggunaan Data</font>
+                            </h4>
+                        </div><!--Modal Header-->
+                        <!-- Modal body -->
+                        <div class="modal-body">
+                            <form id="StrukturFormDetail" method="POST" action="" class="form-horizontal row-border">
+                                <div class="row" style="padding: 0 10px 0 10px;">
                                 @(Html.DevExtreme().SelectBox()
-                                    .ID("penggunaandataid")
-                                    .DataSource(d => d.Mvc()
-                                    .Controller("PenggunaanData")
-                                    .Area("Website")
-                                    .LoadAction("GetPenggunaanData")
-                                    .Key("value"))
-                                    .ValueExpr("value")
-                                    .DisplayExpr("text")
-                                    .SearchEnabled(true)
-                                    .Width("100%")
-                                    )
-                            </div>
-                        </form>
-                    </div>
-                    <!-- Modal footer -->
-                    <div class="modal-footer">
-                        <button type="button" id="btnSavePenggunaanData" class="btn btn-primary" data-bs-dismiss="modal"><i class='fa fa-save'></i> Save</button>
+                                        .ID("penggunaandataid")
+                                        .DataSource(d => d.Mvc()
+                                        .Controller("PenggunaanData")
+                                        .Area("Website")
+                                        .LoadAction("GetPenggunaanData")
+                                        .Key("value"))
+                                        .ValueExpr("value")
+                                        .DisplayExpr("text")
+                                        .SearchEnabled(true)
+                                        .Width("100%")
+                                        )
+                                </div>
+                            </form>
+                        </div>
+                        <!-- Modal footer -->
+                        <div class="modal-footer">
+                            <button type="button" id="btnSavePenggunaanData" class="btn btn-primary" data-bs-dismiss="modal"><i class='fa fa-save'></i> Save</button>
+                        </div>
                     </div>
                 </div>
             </div>
+            <!-- The Modal  Detail-->
         </div>
-        <!-- The Modal  Detail-->
-    </div>
 }
 
 <script>
@@ -268,12 +261,12 @@
         });
     });
 
-    
+
 
     $(function () {
         const startDate = $("#PeriodeAwal").dxDateBox({
             onValueChanged: function (e) {
-                endDate.option("min", e.value);
+
             }
         }).dxDateBox("instance");
 
@@ -316,12 +309,12 @@
                 success: function (data) {
                     if (data.success == true) {
                         //alert(data.message);
-                        @* waitingDialog.hide(); *@
+    @* waitingDialog.hide(); *@
                         $('#ModalSimpanPenggunaanData').modal('hide');
                         return "Saving Success !";
                     }
                     else if (data.success == false) {
-                       @*  waitingDialog.hide(); *@
+    @*  waitingDialog.hide(); *@
                         alert(data.message);
                         $('#ModalSimpanPenggunaanData').modal('hide');
                         return "Saving Failed !";
@@ -429,13 +422,13 @@
         let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
         let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
         let status = $("#Statusid").dxTagBox("instance").option("value");
-        
+
 
         let periodeAwal = null;
         if (tempPeriodeAwal != null) {
             periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
         }
-        
+
         ajaxOptions.data.periodeAwal = periodeAwal;
         ajaxOptions.data.namaPE = namaPE;
         ajaxOptions.data.status = JSON.stringify(status);
@@ -454,7 +447,7 @@
             periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
         }
 
-        
+
         var keys = e.row.key;
         if (typeof (keys) !== "undefined" && typeof (keys) !== null) {
             window.open('@Url.Action("Detail", "SegmentationSummaryClusterMKBD")?id=' + keys.toString() + '&periodeAwal=' + periodeAwal);            

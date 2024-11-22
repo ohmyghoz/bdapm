@@ -23,10 +23,7 @@ namespace BDA.Helper.FW
 
             if (loadOptions.Filter != null && loadOptions.Filter.Count > 0)
             {
-
-                //var insideWhereQuery = GetSqlExprByArray(loadOptions.Filter.Cast<object>().ToArray(), props.SqlParameters);
-                JArray filterList = JArray.FromObject(loadOptions.Filter.Cast<object>().ToArray());
-                var insideWhereQuery = GetSqlExprByArray(filterList.ToObject<object[]>(), props.SqlParameters);
+                var insideWhereQuery = GetSqlExprByArray(loadOptions.Filter.Cast<object>().ToArray(), props.SqlParameters);
                 props.CountQuery = "SELECT count(*) from (" + Environment.NewLine + props.Query + Environment.NewLine + ") cwhere" +
                    Environment.NewLine + "WHERE " + insideWhereQuery;
 
@@ -476,8 +473,7 @@ namespace BDA.Helper.FW
             int index = 0;
             foreach (var item in expression)
             {
-                string nameObj = item.GetType().Name;
-                //Console.WriteLine(nameObj);
+                Console.WriteLine(item.GetType().Name);
                 if (item.GetType().Name == "String")
                 {
                     prevItemWasArray = false;
@@ -499,7 +495,6 @@ namespace BDA.Helper.FW
                     continue;
                 }
 
-                
 
                 if (item.GetType().Name == "JArray")
                 {

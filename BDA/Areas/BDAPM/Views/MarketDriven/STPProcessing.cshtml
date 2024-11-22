@@ -73,9 +73,7 @@
         </div>
        
         <br />
-        
         @*grid*@
-        
         <div class="row filter-panel" style="padding-top:0px;"> 
             <div class="card-body">
                 <div class="row">
@@ -248,48 +246,12 @@
                             <h4 class="headerTable">Transaction</h4>
                         </div>
                         <div class="row">
-                            @(Html.DevExtreme().DataGrid()
-                                .ID("grid4")
-                                .DataSource(new[] {
-                        new { rowid = 1, date = "06/10/2023", date3 = "03/10/2023", sid = "IDD260110001523", companycode = "DH", clearingobli = 275000 },
-                        new { rowid = 2, date = "06/10/2023", date3 = "03/10/2023", sid = "IDD260110001523", companycode = "DH", clearingobli = 242500 },
-                        new { rowid = 3, date = "06/10/2023", date3 = "03/10/2023", sid = "IDD260110001523", companycode = "DH", clearingobli = 298000 }
-                        })
-
-                                .KeyExpr("rowid")
-                                .RemoteOperations(true)
-                                .Width("100%")
-                                .AllowColumnResizing(true)
-                                .ColumnAutoWidth(true)
-                                .Columns(columns =>
-                                {
-                                    columns.Add().DataField("rowid").Visible(false);
-                                    columns.Add().DataField("date").Caption("Tanggal Settlement");
-                                    columns.Add().DataField("date3").Caption("Tanggal Clearing");
-                                    columns.Add().DataField("sid").Caption("SID");
-                                    columns.Add().DataField("companycode").Caption("Security Company Code");
-                                    columns.Add().DataField("clearingobli").Caption("Clearing Obligation");
-                                })
-                                .FilterRow(f => f.Visible(true))
-                                .ShowBorders(true)
-                                .Scrolling(s => s.ShowScrollbar(ShowScrollbarMode.Always))
-                                .Paging(p =>
-                                {
-                                    p.PageSize(5);
-                                    p.Enabled(true);
-                                })
-                                .Pager(p =>
-                                {
-                                    p.ShowInfo(true);
-                                }))
-                        </div>
-                        <div class="row">
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-     
+       
 
     </div> <!-- Closing the card div -->
     <!-- The Modal  Detail-->
@@ -453,15 +415,12 @@
         }
     }
 
- 
-
-
-        function onButtonFilterClicked() {
-            var tradingId = document.getElementById('tradingIdInput').value;
-            var grid = $('#grid1').dxDataGrid('instance');
-            grid.filter(['tradingid', '=', tradingId]);
+    function onButtonFilterClicked(e) {
+        const res = e.validationGroup.validate();
+        if (res.status === "valid") {
+            $("#grid1").dxDataGrid("instance").refresh();
         }
-
+    }
 
     function onGridBeforeSend(method, ajaxOptions) {
         let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");

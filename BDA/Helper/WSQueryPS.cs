@@ -279,7 +279,7 @@ namespace BDA.Helper
             var props = new WSQueryProperties();
 
             props.Query = @"
-                    select mkbdaccountname Akun, mkbdaccountbalance Nilai From pasarmodal.pe_segmentation_pendanaan_per_mkbd 
+                    select mkbdaccountname as Akun, cast(mkbdaccountbalance as bigint) as Nilai From pasarmodal.pe_segmentation_pendanaan_per_mkbd 
                     WHERE " + whereQuery + "  and mkbdaccountname <> '' order by sort_no asc";
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
@@ -304,7 +304,7 @@ namespace BDA.Helper
             var props = new WSQueryProperties();
 
             props.Query = @"
-                    select mkbdaccountname_mkbd Akun, mkbdaccountbalance_mkbd Nilai From pasarmodal.pe_segmentation_pendanaan_per_mkbd 
+                    select mkbdaccountname_mkbd as Akun, cast(mkbdaccountbalance_mkbd as bigint) as Nilai From pasarmodal.pe_segmentation_pendanaan_per_mkbd 
                     WHERE " + whereQuery + "  and mkbdaccountname_mkbd <> '' order by sort_no asc";
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
@@ -341,7 +341,7 @@ namespace BDA.Helper
             var props = new WSQueryProperties();
 
             props.Query = @"
-                    select jenis_kelamin gender, cast(sum(investortotalvalue) as bigint) total from pasarmodal.basis_investor_pe
+                    select jenis_kelamin gender, cast(sum(investortotalvalue) as bigint) as total from pasarmodal.basis_investor_pe
                     WHERE " + whereQuery + @" group by jenis_kelamin";
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
@@ -378,7 +378,7 @@ namespace BDA.Helper
             var props = new WSQueryProperties();
 
             props.Query = @"
-                    select golonganusia ageRange, cast(sum(investortotalvalue) as bigint) total from pasarmodal.basis_investor_pe
+                    select golonganusia ageRange, cast(sum(investortotalvalue) as bigint) as total from pasarmodal.basis_investor_pe
                     WHERE " + whereQuery + @" group by golonganusia order by count(*) desc";
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
@@ -415,7 +415,7 @@ namespace BDA.Helper
             var props = new WSQueryProperties();
 
             props.Query = @"
-                    select pendidikan, cast(sum(investortotalvalue) as bigint) total from pasarmodal.basis_investor_pe
+                    select pendidikan, cast(sum(investortotalvalue) as bigint) as total from pasarmodal.basis_investor_pe
                     WHERE " + whereQuery + @" group by pendidikan order by count(*) desc";
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
@@ -452,7 +452,7 @@ namespace BDA.Helper
             var props = new WSQueryProperties();
 
             props.Query = @"
-                    select pekerjaan occupation, cast(sum(investortotalvalue) as bigint) total from pasarmodal.basis_investor_pe
+                    select pekerjaan occupation, cast(sum(investortotalvalue) as bigint) as total from pasarmodal.basis_investor_pe
                     WHERE " + whereQuery + @" group by pekerjaan order by count(*) desc";
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
@@ -526,7 +526,7 @@ namespace BDA.Helper
             var props = new WSQueryProperties();
 
             props.Query = @"
-                    select cast(sum(investortotalvalue) as bigint) total from pasarmodal.basis_investor_pe
+                    select cast(sum(investortotalvalue) as bigint) as total from pasarmodal.basis_investor_pe
                     WHERE " + whereQuery;
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);

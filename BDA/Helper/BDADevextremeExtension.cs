@@ -4,12 +4,10 @@ using DevExtreme.AspNet.Mvc;
 using DevExtreme.AspNet.Mvc.Builders;
 using System;
 using System.Collections.Generic;
-using System.Dynamic;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Xml.XPath;
 
 namespace BDA.Helper
 {
@@ -2552,26 +2550,12 @@ namespace BDA.Helper
             var regex = new Regex(@"\Aip_relation");
             var regexRel = new Regex(@"\Arelation|\Asuspect");
 
-            grid.Columns(c => c.Add().Caption("No").Width(50).Visible(true).AllowFiltering(false).CellTemplate(new JS("GetRowNumber")));
-
-            /*
-            grid.CustomUnboundColumnData += (sender, e) =>
-            {
-                if (e.Column.FieldName == "No")
-                {
-                    e.DisplayText = e.RowHandle.ToString();                    
-                }
-            };
-            */
-
-
             var list = db.vw_TableDictionary.Where(x => x.TableName == kode).ToList();
 
             foreach (var row in list)
             {
                 //string left7 = "";
                 bool isInput = false;
-                bool allowFilter = true;
                 var caption = cultInfo.ToTitleCase(row.ColumnName.Replace("dm_", "").Replace("_", " "));
                 caption = caption.Replace("Ljk", "LJK");
                 caption = caption.Replace("Cif", "CIF");
@@ -2621,14 +2605,9 @@ namespace BDA.Helper
 
                     if (row.ColumnName == "sid")
                     {
-                        caption = "Nomor SID";
                         width = 130;
                         visible = true;
                     }
-
-                    if (row.ColumnName == "ktp") caption = "Nomor KTP";
-                    if (row.ColumnName == "npwp") caption = "Nomor NPWP";
-                    if (row.ColumnName == "trade_id") caption = "Trading ID";
 
 
                     if (row.ColumnName == "nama_sid")
@@ -2636,13 +2615,12 @@ namespace BDA.Helper
                         caption = "Nama SID";
                         width = 300;
                         visible = true;
-                        allowFilter = false;
                     }
 
                     if (row.ColumnName == "accountbalancestatuscode") caption = "Balance Status";
                     if (row.ColumnName == "rekening_status") caption = "Account Status";
                     if (row.ColumnName == "securityname") caption = "Nama Efek";
-                    if (row.ColumnName == "securitycode") caption = "Kode Efek";
+                    if (row.ColumnName == "securitycode") continue;
 
                     if (kode == "ip_sid")
                     {
@@ -2740,14 +2718,10 @@ namespace BDA.Helper
                         {
                             string ct = "<text><a href=\"ip_sid?detailsid=<%- data.lem %>\"><%- value %></a></text>";
                             grid.Columns(c => c.Add().Caption(caption).DataField(row.ColumnName).Width(width).Visible(visible).DataType(colDataType).Format(format).CellTemplate(ct));
-
-                        }
-                        else if (row.ColumnName == "trade_id")
-                        {
-                            grid.Columns(c => c.Add().Caption(caption).DataField(row.ColumnName).Width(width).Visible(visible).DataType(colDataType).Format(format).AllowFiltering(allowFilter).VisibleIndex(2));
+                            
                         }
                         else
-                            grid.Columns(c => c.Add().Caption(caption).DataField(row.ColumnName).Width(width).Visible(visible).DataType(colDataType).Format(format).AllowFiltering(allowFilter));
+                            grid.Columns(c => c.Add().Caption(caption).DataField(row.ColumnName).Width(width).Visible(visible).DataType(colDataType).Format(format));
                     }
                 }
             }

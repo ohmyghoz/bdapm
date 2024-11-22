@@ -15,13 +15,14 @@
 {
     @Html.AntiForgeryToken()
     <input type="hidden" id="province" value="" />
+    <input type="hidden" id="captionLB" value="Province" />
     <div class="card card-default">
         @*filter*@
         <div class="row filter-panel" style="padding-top:0px;">
             <div class="card-body">
                 <div class="row">
                     <div class="col-lg-2 form-group">
-                        <label>Tanggal<span class="mandatory">*</span></label>
+                        <label>Periode<span class="mandatory">*</span></label>
                         @(Html.DevExtreme().DateBox()
                             .ID("PeriodeAwal")                            
                             .DisplayFormat("MMM yyyy")
@@ -33,7 +34,7 @@
                     </div>
 
                     <div class="col-lg-2 form-group">
-                        <label>Nama PE</label>
+                        <label>PE</label>
                         @(Html.DevExtreme().SelectBox()
                             .ID("namaPEid")
                             .DataSource(d => d.Mvc()
@@ -195,7 +196,7 @@
                                     {
                                         c.Add().Caption("Largest").Columns(a =>
                                         {
-                                            a.Add().DataField("Lokasi");
+                                            a.Add().DataField("Lokasi").Caption(new JS("function() { return $(\"#captionLB\").val();}"));
                                             a.Add().DataField("InvestorType");
                                             a.Add().DataField("Value").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
                                         }
@@ -229,7 +230,7 @@
                             {
                                 c.Add().Caption("Lowest").Columns(a =>
                                 {
-                                    a.Add().DataField("Lokasi");
+                                    a.Add().DataField("Lokasi").Caption(new JS("function() { return $(\"#captionLB\").val();}"));
                                     a.Add().DataField("InvestorType");
                                     a.Add().DataField("Value").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
                                 }
@@ -503,6 +504,8 @@
             $("#province").val("");
         }
 
+        updateCaptionLB();
+
         var dataGrid = $("#gridLBLargest").dxDataGrid("instance").refresh();
         var dataGrid2 = $("#gridLBLowest").dxDataGrid("instance").refresh();
         
@@ -584,6 +587,15 @@
 
     function vectorMap_bubblesLegend_customizeItems(items) {
         return items.reverse();
+    }
+
+    function updateCaptionLB() { 
+        var caption = "Provinsi";
+        if ($("#province").val() == "") { 
+            caption = "City";
+        }
+
+        $("#captionLB").val(caption);
     }
 
 </script>

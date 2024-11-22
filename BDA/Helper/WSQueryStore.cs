@@ -1,11 +1,8 @@
 ﻿using BDA.DataModel;
 using BDA.Helper.FW;
 using DevExpress.Data.Extensions;
-using DevExpress.XtraCharts.Native;
 using DevExpress.XtraRichEdit;
 using DevExtreme.AspNet.Mvc;
-using Microsoft.AspNetCore.Http;
-using Microsoft.CodeAnalysis.Elfie.Diagnostics;
 using Org.BouncyCastle.Asn1.Mozilla;
 using System;
 using System.Collections.Generic;
@@ -96,31 +93,6 @@ namespace BDA.Helper
             if (s.Length < 2) return s;
             int idx = Array.IndexOf(keyName, s.Substring(0, 1));
             return ((idx >= 0 ? idx.ToString(): s.Substring(0, 1)) + s.Substring(1)).Replace("O", "IOII").Replace("A", "IOOI").Replace("U", "IIOO").Replace("E", "IOIO");            
-        }
-        #endregion
-
-        #region SimpleQuery
-        private static WSQueryReturns ExecuteSimpleSQL(string connString, string queryString)
-        {
-            var result = new WSQueryReturns();
-            using (var conn = new SqlConnection(connString))
-            {
-                string countQuery = @"select count(*) from (" + queryString + @") cntquery";
-                using (var cmd = new SqlCommand(countQuery, conn))
-                {
-                    cmd.CommandTimeout = 300;
-                    conn.Open();
-                    var dt = new DataTable();
-                    if (result.totalCount == null || result.totalCount > 0) //hemat 1 kali call 
-                    {
-                        cmd.CommandText = queryString;
-                        var adap = new SqlDataAdapter(cmd);
-                        adap.Fill(dt);
-                    }
-                    result.data = dt;
-                }
-                return result;
-            }
         }
         #endregion
 
@@ -5164,7 +5136,7 @@ namespace BDA.Helper
                             cast(cast(total_balance as BIGINT)  as string) as total_balance,
                             cast(cast(total_aset_lancar as BIGINT)  as string) as total_aset_lancar,
                             cast(cast(persentase as BIGINT)  as string) as persentase,
-                            cast(cast(fairmarketvalue as BIGINT)  as string) as fairmarketvalue,flag,periode
+                            CASE WHEN cast(cast(fairmarketvalue as BIGINT) as string) is null then '0' else cast(cast(fairmarketvalue as BIGINT) as string) END as fairmarketvalue,flag,periode
                         FROM pasarmodal." + tableName + @" x
                         WHERE " + whereQuery + @"";
                 }
@@ -5208,7 +5180,7 @@ namespace BDA.Helper
                         SELECT row_number() over(order by securitycompanycode) as no,
                             calendardate,securitycompanysk,securitycompanycode,securitycompanyname,securitysk,securitycode,securitytypename,
                             affiliated,nominalsheet,acquisitionprice,fairmarketprice,
-                            cast(cast(fairmarketvalue as BIGINT)  as string) as fairmarketvalue,gainperloss,
+                            CASE WHEN cast(cast(fairmarketvalue as BIGINT) as string) is null then '0' else cast(cast(fairmarketvalue as BIGINT) as string) END as fairmarketvalue,gainperloss,
                             cast(cast(fairmarketvaluepertotalporto as BIGINT)  as string) as fairmarketvaluepertotalporto,entitygroup,marketvaluepercentage,
                             cast(cast(liabilitiesrankingvalue as BIGINT)  as string) as liabilitiesrankingvalue,periode 
                         from pasarmodal." + tableName + @" x
@@ -5253,7 +5225,7 @@ namespace BDA.Helper
                     props.Query = @"
                         SELECT 
                             calendardate,securitycompanysk,securitycompanycode,securitycompanyname,mkbdvd510accountsk,mkbdvd510accountcode,mkbdvd510description,
-                            cast(cast(fairmarketvalue as BIGINT)  as string) as fairmarketvalue,
+                            CASE WHEN cast(cast(fairmarketvalue as BIGINT) as string) is null then '0' else cast(cast(fairmarketvalue as BIGINT) as string) END as fairmarketvalue,
                             cast(cast(liabilitiesrankingvalue as BIGINT)  as string) as liabilitiesrankingvalue,periode 
                             from pasarmodal." + tableName + @" x
                         WHERE " + whereQuery + @"";
@@ -5380,7 +5352,7 @@ namespace BDA.Helper
                 {
                     props.Query = @"
                         Select row_number() over(order by securitycompanycode) as no,calendardate,securitycompanysk,securitycompanycode,securitycompanyname,securitysk,securitycode,securityname,volume,price,
-                            cast(cast(fairmarketvalue as BIGINT)  as string) as fairmarketvalue,periode 
+                            CASE WHEN cast(cast(fairmarketvalue as BIGINT) as string) is null then '0' else cast(cast(fairmarketvalue as BIGINT) as string) END as fairmarketvalue,periode 
                         from pasarmodal." + tableName + @" x
                         WHERE " + whereQuery + @"";
                 }
@@ -5421,7 +5393,7 @@ namespace BDA.Helper
                 {
                     props.Query = @"
                         select calendardate,securitycompanysk,securitycompanycode,securitycompanyname,mkbdvd510accountsk,mkbdvd510accountcode,mkbdvd510description,
-                            cast(cast(fairmarketvalue as BIGINT)  as string) as fairmarketvalue,periode 
+                            CASE WHEN cast(cast(fairmarketvalue as BIGINT) as string) is null then '0' else cast(cast(fairmarketvalue as BIGINT) as string) END as fairmarketvalue,periode 
                         from pasarmodal." + tableName + @" x
                         WHERE " + whereQuery + @"";
                 }
@@ -5465,7 +5437,7 @@ namespace BDA.Helper
                             cast(cast(buyingamount as BIGINT)  as string) as buyingamount,
                             cast(cast(sellingamount as BIGINT)  as string) as sellingamount,collateralsecuritycode,
                             cast(cast(collateralamount as BIGINT)  as string) as collateralamount,
-                            cast(cast(fairmarketvalue as BIGINT)  as string) as fairmarketvalue,
+                            CASE WHEN cast(cast(fairmarketvalue as BIGINT) as string) is null then '0' else cast(cast(fairmarketvalue as BIGINT) as string) END as fairmarketvalue,
                             cast(cast(liabilitiesrankingvalue as BIGINT)  as string) as liabilitiesrankingvalue,
                             cast(cast(rasio as BIGINT)  as string) as rasio,periode 
                         FROM pasarmodal." + tableName + @" x
@@ -5510,7 +5482,7 @@ namespace BDA.Helper
                         SELECT calendardate,securitycompanysk,securitycompanycode,securitycompanyname,mkbdvd510accountsk,mkbdvd510accountcode,mkbdvd510description,
                         cast(cast(buyingamount as BIGINT)  as string) as buyingamount,
                         cast(cast(sellingamount as BIGINT)  as string) as sellingamount,
-                        cast(cast(fairmarketvalue as BIGINT)  as string) as fairmarketvalue,
+                        CASE WHEN cast(cast(fairmarketvalue as BIGINT) as string) is null then '0' else cast(cast(fairmarketvalue as BIGINT) as string) END as fairmarketvalue,
                         cast(cast(liabilitiesrankingvalue as BIGINT)  as string) as liabilitiesrankingvalue,periode 
                         FROM pasarmodal." + tableName + @" x
                         WHERE " + whereQuery + @"";
@@ -5611,7 +5583,7 @@ namespace BDA.Helper
             var periodWhereQuery = "";
             //isHive = false;
 
-            if (sistem != null) whereQuery = whereQuery += " AND UPPER(system) = '" + sistem.ToUpper() + "' ";
+            if (sistem != null) whereQuery = whereQuery += " AND system = '" + sistem + "' ";
 
             if (SID != null) whereQuery = whereQuery += " AND sid = '" + EncryptSID(SID) + "' ";
             else if (tradeId != null) whereQuery = whereQuery += " AND trade_id = '" + tradeId + "' ";
@@ -5631,59 +5603,42 @@ namespace BDA.Helper
                 string periodes = "'" + startPeriod.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
                 periodWhereQuery = " AND " + periodes + " between valid_from and valid_until"; //date_format(CURRENT_DATE(), 'YYYYMMdd')
             }
-
-            string sqlGetQuery = "select table_" + (isHive ? "hive" : "sql") + @" as queryString from dbo.ref_query where table_id = '" + tableName + "'";
-            //var propsQuery = new WSQueryProperties();
-            //propsQuery.Query = sqlGetQuery;
-            //DataRow dr = WSQueryHelper.DoQuery(db, propsQuery, loadOptions, false, false).data.Rows[0];
-            
-            DataRow dr = ExecuteSimpleSQL(db.appSettings.DataConnString, sqlGetQuery).data.Rows[0]; 
-            string queryString = dr["queryString"].ToString();
-            queryString = queryString.Replace("@wherefilter", whereQuery).Replace("@whereperiode", periodWhereQuery);
-
             var props = new WSQueryProperties();
-            props.Query = queryString;
 
-            #region OldQuery
-            /*
             if (tableName == "ip_sid")
             {
-
-
                 props.Query += @" SELECT 
-                        CONCAT(CAST(valid_until AS VARCHAR(20)), '~', system, '~') AS lem, * from pasarmodal." + (isHive ? "src_sid" : tableName) + @" x WHERE " + whereQuery + periodWhereQuery;
+                        valid_until + '~' + system + '~' AS lem, * from pasarmodal." + (isHive ? "src_sid" : tableName) + @" x WHERE " + whereQuery + periodWhereQuery;
                 //props.Query += (chk100 == true) ? @" order by x.periode" : @"";
             }
             else if (tableName == "ip_transaction")
             {
                 props.Query += @"
-                        SELECT CONCAT(CAST(y.valid_until AS VARCHAR(20)), '~', y.system, '~') AS lem, trade_id, y.*, securitycode, x.buy_value, x.buy_quantity, x.buy_freq, 
+                        SELECT CAST(y.valid_until AS VARCHAR(20)) + '~' + y.system + '~' AS lem, y.*, x.buy_value, x.buy_quantity, x.buy_freq, 
                         x.sell_value, x.sell_quantity, x.sell_freq, 
                         (x.buy_value - x.sell_value) as net_value, 
                         (x.buy_quantity - x.sell_quantity) as net_quantity,
                         (x.buy_freq - x.sell_freq) as net_freq
                         FROM (
-                            select sid, trade_id, securitycode, ";
+                            select sid, securitycode, securityname, ";
 
                 if (isHive)
                     props.Query += @"
-                            IF( transactiontypecode = 'B', value, 0)  AS buy_value, 
-                            IF( transactiontypecode = 'B', quantity, 0)  AS buy_quantity, 
-                            IF( transactiontypecode = 'B', freq, 0)  AS buy_freq,
-                            IF( transactiontypecode = 'S', value, 0)  AS sell_value, 
-                            IF( transactiontypecode = 'S', quantity, 0)  AS sell_quantity, 
-                            IF( transactiontypecode = 'S', freq, 0)  AS sell_freq ";
+                            SUM( IF( transactiontypecode = 'B', value, 0) ) AS buy_value, 
+                            SUM( IF( transactiontypecode = 'B', quantity, 0) ) AS buy_quantity, 
+                            SUM( IF( transactiontypecode = 'B', freq, 0) ) AS buy_freq,
+                            SUM( IF( transactiontypecode = 'S', value, 0) ) AS sell_value, 
+                            SUM( IF( transactiontypecode = 'S', quantity, 0) ) AS sell_quantity, 
+                            SUM( IF( transactiontypecode = 'S', freq, 0) ) AS sell_freq ";
                 else
                     props.Query += @"
                             buy_value, buy_quantity, buy_freq, sell_value, sell_quantity, sell_freq ";
 
                 props.Query += @"
                             from pasarmodal." + (isHive ? "investor_profile_trans" : tableName) + @"
-                            where " + whereQuery + periodWhereQuery 
-                            //+ (isHive ? "group by sid, trade_id, securitycode" :"") 
-                            + @" 
+                            where " + whereQuery + periodWhereQuery + @" 
                         )x LEFT OUTER JOIN (
-                            select valid_until, sid, nama_sid, tanggal_lahir, tanggal_pendirian, address1, ktp, npwp, status_sid, last_update_sid, system, email, phone_number, fax, passport, occupation, nationality, province, city, full_name, nama_rekening 
+                            select valid_until, sid, nama_sid, trade_id, tanggal_lahir, tanggal_pendirian, address1, ktp, npwp, status_sid, last_update_sid, system, email, phone_number, fax, passport, occupation, nationality, province, city, periode, full_name, nama_rekening 
                             from pasarmodal." + (isHive ? "src_sid" : "ip_sid") + @" 
                             where " + whereQuery + @"
                         )y ON x.sid = y.sid";
@@ -5691,13 +5646,13 @@ namespace BDA.Helper
             else if (tableName == "ip_ownership")
             {
                 props.Query += @"
-                        SELECT CONCAT(CAST(y.valid_until AS VARCHAR(20)), '~', y.system, '~') AS lem, trade_id, y.*, 
-                        securitycode, rekening_status, accountbalancestatuscode, volume, value 
+                        SELECT CAST(y.valid_until AS VARCHAR(20)) + '~' + y.system + '~' AS lem, y.*, 
+                        securitycode, securityname, rekening_status, accountbalancestatuscode, volume, value 
                         FROM (
-                            select sid, trade_id, securitycode, rekening_status, accountbalancestatuscode, volume, value  
-                            from pasarmodal." + (isHive ? "investor_profile_kpm" : tableName) + @" WHERE " + whereQuery + periodWhereQuery + @"
+                            select sid, securitycode, securityname, rekening_status, accountbalancestatuscode, volume, value  
+                            from pasarmodal." + (isHive ? "investor_profile_kpm" : tableName) + @" x WHERE " + whereQuery + periodWhereQuery + @"
                         )x LEFT OUTER JOIN (
-                            select valid_until, sid, nama_sid, tanggal_lahir, tanggal_pendirian, address1, ktp, npwp, status_sid, last_update_sid, system, email, phone_number, fax, passport, occupation, nationality, province, city, full_name, nama_rekening 
+                            select valid_until, sid, nama_sid, trade_id, tanggal_lahir, tanggal_pendirian, address1, ktp, npwp, status_sid, last_update_sid, system, email, phone_number, fax, passport, occupation, nationality, province, city, periode, full_name, nama_rekening 
                             from pasarmodal." + (isHive ? "src_sid" : "ip_sid") + @" 
                             where " + whereQuery + @"
                         )y ON x.sid = y.sid";
@@ -5709,9 +5664,6 @@ namespace BDA.Helper
                         CAST(dm_periode AS VARCHAR(20)) + '~' + system + '~' + sid AS lem, * from pasarmodal." + tableName + @" x WHERE " + whereQuery;
                 props.Query += (chk100 == true) ? @" order by x.is_direct" : @"";
             }
-            */
-
-            #endregion
 
             return DecryptResults( WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive) );
         }

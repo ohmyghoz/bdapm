@@ -192,7 +192,7 @@ namespace BDA.Controllers
                 //workbook.Open(file.OpenReadStream(), FileFormatType.Xlsx);
                 Workbook workbook = new Workbook(file.OpenReadStream());
 
-                //if (reportId == "osida_pengurus_pemilik_kredit_bermasalah_mst")
+                if (reportId == "osida_pengurus_pemilik_kredit_bermasalah_mst")
                 {
                     Worksheet worksheet2 = workbook.Worksheets[0];
                     var columns1 = worksheet2.Cells.Columns.Count;
@@ -349,7 +349,7 @@ namespace BDA.Controllers
             if (startPeriode != null && (regex.Match(reportId).Success || sistem != null) && (SID != null || tradeId != null || namaSID != null || nomorKTP != null || nomorNPWP != null || businessReg != null))
                 {
                 var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId);
-                //cekHive = false;
+
                 //if (PMRefController.IsPengawasLJK(db))
                 //{
 
