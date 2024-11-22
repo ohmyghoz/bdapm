@@ -1,5 +1,4 @@
-﻿@using DevExtreme.AspNet.Mvc
-@{
+﻿@{
     Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
 }
 @section RightToolbar {
@@ -41,6 +40,7 @@
                             .DisplayExpr("text")
                             .SearchEnabled(true)
                             .Width("100%")
+                            .Placeholder("(ALL)")
                             )
                     </div>
                     <div class="col-lg-4 form-group" style="padding-top:25px;">
@@ -62,7 +62,7 @@
                 <tr>
                     <td>
                         <div class="form-group">
-                            <input type="button" id="btnDetailCluster" class="btn btn-danger" value="Detail Cluster MKB" onclick="location.href='@Url.Action("Detail", "SegmentationSummaryClusterMKBD")'" />
+                            <input type="button" id="btnDetailCluster" class="btn btn-danger" value="Detail Cluster MKBD" onclick="location.href='@Url.Action("Detail", "SegmentationSummaryClusterMKBD")'" />
                         </div>
                     </td>
                     <td></td>
@@ -363,7 +363,7 @@
     $(function () {
         const startDate = $("#PeriodeAwal").dxDateBox({
             onValueChanged: function (e) {
-                endDate.option("min", e.value);
+    @* endDate.option("min", e.value); *@
             }
         }).dxDateBox("instance");
 
