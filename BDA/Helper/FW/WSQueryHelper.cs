@@ -398,8 +398,6 @@ namespace BDA.Helper.FW
             }
         }
 
-        
-
         private static string _GetSimpleSqlExpr(object[] expression, List<SqlParameter> sqlParamList)
         {
             //TODO : ini masih bisa kena sql injection
@@ -416,9 +414,6 @@ namespace BDA.Helper.FW
                 string clause = expression[1].ToString();
                 var val = expression[2];
                 string pattern = "";
-
-                val = WSQueryStore.CheckAndModifyFilterVal(expression[0].ToString(), val.ToString());
-
                 switch (clause)
                 {
                     case "=":

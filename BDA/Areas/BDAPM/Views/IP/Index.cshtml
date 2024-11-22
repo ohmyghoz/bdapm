@@ -353,7 +353,7 @@
     }
 
     function onCellPrepared(e) {
-        let listColumn = ["nama_sid", "sre_ifua", "tanggal_lahir", "tanggal_pendirian", "address1", "ktp", "npwp", "status_sid", "last_update_sid", "system", "email", "phone_number", "fax", "passport", "occupation", "nationality", "province", "city"];
+        let listColumn = ["nama_sid", "no_rekening", "tanggal_lahir", "tanggal_pendirian", "address1", "ktp", "npwp", "status_sid", "last_update_sid", "system", "sre", "email", "phone_number", "fax", "passport", "occupation", "nationality", "province", "city"];
         if (e.rowType === "data" && e.column.dataField === "sid") {
             
             var tooltipInstance = $("#gridtooltip").dxTooltip("instance");

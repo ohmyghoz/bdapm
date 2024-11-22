@@ -2548,7 +2548,6 @@ namespace BDA.Helper
 
         public static DataGridBuilder<T> IPDataGrid<T>(this DataGridBuilder<T> grid, DataEntities db, string kode, bool isHive)
         {
-            //kolom yang tampil di Grid hanya yg ada di db SQL nya walau di query ada kolom-kolom extra yg lain
             TextInfo cultInfo = new CultureInfo("en-US", false).TextInfo;
             var regex = new Regex(@"\Aip_relation");
             var regexRel = new Regex(@"\Arelation|\Asuspect");
@@ -2642,9 +2641,8 @@ namespace BDA.Helper
 
                     if (row.ColumnName == "accountbalancestatuscode") caption = "Balance Status";
                     if (row.ColumnName == "rekening_status") caption = "Account Status";
-                    //if (row.ColumnName == "securityname") caption = "Nama Efek";
+                    if (row.ColumnName == "securityname") caption = "Nama Efek";
                     if (row.ColumnName == "securitycode") caption = "Kode Efek";
-                    if (row.ColumnName == "no_rekening") continue;
 
                     if (kode == "ip_sid")
                     {
@@ -2665,14 +2663,14 @@ namespace BDA.Helper
                     else if (kode == "ip_transaction")
                     {
                         string left3 = row.ColumnName.Substring(0, 3);
-                        if (left3 == "buy" || left3 == "sel" || left3 == "net") continue;                        
+                        if (left3 == "buy" || left3 == "sel" || left3 == "net") continue;
+                        if ((new string[] { "trade_id", "ktp", "npwp", "periode", "system" }.Any(s => row.ColumnName == s))) continue;
                         visible = true;
-                        if ((new string[] { "trade_id", "ktp", "npwp", "periode", "system" }.Any(s => row.ColumnName == s))) visible = false;
                     }
                     else if (kode == "ip_ownership")
                     {
+                        if ((new string[] { "trade_id", "ktp", "npwp", "periode" }.Any(s => row.ColumnName == s))) continue;
                         visible = true;
-                        if ((new string[] { "trade_id", "ktp", "npwp", "periode" }.Any(s => row.ColumnName == s))) visible = false;                        
                     }
                     else if (regex.Match(kode).Success)
                     {
