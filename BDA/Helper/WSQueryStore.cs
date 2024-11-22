@@ -98,6 +98,14 @@ namespace BDA.Helper
             return ((idx >= 0 ? idx.ToString(): s.Substring(0, 1)) + s.Substring(1)).Replace("O", "IOII").Replace("A", "IOOI").Replace("U", "IIOO").Replace("E", "IOIO");            
         }
         #endregion
+        
+        public static string CheckAndModifyFilterVal(string colName, string colValue)
+        {
+            if (colName == "sid")
+                return WSQueryStore.EncryptSID(colValue);
+
+            return colValue;
+        }
 
         #region SimpleQuery
         private static WSQueryReturns ExecuteSimpleSQL(string connString, string queryString)
@@ -5614,7 +5622,7 @@ namespace BDA.Helper
             if (sistem != null) whereQuery = whereQuery += " AND UPPER(system) = '" + sistem.ToUpper() + "' ";
 
             if (SID != null) whereQuery = whereQuery += " AND sid = '" + EncryptSID(SID) + "' ";
-            else if (tradeId != null) whereQuery = whereQuery += " AND trade_id = '" + tradeId + "' ";
+            else if (tradeId != null) whereQuery = whereQuery += " AND SUBSTRING(sid, 7, 6) = '" + tradeId + "' ";
             else if (nomorKTP != null) whereQuery = whereQuery += " AND ktp = '" + nomorKTP + "' ";
             else if (nomorNPWP != null) whereQuery = whereQuery += " AND npwp = '" + nomorNPWP + "' ";
             //else if (namaSID != null) whereQuery = whereQuery += " AND nama_sid = " + EncryptName(namaSID);
@@ -5643,6 +5651,8 @@ namespace BDA.Helper
 
             var props = new WSQueryProperties();
             props.Query = queryString;
+
+
 
             #region OldQuery
             /*
@@ -5715,6 +5725,10 @@ namespace BDA.Helper
 
             return DecryptResults( WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive) );
         }
+
+        
+
+
         public static WSQueryReturns GetPMMMQuery(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string startPeriod, string endPeriod, bool isHive = false)
         {
             bool isC = false;
