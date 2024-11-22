@@ -660,14 +660,16 @@ namespace BDA.Controllers
             varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
                            select new
                            {
-                               exchangemembercode = bs.Field<string>("exchangemembercode").ToString(),
-                               exchangemembername = bs.Field<string>("exchangemembername").ToString(),
+                               exchangemembercode = bs.Field<string>("exchangemembercode").ToString().Trim(),
+                               exchangemembername = bs.Field<string>("exchangemembername").ToString().Trim(),
                            }).OrderBy(bs => bs.exchangemembername).ToList();
+
             DataTable dtList = new DataTable();
             dtList = Helper.WSQueryStore.LINQResultToDataTable(varDataList);
 
             if (dtList.Rows.Count > 0)
             {
+                list.Add(new NamaPE() { value = "", text = "(ALL)" });
                 for (int i = 0; i < dtList.Rows.Count; i++)
                 {
                     string namakode = dtList.Rows[i]["exchangemembercode"].ToString() + " - " + dtList.Rows[i]["exchangemembername"].ToString();
@@ -751,17 +753,26 @@ namespace BDA.Controllers
 
             string namaPE = id;
             string stringPeriodeAwal = null;
+            string stringPeriodeAwalDate = null;
             string stringNamaPE = null;
 
             if (periodeAwal != null)
             {
                 stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
                 TempData["pawal"] = stringPeriodeAwal;
+                stringPeriodeAwalDate = Convert.ToDateTime(periodeAwal).ToString("yyyy MMM dd");
+                ViewBag.PeriodeAwalDate = stringPeriodeAwalDate;
+            }
+            else
+            {
+                stringPeriodeAwalDate = Convert.ToDateTime(DateTime.Now).ToString("yyyy MMM dd");
+                ViewBag.PeriodeAwalDate = stringPeriodeAwalDate;
             }
             if (namaPE != null)
             {
                 stringNamaPE = namaPE;
                 TempData["pe"] = stringNamaPE;
+                ViewBag.NamaPE = stringNamaPE;
             }
 
             db.Database.CommandTimeout = 420;
@@ -985,7 +996,12 @@ namespace BDA.Controllers
                     StyleFlag textFlag = new StyleFlag();
                     textFlag.NumberFormat = true;
 
+                    worksheet.AutoFitRows(true);
+                    worksheet.Cells.Columns[0].Width = 8;
+                    worksheet.Cells.Columns[1].Width = 8;
+                    worksheet.Cells.Columns[2].Style.HorizontalAlignment = TextAlignmentType.Left;
                     worksheet.Cells.Columns[3].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[3].Style.HorizontalAlignment = TextAlignmentType.Right;
                     worksheet.Cells.Columns[4].ApplyStyle(textStyle, textFlag);
                     worksheet.Cells.Columns[5].ApplyStyle(textStyle, textFlag);
                     worksheet.Cells.Columns[6].ApplyStyle(textStyle, textFlag);
@@ -993,7 +1009,10 @@ namespace BDA.Controllers
                     worksheet.Cells.Columns[8].ApplyStyle(textStyle, textFlag);
                     worksheet.Cells.Columns[9].ApplyStyle(textStyle, textFlag);
                     worksheet.Cells.Columns[10].ApplyStyle(textStyle, textFlag);
-
+                    //worksheet.AutoFitRows(true);
+                    //worksheet.Cells.Columns[8].Style.HorizontalAlignment = TextAlignmentType.Right;
+                    worksheet.Cells.Columns[8].Width = 20;
+                    worksheet.Cells.Columns[8].Style.HorizontalAlignment = TextAlignmentType.Right;
                     //page setup
                     PageSetup pageSetup = worksheet.PageSetup;
                     pageSetup.Orientation = PageOrientationType.Landscape;
@@ -1107,7 +1126,7 @@ namespace BDA.Controllers
                     textStyle.Number = 3;
                     StyleFlag textFlag = new StyleFlag();
                     textFlag.NumberFormat = true;
-
+                    worksheet.AutoFitRows(true);
                     worksheet.Cells.Columns[4].ApplyStyle(textStyle, textFlag);
                     worksheet.Cells.Columns[5].ApplyStyle(textStyle, textFlag);
                     worksheet.Cells.Columns[7].ApplyStyle(textStyle, textFlag);
@@ -1223,7 +1242,7 @@ namespace BDA.Controllers
                     textStyle.Number = 3;
                     StyleFlag textFlag = new StyleFlag();
                     textFlag.NumberFormat = true;
-
+                    worksheet.AutoFitRows(true);
                     worksheet.Cells.Columns[1].ApplyStyle(textStyle, textFlag);
                     worksheet.Cells.Columns[2].ApplyStyle(textStyle, textFlag);
                     worksheet.Cells.Columns[4].ApplyStyle(textStyle, textFlag);
@@ -1340,7 +1359,7 @@ namespace BDA.Controllers
                     textStyle.Number = 3;
                     StyleFlag textFlag = new StyleFlag();
                     textFlag.NumberFormat = true;
-
+                    worksheet.AutoFitRows(true);
                     worksheet.Cells.Columns[5].ApplyStyle(textStyle, textFlag);
                     worksheet.Cells.Columns[6].ApplyStyle(textStyle, textFlag);
                     worksheet.Cells.Columns[7].ApplyStyle(textStyle, textFlag);
@@ -1459,7 +1478,7 @@ namespace BDA.Controllers
                     textStyle.Number = 3;
                     StyleFlag textFlag = new StyleFlag();
                     textFlag.NumberFormat = true;
-
+                    worksheet.AutoFitRows(true);
                     worksheet.Cells.Columns[1].ApplyStyle(textStyle, textFlag);
                     worksheet.Cells.Columns[2].ApplyStyle(textStyle, textFlag);
                     //page setup
@@ -1574,7 +1593,7 @@ namespace BDA.Controllers
                     textStyle.Number = 3;
                     StyleFlag textFlag = new StyleFlag();
                     textFlag.NumberFormat = true;
-
+                    worksheet.AutoFitRows(true);
                     worksheet.Cells.Columns[3].ApplyStyle(textStyle, textFlag);
                     worksheet.Cells.Columns[4].ApplyStyle(textStyle, textFlag);
                     worksheet.Cells.Columns[5].ApplyStyle(textStyle, textFlag);
@@ -1691,7 +1710,7 @@ namespace BDA.Controllers
                     textStyle.Number = 3;
                     StyleFlag textFlag = new StyleFlag();
                     textFlag.NumberFormat = true;
-
+                    worksheet.AutoFitRows(true);
                     worksheet.Cells.Columns[1].ApplyStyle(textStyle, textFlag);
 
                     //page setup
@@ -1806,7 +1825,7 @@ namespace BDA.Controllers
                     textStyle.Number = 3;
                     StyleFlag textFlag = new StyleFlag();
                     textFlag.NumberFormat = true;
-
+                    worksheet.AutoFitRows(true);
                     worksheet.Cells.Columns[2].ApplyStyle(textStyle, textFlag);
                     worksheet.Cells.Columns[3].ApplyStyle(textStyle, textFlag);
                     worksheet.Cells.Columns[4].ApplyStyle(textStyle, textFlag);
@@ -1920,7 +1939,7 @@ namespace BDA.Controllers
                     textStyle.Number = 3;
                     StyleFlag textFlag = new StyleFlag();
                     textFlag.NumberFormat = true;
-
+                    worksheet.AutoFitRows(true);
                     worksheet.Cells.Columns[1].ApplyStyle(textStyle, textFlag);
 
                     //page setup
@@ -2035,7 +2054,7 @@ namespace BDA.Controllers
                     textStyle.Number = 3;
                     StyleFlag textFlag = new StyleFlag();
                     textFlag.NumberFormat = true;
-
+                    worksheet.AutoFitRows(true);
                     worksheet.Cells.Columns[5].ApplyStyle(textStyle, textFlag);
                     worksheet.Cells.Columns[6].ApplyStyle(textStyle, textFlag);
                     worksheet.Cells.Columns[7].ApplyStyle(textStyle, textFlag);
@@ -2151,7 +2170,7 @@ namespace BDA.Controllers
                     textStyle.Number = 3;
                     StyleFlag textFlag = new StyleFlag();
                     textFlag.NumberFormat = true;
-
+                    worksheet.AutoFitRows(true);
                     worksheet.Cells.Columns[1].ApplyStyle(textStyle, textFlag);
                     worksheet.Cells.Columns[2].ApplyStyle(textStyle, textFlag);
                     worksheet.Cells.Columns[3].ApplyStyle(textStyle, textFlag);

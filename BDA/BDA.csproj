@@ -121,7 +121,6 @@
     <None Include="Areas\Master\Views\User_Master\Index.cshtml" />
     <None Include="Areas\Master\Views\_ViewImports.cshtml" />
     <None Include="Areas\Website\Views\Home\Login.cshtml" />
-    <None Include="Areas\Website\_ViewImports.cshtml" />
     <None Include="Views\Home\Index.cshtml" />
     <None Include="Views\Home\Login.cshtml" />
     <None Include="Views\Shared\_AttachmentPartial.cshtml" />
