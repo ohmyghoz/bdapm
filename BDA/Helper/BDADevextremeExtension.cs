@@ -4,10 +4,12 @@ using DevExtreme.AspNet.Mvc;
 using DevExtreme.AspNet.Mvc.Builders;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Xml.XPath;
 
 namespace BDA.Helper
 {
@@ -844,7 +846,7 @@ namespace BDA.Helper
                                     colDataType = GridColumnDataType.String;
                                 }
                             }
-                        } 
+                        }
                         else
                         {
                             width = 300;
@@ -1829,7 +1831,7 @@ namespace BDA.Helper
                     }
                     if (row.ColumnName == "dm_nama_kantor_cabang")
                     {
-                        if (osida.kode == "osida_pengurus_pemilik_kredit_bermasalah_det_bu" || osida.kode == "osida_pengurus_pemilik_kredit_bermasalah_det_pengurus" || osida.kode== "osida_pemberian_kur_deb_noneligible_det")
+                        if (osida.kode == "osida_pengurus_pemilik_kredit_bermasalah_det_bu" || osida.kode == "osida_pengurus_pemilik_kredit_bermasalah_det_pengurus" || osida.kode == "osida_pemberian_kur_deb_noneligible_det")
                         {
                             continue;
                         }
@@ -1856,7 +1858,8 @@ namespace BDA.Helper
                         {
                             continue;
                         }
-                        else {
+                        else
+                        {
                             if (osida.kode == "osida_keu_buruk_kol_lancar_mst")
                             {
                                 caption = "Total Tunggakan (Pokok + Bunga)";
@@ -1868,7 +1871,7 @@ namespace BDA.Helper
                                 width = 200;
                             }
                         }
-                        
+
 
                     }
                     if (row.ColumnName == "dm_posisi_laporan_keuangan_terakhir")
@@ -2262,7 +2265,7 @@ namespace BDA.Helper
                                 width = 225;
                             }
                         }
-                        
+
                     }
                     if (row.ColumnName == "dm_baru_perpanjangan")
                     {
@@ -2312,8 +2315,10 @@ namespace BDA.Helper
                     {
                         width = 250;
                     }
-                    if (row.ColumnName == "dm_plafon_awal") {
-                        if (osida.kode == "osida_alih_deb_ke_bank_mst") {
+                    if (row.ColumnName == "dm_plafon_awal")
+                    {
+                        if (osida.kode == "osida_alih_deb_ke_bank_mst")
+                        {
                             continue;
                         }
                     }
@@ -2340,7 +2345,7 @@ namespace BDA.Helper
                     }
                     if (row.ColumnName == "dm_total_baki_debet")
                     {
-                        if (osida.kode == "osida_alih_deb_ke_bank_mst" || osida.kode== "osida_pengurus_pemilik_kredit_bermasalah_mst")
+                        if (osida.kode == "osida_alih_deb_ke_bank_mst" || osida.kode == "osida_pengurus_pemilik_kredit_bermasalah_mst")
                         {
                             continue;
                         }
@@ -2351,7 +2356,8 @@ namespace BDA.Helper
                         {
                             continue;
                         }
-                        if (osida.kode == "osida_potensi_konversi_kur_deb_noneligible_mst") {
+                        if (osida.kode == "osida_potensi_konversi_kur_deb_noneligible_mst")
+                        {
                             caption = "Total Baki Debet Bulan Lalu";
                             width = 200;
                         }
@@ -2364,7 +2370,7 @@ namespace BDA.Helper
                             width = 200;
                         }
                     }
-                    
+
                     if (row.DataType == "date")
                     {
                         if (row.ColumnName != "dm_periode")
@@ -2466,7 +2472,8 @@ namespace BDA.Helper
                     c1.Add().Caption("Baki Debet").DataField("dm_baki_debet").Width(250).DataType(GridColumnDataType.Number).Format(",##0");
                 }));
             }
-            else if (osida.kode == "osida_pengurus_pemilik_kredit_bermasalah_mst") {
+            else if (osida.kode == "osida_pengurus_pemilik_kredit_bermasalah_mst")
+            {
                 grid.Columns(c => c.Add().Caption("Nasabah").VisibleIndex(6).Columns(c1 =>
                 {
                     c1.Add().Caption("Kualitas").DataField("dm_kualitas").Width(250);
@@ -2496,13 +2503,13 @@ namespace BDA.Helper
                 var caption = cultInfo.ToTitleCase(row.ColumnName.Replace("dm_", "").Replace("_", " "));
                 caption = caption.Replace("Ljk", "LJK");
 
-                if (row.ColumnName != "rowid" && row.ColumnName != "dm_outstanding" && row.ColumnName != "dm_pyearmonth"  && row.ColumnName != "row_id")
+                if (row.ColumnName != "rowid" && row.ColumnName != "dm_outstanding" && row.ColumnName != "dm_pyearmonth" && row.ColumnName != "row_id")
                 {
-                    
+
                     var width = 150;
                     var format = "";
                     var colDataType = GridColumnDataType.String;
-                    
+
                     if (row.ColumnName.Contains("tanggal"))
                     {
                         width = 130;
@@ -2516,7 +2523,8 @@ namespace BDA.Helper
                             format = "yyyy-MM-dd";
                             colDataType = GridColumnDataType.Date;
                         }
-                        else {
+                        else
+                        {
                             if (isHive == false)
                             {
                                 format = "yyyy-MM-dd";
@@ -2528,7 +2536,7 @@ namespace BDA.Helper
                                 colDataType = GridColumnDataType.String;
                             }
                         }
-                        
+
                     }
                     else if (row.DataType == "int" || row.DataType == "decimal" || row.DataType == "bigint")
                     {
@@ -2550,12 +2558,26 @@ namespace BDA.Helper
             var regex = new Regex(@"\Aip_relation");
             var regexRel = new Regex(@"\Arelation|\Asuspect");
 
+            grid.Columns(c => c.Add().Caption("No").Width(50).Visible(true).AllowFiltering(false).CellTemplate(new JS("GetRowNumber")));
+
+            /*
+            grid.CustomUnboundColumnData += (sender, e) =>
+            {
+                if (e.Column.FieldName == "No")
+                {
+                    e.DisplayText = e.RowHandle.ToString();                    
+                }
+            };
+            */
+
+
             var list = db.vw_TableDictionary.Where(x => x.TableName == kode).ToList();
 
             foreach (var row in list)
             {
                 //string left7 = "";
                 bool isInput = false;
+                bool allowFilter = true;
                 var caption = cultInfo.ToTitleCase(row.ColumnName.Replace("dm_", "").Replace("_", " "));
                 caption = caption.Replace("Ljk", "LJK");
                 caption = caption.Replace("Cif", "CIF");
@@ -2605,9 +2627,14 @@ namespace BDA.Helper
 
                     if (row.ColumnName == "sid")
                     {
+                        caption = "Nomor SID";
                         width = 130;
                         visible = true;
                     }
+
+                    if (row.ColumnName == "ktp") caption = "Nomor KTP";
+                    if (row.ColumnName == "npwp") caption = "Nomor NPWP";
+                    if (row.ColumnName == "trade_id") caption = "Trading ID";
 
 
                     if (row.ColumnName == "nama_sid")
@@ -2615,12 +2642,13 @@ namespace BDA.Helper
                         caption = "Nama SID";
                         width = 300;
                         visible = true;
+                        allowFilter = false;
                     }
 
                     if (row.ColumnName == "accountbalancestatuscode") caption = "Balance Status";
                     if (row.ColumnName == "rekening_status") caption = "Account Status";
                     if (row.ColumnName == "securityname") caption = "Nama Efek";
-                    if (row.ColumnName == "securitycode") continue;
+                    if (row.ColumnName == "securitycode") caption = "Kode Efek";
 
                     if (kode == "ip_sid")
                     {
@@ -2640,15 +2668,17 @@ namespace BDA.Helper
                     }
                     else if (kode == "ip_transaction")
                     {
+                        visible = true;
                         string left3 = row.ColumnName.Substring(0, 3);
                         if (left3 == "buy" || left3 == "sel" || left3 == "net") continue;
-                        if ((new string[] { "trade_id", "ktp", "npwp", "periode", "system" }.Any(s => row.ColumnName == s))) continue;
-                        visible = true;
+                        if ((new string[] { "trade_id", "ktp", "npwp", "periode", "system" }.Any(s => row.ColumnName == s))) visible = false;
+                        
                     }
                     else if (kode == "ip_ownership")
                     {
-                        if ((new string[] { "trade_id", "ktp", "npwp", "periode" }.Any(s => row.ColumnName == s))) continue;
                         visible = true;
+                        if ((new string[] { "trade_id", "ktp", "npwp", "periode" }.Any(s => row.ColumnName == s))) visible = false;
+                        
                     }
                     else if (regex.Match(kode).Success)
                     {
@@ -2718,10 +2748,14 @@ namespace BDA.Helper
                         {
                             string ct = "<text><a href=\"ip_sid?detailsid=<%- data.lem %>\"><%- value %></a></text>";
                             grid.Columns(c => c.Add().Caption(caption).DataField(row.ColumnName).Width(width).Visible(visible).DataType(colDataType).Format(format).CellTemplate(ct));
-                            
+
+                        }
+                        else if (row.ColumnName == "trade_id")
+                        {
+                            grid.Columns(c => c.Add().Caption(caption).DataField(row.ColumnName).Width(width).Visible(visible).DataType(colDataType).Format(format).AllowFiltering(allowFilter).VisibleIndex(2));
                         }
                         else
-                            grid.Columns(c => c.Add().Caption(caption).DataField(row.ColumnName).Width(width).Visible(visible).DataType(colDataType).Format(format));
+                            grid.Columns(c => c.Add().Caption(caption).DataField(row.ColumnName).Width(width).Visible(visible).DataType(colDataType).Format(format).AllowFiltering(allowFilter));
                     }
                 }
             }
@@ -2796,7 +2830,8 @@ namespace BDA.Helper
                 );
             }
 
-            if (kode != "ip_sid") {
+            if (kode != "ip_sid")
+            {
                 grid.OnRowDblClick("onRowDblClick");
             }
 
