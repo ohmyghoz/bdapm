@@ -5753,5 +5753,159 @@ namespace BDA.Helper
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
         }
+
+        #region query PS07, PS07B, PS07C
+
+        public static string PS07Filters(string periode, string pe, string invType, string invOrigin, string inRange, string market)
+        {
+            string whereQuery = "";
+
+            if (periode != null)
+            {
+                string periodes = "'" + periode.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND pperiode in (" + periodes.Replace("-", "") + ")";
+            }
+
+            if (pe != null)
+            {
+                string namaPE = "'" + pe.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND exchangemembercode in (" + namaPE + ")";
+            }
+
+            if (invType != null)
+            {
+                string invt = "'" + invType.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND investor_type in (" + invt + ")";
+            }
+
+            if (invOrigin != null)
+            {
+                string invo = "'" + invOrigin.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND investor_origin in (" + invo + ")";
+            }
+            if (inRange != null)
+            {
+                string range = "'" + inRange.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND inputrange in (" + range + ")";
+            }
+
+            if (market != null)
+            {
+                string mkt = "'" + market.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND market in (" + mkt + ")";
+            }
+
+            return whereQuery;
+        }
+
+        public static WSQueryReturns GetPS07TotalClientsQuery(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string invType, string invOrigin, string inRange, string market, bool isHive = true)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            isHive = true;
+
+            whereQuery += PS07Filters(periode, pe, invType, invOrigin, inRange, market);
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                props.Query = @"
+                SELECT COUNT(tradeid) AS total_clients FROM pasarmodal.basis_investor_pe WHERE " + whereQuery + @"";
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+
+        public static WSQueryReturns GetPS07ActiveClientQuery(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string invType, string invOrigin, string inRange, string market, bool isHive = true)
+        {
+            bool isC = false;
+            var whereQuery = "investortransactionfreq > 0";
+            isHive = true;
+
+            whereQuery += PS07Filters(periode, pe, invType, invOrigin, inRange, market);
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                props.Query = @"
+                SELECT COUNT(1) AS active_clients FROM pasarmodal.basis_investor_pe WHERE " + whereQuery + @"";
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+
+        public static WSQueryReturns GetPS07TrxFreqQuery(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string invType, string invOrigin, string inRange, string market, bool isHive = true)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            isHive = true;
+
+            whereQuery += PS07Filters(periode, pe, invType, invOrigin, inRange, market);
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                props.Query = props.Query = @"
+                SELECT SUM(investortransactionfreq) AS trx_freq FROM pasarmodal.basis_investor_pe WHERE " + whereQuery + @"";
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+
+        public static WSQueryReturns GetPS07TradedValueQuery(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string invType, string invOrigin, string inRange, string market, bool isHive = true)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            isHive = true;
+
+            whereQuery += PS07Filters(periode, pe, invType, invOrigin, inRange, market);
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                props.Query = @"
+                SELECT SUM(investortotalvalue) AS traded_value FROM pasarmodal.basis_investor_pe WHERE " + whereQuery + @"";
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+
+        public static WSQueryReturns GetPS07ClientLiquidAmtQuery(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string invType, string invOrigin, string inRange, string market, bool isHive = true)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            isHive = true;
+
+            whereQuery += PS07Filters(periode, pe, invType, invOrigin, inRange, market);
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                props.Query = @"
+                SELECT SUM(portofolio_amount) AS client_liquid_amt FROM pasarmodal.basis_investor_pe WHERE " + whereQuery + @"";
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+
+        public static WSQueryReturns GetPS07Segments(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string invType, string invOrigin, string inRange, string market, string segment, bool isHive = true)
+        {
+            bool isC = false;
+            var whereQuery = "basis_investor_1 = " + "'" + segment + "'";
+            isHive = true;
+
+            whereQuery += PS07Filters(periode, pe, invType, invOrigin, inRange, market);
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                props.Query = @"SELECT SUM(investortransactionfreq) AS intrxfreq, COUNT(tradeid) AS ttlcli FROM pasarmodal.basis_investor_pe WHERE " + whereQuery + @"";
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+
+
+        #endregion
     }
 }
