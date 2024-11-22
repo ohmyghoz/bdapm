@@ -21,7 +21,7 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-lg-4 form-group">
-                        <label>Tanggal<span class="mandatory">*</span></label>
+                        <label>Periode<span class="mandatory">*</span></label>
                         @(Html.DevExtreme().DateBox()
                             .ID("PeriodeAwal")
                             .DisplayFormat("dd MMM yyyy")
@@ -86,8 +86,8 @@
                                 .Selection(c => c.Mode(SelectionMode.Single))
                                 .Columns(c =>
                                 {
-                                    c.Add().DataField("Akun");
-                                    c.Add().DataField("Nilai").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
+                                    c.Add().DataField("akun");
+                                    c.Add().DataField("nilai").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
                                 })
                                 .ShowColumnHeaders(false)
                                 .ShowRowLines(true)
@@ -114,8 +114,8 @@
                                 .Selection(c => c.Mode(SelectionMode.Single))
                                 .Columns(c =>
                                 {
-                                    c.Add().DataField("Akun");
-                                    c.Add().DataField("Nilai").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
+                                    c.Add().DataField("akun");
+                                    c.Add().DataField("nilai").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
                                 })
                                 .ShowColumnHeaders(false)
                                 .ShowRowLines(true)

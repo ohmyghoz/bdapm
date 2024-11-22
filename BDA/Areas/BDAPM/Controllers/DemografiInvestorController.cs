@@ -64,21 +64,6 @@ namespace BDA.Controllers
             return View();
         }
 
-        public float getTotalValueTraded()
-        {
-            string stringPeriodeAwal = null;
-            string stringNamaPE = null;
-            string origin = null;
-            string tipeInvestor = null;
-            DataSourceLoadOptions loadOptions = new DataSourceLoadOptions();
-
-            stringPeriodeAwal = DateTime.Now.ToString("yyyy-MM-dd");
-
-            db.Database.CommandTimeout = 420;
-            var result = Helper.WSQueryPS.GetBDAPMDemografiInvestorTV(db, loadOptions, stringPeriodeAwal, stringNamaPE, origin, tipeInvestor).data.Rows[0];
-            return float.Parse(result["total"].ToString());
-        }
-
         [HttpGet]
         public object getTotalValueTraded(string periode, string pe, string origin, string tipeInvestor)
         {
