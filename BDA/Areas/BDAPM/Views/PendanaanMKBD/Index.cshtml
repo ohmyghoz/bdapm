@@ -77,7 +77,6 @@
                         <div class="row">
                             @(Html.DevExtreme().DataGrid()
                                 .ID("gridPendanaanPE")
-                                .KeyExpr("ID")
                                 .RemoteOperations(true)
                                 .Width("100%")
                                 .AllowColumnResizing(true)
@@ -86,8 +85,8 @@
                                 .Selection(c => c.Mode(SelectionMode.Single))
                                 .Columns(c =>
                                 {
-                                    c.Add().DataField("akun");
-                                    c.Add().DataField("nilai").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
+                                    c.Add().DataField("akun").Caption("Akun").Width(300);
+                                    c.Add().DataField("nilai").Caption("Nilai").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
                                 })
                                 .ShowColumnHeaders(false)
                                 .ShowRowLines(true)
@@ -105,7 +104,6 @@
                         <div class="row">
                             @(Html.DevExtreme().DataGrid()
                                 .ID("gridSumberPendanaanPE")
-                                .KeyExpr("ID")
                                 .RemoteOperations(true)
                                 .Width("100%")
                                 .AllowColumnResizing(true)
@@ -114,8 +112,8 @@
                                 .Selection(c => c.Mode(SelectionMode.Single))
                                 .Columns(c =>
                                 {
-                                    c.Add().DataField("akun");
-                                    c.Add().DataField("nilai").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
+                                    c.Add().DataField("akun").Caption("Akun").Width(300);
+                                    c.Add().DataField("nilai").Caption("Nilai").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
                                 })
                                 .ShowColumnHeaders(false)
                                 .ShowRowLines(true)
@@ -343,6 +341,7 @@
     }
 
     function thousandSeparatorDecimal(e) {
+        e = parseFloat(e);
         if (e != null)
             return e.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
     }

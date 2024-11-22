@@ -279,7 +279,7 @@ namespace BDA.Helper
             var props = new WSQueryProperties();
 
             props.Query = @"
-                    select mkbdaccountname akun, mkbdaccountbalance nilai From pasarmodal.pe_segmentation_pendanaan_per_mkbd 
+                    select mkbdaccountname as Akun, cast(mkbdaccountbalance as bigint) as Nilai From pasarmodal.pe_segmentation_pendanaan_per_mkbd 
                     WHERE " + whereQuery + "  and mkbdaccountname <> '' order by sort_no asc";
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
@@ -304,7 +304,7 @@ namespace BDA.Helper
             var props = new WSQueryProperties();
 
             props.Query = @"
-                    select mkbdaccountname_mkbd akun, mkbdaccountbalance_mkbd nilai From pasarmodal.pe_segmentation_pendanaan_per_mkbd 
+                    select mkbdaccountname_mkbd as Akun, cast(mkbdaccountbalance_mkbd as bigint) as Nilai From pasarmodal.pe_segmentation_pendanaan_per_mkbd 
                     WHERE " + whereQuery + "  and mkbdaccountname_mkbd <> '' order by sort_no asc";
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
