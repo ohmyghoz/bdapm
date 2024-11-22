@@ -1,12 +1,13 @@
-﻿@{
+﻿@using DevExtreme.AspNet.Mvc
+@{
     Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
     var tanggalparam = ViewBag.PeriodeAwalDate;
     var NamaPEparam = ViewBag.NamaPE;
 }
 @section RightToolbar {
-        <div class="d-flex align-items-center">
-            <a class="nav-link btn btn-light-warning font-weight-bolder btn-sm mr-2" href="@Url.Action("Index")"><i class="fa fa-arrow-left"></i> Kembali Ke Daftar</a>
-        </div>
+    <div class="d-flex align-items-center">
+        <a class="nav-link btn btn-light-warning font-weight-bolder btn-sm mr-2" href="@Url.Action("Index")"><i class="fa fa-arrow-left"></i> Kembali Ke Daftar</a>
+    </div>
 }
 @inject BDA.DataModel.DataEntities db
 
@@ -14,227 +15,227 @@
 {
     @Html.AntiForgeryToken()
 
-        <div class="card card-default">
+    <div class="card card-default">
         @*filter*@
-            <div class="row filter-panel" style="padding-top:0px;">
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-lg-4 form-group">
-                            <label>Tanggal<span class="mandatory">*</span></label>
+        <div class="row filter-panel" style="padding-top:0px;">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-4 form-group">
+                        <label>Tanggal<span class="mandatory">*</span></label>
                         @(Html.DevExtreme().DateBox()
-                                .ID("PeriodeAwal")
-                                .DisplayFormat("dd MMM yyyy")
-                                .Value(@ViewBag.PeriodeAwalDate)
-                                .Max(DateTime.Now)
-                                .Width("100%"))
-                        </div>
+                            .ID("PeriodeAwal")
+                            .DisplayFormat("dd MMM yyyy")
+                            .Value(@ViewBag.PeriodeAwalDate)
+                            .Max(DateTime.Now)
+                            .Width("100%"))
+                    </div>
 
-                        <div class="col-lg-4 form-group">
-                            <label>Nama PE</label>
+                    <div class="col-lg-4 form-group">
+                        <label>Nama PE</label>
                         @(Html.DevExtreme().SelectBox()
-                                .ID("namaPEid")
-                                .DataSource(d => d.Mvc()
-                                .Controller("SegmentationSummaryClusterMKBD")
-                                .Area("BDAPM")
-                                .LoadAction("GetNamaPE")
-                                .Key("value"))
-                                .ValueExpr("value")
-                                .DisplayExpr("text")
-                                .SearchEnabled(true)
-                                .Width("100%")
-                                .Placeholder("(ALL)")
-                                )
-                        </div>
-                        <div class="col-lg-4 form-group" style="padding-top:25px;">
-                            <label></label>
+                            .ID("namaPEid")
+                            .DataSource(d => d.Mvc()
+                            .Controller("SegmentationSummaryClusterMKBD")
+                            .Area("BDAPM")
+                            .LoadAction("GetNamaPE")
+                            .Key("value"))
+                            .ValueExpr("value")
+                            .DisplayExpr("text")
+                            .SearchEnabled(true)
+                            .Width("100%")
+                            .Placeholder("(ALL)")
+                            )
+                    </div>
+                    <div class="col-lg-4 form-group" style="padding-top:25px;">
+                        <label></label>
                         @(Html.DevExtreme().Button()
-                           .ID("Filter")
-                           .Type(ButtonType.Default)
-                           .Text("Tampilkan")
-                           .OnClick("onButtonFilterClicked")
-                           .ValidationGroup("Filter"))
-                        </div>
+                            .ID("Filter")
+                            .Type(ButtonType.Default)
+                            .Text("Tampilkan")
+                            .OnClick("onButtonFilterClicked")
+                            .ValidationGroup("Filter"))
                     </div>
                 </div>
             </div>
-
-            <div class="row">
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <table>
-                    <tr>
-                        <td>
-                            <div class="form-group">
-                                <input type="button" id="btnDetailCluster" class="btn btn-danger" value="Detail Cluster MKBD" onclick="location.href='@Url.Action("Detail", "SegmentationSummaryClusterMKBD")'" />
-                            </div>
-                        </td>
-                        <td></td>
-                        <td>
-                            <div class="form-group">
-                                <input type="button" id="btnRincianPortofolio" class="btn btn-danger" value="Rincian Portofolio" onclick="location.href='@Url.Action("RincianPortofolio", "SegmentationSummaryClusterMKBD")'" />
-                            </div>
-                        </td>
-                        <td></td>
-                        <td>
-                            <div class="form-group">
-                                <input type="button" id="btnReksadana" class="btn btn-danger" value="Reksadana" onclick="location.href='@Url.Action("Reksadana", "SegmentationSummaryClusterMKBD")'" />
-                            </div>
-                        </td>
-                        <td></td>
-                        <td>
-                            <div class="form-group">
-                                <input type="button" id="btnJaminanMargin" class="btn btn-danger" value="Jaminan Margin" onclick="location.href='@Url.Action("JaminanMargin", "SegmentationSummaryClusterMKBD")'" />
-                            </div>
-                        </td>
-                        <td></td>
-                        <td>
-                            <div class="form-group">
-                                <input type="button" id="btnReverseRepo" class="btn btn-danger" value="Reverse Repo" onclick="location.href='@Url.Action("ReverseRepo", "SegmentationSummaryClusterMKBD")'" />
-                            </div>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-
-            <div class="row filter-panel" style="padding-top:0px;">
-                <div class="card-body">
-                    <div class="float-right">
-                    @if (ViewBag.Export)
-                    {
-                                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcelDetail();"><span class="image fa fa-file-excel"></span> Export Excel</a>
-                                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdfDetail();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
-                    }
-                    </div>
-                </div>
-            </div>
-
-            <div class="gridview-div">
-            @(Html.DevExtreme().DataGrid()
-                    .ID("grid1")
-                    .ShowBorders(true).Width("100%").ShowColumnLines(true).ShowRowLines(true)
-                    .DataSource(d => d.Mvc()
-                    .Controller("SegmentationSummaryClusterMKBD")
-                    .LoadAction("GetGridDataDetail")
-                    .Key("securitycompanycode")
-                    .LoadParams(new { periodeAwal = new JS("getperiodeAwalIdValue"), namaPE = new JS("getIdValue") }))
-                    .RemoteOperations(true)
-                    .Width("100%")
-                    .AllowColumnResizing(true)
-                    .ColumnAutoWidth(true)
-                    .WordWrapEnabled(true)
-                    .Columns(columns =>
-                    {
-                        columns.Add().DataField("periode").Caption("Tanggal").Alignment(HorizontalAlignment.Center);
-                        columns.Add().DataField("securitycompanycode").Caption("Kode PE");
-                        columns.Add().DataField("securitycompanyname").Caption("Nama PE").Width(300);
-                        columns.Add().DataField("f_level_1").Caption("Konsentrasi Aset Lancar Selain Kas Dan Setara Kas").Width(150);
-                        columns.Add().DataField("total_balance").Caption("Total Balance").DataType(GridColumnDataType.Number).Format(",##0");
-                        columns.Add().DataField("total_aset_lancar").Caption("Total Aset Lancar").DataType(GridColumnDataType.Number).Format(",##0");
-                        columns.Add().DataField("persentase").Caption("Persentase");
-                        columns.Add().DataField("fairmarketvalue").Caption("Nilai Jaminan Margin").Width(150).DataType(GridColumnDataType.Number).Format(",##0");
-                    })
-                    .ColumnResizingMode(ColumnResizingMode.Widget)
-                    .FilterRow(f => f.Visible(true))
-                    .ShowBorders(false)
-                    .Paging(p =>
-                    {
-                        p.PageSize(20);
-                        p.Enabled(true);
-                    })
-                    .Pager(p =>
-                    {
-                        p.ShowInfo(true);
-                    })
-                    )
-            </div>
-
-            <div class="row filter-panel" style="padding-top:0px;">
-                <div class="card-body">
-                    <div class="float-right">
-                    @if (ViewBag.Export)
-                    {
-                                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcelRincianPortofolioEfek();"><span class="image fa fa-file-excel"></span> Export Excel</a>
-                                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdfRincianPortofolioEfek();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
-                    }
-                    </div>
-                </div>
-            </div>
-            <div class="gridview-div">
-                <div style="border-radius: 10px; background-color: white; padding: 3px">
-                    <span style="color: black; font-weight: bold">Rincian Portofolio Efek:</span>
-                </div>
-            @(Html.DevExtreme().DataGrid()
-                    .ID("grid2")
-                    .ShowBorders(true).Width("100%").ShowColumnLines(true).ShowRowLines(true)
-                    .DataSource(d => d.Mvc()
-                    .Controller("SegmentationSummaryClusterMKBD")
-                    .LoadAction("GetGridDataDetailRincian")
-                    .Key("securitycompanycode")
-                    .LoadParams(new { periodeAwal = new JS("getperiodeAwalIdValue"), namaPE = new JS("getIdValue") }))
-                    .RemoteOperations(false)
-                    .Width("100%")
-                    .AllowColumnResizing(true)
-                    .ColumnAutoWidth(true)
-                    .WordWrapEnabled(true)
-                    .Columns(columns =>
-                    {
-                        columns.Add().DataField("f_level_2").Caption("Nama Akun").Width(300);
-                        columns.Add().DataField("total_balance").Caption("Total Balance").DataType(GridColumnDataType.Number).Format(",##0");
-                        columns.Add().DataField("total_aset_lancar").Caption("Total Portofolio Efek").DataType(GridColumnDataType.Number).Format(",##0");
-                        columns.Add().DataField("persentase").Caption("Persentase");
-                        columns.Add().DataField("fairmarketvalue").Caption("Haircut").Width(150).DataType(GridColumnDataType.Number).Format(",##0");
-                    })
-                    .ColumnResizingMode(ColumnResizingMode.Widget)
-                    .FilterRow(f => f.Visible(true))
-                    .ShowBorders(false)
-                    .Paging(p =>
-                    {
-                        p.PageSize(20);
-                        p.Enabled(true);
-                    })
-                    .Pager(p =>
-                    {
-                        p.ShowInfo(true);
-                    })
-                    )
-            </div>
-
-            <!-- The Modal  Detail-->
-            <div class="modal fade" id="ModalSimpanPenggunaanData" tabindex="-1" role="document" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-                <div class="modal-dialog modal-lg">
-                    <div class="modal-content">
-                        <div class="modal-header" style="background-color:#0066b2">
-                            <h4 class="modal-title" style="text-align:left">
-                                <font color="white">Pilih Penggunaan Data</font>
-                            </h4>
-                        </div><!--Modal Header-->
-                        <!-- Modal body -->
-                        <div class="modal-body">
-                            <form id="StrukturFormDetail" method="POST" action="" class="form-horizontal row-border">
-                                <div class="row" style="padding: 0 10px 0 10px;">
-                                @(Html.DevExtreme().SelectBox()
-                                        .ID("penggunaandataid")
-                                        .DataSource(d => d.Mvc()
-                                        .Controller("PenggunaanData")
-                                        .Area("Website")
-                                        .LoadAction("GetPenggunaanData")
-                                        .Key("value"))
-                                        .ValueExpr("value")
-                                        .DisplayExpr("text")
-                                        .SearchEnabled(true)
-                                        .Width("100%")
-                                        )
-                                </div>
-                            </form>
-                        </div>
-                        <!-- Modal footer -->
-                        <div class="modal-footer">
-                            <button type="button" id="btnSavePenggunaanData" class="btn btn-primary" data-bs-dismiss="modal"><i class='fa fa-save'></i> Save</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- The Modal  Detail-->
         </div>
+
+        <div class="row">
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <table>
+                <tr>
+                    <td>
+                        <div class="form-group">
+                            <input type="button" id="btnDetailCluster" class="btn btn-danger" value="Detail Cluster MKBD" onclick="location.href='@Url.Action("Detail", "SegmentationSummaryClusterMKBD")'" />
+                        </div>
+                    </td>
+                    <td></td>
+                    <td>
+                        <div class="form-group">
+                            <input type="button" id="btnRincianPortofolio" class="btn btn-danger" value="Rincian Portofolio" onclick="location.href='@Url.Action("RincianPortofolio", "SegmentationSummaryClusterMKBD")'" />
+                        </div>
+                    </td>
+                    <td></td>
+                    <td>
+                        <div class="form-group">
+                            <input type="button" id="btnReksadana" class="btn btn-danger" value="Reksadana" onclick="location.href='@Url.Action("Reksadana", "SegmentationSummaryClusterMKBD")'" />
+                        </div>
+                    </td>
+                    <td></td>
+                    <td>
+                        <div class="form-group">
+                            <input type="button" id="btnJaminanMargin" class="btn btn-danger" value="Jaminan Margin" onclick="location.href='@Url.Action("JaminanMargin", "SegmentationSummaryClusterMKBD")'" />
+                        </div>
+                    </td>
+                    <td></td>
+                    <td>
+                        <div class="form-group">
+                            <input type="button" id="btnReverseRepo" class="btn btn-danger" value="Reverse Repo" onclick="location.href='@Url.Action("ReverseRepo", "SegmentationSummaryClusterMKBD")'" />
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="row filter-panel" style="padding-top:0px;">
+            <div class="card-body">
+                <div class="float-right">
+                    @if (ViewBag.Export)
+                    {
+                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcelDetail();"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdfDetail();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="gridview-div">
+            @(Html.DevExtreme().DataGrid()
+                .ID("grid1")
+                .ShowBorders(true).Width("100%").ShowColumnLines(true).ShowRowLines(true)
+                .DataSource(d => d.Mvc()
+                .Controller("SegmentationSummaryClusterMKBD")
+                .LoadAction("GetGridDataDetail")
+                .Key("securitycompanycode")
+                .LoadParams(new { periodeAwal = new JS("getperiodeAwalIdValue"), namaPE = new JS("getIdValue") }))
+                .RemoteOperations(true)
+                .Width("100%")
+                .AllowColumnResizing(true)
+                .ColumnAutoWidth(true)
+                .WordWrapEnabled(true)
+                .Columns(columns =>
+                {
+                    columns.Add().DataField("periode").Caption("Tanggal").Alignment(HorizontalAlignment.Center);
+                    columns.Add().DataField("securitycompanycode").Caption("Kode PE");
+                    columns.Add().DataField("securitycompanyname").Caption("Nama PE").Width(300);
+                    columns.Add().DataField("f_level_1").Caption("Konsentrasi Aset Lancar Selain Kas Dan Setara Kas").Width(150);
+                    columns.Add().DataField("total_balance").Caption("Total Balance").DataType(GridColumnDataType.Number).Format(",##0");
+                    columns.Add().DataField("total_aset_lancar").Caption("Total Aset Lancar").DataType(GridColumnDataType.Number).Format(",##0");
+                    columns.Add().DataField("persentase").Caption("Persentase");
+                    columns.Add().DataField("fairmarketvalue").Caption("Nilai Jaminan Margin").Width(150).DataType(GridColumnDataType.Number).Format(",##0");
+                })
+                .ColumnResizingMode(ColumnResizingMode.Widget)
+                .FilterRow(f => f.Visible(true))
+                .ShowBorders(false)
+                .Paging(p =>
+                {
+                    p.PageSize(20);
+                    p.Enabled(true);
+                })
+                .Pager(p =>
+                {
+                    p.ShowInfo(true);
+                })
+                )
+        </div>
+
+        <div class="row filter-panel" style="padding-top:0px;">
+            <div class="card-body">
+                <div class="float-right">
+                    @if (ViewBag.Export)
+                    {
+                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcelRincianPortofolioEfek();"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdfRincianPortofolioEfek();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="gridview-div">
+            <div style="border-radius: 10px; background-color: white; padding: 3px">
+                <span style="color: black; font-weight: bold">Rincian Portofolio Efek:</span>
+            </div>
+            @(Html.DevExtreme().DataGrid()
+                .ID("grid2")
+                .ShowBorders(true).Width("100%").ShowColumnLines(true).ShowRowLines(true)
+                .DataSource(d => d.Mvc()
+                .Controller("SegmentationSummaryClusterMKBD")
+                .LoadAction("GetGridDataDetailRincian")
+                .Key("securitycompanycode")
+                .LoadParams(new { periodeAwal = new JS("getperiodeAwalIdValue"), namaPE = new JS("getIdValue") }))
+                .RemoteOperations(false)
+                .Width("100%")
+                .AllowColumnResizing(true)
+                .ColumnAutoWidth(true)
+                .WordWrapEnabled(true)
+                .Columns(columns =>
+                {
+                    columns.Add().DataField("f_level_2").Caption("Nama Akun").Width(300);
+                    columns.Add().DataField("total_balance").Caption("Total Balance").DataType(GridColumnDataType.Number).Format(",##0");
+                    columns.Add().DataField("total_aset_lancar").Caption("Total Portofolio Efek").DataType(GridColumnDataType.Number).Format(",##0");
+                    columns.Add().DataField("persentase").Caption("Persentase");
+                    columns.Add().DataField("fairmarketvalue").Caption("Haircut").Width(150).DataType(GridColumnDataType.Number).Format(",##0");
+                })
+                .ColumnResizingMode(ColumnResizingMode.Widget)
+                .FilterRow(f => f.Visible(true))
+                .ShowBorders(false)
+                .Paging(p =>
+                {
+                    p.PageSize(20);
+                    p.Enabled(true);
+                })
+                .Pager(p =>
+                {
+                    p.ShowInfo(true);
+                })
+                )
+        </div>
+
+        <!-- The Modal  Detail-->
+        <div class="modal fade" id="ModalSimpanPenggunaanData" tabindex="-1" role="document" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color:#0066b2">
+                        <h4 class="modal-title" style="text-align:left">
+                            <font color="white">Pilih Penggunaan Data</font>
+                        </h4>
+                    </div><!--Modal Header-->
+                    <!-- Modal body -->
+                    <div class="modal-body">
+                        <form id="StrukturFormDetail" method="POST" action="" class="form-horizontal row-border">
+                            <div class="row" style="padding: 0 10px 0 10px;">
+                                @(Html.DevExtreme().SelectBox()
+                                    .ID("penggunaandataid")
+                                    .DataSource(d => d.Mvc()
+                                    .Controller("PenggunaanData")
+                                    .Area("Website")
+                                    .LoadAction("GetPenggunaanData")
+                                    .Key("value"))
+                                    .ValueExpr("value")
+                                    .DisplayExpr("text")
+                                    .SearchEnabled(true)
+                                    .Width("100%")
+                                    )
+                            </div>
+                        </form>
+                    </div>
+                    <!-- Modal footer -->
+                    <div class="modal-footer">
+                        <button type="button" id="btnSavePenggunaanData" class="btn btn-primary" data-bs-dismiss="modal"><i class='fa fa-save'></i> Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- The Modal  Detail-->
+    </div>
 }
 
 <script>
