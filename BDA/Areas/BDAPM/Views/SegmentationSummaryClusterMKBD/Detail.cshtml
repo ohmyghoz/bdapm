@@ -1,6 +1,8 @@
 ﻿@using DevExtreme.AspNet.Mvc
 @{
     Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+    var tanggalparam = ViewBag.PeriodeAwalDate;
+    var NamaPEparam = ViewBag.NamaPE;
 }
 @section RightToolbar {
     <div class="d-flex align-items-center">
@@ -23,7 +25,7 @@
                         @(Html.DevExtreme().DateBox()
                             .ID("PeriodeAwal")
                             .DisplayFormat("dd MMM yyyy")
-                            .Value(DateTime.Now)
+                            .Value(@ViewBag.PeriodeAwalDate)
                             .Max(DateTime.Now)
                             .Width("100%"))
                     </div>
@@ -242,7 +244,11 @@
 </script>
 
 <script>
-
+    @* $(document).ready(function() {
+          $('#btnRincianPortofolio').click(function(){
+            alert("test");
+        });
+    }); *@
     function ExportToExcelDetail() {
          $.ajax({
             type: "POST",
@@ -362,7 +368,7 @@
     $(function () {
         const startDate = $("#PeriodeAwal").dxDateBox({
             onValueChanged: function (e) {
-                endDate.option("min", e.value);
+                
             }
         }).dxDateBox("instance");
 

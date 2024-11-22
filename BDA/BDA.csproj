@@ -61,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Areas\BDAPM\Views\IP\Index2.cshtml" />
+    <Content Remove="Areas\BDAPM\Views\_ViewImports.cshtml" />
     <Content Remove="Areas\FW\Views\DXReport\Designer.cshtml" />
     <Content Remove="Areas\FW\Views\DXReport\QueryBuilder.cshtml" />
     <Content Remove="Areas\FW\Views\DXReport\Viewer.cshtml" />
@@ -92,6 +93,7 @@
     <PackageReference Include="System.Data.Odbc" Version="8.0.0" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Areas\BDAPM\Views\_ViewImports.cshtml" />
     <None Include="Areas\FW\Views\Attachment\Sample.cshtml" />
     <None Include="Areas\FW\Views\DXReport\Designer.cshtml" />
     <None Include="Areas\FW\Views\DXReport\QueryBuilder.cshtml" />

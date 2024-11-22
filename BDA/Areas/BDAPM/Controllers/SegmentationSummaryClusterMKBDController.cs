@@ -660,14 +660,16 @@ namespace BDA.Controllers
             varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
                            select new
                            {
-                               exchangemembercode = bs.Field<string>("exchangemembercode").ToString(),
-                               exchangemembername = bs.Field<string>("exchangemembername").ToString(),
+                               exchangemembercode = bs.Field<string>("exchangemembercode").ToString().Trim(),
+                               exchangemembername = bs.Field<string>("exchangemembername").ToString().Trim(),
                            }).OrderBy(bs => bs.exchangemembername).ToList();
+
             DataTable dtList = new DataTable();
             dtList = Helper.WSQueryStore.LINQResultToDataTable(varDataList);
 
             if (dtList.Rows.Count > 0)
             {
+                list.Add(new NamaPE() { value = "", text = "(ALL)" });
                 for (int i = 0; i < dtList.Rows.Count; i++)
                 {
                     string namakode = dtList.Rows[i]["exchangemembercode"].ToString() + " - " + dtList.Rows[i]["exchangemembername"].ToString();
@@ -751,17 +753,26 @@ namespace BDA.Controllers
 
             string namaPE = id;
             string stringPeriodeAwal = null;
+            string stringPeriodeAwalDate = null;
             string stringNamaPE = null;
 
             if (periodeAwal != null)
             {
                 stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
                 TempData["pawal"] = stringPeriodeAwal;
+                stringPeriodeAwalDate = Convert.ToDateTime(periodeAwal).ToString("yyyy MMM dd");
+                ViewBag.PeriodeAwalDate = stringPeriodeAwalDate;
+            }
+            else
+            {
+                stringPeriodeAwalDate = Convert.ToDateTime(DateTime.Now).ToString("yyyy MMM dd");
+                ViewBag.PeriodeAwalDate = stringPeriodeAwalDate;
             }
             if (namaPE != null)
             {
                 stringNamaPE = namaPE;
                 TempData["pe"] = stringNamaPE;
+                ViewBag.NamaPE = stringNamaPE;
             }
 
             db.Database.CommandTimeout = 420;

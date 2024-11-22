@@ -23,7 +23,6 @@
                         @(Html.DevExtreme().DateBox()
                             .ID("PeriodeAwal")
                             .DisplayFormat("dd MMM yyyy")
-                            //.Value(periodeAwal1 == null ? DateTime.Now : periodeAwal1)
                             .Value(DateTime.Now)
                             .Max(DateTime.Now)
                             .Width("100%"))
@@ -268,7 +267,7 @@
     $(function () {
         const startDate = $("#PeriodeAwal").dxDateBox({
             onValueChanged: function (e) {
-                endDate.option("min", e.value);
+                
             }
         }).dxDateBox("instance");
 
