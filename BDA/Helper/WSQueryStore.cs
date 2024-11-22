@@ -26,8 +26,8 @@ namespace BDA.Helper
         {
             DataTable dt = wqr.data;
 
-            foreach(DataRow dr in dt.Rows)
-            {                 
+            foreach (DataRow dr in dt.Rows)
+            {
                 dr["sid"] = DecryptSID(dr["sid"].ToString());
                 dr["lem"] = dr["lem"].ToString() + dr["sid"].ToString();
                 dr["nama_sid"] = DecryptName(dr["nama_sid"].ToString());
@@ -50,7 +50,7 @@ namespace BDA.Helper
                 dr["sid"] = DecryptSID(dr["sid"].ToString());
                 dr["nama_sid"] = DecryptName(dr["nama_sid"].ToString());
             }
-            
+
             wqr.data = dt;
 
             return wqr;
@@ -60,14 +60,14 @@ namespace BDA.Helper
         {
             if (s.Length < 3) return s;
             int val = 0;
-            return (Int32.TryParse(s.Substring(0, 2), out val) ? keySID[(val-11)] : s.Substring(0, 2)) + s.Substring(2);
+            return (Int32.TryParse(s.Substring(0, 2), out val) ? keySID[(val - 11)] : s.Substring(0, 2)) + s.Substring(2);
         }
 
-        private static string DecryptName(string s) 
+        private static string DecryptName(string s)
         {
             if (s.Length == 0) return s;
-            int val = 0;            
-            return ((Int32.TryParse(s.Substring(0, 1), out val) ? keyName[val] : s.Substring(0, 1)) 
+            int val = 0;
+            return ((Int32.TryParse(s.Substring(0, 1), out val) ? keyName[val] : s.Substring(0, 1))
                 + s.Substring(1)).Replace("IOII", "O").Replace("IOOI", "A").Replace("IIOO", "U").Replace("IOIO", "E");
         }
 
@@ -76,7 +76,7 @@ namespace BDA.Helper
             if (s.Length < 2) return s;
             int val = 0;
             string right = s.Substring(s.Length - 2, 2);
-            return (Int32.TryParse(right.Substring(0,1), out val) ? keyOne[val] : right[0]) + (Int32.TryParse(right.Substring(1, 1), out val) ? keyTwo[val] : right[1])
+            return (Int32.TryParse(right.Substring(0, 1), out val) ? keyOne[val] : right[0]) + (Int32.TryParse(right.Substring(1, 1), out val) ? keyTwo[val] : right[1])
                 + s.Substring(0, s.Length - 2);
         }
 
@@ -84,7 +84,7 @@ namespace BDA.Helper
         {
             if (s.Length < 3) return s;
             int idx = Array.IndexOf(keySID, s.Substring(0, 3));
-            if (idx >= 0) return (idx+11).ToString() + s.Substring(3);
+            if (idx >= 0) return (idx + 11).ToString() + s.Substring(3);
             return s;
         }
 
@@ -92,7 +92,40 @@ namespace BDA.Helper
         {
             if (s.Length < 2) return s;
             int idx = Array.IndexOf(keyName, s.Substring(0, 1));
-            return ((idx >= 0 ? idx.ToString(): s.Substring(0, 1)) + s.Substring(1)).Replace("O", "IOII").Replace("A", "IOOI").Replace("U", "IIOO").Replace("E", "IOIO");            
+            return ((idx >= 0 ? idx.ToString() : s.Substring(0, 1)) + s.Substring(1)).Replace("O", "IOII").Replace("A", "IOOI").Replace("U", "IIOO").Replace("E", "IOIO");
+        }
+        #endregion
+
+        public static string CheckAndModifyFilterVal(string colName, string colValue)
+        {
+            if (colName == "sid")
+                return WSQueryStore.EncryptSID(colValue);
+
+            return colValue;
+        }
+
+        #region SimpleQuery
+        private static WSQueryReturns ExecuteSimpleSQL(string connString, string queryString)
+        {
+            var result = new WSQueryReturns();
+            using (var conn = new SqlConnection(connString))
+            {
+                string countQuery = @"select count(*) from (" + queryString + @") cntquery";
+                using (var cmd = new SqlCommand(countQuery, conn))
+                {
+                    cmd.CommandTimeout = 300;
+                    conn.Open();
+                    var dt = new DataTable();
+                    if (result.totalCount == null || result.totalCount > 0) //hemat 1 kali call 
+                    {
+                        cmd.CommandText = queryString;
+                        var adap = new SqlDataAdapter(cmd);
+                        adap.Fill(dt);
+                    }
+                    result.data = dt;
+                }
+                return result;
+            }
         }
         #endregion
 
@@ -5566,7 +5599,7 @@ namespace BDA.Helper
             {
                 namaSID = namaSID.Replace("'", "").Replace(",", "','").Replace("' ", "'"); //cegah sql inject dikit
                 namaSID = "'%" + namaSID.ToUpper() + "%'";
-                whereQuery = "REPLACE(REPLACE(REPLACE(REPLACE(CONCAT(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(SUBSTRING(nama_sid, 1, 1), 0,'M'), 1,'R'), 2,'S'), 3,'D'), 4,'N'), 5,'F'), 6,'H'), 7,'Y'), 8,'T'), 9,'J'), SUBSTRING(nama_sid, 2, " + (isHive ? "LENGTH" : "LEN") + "(nama_sid))), 'IOII','O') , 'IOOI', 'A'), 'IIOO', 'U'),'IOIO' , 'E') LIKE " + namaSID + " ";                
+                whereQuery = "REPLACE(REPLACE(REPLACE(REPLACE(CONCAT(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(SUBSTRING(nama_sid, 1, 1), 0,'M'), 1,'R'), 2,'S'), 3,'D'), 4,'N'), 5,'F'), 6,'H'), 7,'Y'), 8,'T'), 9,'J'), SUBSTRING(nama_sid, 2, " + (isHive ? "LENGTH" : "LEN") + "(nama_sid))), 'IOII','O') , 'IOOI', 'A'), 'IIOO', 'U'),'IOIO' , 'E') LIKE " + namaSID + " ";
 
             }
             var props = new WSQueryProperties();
@@ -5583,10 +5616,10 @@ namespace BDA.Helper
             var periodWhereQuery = "";
             //isHive = false;
 
-            if (sistem != null) whereQuery = whereQuery += " AND system = '" + sistem + "' ";
+            if (sistem != null) whereQuery = whereQuery += " AND UPPER(system) = '" + sistem.ToUpper() + "' ";
 
             if (SID != null) whereQuery = whereQuery += " AND sid = '" + EncryptSID(SID) + "' ";
-            else if (tradeId != null) whereQuery = whereQuery += " AND trade_id = '" + tradeId + "' ";
+            else if (tradeId != null) whereQuery = whereQuery += " AND SUBSTRING(sid, 7, 6) = '" + tradeId + "' ";
             else if (nomorKTP != null) whereQuery = whereQuery += " AND ktp = '" + nomorKTP + "' ";
             else if (nomorNPWP != null) whereQuery = whereQuery += " AND npwp = '" + nomorNPWP + "' ";
             //else if (namaSID != null) whereQuery = whereQuery += " AND nama_sid = " + EncryptName(namaSID);
@@ -5603,42 +5636,61 @@ namespace BDA.Helper
                 string periodes = "'" + startPeriod.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
                 periodWhereQuery = " AND " + periodes + " between valid_from and valid_until"; //date_format(CURRENT_DATE(), 'YYYYMMdd')
             }
-            var props = new WSQueryProperties();
 
+            string sqlGetQuery = "select table_" + (isHive ? "hive" : "sql") + @" as queryString from dbo.ref_query where table_id = '" + tableName + "'";
+            //var propsQuery = new WSQueryProperties();
+            //propsQuery.Query = sqlGetQuery;
+            //DataRow dr = WSQueryHelper.DoQuery(db, propsQuery, loadOptions, false, false).data.Rows[0];
+
+            DataRow dr = ExecuteSimpleSQL(db.appSettings.DataConnString, sqlGetQuery).data.Rows[0];
+            string queryString = dr["queryString"].ToString();
+            queryString = queryString.Replace("@wherefilter", whereQuery).Replace("@whereperiode", periodWhereQuery);
+
+            var props = new WSQueryProperties();
+            props.Query = queryString;
+
+
+
+            #region OldQuery
+            /*
             if (tableName == "ip_sid")
             {
+
+
                 props.Query += @" SELECT 
-                        valid_until + '~' + system + '~' AS lem, * from pasarmodal." + (isHive ? "src_sid" : tableName) + @" x WHERE " + whereQuery + periodWhereQuery;
+                        CONCAT(CAST(valid_until AS VARCHAR(20)), '~', system, '~') AS lem, * from pasarmodal." + (isHive ? "src_sid" : tableName) + @" x WHERE " + whereQuery + periodWhereQuery;
                 //props.Query += (chk100 == true) ? @" order by x.periode" : @"";
             }
             else if (tableName == "ip_transaction")
             {
                 props.Query += @"
-                        SELECT CAST(y.valid_until AS VARCHAR(20)) + '~' + y.system + '~' AS lem, y.*, x.buy_value, x.buy_quantity, x.buy_freq, 
+                        SELECT CONCAT(CAST(y.valid_until AS VARCHAR(20)), '~', y.system, '~') AS lem, trade_id, y.*, securitycode, x.buy_value, x.buy_quantity, x.buy_freq, 
                         x.sell_value, x.sell_quantity, x.sell_freq, 
                         (x.buy_value - x.sell_value) as net_value, 
                         (x.buy_quantity - x.sell_quantity) as net_quantity,
                         (x.buy_freq - x.sell_freq) as net_freq
                         FROM (
-                            select sid, securitycode, securityname, ";
+                            select sid, trade_id, securitycode, ";
 
                 if (isHive)
                     props.Query += @"
-                            SUM( IF( transactiontypecode = 'B', value, 0) ) AS buy_value, 
-                            SUM( IF( transactiontypecode = 'B', quantity, 0) ) AS buy_quantity, 
-                            SUM( IF( transactiontypecode = 'B', freq, 0) ) AS buy_freq,
-                            SUM( IF( transactiontypecode = 'S', value, 0) ) AS sell_value, 
-                            SUM( IF( transactiontypecode = 'S', quantity, 0) ) AS sell_quantity, 
-                            SUM( IF( transactiontypecode = 'S', freq, 0) ) AS sell_freq ";
+                            IF( transactiontypecode = 'B', value, 0)  AS buy_value, 
+                            IF( transactiontypecode = 'B', quantity, 0)  AS buy_quantity, 
+                            IF( transactiontypecode = 'B', freq, 0)  AS buy_freq,
+                            IF( transactiontypecode = 'S', value, 0)  AS sell_value, 
+                            IF( transactiontypecode = 'S', quantity, 0)  AS sell_quantity, 
+                            IF( transactiontypecode = 'S', freq, 0)  AS sell_freq ";
                 else
                     props.Query += @"
                             buy_value, buy_quantity, buy_freq, sell_value, sell_quantity, sell_freq ";
 
                 props.Query += @"
                             from pasarmodal." + (isHive ? "investor_profile_trans" : tableName) + @"
-                            where " + whereQuery + periodWhereQuery + @" 
+                            where " + whereQuery + periodWhereQuery 
+                            //+ (isHive ? "group by sid, trade_id, securitycode" :"") 
+                            + @" 
                         )x LEFT OUTER JOIN (
-                            select valid_until, sid, nama_sid, trade_id, tanggal_lahir, tanggal_pendirian, address1, ktp, npwp, status_sid, last_update_sid, system, email, phone_number, fax, passport, occupation, nationality, province, city, periode, full_name, nama_rekening 
+                            select valid_until, sid, nama_sid, tanggal_lahir, tanggal_pendirian, address1, ktp, npwp, status_sid, last_update_sid, system, email, phone_number, fax, passport, occupation, nationality, province, city, full_name, nama_rekening 
                             from pasarmodal." + (isHive ? "src_sid" : "ip_sid") + @" 
                             where " + whereQuery + @"
                         )y ON x.sid = y.sid";
@@ -5646,13 +5698,13 @@ namespace BDA.Helper
             else if (tableName == "ip_ownership")
             {
                 props.Query += @"
-                        SELECT CAST(y.valid_until AS VARCHAR(20)) + '~' + y.system + '~' AS lem, y.*, 
-                        securitycode, securityname, rekening_status, accountbalancestatuscode, volume, value 
+                        SELECT CONCAT(CAST(y.valid_until AS VARCHAR(20)), '~', y.system, '~') AS lem, trade_id, y.*, 
+                        securitycode, rekening_status, accountbalancestatuscode, volume, value 
                         FROM (
-                            select sid, securitycode, securityname, rekening_status, accountbalancestatuscode, volume, value  
-                            from pasarmodal." + (isHive ? "investor_profile_kpm" : tableName) + @" x WHERE " + whereQuery + periodWhereQuery + @"
+                            select sid, trade_id, securitycode, rekening_status, accountbalancestatuscode, volume, value  
+                            from pasarmodal." + (isHive ? "investor_profile_kpm" : tableName) + @" WHERE " + whereQuery + periodWhereQuery + @"
                         )x LEFT OUTER JOIN (
-                            select valid_until, sid, nama_sid, trade_id, tanggal_lahir, tanggal_pendirian, address1, ktp, npwp, status_sid, last_update_sid, system, email, phone_number, fax, passport, occupation, nationality, province, city, periode, full_name, nama_rekening 
+                            select valid_until, sid, nama_sid, tanggal_lahir, tanggal_pendirian, address1, ktp, npwp, status_sid, last_update_sid, system, email, phone_number, fax, passport, occupation, nationality, province, city, full_name, nama_rekening 
                             from pasarmodal." + (isHive ? "src_sid" : "ip_sid") + @" 
                             where " + whereQuery + @"
                         )y ON x.sid = y.sid";
@@ -5664,9 +5716,13 @@ namespace BDA.Helper
                         CAST(dm_periode AS VARCHAR(20)) + '~' + system + '~' + sid AS lem, * from pasarmodal." + tableName + @" x WHERE " + whereQuery;
                 props.Query += (chk100 == true) ? @" order by x.is_direct" : @"";
             }
+            */
 
-            return DecryptResults( WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive) );
+            #endregion
+
+            return DecryptResults(WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive));
         }
+
         public static WSQueryReturns GetPMMMQuery(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string startPeriod, string endPeriod, bool isHive = false)
         {
             bool isC = false;

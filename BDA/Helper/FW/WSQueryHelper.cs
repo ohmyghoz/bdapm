@@ -13,9 +13,9 @@ namespace BDA.Helper.FW
 {
     public class WSQueryHelper
     {
-        private static void PrepareProps(WSQueryProperties props, string limitExport,bool isChart, DataSourceLoadOptions loadOptions, bool forHive = false)
+        private static void PrepareProps(WSQueryProperties props, string limitExport, bool isChart, DataSourceLoadOptions loadOptions, bool forHive = false)
         {
-            
+
             if (props.SqlParameters == null)
             {
                 props.SqlParameters = new List<SqlParameter>();
@@ -23,7 +23,10 @@ namespace BDA.Helper.FW
 
             if (loadOptions.Filter != null && loadOptions.Filter.Count > 0)
             {
-                var insideWhereQuery = GetSqlExprByArray(loadOptions.Filter.Cast<object>().ToArray(), props.SqlParameters);
+
+                //var insideWhereQuery = GetSqlExprByArray(loadOptions.Filter.Cast<object>().ToArray(), props.SqlParameters);
+                JArray filterList = JArray.FromObject(loadOptions.Filter.Cast<object>().ToArray());
+                var insideWhereQuery = GetSqlExprByArray(filterList.ToObject<object[]>(), props.SqlParameters);
                 props.CountQuery = "SELECT count(*) from (" + Environment.NewLine + props.Query + Environment.NewLine + ") cwhere" +
                    Environment.NewLine + "WHERE " + insideWhereQuery;
 
@@ -69,11 +72,12 @@ namespace BDA.Helper.FW
                 props.Query = "SELECT * from (" + Environment.NewLine + props.Query + Environment.NewLine + ") cord" +
                                 Environment.NewLine + takeQuery;
             }
-            else if (loadOptions.Take == 0 && loadOptions.RequireTotalCount == false && isChart==false) {
-                var takeQuery = $"ORDER BY {ordByQuery} {Environment.NewLine} OFFSET 0 ROWS FETCH NEXT "+ limitExport +" ROWS ONLY";
+            else if (loadOptions.Take == 0 && loadOptions.RequireTotalCount == false && isChart == false)
+            {
+                var takeQuery = $"ORDER BY {ordByQuery} {Environment.NewLine} OFFSET 0 ROWS FETCH NEXT " + limitExport + " ROWS ONLY";
                 if (forHive)
                 {
-                    takeQuery = $"ORDER BY {ordByQuery} {Environment.NewLine} LIMIT 0," + limitExport ;
+                    takeQuery = $"ORDER BY {ordByQuery} {Environment.NewLine} LIMIT 0," + limitExport;
                     takeQuery = takeQuery.Replace("ORDER BY 1", "");
                 }
 
@@ -106,7 +110,7 @@ namespace BDA.Helper.FW
             //generate order by query
             var ordByQuery = "1";
 
-            
+
         }
         private static WSQueryReturns ExecuteCommandSQLServer(string connString, WSQueryProperties props, DataSourceLoadOptions loadOptions)
         {
@@ -249,7 +253,7 @@ namespace BDA.Helper.FW
                     toReplace = prm.Value.ToString();
                 }
 
-                props.CountQuery = props.CountQuery.Replace(mtc.Value.ToLower(),  toReplace);
+                props.CountQuery = props.CountQuery.Replace(mtc.Value.ToLower(), toReplace);
                 props.Query = props.Query.Replace(mtc.Value.ToLower(), toReplace);
             }
 
@@ -267,12 +271,12 @@ namespace BDA.Helper.FW
                         Console.WriteLine(props.CountQuery);
                         result.totalCount = Convert.ToInt32(cmd.ExecuteScalar());
 
-                        if(loadOptions.Take > 0 && result.totalCount <= loadOptions.Take) //test hardcode dulu 1000 sebenarnya harusnya <= Take
+                        if (loadOptions.Take > 0 && result.totalCount <= loadOptions.Take) //test hardcode dulu 1000 sebenarnya harusnya <= Take
                         {
                             //ini count nya lebih < yang dibutuhkan, hapus LIMIT dari query (yang terakhir)
                             props.Query = props.Query.Substring(0, props.Query.LastIndexOf("LIMIT"));
                         }
-                        
+
 
                     }
 
@@ -294,7 +298,7 @@ namespace BDA.Helper.FW
                     result.data = dt;
                 }
             }
-            
+
             return result;
         }
         private static WSQueryReturns ExecuteCommandHiveOdbcNL(string connString, WSQueryProperties props)
@@ -370,9 +374,9 @@ namespace BDA.Helper.FW
             return result;
         }
 
-        public static WSQueryReturns DoQuery(DataEntities db, WSQueryProperties props, DataSourceLoadOptions loadOptions,bool isChart, bool forHive = false)
-        {            
-            PrepareProps(props, db.GetSetting("LimitExportExcelPDF"),isChart, loadOptions,forHive);
+        public static WSQueryReturns DoQuery(DataEntities db, WSQueryProperties props, DataSourceLoadOptions loadOptions, bool isChart, bool forHive = false)
+        {
+            PrepareProps(props, db.GetSetting("LimitExportExcelPDF"), isChart, loadOptions, forHive);
             if (forHive)
             {
                 return ExecuteCommandHiveOdbc("DSN=" + db.GetSetting("HiveDSN"), props, loadOptions);
@@ -387,13 +391,15 @@ namespace BDA.Helper.FW
             PreparePropsNL(props, db.GetSetting("LimitExportExcelPDF"), isChart, forHive);
             if (forHive)
             {
-                return ExecuteCommandHiveOdbcNL("DSN=" + db.GetSetting("HiveDSN"),props);
+                return ExecuteCommandHiveOdbcNL("DSN=" + db.GetSetting("HiveDSN"), props);
             }
             else
             {
                 return ExecuteCommandSQLServerNL(db.appSettings.DataConnString, props);
             }
         }
+
+
 
         private static string _GetSimpleSqlExpr(object[] expression, List<SqlParameter> sqlParamList)
         {
@@ -411,6 +417,9 @@ namespace BDA.Helper.FW
                 string clause = expression[1].ToString();
                 var val = expression[2];
                 string pattern = "";
+
+                val = WSQueryStore.CheckAndModifyFilterVal(expression[0].ToString(), val.ToString());
+
                 switch (clause)
                 {
                     case "=":
@@ -458,10 +467,11 @@ namespace BDA.Helper.FW
                 {
                     sqlParamList.Add(new SqlParameter(namaParam, SqlDbType.VarChar) { Value = val.ToString().ToLower() });
                 }
-                else {
+                else
+                {
                     sqlParamList.Add(new SqlParameter(namaParam, SqlDbType.VarChar) { Value = val });
                 }
-               
+
             }
             return result;
         }
@@ -473,7 +483,8 @@ namespace BDA.Helper.FW
             int index = 0;
             foreach (var item in expression)
             {
-                Console.WriteLine(item.GetType().Name);
+                string nameObj = item.GetType().Name;
+                //Console.WriteLine(nameObj);
                 if (item.GetType().Name == "String")
                 {
                     prevItemWasArray = false;
@@ -494,6 +505,7 @@ namespace BDA.Helper.FW
                     }
                     continue;
                 }
+
 
 
                 if (item.GetType().Name == "JArray")
