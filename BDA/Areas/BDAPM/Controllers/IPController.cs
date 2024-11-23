@@ -355,7 +355,7 @@ namespace BDA.Controllers
             if (startPeriode != null && (regex.Match(reportId).Success || sistem != null) && (SID != null || tradeId != null || namaSID != null || nomorKTP != null || nomorNPWP != null || businessReg != null))
                 {
                 var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId);
-                cekHive = false;
+                //cekHive = false;
                 //if (PMRefController.IsPengawasLJK(db))
                 //{
 
