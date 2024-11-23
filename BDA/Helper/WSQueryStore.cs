@@ -1,11 +1,8 @@
 ﻿using BDA.DataModel;
 using BDA.Helper.FW;
 using DevExpress.Data.Extensions;
-using DevExpress.XtraCharts.Native;
 using DevExpress.XtraRichEdit;
 using DevExtreme.AspNet.Mvc;
-using Microsoft.AspNetCore.Http;
-using Microsoft.CodeAnalysis.Elfie.Diagnostics;
 using Org.BouncyCastle.Asn1.Mozilla;
 using System;
 using System.Collections.Generic;
@@ -28,9 +25,11 @@ namespace BDA.Helper
         public static WSQueryReturns DecryptResults(WSQueryReturns wqr)
         {
             DataTable dt = wqr.data;
-
-            foreach(DataRow dr in dt.Rows)
-            {                 
+            dt.Columns.Add("no", typeof(System.String));
+            int noRow = 1;
+            foreach (DataRow dr in dt.Rows)
+            {
+                dr["no"] = noRow.ToString();                
                 dr["sid"] = DecryptSID(dr["sid"].ToString());
                 dr["lem"] = dr["lem"].ToString() + dr["sid"].ToString();
                 dr["nama_sid"] = DecryptName(dr["nama_sid"].ToString());
@@ -38,6 +37,7 @@ namespace BDA.Helper
                 dr["email"] = DecryptName(dr["email"].ToString());
                 dr["nama_rekening"] = DecryptName(dr["nama_rekening"].ToString());
                 dr["phone_number"] = DecryptNumber(dr["phone_number"].ToString());
+                noRow++;
             }
             wqr.data = dt;
 
@@ -53,7 +53,7 @@ namespace BDA.Helper
                 dr["sid"] = DecryptSID(dr["sid"].ToString());
                 dr["nama_sid"] = DecryptName(dr["nama_sid"].ToString());
             }
-            
+
             wqr.data = dt;
 
             return wqr;
@@ -63,14 +63,14 @@ namespace BDA.Helper
         {
             if (s.Length < 3) return s;
             int val = 0;
-            return (Int32.TryParse(s.Substring(0, 2), out val) ? keySID[(val-11)] : s.Substring(0, 2)) + s.Substring(2);
+            return (Int32.TryParse(s.Substring(0, 2), out val) ? keySID[(val - 11)] : s.Substring(0, 2)) + s.Substring(2);
         }
 
-        private static string DecryptName(string s) 
+        private static string DecryptName(string s)
         {
             if (s.Length == 0) return s;
-            int val = 0;            
-            return ((Int32.TryParse(s.Substring(0, 1), out val) ? keyName[val] : s.Substring(0, 1)) 
+            int val = 0;
+            return ((Int32.TryParse(s.Substring(0, 1), out val) ? keyName[val] : s.Substring(0, 1))
                 + s.Substring(1)).Replace("IOII", "O").Replace("IOOI", "A").Replace("IIOO", "U").Replace("IOIO", "E");
         }
 
@@ -79,7 +79,7 @@ namespace BDA.Helper
             if (s.Length < 2) return s;
             int val = 0;
             string right = s.Substring(s.Length - 2, 2);
-            return (Int32.TryParse(right.Substring(0,1), out val) ? keyOne[val] : right[0]) + (Int32.TryParse(right.Substring(1, 1), out val) ? keyTwo[val] : right[1])
+            return (Int32.TryParse(right.Substring(0, 1), out val) ? keyOne[val] : right[0]) + (Int32.TryParse(right.Substring(1, 1), out val) ? keyTwo[val] : right[1])
                 + s.Substring(0, s.Length - 2);
         }
 
@@ -87,7 +87,7 @@ namespace BDA.Helper
         {
             if (s.Length < 3) return s;
             int idx = Array.IndexOf(keySID, s.Substring(0, 3));
-            if (idx >= 0) return (idx+11).ToString() + s.Substring(3);
+            if (idx >= 0) return (idx + 11).ToString() + s.Substring(3);
             return s;
         }
 
@@ -95,9 +95,17 @@ namespace BDA.Helper
         {
             if (s.Length < 2) return s;
             int idx = Array.IndexOf(keyName, s.Substring(0, 1));
-            return ((idx >= 0 ? idx.ToString(): s.Substring(0, 1)) + s.Substring(1)).Replace("O", "IOII").Replace("A", "IOOI").Replace("U", "IIOO").Replace("E", "IOIO");            
+            return ((idx >= 0 ? idx.ToString() : s.Substring(0, 1)) + s.Substring(1)).Replace("O", "IOII").Replace("A", "IOOI").Replace("U", "IIOO").Replace("E", "IOIO");
         }
         #endregion
+
+        public static string CheckAndModifyFilterVal(string colName, string colValue)
+        {
+            if (colName == "sid")
+                return WSQueryStore.EncryptSID(colValue);
+
+            return colValue;
+        }
 
         #region SimpleQuery
         private static WSQueryReturns ExecuteSimpleSQL(string connString, string queryString)
@@ -5164,7 +5172,7 @@ namespace BDA.Helper
                             cast(cast(total_balance as BIGINT)  as string) as total_balance,
                             cast(cast(total_aset_lancar as BIGINT)  as string) as total_aset_lancar,
                             cast(cast(persentase as BIGINT)  as string) as persentase,
-                            cast(cast(fairmarketvalue as BIGINT)  as string) as fairmarketvalue,flag,periode
+                            CASE WHEN cast(cast(fairmarketvalue as BIGINT) as string) is null then '0' else cast(cast(fairmarketvalue as BIGINT) as string) END as fairmarketvalue,flag,periode
                         FROM pasarmodal." + tableName + @" x
                         WHERE " + whereQuery + @"";
                 }
@@ -5208,7 +5216,7 @@ namespace BDA.Helper
                         SELECT row_number() over(order by securitycompanycode) as no,
                             calendardate,securitycompanysk,securitycompanycode,securitycompanyname,securitysk,securitycode,securitytypename,
                             affiliated,nominalsheet,acquisitionprice,fairmarketprice,
-                            cast(cast(fairmarketvalue as BIGINT)  as string) as fairmarketvalue,gainperloss,
+                            CASE WHEN cast(cast(fairmarketvalue as BIGINT) as string) is null then '0' else cast(cast(fairmarketvalue as BIGINT) as string) END as fairmarketvalue,gainperloss,
                             cast(cast(fairmarketvaluepertotalporto as BIGINT)  as string) as fairmarketvaluepertotalporto,entitygroup,marketvaluepercentage,
                             cast(cast(liabilitiesrankingvalue as BIGINT)  as string) as liabilitiesrankingvalue,periode 
                         from pasarmodal." + tableName + @" x
@@ -5253,7 +5261,7 @@ namespace BDA.Helper
                     props.Query = @"
                         SELECT 
                             calendardate,securitycompanysk,securitycompanycode,securitycompanyname,mkbdvd510accountsk,mkbdvd510accountcode,mkbdvd510description,
-                            cast(cast(fairmarketvalue as BIGINT)  as string) as fairmarketvalue,
+                            CASE WHEN cast(cast(fairmarketvalue as BIGINT) as string) is null then '0' else cast(cast(fairmarketvalue as BIGINT) as string) END as fairmarketvalue,
                             cast(cast(liabilitiesrankingvalue as BIGINT)  as string) as liabilitiesrankingvalue,periode 
                             from pasarmodal." + tableName + @" x
                         WHERE " + whereQuery + @"";
@@ -5295,13 +5303,17 @@ namespace BDA.Helper
                 {
                     props.Query = @"
                         SELECT calendardate,securitycompanysk,securitycompanycode,securitycompanyname,mutualfundtypesk,mutualfundtypecode,mutualfundtypename,mutualfundname,isaffiliated,
-                            cast(cast(netassetvalueunit as BIGINT)  as string) as netassetvalueunit,
-                            cast(cast(netassetvalueunit as BIGINT)  as string) as netassetvaluemutualfund,liabilitiesrankingcal,
+                        CASE WHEN cast(cast(netassetvalueunit as BIGINT) as string) is null then '0' else cast(cast(netassetvalueunit as BIGINT) as string) END as netassetvalueunit,
+                        CASE WHEN cast(cast(netassetvalueunit as BIGINT) as string) is null then '0' else cast(cast(netassetvalueunit as BIGINT) as string) END as netassetvaluemutualfund,
                             cast(cast(mkbdlimitationvalue as BIGINT)  as string) as mkbdlimitationvalue,
-                            cast(cast(mkbdlimitationexcessvalue as BIGINT)  as string) as mkbdlimitationexcessvalue,periode 
+                            liabilitiesrankingcal,
+                        CASE WHEN cast(cast(mkbdlimitationexcessvalue as BIGINT) as string) is null then '0' else cast(cast(mkbdlimitationexcessvalue as BIGINT) as string) END as mkbdlimitationexcessvalue,
+                        periode 
                         from pasarmodal." + tableName + @" x
                         WHERE " + whereQuery + @"";
                 }
+
+               
             }
             else
             {
@@ -5338,8 +5350,9 @@ namespace BDA.Helper
                 if (tableName == "pe_segmentation_det_reksa_dana_sum")
                 {
                     props.Query = @"
-                        SELECT calendardate,securitycompanysk,securitycompanycode,securitycompanyname, mkbdvd510accountsk,mkbdvd510accountcode,mkbdvd510description,
-                        cast(cast(mkbdlimitationexcessvalue as BIGINT)  as string) as mkbdlimitationexcessvalue                        
+                        SELECT calendardate,securitycompanysk,securitycompanycode,securitycompanyname, mkbdvd510accountsk,mkbdvd510accountcode,
+                        CASE WHEN cast(cast(mkbdvd510description as BIGINT) as string) is null then '' else cast(cast(mkbdvd510description as BIGINT) as string) END as mkbdvd510description,
+                    CASE WHEN cast(cast(mkbdlimitationexcessvalue as BIGINT) as string) is null then '0' else cast(cast(mkbdlimitationexcessvalue as BIGINT) as string) END as mkbdlimitationexcessvalue
                         from pasarmodal." + tableName + @" x
                         WHERE " + whereQuery + @"";
                 }
@@ -5380,7 +5393,7 @@ namespace BDA.Helper
                 {
                     props.Query = @"
                         Select row_number() over(order by securitycompanycode) as no,calendardate,securitycompanysk,securitycompanycode,securitycompanyname,securitysk,securitycode,securityname,volume,price,
-                            cast(cast(fairmarketvalue as BIGINT)  as string) as fairmarketvalue,periode 
+                            CASE WHEN cast(cast(fairmarketvalue as BIGINT) as string) is null then '0' else cast(cast(fairmarketvalue as BIGINT) as string) END as fairmarketvalue,periode 
                         from pasarmodal." + tableName + @" x
                         WHERE " + whereQuery + @"";
                 }
@@ -5421,7 +5434,7 @@ namespace BDA.Helper
                 {
                     props.Query = @"
                         select calendardate,securitycompanysk,securitycompanycode,securitycompanyname,mkbdvd510accountsk,mkbdvd510accountcode,mkbdvd510description,
-                            cast(cast(fairmarketvalue as BIGINT)  as string) as fairmarketvalue,periode 
+                            CASE WHEN cast(cast(fairmarketvalue as BIGINT) as string) is null then '0' else cast(cast(fairmarketvalue as BIGINT) as string) END as fairmarketvalue,periode 
                         from pasarmodal." + tableName + @" x
                         WHERE " + whereQuery + @"";
                 }
@@ -5465,7 +5478,7 @@ namespace BDA.Helper
                             cast(cast(buyingamount as BIGINT)  as string) as buyingamount,
                             cast(cast(sellingamount as BIGINT)  as string) as sellingamount,collateralsecuritycode,
                             cast(cast(collateralamount as BIGINT)  as string) as collateralamount,
-                            cast(cast(fairmarketvalue as BIGINT)  as string) as fairmarketvalue,
+                            CASE WHEN cast(cast(fairmarketvalue as BIGINT) as string) is null then '0' else cast(cast(fairmarketvalue as BIGINT) as string) END as fairmarketvalue,
                             cast(cast(liabilitiesrankingvalue as BIGINT)  as string) as liabilitiesrankingvalue,
                             cast(cast(rasio as BIGINT)  as string) as rasio,periode 
                         FROM pasarmodal." + tableName + @" x
@@ -5510,7 +5523,7 @@ namespace BDA.Helper
                         SELECT calendardate,securitycompanysk,securitycompanycode,securitycompanyname,mkbdvd510accountsk,mkbdvd510accountcode,mkbdvd510description,
                         cast(cast(buyingamount as BIGINT)  as string) as buyingamount,
                         cast(cast(sellingamount as BIGINT)  as string) as sellingamount,
-                        cast(cast(fairmarketvalue as BIGINT)  as string) as fairmarketvalue,
+                        CASE WHEN cast(cast(fairmarketvalue as BIGINT) as string) is null then '0' else cast(cast(fairmarketvalue as BIGINT) as string) END as fairmarketvalue,
                         cast(cast(liabilitiesrankingvalue as BIGINT)  as string) as liabilitiesrankingvalue,periode 
                         FROM pasarmodal." + tableName + @" x
                         WHERE " + whereQuery + @"";
@@ -5594,7 +5607,7 @@ namespace BDA.Helper
             {
                 namaSID = namaSID.Replace("'", "").Replace(",", "','").Replace("' ", "'"); //cegah sql inject dikit
                 namaSID = "'%" + namaSID.ToUpper() + "%'";
-                whereQuery = "REPLACE(REPLACE(REPLACE(REPLACE(CONCAT(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(SUBSTRING(nama_sid, 1, 1), 0,'M'), 1,'R'), 2,'S'), 3,'D'), 4,'N'), 5,'F'), 6,'H'), 7,'Y'), 8,'T'), 9,'J'), SUBSTRING(nama_sid, 2, " + (isHive ? "LENGTH" : "LEN") + "(nama_sid))), 'IOII','O') , 'IOOI', 'A'), 'IIOO', 'U'),'IOIO' , 'E') LIKE " + namaSID + " ";                
+                whereQuery = "REPLACE(REPLACE(REPLACE(REPLACE(CONCAT(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(SUBSTRING(nama_sid, 1, 1), 0,'M'), 1,'R'), 2,'S'), 3,'D'), 4,'N'), 5,'F'), 6,'H'), 7,'Y'), 8,'T'), 9,'J'), SUBSTRING(nama_sid, 2, " + (isHive ? "LENGTH" : "LEN") + "(nama_sid))), 'IOII','O') , 'IOOI', 'A'), 'IIOO', 'U'),'IOIO' , 'E') LIKE " + namaSID + " ";
 
             }
             var props = new WSQueryProperties();
@@ -5614,7 +5627,7 @@ namespace BDA.Helper
             if (sistem != null) whereQuery = whereQuery += " AND UPPER(system) = '" + sistem.ToUpper() + "' ";
 
             if (SID != null) whereQuery = whereQuery += " AND sid = '" + EncryptSID(SID) + "' ";
-            else if (tradeId != null) whereQuery = whereQuery += " AND trade_id = '" + tradeId + "' ";
+            else if (tradeId != null) whereQuery = whereQuery += " AND SUBSTRING(sid, 7, 6) = '" + tradeId + "' ";
             else if (nomorKTP != null) whereQuery = whereQuery += " AND ktp = '" + nomorKTP + "' ";
             else if (nomorNPWP != null) whereQuery = whereQuery += " AND npwp = '" + nomorNPWP + "' ";
             //else if (namaSID != null) whereQuery = whereQuery += " AND nama_sid = " + EncryptName(namaSID);
@@ -5636,13 +5649,15 @@ namespace BDA.Helper
             //var propsQuery = new WSQueryProperties();
             //propsQuery.Query = sqlGetQuery;
             //DataRow dr = WSQueryHelper.DoQuery(db, propsQuery, loadOptions, false, false).data.Rows[0];
-            
-            DataRow dr = ExecuteSimpleSQL(db.appSettings.DataConnString, sqlGetQuery).data.Rows[0]; 
+
+            DataRow dr = ExecuteSimpleSQL(db.appSettings.DataConnString, sqlGetQuery).data.Rows[0];
             string queryString = dr["queryString"].ToString();
             queryString = queryString.Replace("@wherefilter", whereQuery).Replace("@whereperiode", periodWhereQuery);
 
             var props = new WSQueryProperties();
             props.Query = queryString;
+
+
 
             #region OldQuery
             /*
@@ -5713,8 +5728,9 @@ namespace BDA.Helper
 
             #endregion
 
-            return DecryptResults( WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive) );
+            return DecryptResults(WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive));
         }
+
         public static WSQueryReturns GetPMMMQuery(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string startPeriod, string endPeriod, bool isHive = false)
         {
             bool isC = false;
@@ -5745,5 +5761,159 @@ namespace BDA.Helper
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
         }
+
+        #region query PS07, PS07B, PS07C
+
+        public static string PS07Filters(string periode, string pe, string invType, string invOrigin, string inRange, string market)
+        {
+            string whereQuery = "";
+
+            if (periode != null)
+            {
+                string periodes = "'" + periode.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND pperiode in (" + periodes.Replace("-", "") + ")";
+            }
+
+            if (pe != null)
+            {
+                string namaPE = "'" + pe.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND exchangemembercode in (" + namaPE + ")";
+            }
+
+            if (invType != null)
+            {
+                string invt = "'" + invType.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND investor_type in (" + invt + ")";
+            }
+
+            if (invOrigin != null)
+            {
+                string invo = "'" + invOrigin.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND investor_origin in (" + invo + ")";
+            }
+            if (inRange != null)
+            {
+                string range = "'" + inRange.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND inputrange in (" + range + ")";
+            }
+
+            if (market != null)
+            {
+                string mkt = "'" + market.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND market in (" + mkt + ")";
+            }
+
+            return whereQuery;
+        }
+
+        public static WSQueryReturns GetPS07TotalClientsQuery(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string invType, string invOrigin, string inRange, string market, bool isHive = true)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            isHive = true;
+
+            whereQuery += PS07Filters(periode, pe, invType, invOrigin, inRange, market);
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                props.Query = @"
+                SELECT COUNT(tradeid) AS total_clients FROM pasarmodal.basis_investor_pe WHERE " + whereQuery + @"";
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+
+        public static WSQueryReturns GetPS07ActiveClientQuery(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string invType, string invOrigin, string inRange, string market, bool isHive = true)
+        {
+            bool isC = false;
+            var whereQuery = "investortransactionfreq > 0";
+            isHive = true;
+
+            whereQuery += PS07Filters(periode, pe, invType, invOrigin, inRange, market);
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                props.Query = @"
+                SELECT COUNT(1) AS active_clients FROM pasarmodal.basis_investor_pe WHERE " + whereQuery + @"";
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+
+        public static WSQueryReturns GetPS07TrxFreqQuery(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string invType, string invOrigin, string inRange, string market, bool isHive = true)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            isHive = true;
+
+            whereQuery += PS07Filters(periode, pe, invType, invOrigin, inRange, market);
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                props.Query = props.Query = @"
+                SELECT SUM(investortransactionfreq) AS trx_freq FROM pasarmodal.basis_investor_pe WHERE " + whereQuery + @"";
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+
+        public static WSQueryReturns GetPS07TradedValueQuery(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string invType, string invOrigin, string inRange, string market, bool isHive = true)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            isHive = true;
+
+            whereQuery += PS07Filters(periode, pe, invType, invOrigin, inRange, market);
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                props.Query = @"
+                SELECT SUM(investortotalvalue) AS traded_value FROM pasarmodal.basis_investor_pe WHERE " + whereQuery + @"";
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+
+        public static WSQueryReturns GetPS07ClientLiquidAmtQuery(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string invType, string invOrigin, string inRange, string market, bool isHive = true)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            isHive = true;
+
+            whereQuery += PS07Filters(periode, pe, invType, invOrigin, inRange, market);
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                props.Query = @"
+                SELECT SUM(portofolio_amount) AS client_liquid_amt FROM pasarmodal.basis_investor_pe WHERE " + whereQuery + @"";
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+
+        public static WSQueryReturns GetPS07Segments(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string invType, string invOrigin, string inRange, string market, string segment, bool isHive = true)
+        {
+            bool isC = false;
+            var whereQuery = "basis_investor_1 = " + "'" + segment + "'";
+            isHive = true;
+
+            whereQuery += PS07Filters(periode, pe, invType, invOrigin, inRange, market);
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                props.Query = @"SELECT SUM(investortransactionfreq) AS intrxfreq, COUNT(tradeid) AS ttlcli FROM pasarmodal.basis_investor_pe WHERE " + whereQuery + @"";
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+
+
+        #endregion
     }
 }

@@ -5,8 +5,8 @@
 
     var vbSP = ViewBag.period;
     //var vbEP = ViewBag.endperiod;
-    var vbSID = (string) ViewBag.sid;
-    var vbS = (string) ViewBag.sistem;
+    var vbSID = (string)ViewBag.sid;
+    var vbS = (string)ViewBag.sistem;
     var maxItems = db.GetSetting("LimitFilterLJK");
     var maxExport = db.GetSetting("LimitExportExcelPDF");
     bool isExport = ViewBag.Export;
@@ -42,14 +42,14 @@
                             @(Html.DevExtreme().TextBox().ID("tbTradeId").Placeholder("Trade Id").InputAttr("aria-label", "Nomor Trade").ShowClearButton(true).ValueChangeEvent("change").OnValueChanged("tb_valueChanged").Width("100%").MaxLength(10))
                         </div>
                         <div class="col-lg-4 form-group">
-                            <label>Nama SID<span class="one-mandatory">**</span></label>                            
+                            <label>Nama SID<span class="one-mandatory">**</span></label>
                             @(Html.DevExtreme().SelectBox()
-                                    .ID("tbNamaSID")
-                                    //.DataSource(d => d.Mvc()
-                                    //.Controller("IP")
-                                    //.LoadAction("GetNamaSID")
-                                    //.LoadParams(new { namaSID = new JS("function() { return $(\"#tbNama\").dxSelectBox(\"instance\").option(\"text\"); }") })
-                                    //.Key("sid"))
+                                .ID("tbNamaSID")
+                                //.DataSource(d => d.Mvc()
+                                //.Controller("IP")
+                                //.LoadAction("GetNamaSID")
+                                //.LoadParams(new { namaSID = new JS("function() { return $(\"#tbNama\").dxSelectBox(\"instance\").option(\"text\"); }") })
+                                //.Key("sid"))
                                 .ValueExpr("sid")
                                 .DisplayExpr("nama_sid")
                                 .SearchEnabled(true)
@@ -142,7 +142,7 @@
 
                 </div>
 
-                
+
                 <div class="float-left">
                     @(Html.DevExtreme().Button()
                         .ID("Filter")
@@ -188,8 +188,8 @@
             </div>
         </div>
 
-        
-        
+
+
         <br />
         @*grid*@
         <div class="gridview-div">
@@ -226,7 +226,7 @@
 
             @(Html.DevExtreme().Tooltip()
                 .ID("gridtooltip")
-                .Position(Position.Right)    
+                .Position(Position.Right)
                 .Width(600)
                 )
         </div>
@@ -265,7 +265,7 @@
                 </div>
             </div>
         </div>
-        
+
     </div>
 }
 
@@ -348,14 +348,14 @@
     const resetFilter = { tbSID: 0, tbTradeId: 0, tbNamaSID: 0, tbKTP: 0, tbNPWP: 0 }
     const maxItems = @maxItems;
 
-    function GetRowNumber(cellElement, cellInfo) { 
-        cellElement.text(cellInfo.row.rowIndex + 1) 
+    function GetRowNumber(cellElement, cellInfo) {
+        cellElement.text(cellInfo.row.rowIndex + 1)
     }
 
     function onCellPrepared(e) {
-        let listColumn = ["nama_sid", "no_rekening", "tanggal_lahir", "tanggal_pendirian", "address1", "ktp", "npwp", "status_sid", "last_update_sid", "system", "sre", "email", "phone_number", "fax", "passport", "occupation", "nationality", "province", "city"];
+        let listColumn = ["nama_sid", "sre_ifua", "tanggal_lahir", "tanggal_pendirian", "address1", "ktp", "npwp", "status_sid", "last_update_sid", "system", "email", "phone_number", "fax", "passport", "occupation", "nationality", "province", "city"];
         if (e.rowType === "data" && e.column.dataField === "sid") {
-            
+
             var tooltipInstance = $("#gridtooltip").dxTooltip("instance");
             e.cellElement.mouseover(function (arg) {
 
@@ -386,15 +386,15 @@
                     }
 
                     if (!odd) tooltipTable.append(row);
-                    
+
                     contentElement.append(tooltipTable);
 
-                    @* for (let i in e.data) {
+    @* for (let i in e.data) {
                         contentElement.addClass("tooltip-style").append(
-                            $("<div class='tooltip-itemname'>").text(i.toString() + " : " + e.data[i.toString()])                            
-                        );                        
-                    } *@
-                });
+                        $("<div class='tooltip-itemname'>").text(i.toString() + " : " + e.data[i.toString()])
+                        );
+                        } *@
+                    });
 
                 tooltipInstance.show(arg.target);
             });
@@ -406,32 +406,31 @@
     }
 
     function onRowDblClick(e) {
-        var detailSid = "@Url.Action("Index", "IP", new { id = "ip_sid"})?detailsid=" + e.data.lem;
-        
+        var detailSid = "@Url.Action("Index", "IP", new { id = "ip_sid" })?detailsid=" + e.data.lem;
+
         window.open(detailSid);
-        
+
     }
 
-    
+
 
     function tbNameSearch(data) {
         //console.table(data);
         var idComponent = data.element.attr("id").toString();
         let searchText = $("#" + idComponent).dxSelectBox("instance").option("text");
 
-        if(searchText.length > 2)
-        {
+        if (searchText.length > 2) {
             var compInstance = $("#" + idComponent).dxSelectBox("instance");
-            
+
             data.component.option("dataSource", new DevExpress.data.CustomStore({
                 key: ["sid"],
                 load: function () { return $.getJSON("@Url.Action("GetNamaSID", "IP")?namaSid=" + searchText); }
-                }) ); 
+            }));
             compInstance.getDataSource().reload();
-        }        
+        }
         //$("#" + idComponent).dxSelectBox("reset");
-        
-        
+
+
     }
 
     function tb_valueChanged(data) {
@@ -461,7 +460,7 @@
                         $("#" + tbId).dxTextBox("reset");
                     }
                     ////$("#email").dxTextBox("instance").option("value", data.value.replace(/\s/g, "").toLowerCase() + "@@corp.com");
-                }                
+                }
             }
         }
 
@@ -482,14 +481,14 @@
 
 
             if (sid != "" || tradeId != "" || (namaSID != "" && namaSID != null) || nomorKTP != "" || nomorNPWP != "") {
-                console.log(sid + ";" + tradeId + ";" + namaSID + ";" + nomorKTP + ";" +nomorNPWP);
+                console.log(sid + ";" + tradeId + ";" + namaSID + ";" + nomorKTP + ";" + nomorNPWP);
                 $("#grid1").dxDataGrid("instance").refresh();
             }
             else {
                 alert("Harap isi salah satu filter pada area **");
             }
         }
-        else { 
+        else {
             alert("Harap isi filter mandatory");
         }
     }
@@ -498,10 +497,10 @@
         let mdl = '@Model.kode';
         let sid = $("#tbSID").dxTextBox("instance").option("value");
         let tradeId = $("#tbTradeId").dxTextBox("instance").option("value");
-        let namaSID = $("#tbNamaSID").dxSelectBox("instance").option("value");        
+        let namaSID = $("#tbNamaSID").dxSelectBox("instance").option("value");
         let nomorKTP = $("#tbKTP").dxTextBox("instance").option("value");
         let nomorNPWP = $("#tbNPWP").dxTextBox("instance").option("value");
-        
+
         console.log(sid + "-" + tradeId + "-" + namaSID + "-" + nomorKTP + "-" + nomorNPWP);
 
         let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
@@ -509,14 +508,14 @@
         if (tempPeriodeAwal != null) {
             periode = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
         }
-        
+
         if (namaSID != null && namaSID != "") {
-            ajaxOptions.data.SID = namaSID; 
+            ajaxOptions.data.SID = namaSID;
         }
         else {
             ajaxOptions.data.SID = sid;
         }
-        
+
         ajaxOptions.data.tradeId = tradeId;
         //ajaxOptions.data.namaSID = namaSID;
         ajaxOptions.data.nomorKTP = nomorKTP;
@@ -529,7 +528,7 @@
             ajaxOptions.data.businessReg = businessReg;
         }
         ajaxOptions.data.startPeriode = periode;
-        
+
 
         if (mdl != "ip_sid") {
             let tempPeriodeAkhir = $("#PeriodeAkhir").dxDateBox("instance").option("value");
@@ -574,7 +573,7 @@
             }
         });
     }
-    
+
     function ExportToPdf() {
         var dataGrid = $("#grid1").dxDataGrid("instance");
         dataGrid.option("onExporting", function (e) { });
@@ -596,7 +595,7 @@
         dataGrid.exportToExcel();
     }
 
-    
+
 
     function PopupDetailHidden() {
 
@@ -649,27 +648,27 @@
     }
 
     .tooltip-style {
-        width:570px;      
+        width: 570px;
         max-width: 600px;
         word-wrap: break-word;
         word-break: break-all;
-        white-space: normal;    
+        white-space: normal;
         hyphens: auto;
-        text-align: left;        
+        text-align: left;
         font-family: Arial, sans-serif;
-        font-size: 8px;        
+        font-size: 8px;
     }
 
     .tooltip-itemname {
         border: 1px solid red;
         background-color: red;
         width: 105px;
-        padding-left: 5px;        
+        padding-left: 5px;
         vertical-align: top;
     }
 
     .tooltip-item {
-        width: 200px;  
+        width: 200px;
         padding-left: 5px;
         padding-right: 10px;
         hyphens: auto;

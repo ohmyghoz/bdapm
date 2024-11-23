@@ -230,12 +230,12 @@
                         )
                         .Export(e => e.Enabled(true))
                         .DataSource(new[] {
-                new { Day = "1/4", HighNG = "50", LowNG = "50", CloseRG= "50", HighRG="50", LowRG="50", VolumeNG="514588200", date="20210104" }
+                new { Day = "1/4", HighNG = "50", LowNG = "50", CloseRG= "50", HighRG="50", LowRG="50", VolumeNG="50000000" }
 
                 })
                         )
             </div>
-                <div class="col-lg-6 form-group" id="chartContainer2" style="display: none; padding-right:25px; padding-left:25px;">
+            <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
                     @(
                     Html.DevExtreme().Chart()
                                 .ID("market-value-chart2")
@@ -302,14 +302,14 @@
                                 )
                     .Export(e => e.Enabled(true))
                     .DataSource(new[] {
-                new { Day = "1/4", HighNG = "50", LowNG = "50", CloseRG= "50", HighRG="50", LowRG="50", VolumeNG="50000000", date="20210104" }
+            new { Day = "1/4", HighNG = "50", LowNG = "50", CloseRG= "50", HighRG="50", LowRG="50", VolumeNG="50000000" }
           
             })
                     )
             </div>
             </div>
             <div class="row">
-                <div class="col-lg-6 form-group" id="chartContainer3" style="display: none; padding-right:25px; padding-left:25px;">
+            <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
                     @(
                         Html.DevExtreme().Chart()
                         .ID("market-value-chart3")
@@ -376,12 +376,12 @@
                         )
                         .Export(e => e.Enabled(true))
                         .DataSource(new[] {
-                new { Day = "1/4", HighNG = "50", LowNG = "50", CloseRG= "50", HighRG="50", LowRG="50", VolumeNG="366014300", date="20210104" }
+                new { Day = "1/4", HighNG = "50", LowNG = "50", CloseRG= "50", HighRG="50", LowRG="50", VolumeNG="50000000" }
 
                 })
                         )
             </div>
-                <div class="col-lg-6 form-group" id="chartContainer4" style="display: none; padding-right:25px; padding-left:25px;">
+            <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
                     @(
                         Html.DevExtreme().Chart()
                         .ID("market-value-chart4")
@@ -448,7 +448,7 @@
                         )
                         .Export(e => e.Enabled(true))
                         .DataSource(new[] {
-                new { Day = "1/4", HighNG = "50", LowNG = "50", CloseRG= "50", HighRG="50", LowRG="50", VolumeNG="310000000", date="20210104" }
+                new { Day = "1/4", HighNG = "50", LowNG = "50", CloseRG= "50", HighRG="50", LowRG="50", VolumeNG="50000000" }
 
                 })
                         )
@@ -457,10 +457,7 @@
 
         </div>
     </div>
-
-
     <!-- The Modal  Detail-->
-  
 }
 
 
@@ -605,11 +602,6 @@
         }
     }
 
-    
-    function onLJKOpened(e) {
-        e.component.content().find('.dx-list-select-all').hide();
-    }
-
     function onButtonFilterClicked(e) {
         // Get the date value from the DateBox
         var dateValue = $("#datepickdID").dxDateBox("instance").option("value");
@@ -677,6 +669,17 @@
         ajaxOptions.data.namaPE = JSON.stringify(namaPE);
         ajaxOptions.data.periodeAwal = periodeAwal;
         ajaxOptions.data.status = JSON.stringify(status);
+    }
+
+    function onLJKOpened(e) {
+        e.component.content().find('.dx-list-select-all').hide();
+    }
+
+    function Detail(e) {
+        var keys = e.row.key;
+        if (typeof (keys) !== "undefined" && typeof (keys) !== null) {
+            window.open('@Url.Action("Detail", "SegmentationSummaryClusterMKBD")?id=' + keys.toString());
+        }
     }
 
     var waitingDialog = (function ($) {

@@ -160,10 +160,10 @@
                                 })
                                 .Columns(c =>
                                 {
-                                    c.Add().DataField("KodePE");
-                                    c.Add().DataField("GroupEmiten");
-                                    c.Add().DataField("Volume").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
-                                    c.Add().DataField("Value").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
+                                    c.Add().DataField("kodepe").Caption("Kode PE");
+                                    c.Add().DataField("groupemiten").Caption("Group Emiten");
+                                    c.Add().DataField("volume").Caption("Volume").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
+                                    c.Add().DataField("value").Caption("Value").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
                                 })
                                 .ShowRowLines(true)
                                 )
@@ -175,7 +175,7 @@
                             <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
                         </div> *@
                         <div class="row">
-                            <h4 class="headerTable">Jaminan Repo</h4>
+                            <h4 class="headerTable">Jaminan Margin</h4>
                         </div>
                         <div class="row">
                             @(Html.DevExtreme().DataGrid()
@@ -202,10 +202,10 @@
                                 })
                                 .Columns(c =>
                                 {
-                                    c.Add().DataField("KodePE");
-                                    c.Add().DataField("GroupEmiten");
-                                    c.Add().DataField("Volume").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
-                                    c.Add().DataField("Value").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
+                                    c.Add().DataField("kodepe").Caption("Kode PE");
+                                    c.Add().DataField("groupemiten").Caption("Group Emiten");
+                                    c.Add().DataField("volume").Caption("Volume").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
+                                    c.Add().DataField("value").Caption("Value").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
                                 })
                                 .ShowRowLines(true)
                                 )

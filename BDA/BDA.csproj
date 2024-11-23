@@ -120,7 +120,6 @@
     <None Include="Areas\Master\Views\User_Master\Index.cshtml" />
     <None Include="Areas\Master\Views\_ViewImports.cshtml" />
     <None Include="Areas\Website\Views\Home\Login.cshtml" />
-    <None Include="Areas\Website\_ViewImports.cshtml" />
     <None Include="Views\Home\Index.cshtml" />
     <None Include="Views\Home\Login.cshtml" />
     <None Include="Views\Shared\_AttachmentPartial.cshtml" />
@@ -1268,16 +1267,18 @@
     <Reference Include="LemmaSharp">
       <HintPath>..\ProjFile\LemmaSharp.dll</HintPath>
     </Reference>
+    <Reference Include="Lzma#">
+      <HintPath>..\ProjFile\Lzma#.dll</HintPath>
+    </Reference>
     <Reference Include="RazorEngineCore">
       <HintPath>..\ProjFile\RazorEngineCore.dll</HintPath>
     </Reference>
-    <Reference Include="Sparc.TagCloud">
-      <HintPath>..\ProjFile\Sparc.TagCloud.dll</HintPath>
+    <Reference Include="System.Data.Odbc">
+      <HintPath>..\ProjFile\System.Data.Odbc.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Areas\BDAPM\Views\MM\" />
-    <Folder Include="wwwroot\tempData\" />
     <Folder Include="wwwroot\temp\" />
   </ItemGroup>
   <ItemGroup>
