@@ -160,10 +160,10 @@
                                 })
                                 .Columns(c =>
                                 {
-                                    c.Add().DataField("KodePE");
-                                    c.Add().DataField("GroupEmiten");
-                                    c.Add().DataField("Volume").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
-                                    c.Add().DataField("Value").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
+                                    c.Add().DataField("kodepe").Caption("Kode PE");
+                                    c.Add().DataField("groupemiten").Caption("Group Emiten");
+                                    c.Add().DataField("volume").Caption("Volume").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
+                                    c.Add().DataField("value").Caption("Value").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
                                 })
                                 .ShowRowLines(true)
                                 )
@@ -202,10 +202,10 @@
                                 })
                                 .Columns(c =>
                                 {
-                                    c.Add().DataField("KodePE");
-                                    c.Add().DataField("GroupEmiten");
-                                    c.Add().DataField("Volume").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
-                                    c.Add().DataField("Value").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
+                                    c.Add().DataField("kodepe").Caption("Kode PE");
+                                    c.Add().DataField("groupemiten").Caption("Group Emiten");
+                                    c.Add().DataField("volume").Caption("Volume").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
+                                    c.Add().DataField("value").Caption("Value").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
                                 })
                                 .ShowRowLines(true)
                                 )
