@@ -198,10 +198,10 @@ namespace BDA.Controllers
                     var columns1 = worksheet2.Cells.Columns.Count;
                     var rows1 = worksheet2.Cells.Rows.Count;
                     var style = workbook.CreateStyle();
-                    style.SetBorder(BorderType.TopBorder, CellBorderType.Thick, Color.Black);
-                    style.SetBorder(BorderType.BottomBorder, CellBorderType.Thick, Color.Black);
-                    style.SetBorder(BorderType.LeftBorder, CellBorderType.Thick, Color.Black);
-                    style.SetBorder(BorderType.RightBorder, CellBorderType.Thick, Color.Black);
+                    style.SetBorder(BorderType.TopBorder, CellBorderType.Medium, Color.Black);
+                    style.SetBorder(BorderType.BottomBorder, CellBorderType.Medium, Color.Black);
+                    style.SetBorder(BorderType.LeftBorder, CellBorderType.Medium, Color.Black);
+                    style.SetBorder(BorderType.RightBorder, CellBorderType.Medium, Color.Black);
                     //Apply bottom borders from cell F4 till K4
                     for (int r = 0; r <= rows1 - 1; r++)
                     {
@@ -227,6 +227,12 @@ namespace BDA.Controllers
                     Style numericStyle = workbook.CreateStyle();
                     numericStyle.Custom = "#,##0.00";
                     numericStyle.HorizontalAlignment = TextAlignmentType.Right;
+
+                    numericStyle.SetBorder(BorderType.TopBorder, CellBorderType.Medium, Color.Black);
+                    numericStyle.SetBorder(BorderType.BottomBorder, CellBorderType.Medium, Color.Black);
+                    numericStyle.SetBorder(BorderType.LeftBorder, CellBorderType.Medium, Color.Black);
+                    numericStyle.SetBorder(BorderType.RightBorder, CellBorderType.Medium, Color.Black);
+
                     StyleFlag numericFlag = new StyleFlag();
                     numericFlag.NumberFormat = true;
                     numericFlag.HorizontalAlignment = true;
@@ -349,7 +355,7 @@ namespace BDA.Controllers
             if (startPeriode != null && (regex.Match(reportId).Success || sistem != null) && (SID != null || tradeId != null || namaSID != null || nomorKTP != null || nomorNPWP != null || businessReg != null))
                 {
                 var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId);
-                //cekHive = false;
+                cekHive = false;
                 //if (PMRefController.IsPengawasLJK(db))
                 //{
 

@@ -25,9 +25,11 @@ namespace BDA.Helper
         public static WSQueryReturns DecryptResults(WSQueryReturns wqr)
         {
             DataTable dt = wqr.data;
-
+            dt.Columns.Add("no", typeof(System.String));
+            int noRow = 1;
             foreach (DataRow dr in dt.Rows)
             {
+                dr["no"] = noRow.ToString();                
                 dr["sid"] = DecryptSID(dr["sid"].ToString());
                 dr["lem"] = dr["lem"].ToString() + dr["sid"].ToString();
                 dr["nama_sid"] = DecryptName(dr["nama_sid"].ToString());
@@ -35,6 +37,7 @@ namespace BDA.Helper
                 dr["email"] = DecryptName(dr["email"].ToString());
                 dr["nama_rekening"] = DecryptName(dr["nama_rekening"].ToString());
                 dr["phone_number"] = DecryptNumber(dr["phone_number"].ToString());
+                noRow++;
             }
             wqr.data = dt;
 

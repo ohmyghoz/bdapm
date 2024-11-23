@@ -2558,7 +2558,8 @@ namespace BDA.Helper
             var regex = new Regex(@"\Aip_relation");
             var regexRel = new Regex(@"\Arelation|\Asuspect");
 
-            grid.Columns(c => c.Add().Caption("No").Width(50).Visible(true).AllowFiltering(false).CellTemplate(new JS("GetRowNumber")));
+            //grid.Columns(c => c.Add().Caption("No").Width(50).Visible(true).AllowFiltering(false).CellTemplate(new JS("GetRowNumber")));
+            grid.Columns(c => c.Add().Caption("No").Width(50).Visible(true).AllowFiltering(false).DataField("no"));
 
             /*
             grid.CustomUnboundColumnData += (sender, e) =>
@@ -2623,6 +2624,13 @@ namespace BDA.Helper
                     if (row.ColumnName.Contains("tanggal"))
                     {
                         width = 130;
+                    }
+
+                    if (row.ColumnName == "no")
+                    {
+                        caption = "No";
+                        width = 50;
+                        visible = true;
                     }
 
                     if (row.ColumnName == "sid")
