@@ -5303,13 +5303,17 @@ namespace BDA.Helper
                 {
                     props.Query = @"
                         SELECT calendardate,securitycompanysk,securitycompanycode,securitycompanyname,mutualfundtypesk,mutualfundtypecode,mutualfundtypename,mutualfundname,isaffiliated,
-                            cast(cast(netassetvalueunit as BIGINT)  as string) as netassetvalueunit,
-                            cast(cast(netassetvalueunit as BIGINT)  as string) as netassetvaluemutualfund,liabilitiesrankingcal,
+                        CASE WHEN cast(cast(netassetvalueunit as BIGINT) as string) is null then '0' else cast(cast(netassetvalueunit as BIGINT) as string) END as netassetvalueunit,
+                        CASE WHEN cast(cast(netassetvalueunit as BIGINT) as string) is null then '0' else cast(cast(netassetvalueunit as BIGINT) as string) END as netassetvaluemutualfund,
                             cast(cast(mkbdlimitationvalue as BIGINT)  as string) as mkbdlimitationvalue,
-                            cast(cast(mkbdlimitationexcessvalue as BIGINT)  as string) as mkbdlimitationexcessvalue,periode 
+                            liabilitiesrankingcal,
+                        CASE WHEN cast(cast(mkbdlimitationexcessvalue as BIGINT) as string) is null then '0' else cast(cast(mkbdlimitationexcessvalue as BIGINT) as string) END as mkbdlimitationexcessvalue,
+                        periode 
                         from pasarmodal." + tableName + @" x
                         WHERE " + whereQuery + @"";
                 }
+
+               
             }
             else
             {
@@ -5346,8 +5350,9 @@ namespace BDA.Helper
                 if (tableName == "pe_segmentation_det_reksa_dana_sum")
                 {
                     props.Query = @"
-                        SELECT calendardate,securitycompanysk,securitycompanycode,securitycompanyname, mkbdvd510accountsk,mkbdvd510accountcode,mkbdvd510description,
-                        cast(cast(mkbdlimitationexcessvalue as BIGINT)  as string) as mkbdlimitationexcessvalue                        
+                        SELECT calendardate,securitycompanysk,securitycompanycode,securitycompanyname, mkbdvd510accountsk,mkbdvd510accountcode,
+                        CASE WHEN cast(cast(mkbdvd510description as BIGINT) as string) is null then '' else cast(cast(mkbdvd510description as BIGINT) as string) END as mkbdvd510description,
+                    CASE WHEN cast(cast(mkbdlimitationexcessvalue as BIGINT) as string) is null then '0' else cast(cast(mkbdlimitationexcessvalue as BIGINT) as string) END as mkbdlimitationexcessvalue
                         from pasarmodal." + tableName + @" x
                         WHERE " + whereQuery + @"";
                 }
