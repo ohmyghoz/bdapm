@@ -29,7 +29,7 @@
                     <div class="col-lg-3 form-group" id="datepickday">
                         <label>Periode@*<span class="mandatory">*</span>*@</label>
                         @(Html.DevExtreme().DateBox()
-                            .ID("DatepickdID")
+                            .ID("datepickdID")
                             .Type(DateBoxType.Date)
                             .DisplayFormat("dd/MM/yyyy")
                             .Width("100%"))
@@ -119,15 +119,13 @@
         </div>
         <br />
         @*grid*@
-        <div class="gridview-div">
+        <div class="gridview-div" id="gridContainer" style="display: none;">
             <div class="col-lg-12 form-group" style="padding-right:25px;padding-left:25px">
                 <div class="row" style="padding-bottom:12.5px">
-                    <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
-                    <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                    <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:exportGridToExcel();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                    <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:exportGridToPDF();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
                 </div>
-                <div class="row">
-                    <h4 class="headerTable">Balance</h4>
-                </div>
+                
                 <div class="row">
                     @(Html.DevExtreme().DataGrid()
                         .ID("grid1")
@@ -141,12 +139,13 @@
                         .Columns(columns =>
                         {
                             columns.Add().DataField("rowid").Visible(false);
+                            columns.Add().DataField("periode_lvl2").Visible(false);
                             columns.Add().DataField("security_code").Caption("Security Code");
                             columns.Add().DataField("value").Caption("Value").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0"); ;
                             columns.Add().DataField("volume").Caption("Volume").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0"); ;
                             columns.Add().DataField("freq").Caption("Freq").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0"); ;
                         })    
-                        .FilterRow(f => f.Visible(true))
+                        .FilterRow(f => f.Visible(false))
                         .ShowBorders(true)
                         .Scrolling(s => s.ShowScrollbar(ShowScrollbarMode.Always))
                         .Paging(p =>
@@ -163,7 +162,8 @@
         </div>
         <div>
             <div class="row">
-            <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
+                <div class="col-lg-6 form-group" id="chartContainer1" style="display: none; padding-right:25px; padding-left:25px;">
+                   
                     @(
                         Html.DevExtreme().Chart()
                         .ID("market-value-chart1")
@@ -230,12 +230,12 @@
                         )
                         .Export(e => e.Enabled(true))
                         .DataSource(new[] {
-                new { Day = "1/4", HighNG = "50", LowNG = "50", CloseRG= "50", HighRG="50", LowRG="50", VolumeNG="50000000" }
+                new { Day = "1/4", HighNG = "50", LowNG = "50", CloseRG= "50", HighRG="50", LowRG="50", VolumeNG="514588200", date="20210104" }
 
                 })
                         )
             </div>
-            <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
+                <div class="col-lg-6 form-group" id="chartContainer2" style="display: none; padding-right:25px; padding-left:25px;">
                     @(
                     Html.DevExtreme().Chart()
                                 .ID("market-value-chart2")
@@ -302,14 +302,14 @@
                                 )
                     .Export(e => e.Enabled(true))
                     .DataSource(new[] {
-            new { Day = "1/4", HighNG = "50", LowNG = "50", CloseRG= "50", HighRG="50", LowRG="50", VolumeNG="50000000" }
+                new { Day = "1/4", HighNG = "50", LowNG = "50", CloseRG= "50", HighRG="50", LowRG="50", VolumeNG="50000000", date="20210104" }
           
             })
                     )
             </div>
             </div>
             <div class="row">
-            <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
+                <div class="col-lg-6 form-group" id="chartContainer3" style="display: none; padding-right:25px; padding-left:25px;">
                     @(
                         Html.DevExtreme().Chart()
                         .ID("market-value-chart3")
@@ -376,12 +376,12 @@
                         )
                         .Export(e => e.Enabled(true))
                         .DataSource(new[] {
-                new { Day = "1/4", HighNG = "50", LowNG = "50", CloseRG= "50", HighRG="50", LowRG="50", VolumeNG="50000000" }
+                new { Day = "1/4", HighNG = "50", LowNG = "50", CloseRG= "50", HighRG="50", LowRG="50", VolumeNG="366014300", date="20210104" }
 
                 })
                         )
             </div>
-            <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
+                <div class="col-lg-6 form-group" id="chartContainer4" style="display: none; padding-right:25px; padding-left:25px;">
                     @(
                         Html.DevExtreme().Chart()
                         .ID("market-value-chart4")
@@ -448,7 +448,7 @@
                         )
                         .Export(e => e.Enabled(true))
                         .DataSource(new[] {
-                new { Day = "1/4", HighNG = "50", LowNG = "50", CloseRG= "50", HighRG="50", LowRG="50", VolumeNG="50000000" }
+                new { Day = "1/4", HighNG = "50", LowNG = "50", CloseRG= "50", HighRG="50", LowRG="50", VolumeNG="310000000", date="20210104" }
 
                 })
                         )
@@ -577,54 +577,26 @@
         }
     });
 
-    function ExportToPdf() {
-        $.ajax({
-            type: "POST",
-            url: "@Url.Action("LogExportIndex", "MaxMinOverdue")",
-            success: function (response) {
-                if (response.result == "Success") {
-                    const doc = new jsPDF({
-                        orientation: "landscape",
-                        unit: "cm",
-                        format: [21, 60]
-                    });
-                    var dataGrid = $("#grid1").dxDataGrid("instance");
-                    var fileName = "MaxMinOverdue_" + new Date().toISOString().slice(0, 10) + ".pdf";
-                    doc.setFontSize("6")
-                    //var keys = $("#grid1").dxDataGrid("getSelectedRowsData")
-                    //console.log(keys)
-                    DevExpress.pdfExporter.exportDataGrid({
-                        jsPDFDocument: doc,
-                        component: dataGrid,
-                        keepColumnWidths: true
-                        //selectedRowsOnly: true
-                    }).then(function () {
-                        doc.save(fileName);
-                    });
-                }
-            }
+    function exportGridToPDF() {
+        const doc = new jsPDF();
+
+        // Get the DataGrid instance
+        const dataGrid = $("#grid1").dxDataGrid("instance");
+
+        // Export DataGrid to PDF
+        DevExpress.pdfExporter.exportDataGrid({
+            jsPDFDocument: doc,
+            component: dataGrid,
+            keepColumnWidths: true
+        }).then(() => {
+            // Save the PDF with a given file name
+            doc.save('GridData.pdf');
         });
     }
 
-    function ExportToPdf2() {
+    function exportGridToExcel() {
         var dataGrid = $("#grid1").dxDataGrid("instance");
-        dataGrid.option("onExporting", function (e) { });
-        dataGrid.option("onFileSaving", function (e) {
-            var fd = new FormData();
-            fd.append("file", e.data);
-            $.ajax({
-                type: "POST",
-                url: "@Url.Action("ExportPDF", "SegmentationSummaryClusterMKBD")",
-                data: fd,
-                processData: false,
-                contentType: false
-            }).done(function (data) {
-                window.location = "@Url.Action("File", "SegmentationSummaryClusterMKBD")"
-            });
-            e.cancel = true;
-        });
-
-        dataGrid.exportToExcel();
+        dataGrid.exportToExcel(false); // 'false' means export all data, not just selected rows
     }
 
     function onSelectionChanged(e) {
@@ -639,10 +611,58 @@
     }
 
     function onButtonFilterClicked(e) {
-        const res = e.validationGroup.validate();
-        if (res.status === "valid") {
-            $("#grid1").dxDataGrid("instance").refresh();
+        // Get the date value from the DateBox
+        var dateValue = $("#datepickdID").dxDateBox("instance").option("value");
+
+        // Format the date to yyyymmdd
+        var formattedDate = formatDateToYYYYMMDD(dateValue);
+
+        // Get the value from the ItemsPerPageSelectBox
+        var itemsPerPage = $("#ItemsPerPageSelectBox").dxSelectBox("instance").option("value");
+
+        // Log the formatted date and items per page for debugging
+        console.log("Formatted Date:", formattedDate);
+        console.log("Items Per Page:", itemsPerPage);
+
+        // Apply the filter to the grid
+        $("#grid1").dxDataGrid("instance").filter(["periode_lvl2", "=", formattedDate]);
+
+        // Set the page size based on the selected items per page
+        if (itemsPerPage === "All") {
+            $("#grid1").dxDataGrid("instance").option("paging", { enabled: false });
+        } else {
+            $("#grid1").dxDataGrid("instance").option("paging", { enabled: true, pageSize: itemsPerPage });
         }
+
+        // Show the grid container
+        setTimeout(function () {
+            document.getElementById("gridContainer").style.display = "block";
+        }, 1500);
+
+        // Show the chart container
+        if (formattedDate == "20210104") {
+            setTimeout(function () {
+                document.getElementById("chartContainer1").style.display = "block";
+                document.getElementById("chartContainer2").style.display = "block";
+                document.getElementById("chartContainer3").style.display = "block";
+                document.getElementById("chartContainer4").style.display = "block";
+            }, 1000);    
+        } else {
+            document.getElementById("chartContainer1").style.display = "none";
+            document.getElementById("chartContainer2").style.display = "none";
+            document.getElementById("chartContainer3").style.display = "none";
+            document.getElementById("chartContainer4").style.display = "none";
+        }
+
+        
+    }
+
+    function formatDateToYYYYMMDD(date) {
+        var d = new Date(date);
+        var year = d.getFullYear();
+        var month = ("0" + (d.getMonth() + 1)).slice(-2);
+        var day = ("0" + d.getDate()).slice(-2);
+        return year + month + day;
     }
 
     function onGridBeforeSend(method, ajaxOptions) {
