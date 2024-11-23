@@ -83,7 +83,7 @@
                             .DisplayFormat("dd/MM/yyyy")
                             .Width("100%"))
                     </div>
-                    
+
 
                     <div class="col-lg-3 form-group" id="topDiv">
                         <label>Top@*<span class="mandatory">*</span>*@</label>
@@ -125,17 +125,17 @@
                     <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:exportGridToExcel();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
                     <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:exportGridToPDF();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
                 </div>
-                
+
                 <div class="row">
                     @(Html.DevExtreme().DataGrid()
                         .ID("grid1")
                         .DataSource(d => d.StaticJson().Url("/tempData/md_rg_ng.json")
                         ) // Update this line
-                    .KeyExpr("rowid")
-                    .RemoteOperations(true)
-                    .Width("100%")
-                    .AllowColumnResizing(true)
-                    .ColumnAutoWidth(true)
+                        .KeyExpr("rowid")
+                        .RemoteOperations(true)
+                        .Width("100%")
+                        .AllowColumnResizing(true)
+                        .ColumnAutoWidth(true)
                         .Columns(columns =>
                         {
                             columns.Add().DataField("rowid").Visible(false);
@@ -144,7 +144,7 @@
                             columns.Add().DataField("value").Caption("Value").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0"); ;
                             columns.Add().DataField("volume").Caption("Volume").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0"); ;
                             columns.Add().DataField("freq").Caption("Freq").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0"); ;
-                        })    
+                        })
                         .FilterRow(f => f.Visible(false))
                         .ShowBorders(true)
                         .Scrolling(s => s.ShowScrollbar(ShowScrollbarMode.Always))
@@ -163,7 +163,7 @@
         <div>
             <div class="row">
                 <div class="col-lg-6 form-group" id="chartContainer1" style="display: none; padding-right:25px; padding-left:25px;">
-                   
+
                     @(
                         Html.DevExtreme().Chart()
                         .ID("market-value-chart1")
@@ -230,86 +230,86 @@
                         )
                         .Export(e => e.Enabled(true))
                         .DataSource(new[] {
-                new { Day = "1/4", HighNG = "50", LowNG = "50", CloseRG= "50", HighRG="50", LowRG="50", VolumeNG="50000000" }
+                new { Day = "1/4", HighNG = "50", LowNG = "50", CloseRG= "50", HighRG="50", LowRG="50", VolumeNG="514588200", date="20210104" }
 
                 })
                         )
-            </div>
-            <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
+                </div>
+                <div class="col-lg-6 form-group" id="chartContainer2" style="display: none; padding-right:25px; padding-left:25px;">
                     @(
-                    Html.DevExtreme().Chart()
-                                .ID("market-value-chart2")
-                                .Palette(VizPalette.Material)
-                                .Title("BNBR")
-                                .ArgumentAxis(a => a.Label(l => l.OverlappingBehavior(OverlappingBehavior.Stagger)))
-                                .CommonSeriesSettings(s => s
-                                .ArgumentField("Day")
-                                )
-                                .CommonAxisSettings(s => s
-                                .Grid(g => g.Visible(true))
-                                )
-                                .Margin(m => m.Left(20))
-                                .Series(s =>
-                                {
-                                    s.Add()
-                                        .ValueField("HighNG").Name("High NG")
-                                        .Type(SeriesType.Spline)
-                                        .Axis("value");
-                                    s.Add()
-                                        .ValueField("LowNG").Name("Low NG")
-                                        .Type(SeriesType.Spline)
-                                        .Axis("value");
-                                    s.Add()
-                                        .ValueField("HighRG").Name("High RG")
-                                        .Type(SeriesType.Spline)
-                                        .Axis("value");
-                                    s.Add()
-                                        .ValueField("LowRG").Name("Low RG")
-                                        .Type(SeriesType.Spline)
-                                        .Axis("value");
-                                    s.Add()
-                                        .ValueField("CloseRG").Name("Close RG")
-                                        .Type(SeriesType.Spline)
-                                        .Axis("value");
-                                    s.Add()
-                                        .ValueField("VolumeNG").Name("Volume NG")
-                                        .Type(SeriesType.Bar)
-                                        .Axis("volume");
+                        Html.DevExtreme().Chart()
+                        .ID("market-value-chart2")
+                        .Palette(VizPalette.Material)
+                        .Title("BNBR")
+                        .ArgumentAxis(a => a.Label(l => l.OverlappingBehavior(OverlappingBehavior.Stagger)))
+                        .CommonSeriesSettings(s => s
+                        .ArgumentField("Day")
+                        )
+                        .CommonAxisSettings(s => s
+                        .Grid(g => g.Visible(true))
+                        )
+                        .Margin(m => m.Left(20))
+                        .Series(s =>
+                        {
+                            s.Add()
+                            .ValueField("HighNG").Name("High NG")
+                            .Type(SeriesType.Spline)
+                            .Axis("value");
+                            s.Add()
+                            .ValueField("LowNG").Name("Low NG")
+                            .Type(SeriesType.Spline)
+                            .Axis("value");
+                            s.Add()
+                            .ValueField("HighRG").Name("High RG")
+                            .Type(SeriesType.Spline)
+                            .Axis("value");
+                            s.Add()
+                            .ValueField("LowRG").Name("Low RG")
+                            .Type(SeriesType.Spline)
+                            .Axis("value");
+                            s.Add()
+                            .ValueField("CloseRG").Name("Close RG")
+                            .Type(SeriesType.Spline)
+                            .Axis("value");
+                            s.Add()
+                            .ValueField("VolumeNG").Name("Volume NG")
+                            .Type(SeriesType.Bar)
+                            .Axis("volume");
 
 
-                                })
-                                .Tooltip(t => t.Enabled(true))
-                                .Legend(l => l
-                                .VerticalAlignment(VerticalEdge.Top)
-                                .HorizontalAlignment(HorizontalAlignment.Right)
-                                )
-                                .ValueAxis(a =>
-                                {
-                                    a.Add()
-                                    .Name("value")
-                                    .Position(Position.Right)
-                                    .Label(l => l.Format(Format.Decimal))
-                                    .AllowDecimals(false)
-                                    .AxisDivisionFactor(60);
+                        })
+                        .Tooltip(t => t.Enabled(true))
+                        .Legend(l => l
+                        .VerticalAlignment(VerticalEdge.Top)
+                        .HorizontalAlignment(HorizontalAlignment.Right)
+                        )
+                        .ValueAxis(a =>
+                        {
+                            a.Add()
+                            .Name("value")
+                            .Position(Position.Right)
+                            .Label(l => l.Format(Format.Decimal))
+                            .AllowDecimals(false)
+                            .AxisDivisionFactor(60);
 
-                                    a.Add()
-                                    .Name("volume")
-                                    .Position(Position.Left)
-                                    .Label(l => l.Format(Format.Decimal))
-                                    .TickInterval(10000000)
-                                    ;
-                                }
-                                )
-                    .Export(e => e.Enabled(true))
-                    .DataSource(new[] {
-            new { Day = "1/4", HighNG = "50", LowNG = "50", CloseRG= "50", HighRG="50", LowRG="50", VolumeNG="50000000" }
-          
-            })
-                    )
-            </div>
+                            a.Add()
+                            .Name("volume")
+                            .Position(Position.Left)
+                            .Label(l => l.Format(Format.Decimal))
+                            .TickInterval(10000000)
+                            ;
+                        }
+                        )
+                        .Export(e => e.Enabled(true))
+                        .DataSource(new[] {
+                new { Day = "1/4", HighNG = "50", LowNG = "50", CloseRG= "50", HighRG="50", LowRG="50", VolumeNG="50000000", date="20210104" }
+
+                })
+                        )
+                </div>
             </div>
             <div class="row">
-            <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
+                <div class="col-lg-6 form-group" id="chartContainer3" style="display: none; padding-right:25px; padding-left:25px;">
                     @(
                         Html.DevExtreme().Chart()
                         .ID("market-value-chart3")
@@ -376,12 +376,12 @@
                         )
                         .Export(e => e.Enabled(true))
                         .DataSource(new[] {
-                new { Day = "1/4", HighNG = "50", LowNG = "50", CloseRG= "50", HighRG="50", LowRG="50", VolumeNG="50000000" }
+                new { Day = "1/4", HighNG = "50", LowNG = "50", CloseRG= "50", HighRG="50", LowRG="50", VolumeNG="366014300", date="20210104" }
 
                 })
                         )
-            </div>
-            <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
+                </div>
+                <div class="col-lg-6 form-group" id="chartContainer4" style="display: none; padding-right:25px; padding-left:25px;">
                     @(
                         Html.DevExtreme().Chart()
                         .ID("market-value-chart4")
@@ -448,15 +448,17 @@
                         )
                         .Export(e => e.Enabled(true))
                         .DataSource(new[] {
-                new { Day = "1/4", HighNG = "50", LowNG = "50", CloseRG= "50", HighRG="50", LowRG="50", VolumeNG="50000000" }
+                new { Day = "1/4", HighNG = "50", LowNG = "50", CloseRG= "50", HighRG="50", LowRG="50", VolumeNG="310000000", date="20210104" }
 
                 })
                         )
+                </div>
             </div>
-           </div>
 
         </div>
     </div>
+
+
     <!-- The Modal  Detail-->
 }
 
@@ -602,6 +604,11 @@
         }
     }
 
+
+    function onLJKOpened(e) {
+        e.component.content().find('.dx-list-select-all').hide();
+    }
+
     function onButtonFilterClicked(e) {
         // Get the date value from the DateBox
         var dateValue = $("#datepickdID").dxDateBox("instance").option("value");
@@ -638,7 +645,7 @@
                 document.getElementById("chartContainer2").style.display = "block";
                 document.getElementById("chartContainer3").style.display = "block";
                 document.getElementById("chartContainer4").style.display = "block";
-            }, 1000);    
+            }, 1000);
         } else {
             document.getElementById("chartContainer1").style.display = "none";
             document.getElementById("chartContainer2").style.display = "none";
@@ -646,7 +653,7 @@
             document.getElementById("chartContainer4").style.display = "none";
         }
 
-        
+
     }
 
     function formatDateToYYYYMMDD(date) {
@@ -669,17 +676,6 @@
         ajaxOptions.data.namaPE = JSON.stringify(namaPE);
         ajaxOptions.data.periodeAwal = periodeAwal;
         ajaxOptions.data.status = JSON.stringify(status);
-    }
-
-    function onLJKOpened(e) {
-        e.component.content().find('.dx-list-select-all').hide();
-    }
-
-    function Detail(e) {
-        var keys = e.row.key;
-        if (typeof (keys) !== "undefined" && typeof (keys) !== null) {
-            window.open('@Url.Action("Detail", "SegmentationSummaryClusterMKBD")?id=' + keys.toString());
-        }
     }
 
     var waitingDialog = (function ($) {
