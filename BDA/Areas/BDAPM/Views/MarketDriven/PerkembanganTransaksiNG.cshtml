@@ -460,6 +460,41 @@
 
 
     <!-- The Modal  Detail-->
+    <div class="modal fade" id="ModalSimpanPenggunaanData" tabindex="-1" role="document" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color:#0066b2">
+                    <h4 class="modal-title" style="text-align:left">
+                        <font color="white">Pilih Penggunaan Data</font>
+                    </h4>
+                </div><!--Modal Header-->
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <form id="StrukturFormDetail" method="POST" action="" class="form-horizontal row-border">
+                        <div class="row" style="padding: 0 10px 0 10px;">
+                            @(Html.DevExtreme().SelectBox()
+                                .ID("penggunaandataid")
+                                .DataSource(d => d.Mvc()
+                                .Controller("PenggunaanData")
+                                .Area("Website")
+                                .LoadAction("GetPenggunaanData")
+                                .Key("value"))
+                                .ValueExpr("value")
+                                .DisplayExpr("text")
+                                .SearchEnabled(true)
+                                .Width("100%")
+                                )
+                        </div>
+                    </form>
+                </div>
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="button" id="btnSavePenggunaanData" class="btn btn-primary" data-bs-dismiss="modal"><i class='fa fa-save'></i> Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- The Modal  Detail-->
 }
 
 

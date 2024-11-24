@@ -88,23 +88,8 @@
                         <div class="row">
                             @(Html.DevExtreme().DataGrid()
                                 .ID("grid1")
-                                .DataSource(new[] {
-                                    new { rowid = 1, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00156", efek = "MPPX", subrekefek = "DH001234567", quantity = 1875.50 },
-                                    new { rowid = 2, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00278", efek = "BRIS", subrekefek = "DH009876543", quantity = 3420.75 },
-                                    new { rowid = 3, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00103", efek = "BBCA", subrekefek = "DH005678901", quantity = 4950.25 },
-                                    new { rowid = 4, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00299", efek = "RAJA", subrekefek = "DH003456789", quantity = 2130.00 },
-                                    new { rowid = 5, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00187", efek = "BREN", subrekefek = "DH007890123", quantity = 5275.50 },
-                                    new { rowid = 1, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00156", efek = "MPPX", subrekefek = "DH001234567", quantity = 1875.50 },
-                                    new { rowid = 2, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00278", efek = "BRIS", subrekefek = "DH009876543", quantity = 3420.75 },
-                                    new { rowid = 3, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00103", efek = "BBCA", subrekefek = "DH005678901", quantity = 4950.25 },
-                                    new { rowid = 4, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00299", efek = "RAJA", subrekefek = "DH003456789", quantity = 2130.00 },
-                                    new { rowid = 5, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00187", efek = "BREN", subrekefek = "DH007890123", quantity = 5275.50 },
-                                    new { rowid = 1, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00156", efek = "MPPX", subrekefek = "DH001234567", quantity = 1875.50 },
-                                    new { rowid = 2, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00278", efek = "BRIS", subrekefek = "DH009876543", quantity = 3420.75 },
-                                    new { rowid = 3, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00103", efek = "BBCA", subrekefek = "DH005678901", quantity = 4950.25 },
-                                    new { rowid = 4, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00299", efek = "RAJA", subrekefek = "DH003456789", quantity = 2130.00 },
-                                    new { rowid = 5, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00187", efek = "BREN", subrekefek = "DH007890123", quantity = 5275.50 }
-                                    })
+                                .DataSource(d => d.StaticJson().Url("/tempData/md_stp_balance.json")
+                                )
                                 .KeyExpr("rowid")
                                 .RemoteOperations(true)
                                 .Width("100%")
@@ -113,19 +98,21 @@
                                 .Columns(columns =>
                                 {
                                     columns.Add().DataField("rowid").Visible(false);
-                                    columns.Add().DataField("date").Caption("Tanggal Balance");
+                                    columns.Add().DataField("tanggal_balance").Caption("Tanggal Balance").DataType(GridColumnDataType.Date)
+                                    .Format("dd/MM/yyyy").CalculateCellValue("calculateDateCell"); ;
                                     columns.Add().DataField("sid").Caption("SID");
-                                    columns.Add().DataField("tradingid").Caption("Trading ID");
+                                    columns.Add().DataField("trading_id").Caption("Trading ID");
                                     columns.Add().DataField("efek").Caption("Efek");
-                                    columns.Add().DataField("subrekefek").Caption("Subrekening Efek");
-                                    columns.Add().DataField("quantity").Caption("Price");
+                                    columns.Add().DataField("subrekening_efek").Caption("Subrekening Efek");
+                                    columns.Add().DataField("quantity").Caption("Quantity").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+                                    columns.Add().DataField("price").Caption("Price").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
                                 })
-                                .FilterRow(f => f.Visible(true))
+                                .FilterRow(f => f.Visible(false))
                                 .ShowBorders(true)
                                 .Scrolling(s => s.ShowScrollbar(ShowScrollbarMode.Always))
                                 .Paging(p =>
                                 {
-                                    p.PageSize(5);
+                                    p.PageSize(10);
                                     p.Enabled(true);
                                 })
                                 .Pager(p =>
@@ -145,23 +132,25 @@
                         <div class="row">
                             @(Html.DevExtreme().DataGrid()
                                 .ID("grid2")
-                                .DataSource(new[] {
-                        new { rowid = 1, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH001234567" },
-                        new { rowid = 2, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH009876543" },
-                        new { rowid = 3, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH005678901" },
-                        new { rowid = 4, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH003456789" },
-                        new { rowid = 5, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH007890123" },
-                        new { rowid = 6, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH002345678" },
-                        new { rowid = 7, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH008901234" },
-                        new { rowid = 8, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH004567890" },
-                        new { rowid = 9, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH006789012" },
-                        new { rowid = 10, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH000123456" },
-                        new { rowid = 11, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH009012345" },
-                        new { rowid = 12, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH005678901" },
-                        new { rowid = 13, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH001234567" },
-                        new { rowid = 14, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH007890123" },
-                        new { rowid = 15, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH003456789" }
-                        })
+                                .DataSource(d => d.StaticJson().Url("/tempData/md_stp_settlement.json")
+                                )
+                                .KeyExpr("rowid")
+                                .RemoteOperations(true)
+                                .Width("100%")
+                                .AllowColumnResizing(true)
+                                .ColumnAutoWidth(true)
+                                .Columns(columns =>
+                                               {
+                                columns.Add().DataField("rowid").Visible(false);
+                                    columns.Add().DataField("settlementtransactiondatesk").Caption("Tanggal Settlement").DataType(GridColumnDataType.Date)
+                                    .Format("dd/MM/yyyy").CalculateCellValue("calculateDateCell3");
+                                columns.Add().DataField("tradingdatesk").Caption("Tanggal Trading").DataType(GridColumnDataType.Date)
+                                .Format("dd/MM/yyyy").CalculateCellValue("calculateDateCell2"); ;
+                                columns.Add().DataField("fpinvestorid").Caption("SID");
+                                columns.Add().DataField("cpinvestorid").Caption("SID CP");
+                                columns.Add().DataField("fpsettlementaccountcode").Caption("FP Settlement Account Code");
+
+                            })
                                 .KeyExpr("rowid")
                                 .RemoteOperations(true)
                                 .Width("100%")
@@ -170,18 +159,14 @@
                                 .Columns(columns =>
                                 {
                                     columns.Add().DataField("rowid").Visible(false);
-                                    columns.Add().DataField("date").Caption("Tanggal Settlement");
-                                    columns.Add().DataField("date2").Caption("Tanggal Trading");
-                                    columns.Add().DataField("sid").Caption("SID");
-                                    columns.Add().DataField("sidcp").Caption("SID CP");
-                                    columns.Add().DataField("fpsettlementcode").Caption("FP Settlement Account Code");
+                                    columns.Add().DataField("fpinvestorid").Caption("SID");
                                 })
-                                .FilterRow(f => f.Visible(true))
+                                .FilterRow(f => f.Visible(false))
                                 .ShowBorders(true)
                                 .Scrolling(s => s.ShowScrollbar(ShowScrollbarMode.Always))
                                 .Paging(p =>
                                 {
-                                    p.PageSize(5);
+                                    p.PageSize(10);
                                     p.Enabled(true);
                                 })
                                 .Pager(p =>
@@ -358,6 +343,42 @@
             });
         }
     });
+
+    function calculateDateCell(rowData) {
+        if (rowData.tanggal_balance) {
+            var dateStr = rowData.tanggal_balance.toString();
+            var year = dateStr.substring(0, 4);
+            var month = dateStr.substring(4, 6);
+            var day = dateStr.substring(6, 8);
+            return new Date(year, month - 1, day);
+        }
+
+        return null;
+    }
+
+    function calculateDateCell2(rowData) {
+        if (rowData.tradingdatesk) {
+            var dateStr = rowData.tradingdatesk.toString();
+            var year = dateStr.substring(0, 4);
+            var month = dateStr.substring(4, 6);
+            var day = dateStr.substring(6, 8);
+            return new Date(year, month - 1, day);
+        }
+
+        return null;
+    }
+
+    function calculateDateCell3(rowData) {
+        if (rowData.settlementtransactiondatesk) {
+            var dateStr = rowData.settlementtransactiondatesk.toString();
+            var year = dateStr.substring(0, 4);
+            var month = dateStr.substring(4, 6);
+            var day = dateStr.substring(6, 8);
+            return new Date(year, month - 1, day);
+        }
+
+        return null;
+    }
 
     function ExportToPdf() {
         $.ajax({
