@@ -324,7 +324,7 @@ namespace BDA.Helper
             if (stringPE != null)
             {
                 stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND securitycompanysk = " + stringPE;
+                whereQuery = whereQuery += " AND exchangemembercode = " + stringPE;
             }
 
             if (origin != null)
@@ -361,7 +361,7 @@ namespace BDA.Helper
             if (stringPE != null)
             {
                 stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND securitycompanysk = " + stringPE;
+                whereQuery = whereQuery += " AND exchangemembercode = " + stringPE;
             }
 
             if (origin != null)
@@ -398,7 +398,7 @@ namespace BDA.Helper
             if (stringPE != null)
             {
                 stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND securitycompanysk = " + stringPE;
+                whereQuery = whereQuery += " AND exchangemembercode = " + stringPE;
             }
 
             if (origin != null)
@@ -435,7 +435,7 @@ namespace BDA.Helper
             if (stringPE != null)
             {
                 stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND securitycompanysk = " + stringPE;
+                whereQuery = whereQuery += " AND exchangemembercode = " + stringPE;
             }
 
             if (origin != null)
@@ -472,7 +472,7 @@ namespace BDA.Helper
             if (stringPE != null)
             {
                 stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND securitycompanysk = " + stringPE;
+                whereQuery = whereQuery += " AND exchangemembercode = " + stringPE;
             }
 
             if (origin != null)
@@ -509,7 +509,7 @@ namespace BDA.Helper
             if (stringPE != null)
             {
                 stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND securitycompanysk = " + stringPE;
+                whereQuery = whereQuery += " AND exchangemembercode = " + stringPE;
             }
 
             if (origin != null)
