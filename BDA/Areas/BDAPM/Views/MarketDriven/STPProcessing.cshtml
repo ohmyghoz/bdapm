@@ -77,8 +77,8 @@
                 <div class="row">
                     <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
                         <div class="row" style="padding-bottom:12.5px">
-                            <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
-                            <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                            <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:exportGridToExcel1;" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                            <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:exportGridToPDF1();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
                         </div>
                         <div class="row">
                             <h4 class="headerTable">Balance</h4>
@@ -123,8 +123,8 @@
                     </div>
                     <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
                         <div class="row" style="padding-bottom:12.5px">
-                            <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
-                            <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                            <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:exportGridToExcel2();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                            <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:exportGridToPDF2();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
                         </div>
                         <div class="row">
                             <h4 class="headerTable">Settlement</h4>
@@ -171,8 +171,8 @@
                 <div class="row">
                     <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
                         <div class="row" style="padding-bottom:12.5px">
-                            <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
-                            <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                            <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:exportGridToExcel3();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                            <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:exportGridToPDF3()();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
                         </div>
                         <div class="row">
                             <h4 class="headerTable">Clearing</h4>
@@ -217,8 +217,8 @@
                     </div>
                     <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
                         <div class="row" style="padding-bottom:12.5px">
-                            <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
-                            <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                            <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:exportGridToExcel4();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                            <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:exportGridToPDF4()();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
                         </div>
                         <div class="row">
                             <h4 class="headerTable">Transaction</h4>
@@ -496,6 +496,93 @@
         }
     }
 
+    function exportGridToPDF1() {
+        const doc = new jsPDF();
+
+        // Get the DataGrid instance
+        const dataGrid = $("#grid1").dxDataGrid("instance");
+
+        // Export DataGrid to PDF
+        DevExpress.pdfExporter.exportDataGrid({
+            jsPDFDocument: doc,
+            component: dataGrid,
+            keepColumnWidths: true
+        }).then(() => {
+            // Save the PDF with a given file name
+            doc.save('GridData.pdf');
+        });
+    }
+
+    function exportGridToExcel1() {
+        var dataGrid = $("#grid1").dxDataGrid("instance");
+        dataGrid.exportToExcel(false); // 'false' means export all data, not just selected rows
+    }
+
+    function exportGridToPDF2() {
+        const doc = new jsPDF();
+
+        // Get the DataGrid instance
+        const dataGrid = $("#grid2").dxDataGrid("instance");
+
+        // Export DataGrid to PDF
+        DevExpress.pdfExporter.exportDataGrid({
+            jsPDFDocument: doc,
+            component: dataGrid,
+            keepColumnWidths: true
+        }).then(() => {
+            // Save the PDF with a given file name
+            doc.save('GridData.pdf');
+        });
+    }
+
+    function exportGridToExcel2() {
+        var dataGrid = $("#grid2").dxDataGrid("instance");
+        dataGrid.exportToExcel(false); // 'false' means export all data, not just selected rows
+    }
+
+    function exportGridToPDF3() {
+        const doc = new jsPDF();
+
+        // Get the DataGrid instance
+        const dataGrid = $("#grid3").dxDataGrid("instance");
+
+        // Export DataGrid to PDF
+        DevExpress.pdfExporter.exportDataGrid({
+            jsPDFDocument: doc,
+            component: dataGrid,
+            keepColumnWidths: true
+        }).then(() => {
+            // Save the PDF with a given file name
+            doc.save('GridData.pdf');
+        });
+    }
+
+    function exportGridToExcel3() {
+        var dataGrid = $("#grid3").dxDataGrid("instance");
+        dataGrid.exportToExcel(false); // 'false' means export all data, not just selected rows
+    }
+
+    function exportGridToPDF4() {
+        const doc = new jsPDF();
+
+        // Get the DataGrid instance
+        const dataGrid = $("#grid4").dxDataGrid("instance");
+
+        // Export DataGrid to PDF
+        DevExpress.pdfExporter.exportDataGrid({
+            jsPDFDocument: doc,
+            component: dataGrid,
+            keepColumnWidths: true
+        }).then(() => {
+            // Save the PDF with a given file name
+            doc.save('GridData.pdf');
+        });
+    }
+
+    function exportGridToExcel4() {
+        var dataGrid = $("#grid4").dxDataGrid("instance");
+        dataGrid.exportToExcel(false); // 'false' means export all data, not just selected rows
+    }
 
     var waitingDialog = (function ($) {
 

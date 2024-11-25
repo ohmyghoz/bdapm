@@ -633,6 +633,8 @@
         dataGrid.exportToExcel(false); // 'false' means export all data, not just selected rows
     }
 
+  
+
     function onSelectionChanged(e) {
         if (e.addedItems.length > 0) {
             e.component.field().val(""); // Clears the search text. However, search filter is only applied to the widget after focus is lost in the input element
