@@ -29,7 +29,7 @@
                     <div class="col-lg-3 form-group" id="datepickday">
                         <label>Periode@*<span class="mandatory">*</span>*@</label>
                         @(Html.DevExtreme().DateBox()
-                            .ID("DatepickdID")
+                            .ID("datePickdID")
                             .Type(DateBoxType.Date)
                             .DisplayFormat("dd/MM/yyyy")
                             .Width("100%"))
@@ -192,7 +192,7 @@
                 </div>
                 <div class="float-left">
                     @(Html.DevExtreme().Button()
-                        .ID("Filter")
+                        .ID("filterButton")
                         .Type(ButtonType.Default)
                         .Text("Tampilkan")
                         .OnClick("onButtonFilterClicked")
@@ -208,6 +208,7 @@
             </div> *@
             </div>
         </div>
+ 
         <div class="row filter-panel" style="padding-top:0px;">
             <div class="card-body">
                 <div class="row">
@@ -215,49 +216,141 @@
                         <div class="row">
                             <h4 class="headerTable">IHSG</h4>
                         </div>
-                        <div vlass="row">
-                            <h4 class="textdashboard">6.065,68</h4>
+                        <div class="row" id="cardGrid1" style="padding-top:50px; padding-bottom:50px; padding-right:5px; padding-left:5px; display: none">
+                            @(
+                                    Html.DevExtreme().DataGrid()
+                                    .ID("gridCard1")
+                                    .DataSource(d => d.StaticJson()
+                                    .Url("/tempData/md_summary.json")
+                                    )
+                                    .Columns(columns =>
+                                    {
+                                        columns.Add().DataField("calendarsk").Visible(false);
+                                        columns.Add().DataField("closingvalue").Format(f => f.Type(Format.FixedPoint)
+                                    .Precision(0)
+                                    )
+                                      
+                                        .CellTemplate(@<text>
+                                        <div style="font-size: 28px; text-align: center; font-weight:bold">
+                                            <%- value ? value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".").replace(/[.](?=[^.]*$)/, ",") : '0' %>
+                                        </div>
+                                    </text>);
+
+                                    })
+                                .WordWrapEnabled(true)
+                                .AllowColumnResizing(true)
+                                .ShowBorders(false)
+                                .ShowColumnHeaders(false)
+                                .Paging(p => p.PageSize(1))  // Set page size to 1
+                                .Pager(p => p.Visible(false))  // Hide the pager
+                                )
                         </div>
                     </div>
                     <div class="col-lg-3 form-group" style="padding-right:10px;padding-left:10px;border: 1px solid black">
                         <div class="row">
                             <h4 class="headerTable">Market Cap</h4>
                         </div>
-                        <div vlass="row">
-                            <h4 class="textdashboard">7.077.052.903.751.570,00</h4>
+                        <div class="row" id="cardGrid2" style="padding-top:50px; padding-bottom:50px; padding-right:5px; padding-left:5px; display: none">
+                            @(
+                                    Html.DevExtreme().DataGrid()
+                                    .ID("gridCard2")
+                                    .DataSource(d => d.StaticJson()
+                                    .Url("/tempData/md_summary.json")
+                                    )
+                                    .Columns(columns =>
+                                    {
+                                        columns.Add().DataField("calendarsk").Visible(false);
+                                        columns.Add().DataField("marketcapitalizationamount")
+                                    .CellTemplate(@<text>
+                                        <div style="font-size: 28px; text-align: center; font-weight:bold">
+                                <%- value ? value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".").replace(/[.](?=[^.]*$)/, ",") : '0' %>
+                                        </div>
+                                    </text>);
+
+                                    })
+                                 .WordWrapEnabled(true)
+                                .ShowBorders(false)
+                                .ShowColumnHeaders(false)
+                                .Paging(p => p.PageSize(1))  // Set page size to 1
+                                .Pager(p => p.Visible(false))  // Hide the pager
+                                )
                         </div>
                     </div>
                     <div class="col-lg-3 form-group" style="padding-right:10px;padding-left:10px;border: 1px solid black">
                         <div class="row">
                             <h4 class="headerTable">Net Buy Value</h4>
                         </div>
-                        <div vlass="row">
-                            <h4 class="textdashboard">-698.353.605.685,00</h4>
+                        <div class="row" id="cardGrid3" style="padding-top:50px; padding-bottom:50px; padding-right:5px; padding-left:5px; display: none">
+                            @(
+                                    Html.DevExtreme().DataGrid()
+                                    .ID("gridCard3")
+                                    .DataSource(d => d.StaticJson()
+                                    .Url("/tempData/md_summary.json")
+                                    )
+                                    .Columns(columns =>
+                                    {
+                                        columns.Add().DataField("calendarsk").Visible(false);
+                                        columns.Add().DataField("net_value")
+                                    .CellTemplate(@<text>
+                            <div style="font-size: 28px; text-align: center; font-weight:bold">
+                                <%- value ? value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".").replace(/[.](?=[^.]*$)/, ",") : '0' %>
+                            </div>
+                        </text>);
+
+                                    })
+                                .WordWrapEnabled(true)
+                                .ShowBorders(false)
+                                .ShowColumnHeaders(false)
+                                .Paging(p => p.PageSize(1))  // Set page size to 1
+                                .Pager(p => p.Visible(false))  // Hide the pager
+                                )
                         </div>
                     </div>
                     <div class="col-lg-3 form-group" style="padding-right:10px;padding-left:10px;border: 1px solid black">
                         <div class="row">
                             <h4 class="headerTable">Net Buy Volume</h4>
                         </div>
-                        <div vlass="row">
-                            <h4 class="textdashboard">-2.011.023.511,00</h4>
+                        <div class="row" id="cardGrid4" style="padding-top:50px; padding-bottom:50px; padding-right:5px; padding-left:5px; display: none">
+                            @(
+                                    Html.DevExtreme().DataGrid()
+                                    .ID("gridCard4")
+                                    .DataSource(d => d.StaticJson()
+                                    .Url("/tempData/md_summary.json")
+                                    )
+                                    .Columns(columns =>
+                                    {
+                                        columns.Add().DataField("calendarsk").Visible(false);
+                                        columns.Add().DataField("net_volume")
+                                    .CellTemplate(@<text>
+                            <div style="font-size: 28px; text-align: center; font-weight:bold">
+                                <%- value ? value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".").replace(/[.](?=[^.]*$)/, ",") : '0' %>
+                            </div>
+                        </text>);
+
+                                    })
+                                .WordWrapEnabled(true)
+                                .ShowBorders(false)
+                                .ShowColumnHeaders(false)
+                                .Paging(p => p.PageSize(1))  // Set page size to 1
+                                .Pager(p => p.Visible(false))  // Hide the pager
+                                )
                         </div>
                     </div>
                 </div>
             </div>
             </div>
 
-            <div class="row filter-panel" style="padding-top:0px;">
+            <div style="padding-top:0px;">
         <div class="card-body">
                 <div class="row">
                     <h4 class="headerTable">Market Value</h4>
                 </div>
-                <div>
+                <div id="chart1" style="display:none;">
                     @(Html.DevExtreme().Chart()
-                        .ID("market-value-chart")
+                        .ID("marketValueChart")
                         .Palette(VizPalette.Material)
                         .CommonSeriesSettings(s => s
-                        .ArgumentField("Day")
+                        .ArgumentField("date")
                         .Type(SeriesType.Spline)
                         )
                         .CommonAxisSettings(s => s
@@ -266,7 +359,7 @@
                         .Margin(m => m.Left(20))
                         .Series(s =>
                         {
-                            s.Add().ValueField("MarketValue").Name("Market Value");
+                                s.Add().ValueField("closingvalue").Name("Market Value");
 
                         })
                         .Tooltip(t => t.Enabled(true))
@@ -274,44 +367,14 @@
                         .VerticalAlignment(VerticalEdge.Top)
                         .HorizontalAlignment(HorizontalAlignment.Right)
                         )
-                        .ArgumentAxis(a => a
-                        .Label(l => l.Format(Format.Decimal))
-                        .AllowDecimals(false)
-                        .AxisDivisionFactor(60)
-                        )
+                        
+                        
                         .Export(e => e.Enabled(true))
-                        .DataSource(new[] {
-                new { Day = "1/7", MarketValue = 10_700_000_000_000 },
-                new { Day = "2/7", MarketValue = 11_900_000_000_000 },
-                new { Day = "3/7", MarketValue = 9_000_000_000_000 },
-                new { Day = "4/7", MarketValue = 8_500_000_000_000 },
-                new { Day = "5/7", MarketValue = 9_500_000_000_000 },
-                new { Day = "6/7", MarketValue = 11_500_000_000_000 },
-                new { Day = "7/7", MarketValue = 10_200_000_000_000 },
-                new { Day = "8/7", MarketValue = 11_600_000_000_000 },
-                new { Day = "9/7", MarketValue = 8_400_000_000_000 },
-                new { Day = "10/7", MarketValue = 8_900_000_000_000 },
-                new { Day = "11/7", MarketValue = 12_300_000_000_000 },
-                new { Day = "12/7", MarketValue = 12_000_000_000_000 },
-                new { Day = "13/7", MarketValue = 11_600_000_000_000 },
-                new { Day = "14/7", MarketValue = 10_700_000_000_000 },
-                new { Day = "15/7", MarketValue = 10_100_000_000_000 },
-                new { Day = "16/7", MarketValue = 11_200_000_000_000 },
-                new { Day = "17/7", MarketValue = 11_500_000_000_000 },
-                new { Day = "18/7", MarketValue = 11_800_000_000_000 },
-                new { Day = "19/7", MarketValue = 9_300_000_000_000 },
-                new { Day = "20/7", MarketValue = 11_800_000_000_000 },
-                new { Day = "21/7", MarketValue = 8_900_000_000_000 },
-                new { Day = "22/7", MarketValue = 11_900_000_000_000 },
-                new { Day = "23/7", MarketValue = 9_700_000_000_000 },
-                new { Day = "24/7", MarketValue = 8_800_000_000_000 },
-                new { Day = "25/7", MarketValue = 10_400_000_000_000 },
-                new { Day = "26/7", MarketValue = 10_300_000_000_000 },
-                new { Day = "27/7", MarketValue = 8_900_000_000_000 },
-                new { Day = "28/7", MarketValue = 12_300_000_000_000 },
-                new { Day = "29/7", MarketValue = 12_000_000_000_000 },
-                new { Day = "30/7", MarketValue = 11_200_000_000_000 }
-                    })
+                        .DataSource(d => d.StaticJson()
+                                    .Url("/tempData/md_summary_graph.json")
+                                    .Key("date")
+
+                                    )
                         )
                 </div>
             </div>
@@ -323,179 +386,130 @@
             <div class="row">
                 <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
                     <div class="row" style="padding-bottom:12.5px">
-                        <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
-                        <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                            <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:exportGridToExcel1();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                        <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:exportGridToPDF1();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
                     </div>
                     <div class="row">
                         <h4 class="headerTable">Investor Code</h4>
                     </div>
                     <div class="row">
-                        @(Html.DevExtreme().DataGrid()
-                            .ID("grid1")
-                            .DataSource(new[] {
-                    new { rowid = 1, investorcode = "AB1234", tradeid = "AB1234", value = 90000000000, volume = 200000 },
-                    new { rowid = 2, investorcode = "CD5678", tradeid = "CD5678", value = 88000000000, volume = 195000 },
-                    new { rowid = 3, investorcode = "EF9012", tradeid = "EF9012", value = 86000000000, volume = 190000 },
-                    new { rowid = 4, investorcode = "GH3456", tradeid = "GH3456", value = 84000000000, volume = 185000 },
-                    new { rowid = 5, investorcode = "IJ7890", tradeid = "IJ7890", value = 82000000000, volume = 180000 },
-                    new { rowid = 6, investorcode = "KL2345", tradeid = "KL2345", value = 80000000000, volume = 175000 },
-                    new { rowid = 7, investorcode = "MN6789", tradeid = "MN6789", value = 78000000000, volume = 170000 },
-                    new { rowid = 8, investorcode = "OP1234", tradeid = "OP1234", value = 76000000000, volume = 165000 },
-                    new { rowid = 9, investorcode = "QR5678", tradeid = "QR5678", value = 74000000000, volume = 160000 },
-                    new { rowid = 10, investorcode = "ST9012", tradeid = "ST9012", value = 72000000000, volume = 155000 },
-                    new { rowid = 11, investorcode = "UV3456", tradeid = "UV3456", value = 70000000000, volume = 150000 },
-                    new { rowid = 12, investorcode = "WX7890", tradeid = "WX7890", value = 68000000000, volume = 145000 },
-                    new { rowid = 13, investorcode = "YZ2345", tradeid = "YZ2345", value = 66000000000, volume = 140000 },
-                    new { rowid = 14, investorcode = "AA6789", tradeid = "AA6789", value = 64000000000, volume = 135000 },
-                    new { rowid = 15, investorcode = "BB1234", tradeid = "BB1234", value = 62000000000, volume = 130000 }
-                    })
-                            .KeyExpr("rowid")
-                            .RemoteOperations(true)
-                            .Width("100%")
-                            .AllowColumnResizing(true)
-                            .ColumnAutoWidth(true)
-                            .Columns(columns =>
-                            {
-                                columns.Add().DataField("rowid").Visible(false);
-                                columns.Add().DataField("investorcode").Caption("Investor Code");
-                                columns.Add().DataField("tradeid").Caption("Trade ID");
-                                columns.Add().DataField("value").Caption("Value").Format("#,##0.##");
-                                columns.Add().DataField("volume").Caption("Volume").Format("#,##0.##");
-                              
-                            })
-                            .FilterRow(f => f.Visible(true))
-                            .ShowBorders(true)
-                            .Scrolling(s => s.ShowScrollbar(ShowScrollbarMode.Always))
-                            .Paging(p =>
-                            {
-                                p.PageSize(10);
-                                p.Enabled(true);
-                            })
-                            .Pager(p =>
-                            {
-                                p.ShowInfo(true);
-                            }))
+                        <div id="gridInv" style="display: none;">
+                            @(Html.DevExtreme().DataGrid()
+                                .ID("gridInvestor")
+                                .DataSource(d => d.StaticJson().Url("/tempData/md_validasi.json")
+                                )
+                                .KeyExpr("rowid")
+                                .RemoteOperations(true)
+                                .Width("100%")
+                                .AllowColumnResizing(true)
+                                .Columns(columns =>
+                                {
+                                    columns.Add().DataField("rowid").Visible(false); 
+                                    columns.Add().DataField("investorcode").Caption("Investor Code");
+                                    columns.Add().DataField("cpinvestorcode").Caption("Trade ID");
+                                    columns.Add().DataField("value").Caption("Value").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+                                    columns.Add().DataField("quantity").Caption("Volume").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+
+                                })
+                                .FilterRow(f => f.Visible(false))
+                                .ShowBorders(true)
+                                .Scrolling(s => s.ShowScrollbar(ShowScrollbarMode.Always))
+                                .Paging(p =>
+                                {
+                                    p.PageSize(15);
+                                    p.Enabled(true);
+                                })
+                                .Pager(p =>
+                                {
+                                    p.ShowInfo(true);
+                                }))
+                                </div>
                     </div>
                 </div>
                 <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
                     <div class="row" style="padding-bottom:12.5px">
-                        <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
-                        <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                        <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:exportGridToExcel2();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                        <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:exportGridToPDF2();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
                     </div>
                     <div class="row">
                         <h4 class="headerTable">Security Code </h4>
                     </div>
                     <div class="row">
-                        @(
-                        Html.DevExtreme().DataGrid()
-                                .ID("grid2")
-                                .DataSource(new[] {
-                    new { rowid = 1, securitycode = "ABCD", value = 90000000000, volume = 200000, freq = 999999 },
-                    new { rowid = 2, securitycode = "EFGH", value = 88000000000, volume = 195000, freq = 950000 },
-                    new { rowid = 3, securitycode = "IJKL", value = 86000000000, volume = 190000, freq = 900000 },
-                    new { rowid = 4, securitycode = "MNOP", value = 84000000000, volume = 185000, freq = 850000 },
-                    new { rowid = 5, securitycode = "QRST", value = 82000000000, volume = 180000, freq = 800000 },
-                    new { rowid = 6, securitycode = "UVWX", value = 80000000000, volume = 175000, freq = 750000 },
-                    new { rowid = 7, securitycode = "YZAB", value = 78000000000, volume = 170000, freq = 700000 },
-                    new { rowid = 8, securitycode = "CDEF", value = 76000000000, volume = 165000, freq = 650000 },
-                    new { rowid = 9, securitycode = "GHJI", value = 74000000000, volume = 160000, freq = 600000 },
-                    new { rowid = 10, securitycode = "KLMN", value = 72000000000, volume = 155000, freq = 550000 },
-                    new { rowid = 11, securitycode = "OPQR", value = 70000000000, volume = 150000, freq = 500000 },
-                    new { rowid = 12, securitycode = "STUV", value = 68000000000, volume = 145000, freq = 450000 },
-                    new { rowid = 13, securitycode = "WXYZ", value = 66000000000, volume = 140000, freq = 400000 },
-                    new { rowid = 14, securitycode = "ABEF", value = 64000000000, volume = 135000, freq = 350000 },
-                    new { rowid = 15, securitycode = "CDGH", value = 62000000000, volume = 130000, freq = 300000 }
-                    })
+                        <div id="gridSec" style="display: none;">
+                            @(Html.DevExtreme().DataGrid()
+                                .ID("gridSecurity")
+                                .DataSource(d => d.StaticJson().Url("/tempData/md_validasi.json")
+                                )
                                 .KeyExpr("rowid")
                                 .RemoteOperations(true)
                                 .Width("100%")
                                 .AllowColumnResizing(true)
-                                .ColumnAutoWidth(true)
                                 .Columns(columns =>
                                 {
                                     columns.Add().DataField("rowid").Visible(false); 
-                                    columns.Add().DataField("securitycode").Caption("Security Code");
-                                    columns.Add().DataField("value").Caption("Value").Format("#,##0.##"); 
-                                    columns.Add().DataField("volume").Caption("Volume").Format("#,##0.##");
-                                    columns.Add().DataField("freq").Caption("Frequency");
+                                    columns.Add().DataField("securitycode").Caption("Security Code");  
+                                    columns.Add().DataField("value").Caption("Value").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+                                    columns.Add().DataField("quantity").Caption("Volume").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+                                    columns.Add().DataField("quantity").Caption("Frequency").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
 
-                            })
-                            .FilterRow(f => f.Visible(true))
-                            .ShowBorders(true)
-                            .Scrolling(s => s.ShowScrollbar(ShowScrollbarMode.Always))
-                            .Paging(p =>
-                            {
-                                p.PageSize(10);
-                                p.Enabled(true);
-                            })
-                            .Pager(p =>
-                            {
-                                p.ShowInfo(true);
-                            })
-                    )
+                                })
+                                .FilterRow(f => f.Visible(false))
+                                .ShowBorders(true)
+                                .Scrolling(s => s.ShowScrollbar(ShowScrollbarMode.Always))
+                                .Paging(p =>
+                                {
+                                    p.PageSize(15);
+                                    p.Enabled(true);
+                                })
+                                .Pager(p =>
+                                {
+                                    p.ShowInfo(true);
+                                }))
+                                </div>
                     </div>
                 </div>
             </div>
             <div class="row">
                 <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
                     <div class="row" style="padding-bottom:12.5px">
-                        <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
-                        <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                        <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:exportGridToExcel3();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                        <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:exportGridToPDF3();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
                     </div>
                     <div class="row">
                         <h4 class="headerTable">CP Investor Code</h4>
                     </div>
                     <div class="row">
-                        @(Html.DevExtreme().DataGrid()
-                            .ID("grid3")
-                            .DataSource(new[] {
-                    new { rowid = 1, investorcode = "AB1234", tradeid = "AB1234", value = 90000000000, volume = 200000 },
-                    new { rowid = 2, investorcode = "CD5678", tradeid = "CD5678", value = 88000000000, volume = 195000 },
-                    new { rowid = 3, investorcode = "EF9012", tradeid = "EF9012", value = 86000000000, volume = 190000 },
-                    new { rowid = 4, investorcode = "GH3456", tradeid = "GH3456", value = 84000000000, volume = 185000 },
-                    new { rowid = 5, investorcode = "IJ7890", tradeid = "IJ7890", value = 82000000000, volume = 180000 },
-                    new { rowid = 6, investorcode = "KL2345", tradeid = "KL2345", value = 80000000000, volume = 175000 },
-                    new { rowid = 7, investorcode = "MN6789", tradeid = "MN6789", value = 78000000000, volume = 170000 },
-                    new { rowid = 8, investorcode = "OP1234", tradeid = "OP1234", value = 76000000000, volume = 165000 },
-                    new { rowid = 9, investorcode = "QR5678", tradeid = "QR5678", value = 74000000000, volume = 160000 },
-                    new { rowid = 10, investorcode = "ST9012", tradeid = "ST9012", value = 72000000000, volume = 155000 },
-                    new { rowid = 11, investorcode = "UV3456", tradeid = "UV3456", value = 70000000000, volume = 150000 },
-                    new { rowid = 12, investorcode = "WX7890", tradeid = "WX7890", value = 68000000000, volume = 145000 },
-                    new { rowid = 13, investorcode = "YZ2345", tradeid = "YZ2345", value = 66000000000, volume = 140000 },
-                    new { rowid = 14, investorcode = "AA6789", tradeid = "AA6789", value = 64000000000, volume = 135000 },
-                    new { rowid = 15, investorcode = "BB1234", tradeid = "BB1234", value = 62000000000, volume = 130000 },
-                     new { rowid = 16, investorcode = "AB1234", tradeid = "AB1234", value = 90000000000, volume = 200000 },
-                      new { rowid = 17, investorcode = "AB1234", tradeid = "AB1234", value = 90000000000, volume = 200000 },
-                       new { rowid = 18, investorcode = "AB1234", tradeid = "AB1234", value = 90000000000, volume = 200000 },
-                        new { rowid = 19, investorcode = "AB1234", tradeid = "AB1234", value = 90000000000, volume = 200000 },
-                    new { rowid = 20, investorcode = "AB1234", tradeid = "AB1234", value = 90000000000, volume = 200000 },
-                    })
+                        <div id="gridCPInv" style="display: none;">
+                            @(Html.DevExtreme().DataGrid()
+                                .ID("gridCPInv")
+                                .DataSource(d => d.StaticJson().Url("/tempData/md_validasi.json")
+                                )
+                                .KeyExpr("rowid")
+                                .RemoteOperations(true)
+                                .Width("100%")
+                                .AllowColumnResizing(true)
+                                .Columns(columns =>
+                                {
+                                    columns.Add().DataField("rowid").Visible(false); 
+                                    columns.Add().DataField("cpinvestorcode").Caption("CP Investor Code");
+                                    columns.Add().DataField("cpinvestorcode").Caption("CP Trade ID");
+                                    columns.Add().DataField("value").Caption("Value").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+                                    columns.Add().DataField("quantity").Caption("Volume").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
 
-                            .KeyExpr("rowid")
-                            .RemoteOperations(true)
-                            .Width("100%")
-                            .AllowColumnResizing(true)
-                            .ColumnAutoWidth(true)
-                            .Columns(columns =>
-                            {
-                                columns.Add().DataField("rowid").Visible(false);
-                                columns.Add().DataField("investorcode").Caption("CP Investor Code");
-                                columns.Add().DataField("tradeid").Caption("CP Trade ID");
-                                columns.Add().DataField("value").Caption("Value").Format("#,##0.##");
-                                columns.Add().DataField("volume").Caption("Volume").Format("#,##0.##");
-                            })
-                            .FilterRow(f => f.Visible(true))
-                            .ShowBorders(true)
-                            .Scrolling(s => s.ShowScrollbar(ShowScrollbarMode.Always))
-                            .Paging(p =>
-                            {
-                                p.PageSize(10);
-                                p.Enabled(true);
-                            })
-                            .Pager(p =>
-                            {
-                                p.ShowInfo(true);
-                            }))
+                                })
+                                .FilterRow(f => f.Visible(false))
+                                .ShowBorders(true)
+                                .Scrolling(s => s.ShowScrollbar(ShowScrollbarMode.Always))
+                                .Paging(p =>
+                                {
+                                    p.PageSize(15);
+                                    p.Enabled(true);
+                                })
+                                .Pager(p =>
+                                {
+                                    p.ShowInfo(true);
+                                }))
+                                </div>
                     </div>
                 </div>
                 <!-- disimpan  <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
@@ -755,6 +769,235 @@
         }
     }
 
+    function formatAccountingNumber(value) {
+        if (value < 0) {
+            return '(' + Globalize.formatNumber(Math.abs(value), {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+                useGrouping: true
+            }) + ')';
+        }
+        return Globalize.formatNumber(value, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+            useGrouping: true
+        });
+    }
+
+
+    $(document).ready(function () {
+        $("#filterButton").dxButton({
+            onClick: function (e) {
+
+                // Get filter values
+                var dayDate = $("#datePickdID").dxDateBox("instance").option("value");
+                var startDate = $("#StartDateID").dxDateBox("instance").option("value");
+                var endDate = $("#EndDateID").dxDateBox("instance").option("value");
+                var buySell = $("#Buysellid").dxTagBox("instance").option("value");
+
+                console.log(buySell);
+
+                if (buySell == "Buy")
+                {
+                    var beli = "B";
+                }
+                else if (buySell == "Sell")
+                {
+                    var beli = "S";
+                }
+              
+               console.log(beli);
+
+                if (dayDate) {
+                var dayDateInt = dateToYYYYMMDD(dayDate);
+                }
+
+            if (startDate && endDate) {
+                var startDateInt = dateToYYYYMMDD(startDate);
+                var endDateInt = dateToYYYYMMDD(endDate);
+                }
+              
+                console.log(startDateInt);
+                console.log(endDateInt);
+               
+                //filter gridCard
+                var filterconditionsCard = 
+                    ["calendarsk", "=", dayDateInt]
+                    
+                ;
+
+                var filterconditionsGraph =[
+                    ["calendarsk", ">=", startDateInt],
+                   "and",
+                   ["calendarsk", "<=", endDateInt]
+                ];
+
+                var filterconditionsGrid1d = 
+                 ["tradedatesk", "=", dayDateInt]
+
+                ;
+
+                var filterconditionsGridMd =[
+                    ["tradedatesk", ">=", startDateInt],
+                   "and",
+                   ["tradedatesk", "<=", endDateInt]
+                ];
+                
+                 if (beli) {
+                    filterconditionsGrid1d.push("and");
+                    filterconditionsGrid1d.push(["transactiontypecode", "=", beli]);
+                    
+                }
+
+                $("#cardGrid1").show();
+                $("#cardGrid2").show();
+                $("#cardGrid3").show();
+                $("#cardGrid4").show();
+                $("#chart1").show();
+
+                $("#gridInv").show();
+                $("#gridSec").show();
+                $("#gridCPInv").show();
+               
+                //filter grid1
+               
+               
+              
+
+                var dataGrid1 = $("#gridCard1").dxDataGrid("instance");
+                dataGrid1.filter(filterconditionsCard);
+
+                var dataGrid2 = $("#gridCard2").dxDataGrid("instance");
+                dataGrid2.filter(filterconditionsCard);
+
+                var dataGrid3 = $("#gridCard3").dxDataGrid("instance");
+                dataGrid3.filter(filterconditionsCard);
+
+                var dataGrid4 = $("#gridCard4").dxDataGrid("instance");
+                dataGrid4.filter(filterconditionsCard);
+               
+                var chartView = $("#marketValueChart").dxChart("instance");
+               
+
+                if (startDateInt && endDateInt) {
+                        chartView.getDataSource().filter(filterconditionsGraph);
+                        chartView.getDataSource().load();
+                    } else if (dayDateInt) {
+                        $("#chart1").hide();
+                    }
+
+              
+                
+
+                var gridInv = $("#gridInvestor").dxDataGrid("instance");
+                if (startDateInt && endDateInt) {
+                    gridInv.filter(filterconditionsGridMd);
+                } else if (dayDateInt) {
+                    gridInv.filter(filterconditionsGrid1d);
+                }
+
+                var gridSec = $("#gridSecurity").dxDataGrid("instance");
+                if (startDateInt && endDateInt) {
+                    gridSec.filter(filterconditionsGridMd);
+                } else if (dayDateInt) {
+                    gridSec.filter(filterconditionsGrid1d);
+                }
+
+                var gridCPInv = $("#gridCPInv").dxDataGrid("instance");
+                if (startDateInt && endDateInt) {
+                    gridCPInv.filter(filterconditionsGridMd);
+                } else if (dayDateInt) {
+                    gridCPInv.filter(filterconditionsGrid1d);
+                }
+
+                dataGrid1.refresh();
+                dataGrid2.refresh();
+                dataGrid3.refresh();
+                dataGrid4.refresh();
+
+                chartView.refresh();
+                gridInv.refresh();
+                gridSec.refresh();
+                gridCPInv.refresh();
+
+
+            }
+        });
+    });
+
+    function dateToYYYYMMDD(date) {
+        var year = date.getFullYear();
+        var month = (date.getMonth() + 1).toString().padStart(2, '0');
+        var day = date.getDate().toString().padStart(2, '0');
+        return parseInt(year + month + day);
+    }
+
+     function exportGridToPDF1() {
+        const doc = new jsPDF();
+
+        // Get the DataGrid instance
+        const dataGrid = $("#gridInvestor").dxDataGrid("instance");
+
+        // Export DataGrid to PDF
+        DevExpress.pdfExporter.exportDataGrid({
+            jsPDFDocument: doc,
+            component: dataGrid,
+            keepColumnWidths: true
+        }).then(() => {
+            // Save the PDF with a given file name
+            doc.save('GridData.pdf');
+        });
+    }
+
+     function exportGridToPDF2() {
+        const doc = new jsPDF();
+
+        // Get the DataGrid instance
+        const dataGrid = $("#gridSecurity").dxDataGrid("instance");
+
+        // Export DataGrid to PDF
+        DevExpress.pdfExporter.exportDataGrid({
+            jsPDFDocument: doc,
+            component: dataGrid,
+            keepColumnWidths: true
+        }).then(() => {
+            // Save the PDF with a given file name
+            doc.save('GridData.pdf');
+        });
+    }
+
+     function exportGridToPDF3() {
+        const doc = new jsPDF();
+
+        // Get the DataGrid instance
+        const dataGrid = $("#gridCPInv").dxDataGrid("instance");
+
+        // Export DataGrid to PDF
+        DevExpress.pdfExporter.exportDataGrid({
+            jsPDFDocument: doc,
+            component: dataGrid,
+            keepColumnWidths: true
+        }).then(() => {
+            // Save the PDF with a given file name
+            doc.save('GridData.pdf');
+        });
+    }
+
+     function exportGridToExcel1() {
+        var dataGrid = $("#gridInvestor").dxDataGrid("instance");
+        dataGrid.exportToExcel(false); // 'false' means export all data, not just selected rows
+    }
+
+     function exportGridToExcel1() {
+        var dataGrid = $("#gridSecurity").dxDataGrid("instance");
+        dataGrid.exportToExcel(false); // 'false' means export all data, not just selected rows
+    }
+
+     function exportGridToExcel1() {
+        var dataGrid = $("#gridCPInv").dxDataGrid("instance");
+        dataGrid.exportToExcel(false); // 'false' means export all data, not just selected rows
+    }
+
     var waitingDialog = (function ($) {
 
         // Creating modal dialog's DOM
@@ -825,6 +1068,18 @@
         color: #fdfdfd;
         text-align: center;
     }
+
+    .grid-header {
+        font-size: 16px;
+        background-color: #ff0000;
+        color: white;
+        padding: 8px;
+    }
+
+    .grid-cell {
+        font-size: 14px;
+    }
+
 </style>
 
 
