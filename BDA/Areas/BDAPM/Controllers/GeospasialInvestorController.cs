@@ -118,7 +118,7 @@ namespace BDA.Controllers
                             new { coordinates = x.coordinates,
                             text = x.name,
                             dimension = dimension,
-                            current_value = x.value
+                            value = x.value
                             })
                 }
             };

@@ -147,7 +147,7 @@
                                 .BorderColor("#000000")
                                 .HoveredBorderWidth(2)
                                 .DataField("value")
-                                .Label(x => x.Enabled(true).DataField("name"))
+                                .Label(x => x.Enabled(true).DataField("text"))
                                 .Opacity(0.9)
                                 .Customize("vectorMap_customizeBubble");
                             })
@@ -277,7 +277,7 @@
                             .Series(s => s
                                 .Add()
                                 .ArgumentField("investortype")
-                                .ValueField("currenttalue")
+                                .ValueField("currentvalue")
                                 .Label(l => l.Visible(true)
                                 .Connector(c => c.Visible(true))
                                 .BackgroundColor("none").CustomizeText(@<text>

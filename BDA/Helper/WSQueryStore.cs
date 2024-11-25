@@ -5304,7 +5304,7 @@ namespace BDA.Helper
                     props.Query = @"
                         SELECT calendardate,securitycompanysk,securitycompanycode,securitycompanyname,mutualfundtypesk,mutualfundtypecode,mutualfundtypename,mutualfundname,isaffiliated,
                         CASE WHEN cast(cast(netassetvalueunit as BIGINT) as string) is null then '0' else cast(cast(netassetvalueunit as BIGINT) as string) END as netassetvalueunit,
-                        CASE WHEN cast(cast(netassetvalueunit as BIGINT) as string) is null then '0' else cast(cast(netassetvalueunit as BIGINT) as string) END as netassetvaluemutualfund,
+                        CASE WHEN cast(cast(netassetvaluemutualfund as BIGINT) as string) is null then '0' else cast(cast(netassetvaluemutualfund as BIGINT) as string) END as netassetvaluemutualfund,
                         CASE WHEN cast(cast(mkbdlimitationvalue as BIGINT) as string) is null then '0' else cast(cast(mkbdlimitationvalue as BIGINT) as string) END as mkbdlimitationvalue,liabilitiesrankingcal,
                         CASE WHEN cast(cast(mkbdlimitationexcessvalue as BIGINT) as string) is null then '0' else cast(cast(mkbdlimitationexcessvalue as BIGINT) as string) END as mkbdlimitationexcessvalue,
                         periode 

@@ -113,7 +113,7 @@
                                                                 function () {
                                                                     return thousandSeparatorDecimal(parseFloat(this.valueText)) + "<br>(" + thousandSeparatorDecimal2((this.valueText/($("#totalValueTraded").val()??1))*100) + "%)";
                                                                 }
-                                                            </text>).Visible(true).Connector(c => c.Visible(true)).Position(RelativePosition.Outside))
+                                                            </text>).Font(f=> f.Size(10)).Visible(true).Connector(c => c.Visible(true)).Position(RelativePosition.Outside))
                             )
                             .SeriesTemplate(t => t.NameField("gender"))
                             .Legend(l => l.Visible(false).VerticalAlignment(VerticalEdge.Top).HorizontalAlignment(HorizontalAlignment.Center))
@@ -133,9 +133,9 @@
                                 .IgnoreEmptyPoints(true)
                                 .Label(l => l.CustomizeText(@<text>
                                                                 function () {
-                                                                    return thousandSeparatorDecimal(parseFloat(this.valueText)) + "<br>(" + thousandSeparatorDecimal2((this.valueText/($("#totalValueTraded").val()??1))*100) + "%)";
+                                                                    return thousandSeparatorDecimal(parseFloat(this.valueText)) + " (" + thousandSeparatorDecimal2((this.valueText/($("#totalValueTraded").val()??1))*100) + "%)";
                                                                 }
-                                                            </text>).Visible(true).Connector(c => c.Visible(true)).Position(RelativePosition.Outside))
+                                                            </text>).Font(f=> f.Size(10)).Visible(true).Connector(c => c.Visible(true)).Position(RelativePosition.Outside))
                             )
                             .SeriesTemplate(t => t.NameField("agerange"))
                             .Legend(l => l.Visible(false).VerticalAlignment(VerticalEdge.Top).HorizontalAlignment(HorizontalAlignment.Center))
@@ -156,9 +156,9 @@
                             .IgnoreEmptyPoints(true)
                             .Label(l => l.CustomizeText(@<text>
                                                             function () {
-                                                                return thousandSeparatorDecimal(parseFloat(this.valueText)) + "<br>(" + thousandSeparatorDecimal2((this.valueText/($("#totalValueTraded").val()??1))*100) + "%)";
+                                                                return thousandSeparatorDecimal(parseFloat(this.valueText)) + " (" + thousandSeparatorDecimal2((this.valueText/($("#totalValueTraded").val()??1))*100) + "%)";
                                                             }
-                                                        </text>).Visible(true).Connector(c => c.Visible(true)).Position(RelativePosition.Outside))
+                                                        </text>).Font(f => f.Size(10)).Visible(true).Connector(c => c.Visible(true)).Position(RelativePosition.Outside))
                             )
                             .SeriesTemplate(t => t.NameField("pendidikan"))
                             .Legend(l => l.Visible(false).VerticalAlignment(VerticalEdge.Top).HorizontalAlignment(HorizontalAlignment.Center))
@@ -184,7 +184,7 @@
                                     .Connector(c=>c.Visible(true))
                                     .BackgroundColor("none")
                                     .CustomizeText(@<text>function () {
-                                                return thousandSeparatorDecimal2((this.valueText/@(ViewBag.totalValueTraded??1))*100) + "%";
+                                                        return thousandSeparatorDecimal2((this.valueText/($("#totalValueTraded").val()??1))*100) + "%";
                                                 }
                                             </text>)
                                 )
@@ -213,9 +213,9 @@
                             .IgnoreEmptyPoints(true)
                             .Label(l => l.CustomizeText(@<text>
                                         function () {
-                                            return thousandSeparatorDecimal(parseFloat(this.valueText)) + "<br>(" + thousandSeparatorDecimal2((this.valueText/($("#totalValueTraded").val()??1))*100) + "%)";
+                                            return thousandSeparatorDecimal(parseFloat(this.valueText)) + " (" + thousandSeparatorDecimal2((this.valueText/($("#totalValueTraded").val()??1))*100) + "%)";
                                         }
-                                    </text>).Visible(true).Connector(c => c.Visible(true)).Position(RelativePosition.Outside))
+                                        </text>).Font(f => f.Size(10)).Visible(true).Connector(c => c.Visible(true)).Position(RelativePosition.Outside))
                             )
                             .SeriesTemplate(t => t.NameField("occupation"))
                             .Legend(l => l.Visible(false).VerticalAlignment(VerticalEdge.Top).HorizontalAlignment(HorizontalAlignment.Center))

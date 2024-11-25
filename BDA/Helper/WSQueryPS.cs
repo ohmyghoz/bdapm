@@ -626,31 +626,31 @@ namespace BDA.Helper
 
             if (investorOrigin != null)
             {
-                if (investorOrigin == "lokal")
+                if (investorOrigin == "Lokal")
                 {
                     if (province != null)
                     {
                         props.Query = @"
-                    select city as lokasi, investor_type investorType, cast(sum(current_value) as bigint) current_value From pasarmodal.pe_segmentation_geo where "
+                    select city as lokasi, investor_type investortype, cast(sum(current_value) as bigint) value From pasarmodal.pe_segmentation_geo where "
                             + whereQuery + " group by city, investor_type order by sum(current_value) " + order + " limit 16";
                     }
                     else
                     {
                         props.Query = @"
-                    select provinsi as lokasi, investor_type InvestorType, cast(sum(current_value) as bigint) current_value From pasarmodal.pe_segmentation_geo where "
+                    select provinsi as lokasi, investor_type investortype, cast(sum(current_value) as bigint) value From pasarmodal.pe_segmentation_geo where "
                             + whereQuery + " group by provinsi, investor_type order by sum(current_value) " + order + " limit 16";
                     }
                 }
                 else
                 {
                     props.Query = @"
-                    select country as lokasi, investor_type InvestorType, cast(sum(current_value) as bigint) current_value From pasarmodal.pe_segmentation_geo where "
+                    select country as lokasi, investor_type investortype, cast(sum(current_value) as bigint) value From pasarmodal.pe_segmentation_geo where "
                             + whereQuery + " group by country, investor_type order by sum(current_value) " + order + " limit 16";
                 }
             }
             else {
                 props.Query = @"
-                    select country as lokasi, investor_type investortype, cast(sum(current_value) as bigint) current_value From pasarmodal.pe_segmentation_geo where "
+                    select country as lokasi, investor_type investortype, cast(sum(current_value) as bigint) value From pasarmodal.pe_segmentation_geo where "
                             + whereQuery + " group by country, investor_type order by sum(current_value) " + order + " limit 16";
             }
 
@@ -696,7 +696,7 @@ namespace BDA.Helper
             var props = new WSQueryProperties();
 
             props.Query = @"
-                        select pperiode, cast(sum(current_value) as bigint) currentvalue, cast(sum(prev_value - current_value) as bigint) growth From pasarmodal.pe_segmentation_geo where "
+                        select pperiode as periode, cast(sum(current_value) as bigint) as currentvalue, cast(sum(prev_value - current_value) as bigint) as growth From pasarmodal.pe_segmentation_geo where "
                             + whereQuery + " group by pperiode order by pperiode";
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
