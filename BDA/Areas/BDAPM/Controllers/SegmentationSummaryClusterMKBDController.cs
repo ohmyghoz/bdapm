@@ -937,7 +937,7 @@ namespace BDA.Controllers
                 string pageTitle = currentNode != null ? currentNode.Title : "";
 
                 db.CheckPermission("Summary Cluster MKBD Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-                db.InsertAuditTrail("SummaryClusterMKBD_Akses_Page", "Export Data", pageTitle);
+                db.InsertAuditTrail("SummaryClusterMKBD_Akses_Page", "Export Data Excel Summary Cluster MKBD", pageTitle);
                 return Json(new { result = "Success" });
             }
             catch (Exception ex)
@@ -955,7 +955,7 @@ namespace BDA.Controllers
                 string pageTitle = currentNode != null ? currentNode.Title : "";
 
                 db.CheckPermission("Summary Cluster MKBD Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-                db.InsertAuditTrail("SummaryClusterMKBD_Akses_Page", "Export Data", pageTitle);
+                db.InsertAuditTrail("SummaryClusterMKBD_Akses_Page", "Export Data PDF Summary Cluster MKBD", pageTitle);
 
                 var directory = _env.WebRootPath;
                 var timeStamp = DateTime.Now.ToString();
@@ -1068,7 +1068,7 @@ namespace BDA.Controllers
                 string pageTitle = currentNode != null ? currentNode.Title : "";
 
                 db.CheckPermission("Detail Cluster MKBD Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-                db.InsertAuditTrail("DetailClusterMKBD_Akses_Page", "Export Data", pageTitle);
+                db.InsertAuditTrail("DetailClusterMKBD_Akses_Page", "Export Data Excel Detail Cluster MKBD", pageTitle);
                 return Json(new { result = "Success" });
             }
             catch (Exception ex)
@@ -1086,7 +1086,7 @@ namespace BDA.Controllers
                 string pageTitle = currentNode != null ? currentNode.Title : "";
 
                 db.CheckPermission("Detail Cluster MKBD Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-                db.InsertAuditTrail("DetailClusterMKBD_Akses_Page", "Export Data", pageTitle);
+                db.InsertAuditTrail("DetailClusterMKBD_Akses_Page", "Export Data PDF Detail Cluster MKBD", pageTitle);
 
                 var directory = _env.WebRootPath;
                 var timeStamp = DateTime.Now.ToString();
@@ -1184,7 +1184,7 @@ namespace BDA.Controllers
                 string pageTitle = currentNode != null ? currentNode.Title : "";
 
                 db.CheckPermission("Detail Cluster MKBD Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-                db.InsertAuditTrail("DetailClusterMKBD_Akses_Page", "Export Data", pageTitle);
+                db.InsertAuditTrail("DetailClusterMKBD_Akses_Page", "Export Data Excel Rincian Portofolio Efek", pageTitle);
                 return Json(new { result = "Success" });
             }
             catch (Exception ex)
@@ -1202,7 +1202,7 @@ namespace BDA.Controllers
                 string pageTitle = currentNode != null ? currentNode.Title : "";
 
                 db.CheckPermission("Detail Cluster MKBD Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-                db.InsertAuditTrail("DetailClusterMKBD_Akses_Page", "Export Data", pageTitle);
+                db.InsertAuditTrail("DetailClusterMKBD_Akses_Page", "Export Data PDF Rincian Portofolio Efek", pageTitle);
 
                 var directory = _env.WebRootPath;
                 var timeStamp = DateTime.Now.ToString();
@@ -1301,7 +1301,7 @@ namespace BDA.Controllers
                 string pageTitle = currentNode != null ? currentNode.Title : "";
 
                 db.CheckPermission("Rincian Portofolio Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-                db.InsertAuditTrail("RincianPortofolio_Akses_Page", "Export Data", pageTitle);
+                db.InsertAuditTrail("RincianPortofolio_Akses_Page", "Export Data Excel Rincian Portofolio", pageTitle);
                 return Json(new { result = "Success" });
             }
             catch (Exception ex)
@@ -1319,7 +1319,7 @@ namespace BDA.Controllers
                 string pageTitle = currentNode != null ? currentNode.Title : "";
 
                 db.CheckPermission("Rincian Portofolio Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-                db.InsertAuditTrail("RincianPortofolio_Akses_Page", "Export Data", pageTitle);
+                db.InsertAuditTrail("RincianPortofolio_Akses_Page", "Export Data PDF Rincian Portofolio", pageTitle);
 
                 var directory = _env.WebRootPath;
                 var timeStamp = DateTime.Now.ToString();
@@ -1420,7 +1420,7 @@ namespace BDA.Controllers
                 string pageTitle = currentNode != null ? currentNode.Title : "";
 
                 db.CheckPermission("Rincian Portofolio Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-                db.InsertAuditTrail("RincianPortofolio_Akses_Page", "Export Data", pageTitle);
+                db.InsertAuditTrail("RincianPortofolio_Akses_Page", "Export Data Excel Detail Summary Rincian Portofolio", pageTitle);
                 return Json(new { result = "Success" });
             }
             catch (Exception ex)
@@ -1438,7 +1438,7 @@ namespace BDA.Controllers
                 string pageTitle = currentNode != null ? currentNode.Title : "";
 
                 db.CheckPermission("Rincian Portofolio Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-                db.InsertAuditTrail("RincianPortofolio_Akses_Page", "Export Data", pageTitle);
+                db.InsertAuditTrail("RincianPortofolio_Akses_Page", "Export Data PDF Detail Summary Rincian Portofolio", pageTitle);
 
                 var directory = _env.WebRootPath;
                 var timeStamp = DateTime.Now.ToString();
@@ -1535,7 +1535,7 @@ namespace BDA.Controllers
                 string pageTitle = currentNode != null ? currentNode.Title : "";
 
                 db.CheckPermission("Reksadana Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-                db.InsertAuditTrail("Reksadana_Akses_Page", "Export Data", pageTitle);
+                db.InsertAuditTrail("Reksadana_Akses_Page", "Export Data Excel Reksadana", pageTitle);
                 return Json(new { result = "Success" });
             }
             catch (Exception ex)
@@ -1553,7 +1553,7 @@ namespace BDA.Controllers
                 string pageTitle = currentNode != null ? currentNode.Title : "";
 
                 db.CheckPermission("Reksadana Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-                db.InsertAuditTrail("Reksadana_Akses_Page", "Export Data", pageTitle);
+                db.InsertAuditTrail("Reksadana_Akses_Page", "Export Data PDF Reksadana", pageTitle);
 
                 var directory = _env.WebRootPath;
                 var timeStamp = DateTime.Now.ToString();
@@ -1652,7 +1652,7 @@ namespace BDA.Controllers
                 string pageTitle = currentNode != null ? currentNode.Title : "";
 
                 db.CheckPermission("Reksadana Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-                db.InsertAuditTrail("Reksadana_Akses_Page", "Export Data", pageTitle);
+                db.InsertAuditTrail("Reksadana_Akses_Page", "Export Data Excel Detail Summary Reksadana", pageTitle);
                 return Json(new { result = "Success" });
             }
             catch (Exception ex)
@@ -1670,7 +1670,7 @@ namespace BDA.Controllers
                 string pageTitle = currentNode != null ? currentNode.Title : "";
 
                 db.CheckPermission("Reksadana Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-                db.InsertAuditTrail("Reksadana_Akses_Page", "Export Data", pageTitle);
+                db.InsertAuditTrail("Reksadana_Akses_Page", "Export Data PDF Detail Summary Reksadana", pageTitle);
 
                 var directory = _env.WebRootPath;
                 var timeStamp = DateTime.Now.ToString();
@@ -1767,7 +1767,7 @@ namespace BDA.Controllers
                 string pageTitle = currentNode != null ? currentNode.Title : "";
 
                 db.CheckPermission("Jaminan Margin Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-                db.InsertAuditTrail("JaminanMargin_Akses_Page", "Export Data", pageTitle);
+                db.InsertAuditTrail("JaminanMargin_Akses_Page", "Export Data Excel Jaminan Margin", pageTitle);
                 return Json(new { result = "Success" });
             }
             catch (Exception ex)
@@ -1785,7 +1785,7 @@ namespace BDA.Controllers
                 string pageTitle = currentNode != null ? currentNode.Title : "";
 
                 db.CheckPermission("Jaminan Margin Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-                db.InsertAuditTrail("JaminanMargin_Akses_Page", "Export Data", pageTitle);
+                db.InsertAuditTrail("JaminanMargin_Akses_Page", "Export Data PDF Jaminan Margin", pageTitle);
 
                 var directory = _env.WebRootPath;
                 var timeStamp = DateTime.Now.ToString();
@@ -1881,7 +1881,7 @@ namespace BDA.Controllers
                 string pageTitle = currentNode != null ? currentNode.Title : "";
 
                 db.CheckPermission("Jaminan Margin Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-                db.InsertAuditTrail("JaminanMargin_Akses_Page", "Export Data", pageTitle);
+                db.InsertAuditTrail("JaminanMargin_Akses_Page", "Export Data Excel Detail Summary Jaminan Margin", pageTitle);
                 return Json(new { result = "Success" });
             }
             catch (Exception ex)
@@ -1899,7 +1899,7 @@ namespace BDA.Controllers
                 string pageTitle = currentNode != null ? currentNode.Title : "";
 
                 db.CheckPermission("Jaminan Margin Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-                db.InsertAuditTrail("JaminanMargin_Akses_Page", "Export Data", pageTitle);
+                db.InsertAuditTrail("JaminanMargin_Akses_Page", "Export Data Detail Summary Jaminan Margin", pageTitle);
 
                 var directory = _env.WebRootPath;
                 var timeStamp = DateTime.Now.ToString();
@@ -1996,7 +1996,7 @@ namespace BDA.Controllers
                 string pageTitle = currentNode != null ? currentNode.Title : "";
 
                 db.CheckPermission("Reverse Repo Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-                db.InsertAuditTrail("ReverseRepo_Akses_Page", "Export Data", pageTitle);
+                db.InsertAuditTrail("ReverseRepo_Akses_Page", "Export Data Excel Reverse Repo", pageTitle);
                 return Json(new { result = "Success" });
             }
             catch (Exception ex)
@@ -2014,7 +2014,7 @@ namespace BDA.Controllers
                 string pageTitle = currentNode != null ? currentNode.Title : "";
 
                 db.CheckPermission("Reverse Repo Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-                db.InsertAuditTrail("ReverseRepo_Akses_Page", "Export Data", pageTitle);
+                db.InsertAuditTrail("ReverseRepo_Akses_Page", "Export Data PDF Reverse Repo", pageTitle);
 
                 var directory = _env.WebRootPath;
                 var timeStamp = DateTime.Now.ToString();
@@ -2112,7 +2112,7 @@ namespace BDA.Controllers
                 string pageTitle = currentNode != null ? currentNode.Title : "";
 
                 db.CheckPermission("Reverse Repo Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-                db.InsertAuditTrail("ReverseRepo_Akses_Page", "Export Data", pageTitle);
+                db.InsertAuditTrail("ReverseRepo_Akses_Page", "Export Data Excel Detail Summary Reverse Repo", pageTitle);
                 return Json(new { result = "Success" });
             }
             catch (Exception ex)
@@ -2130,7 +2130,7 @@ namespace BDA.Controllers
                 string pageTitle = currentNode != null ? currentNode.Title : "";
 
                 db.CheckPermission("Reverse Repo Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-                db.InsertAuditTrail("ReverseRepo_Akses_Page", "Export Data", pageTitle);
+                db.InsertAuditTrail("ReverseRepo_Akses_Page", "Export Data PDF Detail Summary Reverse Repo", pageTitle);
 
                 var directory = _env.WebRootPath;
                 var timeStamp = DateTime.Now.ToString();

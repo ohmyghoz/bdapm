@@ -127,7 +127,7 @@
                             .Palette(VizPalette.Vintage)
                             .Rotated(true)
                             .CommonSeriesSettings(s => s
-                                .ArgumentField("ageRange")
+                                .ArgumentField("agerange")
                                 .ValueField("total")
                                 .Type(SeriesType.Bar)
                                 .IgnoreEmptyPoints(true)
@@ -137,7 +137,7 @@
                                                                 }
                                                             </text>).Visible(true).Connector(c => c.Visible(true)).Position(RelativePosition.Outside))
                             )
-                            .SeriesTemplate(t => t.NameField("ageRange"))
+                            .SeriesTemplate(t => t.NameField("agerange"))
                             .Legend(l => l.Visible(false).VerticalAlignment(VerticalEdge.Top).HorizontalAlignment(HorizontalAlignment.Center))
                             .ValueAxis(a => a.Add().Title("Total Value Traded"))
                             )

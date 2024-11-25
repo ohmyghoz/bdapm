@@ -378,7 +378,7 @@ namespace BDA.Helper
             var props = new WSQueryProperties();
 
             props.Query = @"
-                    select golonganusia ageRange, cast(sum(investortotalvalue) as bigint) as total from pasarmodal.basis_investor_pe
+                    select golonganusia agerange, cast(sum(investortotalvalue) as bigint) as total from pasarmodal.basis_investor_pe
                     WHERE " + whereQuery + @" group by golonganusia order by count(*) desc";
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
