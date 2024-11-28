@@ -626,7 +626,7 @@ namespace BDA.Helper
 
             if (investorOrigin != null)
             {
-                if (investorOrigin == "Lokal")
+                if (investorOrigin == "'Lokal'")
                 {
                     if (province != null)
                     {
