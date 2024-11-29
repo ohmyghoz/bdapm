@@ -16,6 +16,7 @@
     @Html.AntiForgeryToken()
     <input type="hidden" id="province" value="" />
     <input type="hidden" id="captionLB" value="Province" />
+    <input type="hidden" id="loaddata" value=0/>
     <div class="card card-default">
         @*filter*@
         <div class="row filter-panel" style="padding-top:0px;">
@@ -140,7 +141,8 @@
                                     pe = new JS("function() { return $(\"#namaPEid\").dxSelectBox(\"instance\").option(\"value\");}"),
                                     growthtype = new JS("function() { return $(\"#growthType\").dxSelectBox(\"instance\").option(\"value\");}"),
                                     dimension = new JS("function() { return $(\"#dimension\").dxSelectBox(\"instance\").option(\"value\");}"),
-                                    investorOrigin = new JS("function() { return $(\"#investorOrigin\").dxSelectBox(\"instance\").option(\"value\");}")
+                                    investorOrigin = new JS("function() { return $(\"#investorOrigin\").dxSelectBox(\"instance\").option(\"value\");}"),
+                                    loaddata = new JS("function() { return $(\"#loaddata\").val();}")
                                 }))
                                 .DataSourceOptions(dso => dso.Map("vectorMap_HeatMap_dataSource_map"))
                                 .HoveredColor("blue")
@@ -189,7 +191,8 @@
                                 dimension = new JS("function() { return $(\"#dimension\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 investorOrigin = new JS("function() { return $(\"#investorOrigin\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 LBType = "Lg",
-                                province = new JS("function() { return $(\"#province\").val();}")
+                                province = new JS("function() { return $(\"#province\").val();}"),
+                                loaddata = new JS("function() { return $(\"#loaddata\").val();}")
                             }))
                             .ShowRowLines(true)
                             .Columns(c =>
@@ -223,7 +226,8 @@
                                 dimension = new JS("function() { return $(\"#dimension\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 investorOrigin = new JS("function() { return $(\"#investorOrigin\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 LBType = "Ls",
-                                province = new JS("function() { return $(\"#province\").val();}")
+                                province = new JS("function() { return $(\"#province\").val();}"),
+                                loaddata = new JS("function() { return $(\"#loaddata\").val();}")
                             }))
                             .ShowRowLines(true)
                             .Columns(c =>
@@ -260,7 +264,8 @@
                                 growthtype = new JS("function() { return $(\"#growthType\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 dimension = new JS("function() { return $(\"#dimension\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 investorOrigin = new JS("function() { return $(\"#investorOrigin\").dxSelectBox(\"instance\").option(\"value\");}"),
-                                province = new JS("function() { return $(\"#province\").val();}")
+                                province = new JS("function() { return $(\"#province\").val();}"),
+                                loaddata = new JS("function() { return $(\"#loaddata\").val();}")
                             }))
                             .Legend(l => l.Visible(false).VerticalAlignment(VerticalEdge.Top).HorizontalAlignment(HorizontalAlignment.Center))
                             )
@@ -293,7 +298,8 @@
                                 growthtype = new JS("function() { return $(\"#growthType\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 dimension = new JS("function() { return $(\"#dimension\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 investorOrigin = new JS("function() { return $(\"#investorOrigin\").dxSelectBox(\"instance\").option(\"value\");}"),
-                                province = new JS("function() { return $(\"#province\").val();}")
+                                province = new JS("function() { return $(\"#province\").val();}"),
+                                loaddata = new JS("function() { return $(\"#loaddata\").val();}")
                             }))
                             )                       
                     </div>
@@ -325,7 +331,8 @@
                                 growthtype = new JS("function() { return $(\"#growthType\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 dimension = new JS("function() { return $(\"#dimension\").dxSelectBox(\"instance\").option(\"value\");}"),
                                 investorOrigin = new JS("function() { return $(\"#investorOrigin\").dxSelectBox(\"instance\").option(\"value\");}"),
-                                province = new JS("function() { return $(\"#province\").val();}")
+                                province = new JS("function() { return $(\"#province\").val();}"),
+                                loaddata = new JS("function() { return $(\"#loaddata\").val();}")
                             }))
                             )
                     </div>
@@ -459,6 +466,7 @@
     }
 
     function onButtonFilterClicked(e) {
+        $("#loaddata").val(1);
         var dataGrid = $("#gridLBLargest").dxDataGrid("instance").refresh();
         var dataGrid2 = $("#gridLBLowest").dxDataGrid("instance").refresh();
 

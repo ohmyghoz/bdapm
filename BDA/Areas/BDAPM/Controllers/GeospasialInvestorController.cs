@@ -68,9 +68,11 @@ namespace BDA.Controllers
         }
 
         [HttpGet]
-        public object getMaps(DataSourceLoadOptions loadOptions, string periode, string pe, string growthtype, string dimension, string investorOrigin)
+        public object getMaps(DataSourceLoadOptions loadOptions, string periode, string pe, string growthtype, string dimension, string investorOrigin, string loaddata)
         {
-
+            if (loaddata == "0") {
+                return DataSourceLoader.Load((dynamic)null, loadOptions);
+            }
             var query = new List<StateData>();
             var Regssss = JsonConvert.DeserializeObject<Indonesia>(jsonStringRegs);
 
@@ -127,8 +129,12 @@ namespace BDA.Controllers
         }
 
         [HttpGet]
-        public object GetGridLeaderBoard(DataSourceLoadOptions loadOptions, string periode, string pe, string growthtype, string dimension, string investorOrigin, string LBType, string province)
+        public object GetGridLeaderBoard(DataSourceLoadOptions loadOptions, string periode, string pe, string growthtype, string dimension, string investorOrigin, string LBType, string province, string loaddata)
         {
+            if (loaddata == "0")
+            {
+                return DataSourceLoader.Load((dynamic)null, loadOptions);
+            }
             string stringPeriodeAwal = null;
             string stringNamaPE = null;
             if (!province.IsNullOrEmpty())
@@ -147,15 +153,19 @@ namespace BDA.Controllers
                 TempData["pe"] = stringNamaPE;
             }
 
-            db.Database.CommandTimeout = 420;
+            db.Database.CommandTimeout = 600;
             var result = Helper.WSQueryPS.GetBDAPGeospasialInvestorLB(db, loadOptions, stringPeriodeAwal, stringNamaPE, growthtype, dimension, investorOrigin, LBType, province);
 
             return JsonConvert.SerializeObject(result);
         }
 
         [HttpGet]
-        public object GetGridDataCVGrowth(DataSourceLoadOptions loadOptions, string periode, string pe, string growthtype, string dimension, string investorOrigin, string province)
+        public object GetGridDataCVGrowth(DataSourceLoadOptions loadOptions, string periode, string pe, string growthtype, string dimension, string investorOrigin, string province, string loaddata)
         {
+            if (loaddata == "0")
+            {
+                return DataSourceLoader.Load((dynamic)null, loadOptions);
+            }
             string stringPeriodeAwal = null;
             string stringPeriodeAkhir = null;
             string stringNamaPE = null;
@@ -189,8 +199,12 @@ namespace BDA.Controllers
         }
 
         [HttpGet]
-        public object GetChartIT(DataSourceLoadOptions loadOptions, string periode, string pe, string growthtype, string dimension, string investorOrigin, string province)
+        public object GetChartIT(DataSourceLoadOptions loadOptions, string periode, string pe, string growthtype, string dimension, string investorOrigin, string province, string loaddata)
         {
+            if (loaddata == "0")
+            {
+                return DataSourceLoader.Load((dynamic)null, loadOptions);
+            }
             string stringPeriodeAwal = null;
             string stringNamaPE = null;
             if (!province.IsNullOrEmpty())
@@ -216,8 +230,12 @@ namespace BDA.Controllers
         }
 
         [HttpGet]
-        public object GetChartIO(DataSourceLoadOptions loadOptions, string periode, string pe, string growthtype, string dimension, string investorType, string investorOrigin, string province)
+        public object GetChartIO(DataSourceLoadOptions loadOptions, string periode, string pe, string growthtype, string dimension, string investorType, string investorOrigin, string province, string loaddata)
         {
+            if (loaddata == "0")
+            {
+                return DataSourceLoader.Load((dynamic)null, loadOptions);
+            }
             string stringPeriodeAwal = null;
             string stringNamaPE = null;
             if (!province.IsNullOrEmpty())
