@@ -29,7 +29,6 @@
                             .Max(DateTime.Now)
                             .Width("100%"))
                     </div>
-
                     <div class="col-lg-4 form-group">
                         <label>Nama PE</label>
                         @(Html.DevExtreme().SelectBox()
@@ -249,6 +248,7 @@
             alert("test");
         });
     }); *@
+
     function ExportToExcelDetail() {
          $.ajax({
             type: "POST",
