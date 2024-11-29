@@ -229,8 +229,8 @@ namespace BDA.Helper
             var props = new WSQueryProperties();
 
             props.Query = @"
-                    select sellername as LawanTransaksi, buyingdate as BuyingData, sum(cast(buyingamount as bigint)) as ReverseRepo from pasarmodal.pe_segmentation_hutang_subordinasi_det
-                    WHERE " + whereQuery + @" group by sellername, buyingdate";
+                    select kodeefek, groupemiten, cast(sum(volume) as bigint) as volume, cast(sum(value) as bigint) as value from pasarmodal.pe_segmentasi_pembiayaan_vs_jaminan_saham
+                    WHERE " + whereQuery + @" AND flag = 1 group by kodeefek, groupemiten";
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
         }
@@ -254,8 +254,8 @@ namespace BDA.Helper
             var props = new WSQueryProperties();
 
             props.Query = @"
-                    select sellername as LawanTransaksi, buyingdate as BuyingData, sum(cast(buyingamount as bigint)) as ReverseRepo from pasarmodal.pe_segmentation_hutang_subordinasi_det
-                    WHERE " + whereQuery + @" group by sellername, buyingdate";
+                    select kodeefek, groupemiten, cast(sum(volume) as bigint) as volume, cast(sum(value) as bigint) as value from pasarmodal.pe_segmentasi_pembiayaan_vs_jaminan_saham
+                    WHERE " + whereQuery + @" AND flag = 2 group by kodeefek, groupemiten";
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
         }
@@ -324,7 +324,7 @@ namespace BDA.Helper
             if (stringPE != null)
             {
                 stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND securitycompanysk = " + stringPE;
+                whereQuery = whereQuery += " AND exchangemembercode = " + stringPE;
             }
 
             if (origin != null)
@@ -361,7 +361,7 @@ namespace BDA.Helper
             if (stringPE != null)
             {
                 stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND securitycompanysk = " + stringPE;
+                whereQuery = whereQuery += " AND exchangemembercode = " + stringPE;
             }
 
             if (origin != null)
@@ -378,7 +378,7 @@ namespace BDA.Helper
             var props = new WSQueryProperties();
 
             props.Query = @"
-                    select golonganusia ageRange, cast(sum(investortotalvalue) as bigint) as total from pasarmodal.basis_investor_pe
+                    select golonganusia agerange, cast(sum(investortotalvalue) as bigint) as total from pasarmodal.basis_investor_pe
                     WHERE " + whereQuery + @" group by golonganusia order by count(*) desc";
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
@@ -398,7 +398,7 @@ namespace BDA.Helper
             if (stringPE != null)
             {
                 stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND securitycompanysk = " + stringPE;
+                whereQuery = whereQuery += " AND exchangemembercode = " + stringPE;
             }
 
             if (origin != null)
@@ -435,7 +435,7 @@ namespace BDA.Helper
             if (stringPE != null)
             {
                 stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND securitycompanysk = " + stringPE;
+                whereQuery = whereQuery += " AND exchangemembercode = " + stringPE;
             }
 
             if (origin != null)
@@ -472,7 +472,7 @@ namespace BDA.Helper
             if (stringPE != null)
             {
                 stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND securitycompanysk = " + stringPE;
+                whereQuery = whereQuery += " AND exchangemembercode = " + stringPE;
             }
 
             if (origin != null)
@@ -509,7 +509,7 @@ namespace BDA.Helper
             if (stringPE != null)
             {
                 stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND securitycompanysk = " + stringPE;
+                whereQuery = whereQuery += " AND exchangemembercode = " + stringPE;
             }
 
             if (origin != null)
@@ -626,31 +626,31 @@ namespace BDA.Helper
 
             if (investorOrigin != null)
             {
-                if (investorOrigin == "lokal")
+                if (investorOrigin == "'Lokal'")
                 {
                     if (province != null)
                     {
                         props.Query = @"
-                    select city as Lokasi, investor_type InvestorType, cast(sum(current_value) as bigint) current_value From pasarmodal.pe_segmentation_geo where "
+                    select city as lokasi, investor_type investortype, cast(sum(current_value) as bigint) value From pasarmodal.pe_segmentation_geo where "
                             + whereQuery + " group by city, investor_type order by sum(current_value) " + order + " limit 16";
                     }
                     else
                     {
                         props.Query = @"
-                    select provinsi as Lokasi, investor_type InvestorType, cast(sum(current_value) as bigint) current_value From pasarmodal.pe_segmentation_geo where "
+                    select provinsi as lokasi, investor_type investortype, cast(sum(current_value) as bigint) value From pasarmodal.pe_segmentation_geo where "
                             + whereQuery + " group by provinsi, investor_type order by sum(current_value) " + order + " limit 16";
                     }
                 }
                 else
                 {
                     props.Query = @"
-                    select country as Lokasi, investor_type InvestorType, cast(sum(current_value) as bigint) current_value From pasarmodal.pe_segmentation_geo where "
+                    select country as lokasi, investor_type investortype, cast(sum(current_value) as bigint) value From pasarmodal.pe_segmentation_geo where "
                             + whereQuery + " group by country, investor_type order by sum(current_value) " + order + " limit 16";
                 }
             }
             else {
                 props.Query = @"
-                    select country as lokasi, investor_type InvestorType, cast(sum(current_value) as bigint) current_value From pasarmodal.pe_segmentation_geo where "
+                    select country as lokasi, investor_type investortype, cast(sum(current_value) as bigint) value From pasarmodal.pe_segmentation_geo where "
                             + whereQuery + " group by country, investor_type order by sum(current_value) " + order + " limit 16";
             }
 
@@ -696,7 +696,7 @@ namespace BDA.Helper
             var props = new WSQueryProperties();
 
             props.Query = @"
-                        select pperiode, cast(sum(current_value) as bigint) currentValue, cast(sum(prev_value - current_value) as bigint) growth From pasarmodal.pe_segmentation_geo where "
+                        select pperiode as periode, cast(sum(current_value) as bigint) as currentvalue, cast(sum(prev_value - current_value) as bigint) as growth From pasarmodal.pe_segmentation_geo where "
                             + whereQuery + " group by pperiode order by pperiode";
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
@@ -739,7 +739,7 @@ namespace BDA.Helper
 
 
             props.Query = @"
-                        select investor_type investorType, cast(sum(current_value) as bigint) currentValue From pasarmodal.pe_segmentation_geo where "
+                        select investor_type investortype, cast(sum(current_value) as bigint) currentvalue From pasarmodal.pe_segmentation_geo where "
                             + whereQuery + " group by investor_type";
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
@@ -782,7 +782,7 @@ namespace BDA.Helper
 
 
             props.Query = @"
-                        select investor_origin investorOrigin, cast(sum(current_value) as bigint) currentValue From pasarmodal.pe_segmentation_geo where "
+                        select investor_origin investororigin, cast(sum(current_value) as bigint) currentvalue From pasarmodal.pe_segmentation_geo where "
                             + whereQuery + " group by investor_origin";
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
@@ -796,7 +796,7 @@ namespace BDA.Helper
             if (periodes != null)
             {
                 periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND p_periode = " + periodes.Replace("-", "");
+                whereQuery = whereQuery += " AND substring(p_periode,0,6) = " + periodes.Replace("-", "");
             }
 
             if (stringPE != null)
@@ -827,7 +827,7 @@ namespace BDA.Helper
             if (periodes != null)
             {
                 periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND p_periode = " + periodes.Replace("-", "");
+                whereQuery = whereQuery += " AND substring(p_periode,0,6) = " + periodes.Replace("-", "");
             }
 
             if (stringPE != null)
@@ -858,7 +858,7 @@ namespace BDA.Helper
             if (periodes != null)
             {
                 periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND p_periode = " + periodes.Replace("-", "");
+                whereQuery = whereQuery += " AND substring(p_periode,0,6) = " + periodes.Replace("-", "");
             }
 
             if (stringPE != null)
@@ -889,7 +889,7 @@ namespace BDA.Helper
             if (periodes != null)
             {
                 periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND p_periode = " + periodes.Replace("-", "");
+                whereQuery = whereQuery += " AND substring(p_periode,0,6) = " + periodes.Replace("-", "");
             }
 
             if (stringPE != null)

@@ -294,7 +294,7 @@ namespace BDA.Controllers
                     for (int i = 0; i < dt.Rows.Count; i++)
                     {
                         string namakode = dt.Rows[i]["SecurityCompanyCode"].ToString() + " - " + dt.Rows[i]["SecurityCompanyName"].ToString();
-                        list.Add(new SelectionList() { value = dt.Rows[i]["SecurityCompanySK"].ToString(), text = namakode });
+                        list.Add(new SelectionList() { value = dt.Rows[i]["SecurityCompanyCode"].ToString(), text = namakode });
                     }
 
                     return Json(DataSourceLoader.Load(list, loadOptions));

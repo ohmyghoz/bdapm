@@ -147,7 +147,7 @@
                                 .BorderColor("#000000")
                                 .HoveredBorderWidth(2)
                                 .DataField("value")
-                                .Label(x => x.Enabled(true).DataField("name"))
+                                .Label(x => x.Enabled(true).DataField("text"))
                                 .Opacity(0.9)
                                 .Customize("vectorMap_customizeBubble");
                             })
@@ -166,7 +166,7 @@
                     </div>
                 </div>
                 <div class="row">
-                    <h4 class="headerTable">Leaderboard</h4>
+                    <h4 class="headerTable">Local Leaderboard</h4>
                 </div>
                 <div class="row">
                     <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
@@ -196,9 +196,9 @@
                                     {
                                         c.Add().Caption("Largest").Columns(a =>
                                         {
-                                            a.Add().DataField("Lokasi").Caption(new JS("function() { return $(\"#captionLB\").val();}"));
-                                            a.Add().DataField("InvestorType");
-                                            a.Add().DataField("Value").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
+                                            a.Add().DataField("lokasi").Caption(new JS("function() { return $(\"#captionLB\").val();}"));
+                                            a.Add().DataField("investortype").Caption("Investor Type");
+                                            a.Add().DataField("value").Caption("Value").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
                                         }
                                         );})
                                 
@@ -230,9 +230,9 @@
                             {
                                 c.Add().Caption("Lowest").Columns(a =>
                                 {
-                                    a.Add().DataField("Lokasi").Caption(new JS("function() { return $(\"#captionLB\").val();}"));
-                                    a.Add().DataField("InvestorType");
-                                    a.Add().DataField("Value").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
+                                    a.Add().DataField("lokasi").Caption(new JS("function() { return $(\"#captionLB\").val();}"));
+                                    a.Add().DataField("investortype").Caption("Investor Type");
+                                    a.Add().DataField("value").Caption("Value").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
                                 }
                                 );})
                             )
@@ -250,7 +250,7 @@
                                 .IgnoreEmptyPoints(true))
                             .Series(s =>
                             {
-                                s.Add().ValueField("currentValue").Name("Current Value").Type(SeriesType.Bar);
+                                s.Add().ValueField("currentvalue").Name("Current Value").Type(SeriesType.Bar);
                                 s.Add().ValueField("growth").Name("Growth").Type(SeriesType.Line);
                             })
                             .DataSource(d => d.Mvc().Controller("GeospasialInvestor").LoadAction("GetGridDataCVGrowth").LoadMethod("Get").LoadParams(new
@@ -276,8 +276,8 @@
                             .InnerRadius(0.65)
                             .Series(s => s
                                 .Add()
-                                .ArgumentField("investorType")
-                                .ValueField("currentValue")
+                                .ArgumentField("investortype")
+                                .ValueField("currentvalue")
                                 .Label(l => l.Visible(true)
                                 .Connector(c => c.Visible(true))
                                 .BackgroundColor("none").CustomizeText(@<text>
@@ -308,8 +308,8 @@
                             .InnerRadius(0.65)
                             .Series(s => s
                             .Add()
-                            .ArgumentField("investorOrigin")
-                            .ValueField("currentValue")
+                            .ArgumentField("investororigin")
+                            .ValueField("currentvalue")
                             .Label(l => l.Visible(true)
                             .Connector(c => c.Visible(true))
                             .BackgroundColor("none").CustomizeText(@<text>

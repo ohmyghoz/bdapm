@@ -20,7 +20,7 @@
                     <div class="col-lg-3 form-group">
                         <label>Periode Awal@*<span class="mandatory">*</span>*@</label>
                         @(Html.DevExtreme().DateBox()
-                            .ID("PeriodeAwalID")
+                            .ID("periodeAwalID")
                             .Type(DateBoxType.Date)
                             .DisplayFormat("dd/MM/yyyy")
                             .Width("100%"))
@@ -28,7 +28,7 @@
                     <div class="col-lg-3 form-group">
                         <label>Periode Akhir@*<span class="mandatory">*</span>*@</label>
                         @(Html.DevExtreme().DateBox()
-                            .ID("PeriodeAkhirID")
+                            .ID("periodeAkhirID")
                             .Type(DateBoxType.Date)
                             .DisplayFormat("dd/MM/yyyy")
                             .Width("100%"))
@@ -44,18 +44,16 @@
 
                     <div class="col-lg-3 form-group" id="topDiv">
                         <label>Efek@*<span class="mandatory">*</span>*@</label>
-                        @(Html.DevExtreme().SelectBox()
+                        @(Html.DevExtreme().TextBox()
                             .ID("EfekID")
-                            .DataSource(new[] { "AALI", "TLKM", "BBRI", "BMRI" })
-                            .ValueExpr("this")
-                            .DisplayExpr("this")
-                            .SearchEnabled(true)
+                            .Placeholder("Enter SID here...")
+                            .InputAttr("aria-label", "EfekID")
                             .Width("100%"))
                     </div>
                 </div>
                 <div class="float-left">
                     @(Html.DevExtreme().Button()
-                        .ID("Filter")
+                        .ID("filterButton")
                         .Type(ButtonType.Default)
                         .Text("Tampilkan")
                         .OnClick("onButtonFilterClicked")
@@ -79,173 +77,187 @@
                 <div class="row">
                     <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
                         <div class="row" style="padding-bottom:12.5px">
-                            <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
-                            <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                            <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:exportGridToExcel1();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                            <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:exportGridToPDF1();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
                         </div>
                         <div class="row">
                             <h4 class="headerTable">Balance</h4>
                         </div>
                         <div class="row">
+                            <div id="grid1Container" style="display: none;">
                             @(Html.DevExtreme().DataGrid()
                                 .ID("grid1")
-                                .DataSource(new[] {
-                                    new { rowid = 1, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00156", efek = "MPPX", subrekefek = "DH001234567", quantity = 1875.50 },
-                                    new { rowid = 2, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00278", efek = "BRIS", subrekefek = "DH009876543", quantity = 3420.75 },
-                                    new { rowid = 3, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00103", efek = "BBCA", subrekefek = "DH005678901", quantity = 4950.25 },
-                                    new { rowid = 4, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00299", efek = "RAJA", subrekefek = "DH003456789", quantity = 2130.00 },
-                                    new { rowid = 5, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00187", efek = "BREN", subrekefek = "DH007890123", quantity = 5275.50 },
-                                    new { rowid = 1, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00156", efek = "MPPX", subrekefek = "DH001234567", quantity = 1875.50 },
-                                    new { rowid = 2, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00278", efek = "BRIS", subrekefek = "DH009876543", quantity = 3420.75 },
-                                    new { rowid = 3, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00103", efek = "BBCA", subrekefek = "DH005678901", quantity = 4950.25 },
-                                    new { rowid = 4, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00299", efek = "RAJA", subrekefek = "DH003456789", quantity = 2130.00 },
-                                    new { rowid = 5, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00187", efek = "BREN", subrekefek = "DH007890123", quantity = 5275.50 },
-                                    new { rowid = 1, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00156", efek = "MPPX", subrekefek = "DH001234567", quantity = 1875.50 },
-                                    new { rowid = 2, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00278", efek = "BRIS", subrekefek = "DH009876543", quantity = 3420.75 },
-                                    new { rowid = 3, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00103", efek = "BBCA", subrekefek = "DH005678901", quantity = 4950.25 },
-                                    new { rowid = 4, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00299", efek = "RAJA", subrekefek = "DH003456789", quantity = 2130.00 },
-                                    new { rowid = 5, date = "06/10/2023", sid = "IDD260110001523", tradingid = "00187", efek = "BREN", subrekefek = "DH007890123", quantity = 5275.50 }
-                                    })
+                                .DataSource(d => d.StaticJson().Url("/tempData/md_stp_balance.json")
+                                )
                                 .KeyExpr("rowid")
                                 .RemoteOperations(true)
                                 .Width("100%")
                                 .AllowColumnResizing(true)
-                                .ColumnAutoWidth(true)
                                 .Columns(columns =>
                                 {
                                     columns.Add().DataField("rowid").Visible(false);
-                                    columns.Add().DataField("date").Caption("Tanggal Balance");
+                                    columns.Add().DataField("tanggal_balance").Caption("Tanggal Balance").DataType(GridColumnDataType.Date)
+                                    .Format("dd/MM/yyyy").CalculateCellValue("calculateDateCell"); ;
                                     columns.Add().DataField("sid").Caption("SID");
-                                    columns.Add().DataField("tradingid").Caption("Trading ID");
+                                    columns.Add().DataField("trading_id").Caption("Trading ID");
                                     columns.Add().DataField("efek").Caption("Efek");
-                                    columns.Add().DataField("subrekefek").Caption("Subrekening Efek");
-                                    columns.Add().DataField("quantity").Caption("Price");
+                                    columns.Add().DataField("subrekening_efek").Caption("Subrekening Efek");
+                                    columns.Add().DataField("quantity").Caption("Quantity").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+                                    columns.Add().DataField("price").Caption("Price").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
                                 })
-                                .FilterRow(f => f.Visible(true))
+                                .FilterRow(f => f.Visible(false))
                                 .ShowBorders(true)
                                 .Scrolling(s => s.ShowScrollbar(ShowScrollbarMode.Always))
                                 .Paging(p =>
                                 {
-                                    p.PageSize(5);
+                                    p.PageSize(10);
                                     p.Enabled(true);
                                 })
                                 .Pager(p =>
                                 {
                                     p.ShowInfo(true);
                                 }))
+                                </div>
                         </div>
                     </div>
                     <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
                         <div class="row" style="padding-bottom:12.5px">
-                            <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
-                            <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                            <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:exportGridToExcel2();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                            <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:exportGridToPDF2();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
                         </div>
                         <div class="row">
                             <h4 class="headerTable">Settlement</h4>
                         </div>
                         <div class="row">
+                            <div id="grid2Container" style="display: none;">
                             @(Html.DevExtreme().DataGrid()
                                 .ID("grid2")
-                                .DataSource(new[] {
-                        new { rowid = 1, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH001234567" },
-                        new { rowid = 2, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH009876543" },
-                        new { rowid = 3, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH005678901" },
-                        new { rowid = 4, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH003456789" },
-                        new { rowid = 5, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH007890123" },
-                        new { rowid = 6, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH002345678" },
-                        new { rowid = 7, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH008901234" },
-                        new { rowid = 8, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH004567890" },
-                        new { rowid = 9, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH006789012" },
-                        new { rowid = 10, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH000123456" },
-                        new { rowid = 11, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH009012345" },
-                        new { rowid = 12, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH005678901" },
-                        new { rowid = 13, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH001234567" },
-                        new { rowid = 14, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH007890123" },
-                        new { rowid = 15, date = "06/10/2023", date2 = "05/10/2023", sid = "IDD260110001523", sidcp = "IDD260110001523", fpsettlementcode = "DH003456789" }
-                        })
+                                .DataSource(d => d.StaticJson().Url("/tempData/md_stp_settlement.json")
+                                )
                                 .KeyExpr("rowid")
                                 .RemoteOperations(true)
                                 .Width("100%")
-                                .AllowColumnResizing(true)
-                                .ColumnAutoWidth(true)
+                                .AllowColumnResizing(true)          
                                 .Columns(columns =>
-                                {
-                                    columns.Add().DataField("rowid").Visible(false);
-                                    columns.Add().DataField("date").Caption("Tanggal Settlement");
-                                    columns.Add().DataField("date2").Caption("Tanggal Trading");
-                                    columns.Add().DataField("sid").Caption("SID");
-                                    columns.Add().DataField("sidcp").Caption("SID CP");
-                                    columns.Add().DataField("fpsettlementcode").Caption("FP Settlement Account Code");
-                                })
-                                .FilterRow(f => f.Visible(true))
+                                               {
+                                columns.Add().DataField("rowid").Visible(false);
+                                    columns.Add().DataField("settlementtransactiondatesk").Caption("Tanggal Settlement").DataType(GridColumnDataType.Date)
+                                    .Format("dd/MM/yyyy").CalculateCellValue("calculateDateCell3");
+                                columns.Add().DataField("tradingdatesk").Caption("Tanggal Trading").DataType(GridColumnDataType.Date)
+                                .Format("dd/MM/yyyy").CalculateCellValue("calculateDateCell2"); ;
+                                columns.Add().DataField("fpinvestorid").Caption("SID");
+                                columns.Add().DataField("cpinvestorid").Caption("SID CP");
+                                columns.Add().DataField("fpsettlementaccountcode").Caption("FP Settlement Account Code");
+
+                            })
+                                .FilterRow(f => f.Visible(false))
                                 .ShowBorders(true)
                                 .Scrolling(s => s.ShowScrollbar(ShowScrollbarMode.Always))
                                 .Paging(p =>
                                 {
-                                    p.PageSize(5);
+                                    p.PageSize(10);
                                     p.Enabled(true);
                                 })
                                 .Pager(p =>
                                 {
                                     p.ShowInfo(true);
                                 }))
+                                </div>
                         </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
                         <div class="row" style="padding-bottom:12.5px">
-                            <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
-                            <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                            <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:exportGridToExcel3();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                            <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:exportGridToPDF3()();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
                         </div>
                         <div class="row">
                             <h4 class="headerTable">Clearing</h4>
                         </div>
                         <div class="row">
+                            <div id="grid3Container" style="display: none;">
                             @(Html.DevExtreme().DataGrid()
                                 .ID("grid3")
-                                .DataSource(new[] {
-                        new { rowid = 1, date = "06/10/2023", date3 = "03/10/2023", sid = "IDD260110001523", companycode = "DH", clearingobli = 275000 },
-                        new { rowid = 2, date = "06/10/2023", date3 = "03/10/2023", sid = "IDD260110001523", companycode = "DH", clearingobli = 242500 },
-                        new { rowid = 3, date = "06/10/2023", date3 = "03/10/2023", sid = "IDD260110001523", companycode = "DH", clearingobli = 298000 }
-                        })
-                        
+                                .DataSource(d => d.StaticJson().Url("/tempData/md_stp_clearing.json")
+                                )
                                 .KeyExpr("rowid")
                                 .RemoteOperations(true)
                                 .Width("100%")
                                 .AllowColumnResizing(true)
-                                .ColumnAutoWidth(true)
                                 .Columns(columns =>
                                 {
                                     columns.Add().DataField("rowid").Visible(false);
-                                    columns.Add().DataField("date").Caption("Tanggal Settlement");
-                                    columns.Add().DataField("date3").Caption("Tanggal Clearing");
-                                    columns.Add().DataField("sid").Caption("SID");
-                                    columns.Add().DataField("companycode").Caption("Security Company Code");
-                                    columns.Add().DataField("clearingobli").Caption("Clearing Obligation");
-                                })
-                                .FilterRow(f => f.Visible(true))
+                                    columns.Add().DataField("settlementdatesk").Caption("Tanggal Settlement").DataType(GridColumnDataType.Date)
+                                    .Format("dd/MM/yyyy").CalculateCellValue("calculateDateCell4");
+                                    columns.Add().DataField("clearingdatesk").Caption("Tanggal Clearing").DataType(GridColumnDataType.Date)
+                                    .Format("dd/MM/yyyy").CalculateCellValue("calculateDateCell5"); ;
+                                    columns.Add().DataField("investorid").Caption("SID");
+                                    columns.Add().DataField("securitycompanycode").Caption("Security Company Code");
+                                    columns.Add().DataField("clearingobligationquantity").Caption("Clearing Obligation").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+
+                                })                    
+                                .FilterRow(f => f.Visible(false))
                                 .ShowBorders(true)
                                 .Scrolling(s => s.ShowScrollbar(ShowScrollbarMode.Always))
                                 .Paging(p =>
                                 {
-                                    p.PageSize(5);
+                                    p.PageSize(10);
                                     p.Enabled(true);
                                 })
                                 .Pager(p =>
                                 {
                                     p.ShowInfo(true);
                                 }))
+                                </div>
                         </div>
                     </div>
                     <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
                         <div class="row" style="padding-bottom:12.5px">
-                            <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
-                            <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                            <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:exportGridToExcel4();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                            <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:exportGridToPDF4()();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
                         </div>
                         <div class="row">
                             <h4 class="headerTable">Transaction</h4>
                         </div>
                         <div class="row">
+                            <div id="grid4Container" style="display: none;">
+                            @(Html.DevExtreme().DataGrid()
+                                .ID("grid4")
+                                .DataSource(d => d.StaticJson().Url("/tempData/md_stp_tra.json")
+                                )
+                                .KeyExpr("rowid")
+                                .RemoteOperations(true)
+                                .Width("100%")
+                                .AllowColumnResizing(true)
+                                .Columns(columns =>
+                                {
+                                    columns.Add().DataField("rowid").Visible(false);
+                                    columns.Add().DataField("settledate").Caption("Tgl. Settlement").DataType(GridColumnDataType.Date)
+                                    .Format("dd/MM/yyyy").CalculateCellValue("calculateDateCell6");
+                                    columns.Add().DataField("tradedatesk").Caption("Tgl. Trading").DataType(GridColumnDataType.Date)
+                                    .Format("dd/MM/yyyy").CalculateCellValue("calculateDateCell7"); ;
+                                    columns.Add().DataField("sid").Caption("SID");
+                                    columns.Add().DataField("investorcode").Caption("Trading ID");
+                                    columns.Add().DataField("cpinvestorcode").Caption("CP Trading ID");
+                                    columns.Add().DataField("securitycode").Caption("Security Code");
+                                    columns.Add().DataField("transactiontypecode").Caption("Transaction Type Code");
+                                    columns.Add().DataField("volume").Caption("Volume").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+
+                                })
+                                .FilterRow(f => f.Visible(false))
+                                .ShowBorders(true)
+                                .Scrolling(s => s.ShowScrollbar(ShowScrollbarMode.Always))
+                                .Paging(p =>
+                                {
+                                    p.PageSize(10);
+                                    p.Enabled(true);
+                                })
+                                .Pager(p =>
+                                {
+                                    p.ShowInfo(true);
+                                }))
+                                </div>
                         </div>
                     </div>
                 </div>
@@ -359,54 +371,112 @@
         }
     });
 
-    function ExportToPdf() {
-        $.ajax({
-            type: "POST",
-            url: "@Url.Action("LogExportIndex", "MaxMinOverdue")",
-            success: function (response) {
-                if (response.result == "Success") {
-                    const doc = new jsPDF({
-                        orientation: "landscape",
-                        unit: "cm",
-                        format: [21, 60]
-                    });
-                    var dataGrid = $("#grid1").dxDataGrid("instance");
-                    var fileName = "MaxMinOverdue_" + new Date().toISOString().slice(0, 10) + ".pdf";
-                    doc.setFontSize("6")
-                    //var keys = $("#grid1").dxDataGrid("getSelectedRowsData")
-                    //console.log(keys)
-                    DevExpress.pdfExporter.exportDataGrid({
-                        jsPDFDocument: doc,
-                        component: dataGrid,
-                        keepColumnWidths: true
-                        //selectedRowsOnly: true
-                    }).then(function () {
-                        doc.save(fileName);
-                    });
-                }
-            }
-        });
+    function calculateDateCell(rowData) {
+        if (rowData.tanggal_balance) {
+            var dateStr = rowData.tanggal_balance.toString();
+            var year = dateStr.substring(0, 4);
+            var month = dateStr.substring(4, 6);
+            var day = dateStr.substring(6, 8);
+            return new Date(year, month - 1, day);
+        }
+
+        return null;
     }
 
-    function ExportToPdf2() {
-        var dataGrid = $("#grid1").dxDataGrid("instance");
-        dataGrid.option("onExporting", function (e) { });
-        dataGrid.option("onFileSaving", function (e) {
-            var fd = new FormData();
-            fd.append("file", e.data);
-            $.ajax({
-                type: "POST",
-                url: "@Url.Action("ExportPDF", "SegmentationSummaryClusterMKBD")",
-                data: fd,
-                processData: false,
-                contentType: false
-            }).done(function (data) {
-                window.location = "@Url.Action("File", "SegmentationSummaryClusterMKBD")"
-            });
-            e.cancel = true;
-        });
+    function calculateDateCell2(rowData) {
+        if (rowData.tradingdatesk) {
+            var dateStr = rowData.tradingdatesk.toString();
+            var year = dateStr.substring(0, 4);
+            var month = dateStr.substring(4, 6);
+            var day = dateStr.substring(6, 8);
+            return new Date(year, month - 1, day);
+        }
 
-        dataGrid.exportToExcel();
+        return null;
+    }
+
+    function calculateDateCell3(rowData) {
+        if (rowData.settlementtransactiondatesk) {
+            var dateStr = rowData.settlementtransactiondatesk.toString();
+            var year = dateStr.substring(0, 4);
+            var month = dateStr.substring(4, 6);
+            var day = dateStr.substring(6, 8);
+            return new Date(year, month - 1, day);
+        }
+
+        return null;
+    }
+
+    function calculateDateCell4(rowData) {
+        if (rowData.settlementdatesk) {
+            var dateStr = rowData.settlementdatesk.toString();
+            var year = dateStr.substring(0, 4);
+            var month = dateStr.substring(4, 6);
+            var day = dateStr.substring(6, 8);
+            return new Date(year, month - 1, day);
+        }
+
+        return null;
+    }
+
+    function calculateDateCell5(rowData) {
+        if (rowData.clearingdatesk) {
+            var dateStr = rowData.clearingdatesk.toString();
+            var year = dateStr.substring(0, 4);
+            var month = dateStr.substring(4, 6);
+            var day = dateStr.substring(6, 8);
+            return new Date(year, month - 1, day);
+        }
+
+        return null;
+    }
+
+    function calculateDateCell6(rowData) {
+        if (rowData.settledate) {
+            var dateStr = rowData.settledate.toString();
+            var year = dateStr.substring(0, 4);
+            var month = dateStr.substring(4, 6);
+            var day = dateStr.substring(6, 8);
+            return new Date(year, month - 1, day);
+        }
+
+        return null;
+    }
+
+    function calculateDateCell7(rowData) {
+        if (rowData.tradedatesk) {
+            var dateStr = rowData.tradedatesk.toString();
+            var year = dateStr.substring(0, 4);
+            var month = dateStr.substring(4, 6);
+            var day = dateStr.substring(6, 8);
+            return new Date(year, month - 1, day);
+        }
+
+        return null;
+    }
+
+  
+    function onButtonFilterClicked(e) {
+        console.log("Filter button clicked"); // Add this to verify the function is called
+        var calc = 2 + 3;
+        console.log(calc); // Add this to verify the function is called
+        $("#grid1Container").show();
+
+        // Get the DataGrid instance
+        var dataGrid = $("#grid1").dxDataGrid("instance");
+
+        // Refresh the grid data
+        dataGrid.refresh();
+    }
+
+    
+
+    function formatDateToYYYYMMDD(date) {
+        var d = new Date(date);
+        var year = d.getFullYear();
+        var month = ("0" + (d.getMonth() + 1)).slice(-2);
+        var day = ("0" + d.getDate()).slice(-2);
+        return year + month + day;
     }
 
     function onSelectionChanged(e) {
@@ -422,29 +492,92 @@
         }
     }
 
-    function onGridBeforeSend(method, ajaxOptions) {
-        let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
-        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
-        let status = $("#Statusid").dxTagBox("instance").option("value");
+    function exportGridToPDF1() {
+        const doc = new jsPDF();
 
-        let periodeAwal = null;
-        if (tempPeriodeAwal != null) {
-            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + (tempPeriodeAwal.getMonth() + 1) + '-' + tempPeriodeAwal.getDate();
-        }
-        ajaxOptions.data.namaPE = JSON.stringify(namaPE);
-        ajaxOptions.data.periodeAwal = periodeAwal;
-        ajaxOptions.data.status = JSON.stringify(status);
+        // Get the DataGrid instance
+        const dataGrid = $("#grid1").dxDataGrid("instance");
+
+        // Export DataGrid to PDF
+        DevExpress.pdfExporter.exportDataGrid({
+            jsPDFDocument: doc,
+            component: dataGrid,
+            keepColumnWidths: true
+        }).then(() => {
+            // Save the PDF with a given file name
+            doc.save('GridData.pdf');
+        });
     }
 
-    function onLJKOpened(e) {
-        e.component.content().find('.dx-list-select-all').hide();
+    function exportGridToExcel1() {
+        var dataGrid = $("#grid1").dxDataGrid("instance");
+        dataGrid.exportToExcel(false); // 'false' means export all data, not just selected rows
     }
 
-    function Detail(e) {
-        var keys = e.row.key;
-        if (typeof (keys) !== "undefined" && typeof (keys) !== null) {
-            window.open('@Url.Action("Detail", "SegmentationSummaryClusterMKBD")?id=' + keys.toString());
-        }
+    function exportGridToPDF2() {
+        const doc = new jsPDF();
+
+        // Get the DataGrid instance
+        const dataGrid = $("#grid2").dxDataGrid("instance");
+
+        // Export DataGrid to PDF
+        DevExpress.pdfExporter.exportDataGrid({
+            jsPDFDocument: doc,
+            component: dataGrid,
+            keepColumnWidths: true
+        }).then(() => {
+            // Save the PDF with a given file name
+            doc.save('GridData.pdf');
+        });
+    }
+
+    function exportGridToExcel2() {
+        var dataGrid = $("#grid2").dxDataGrid("instance");
+        dataGrid.exportToExcel(false); // 'false' means export all data, not just selected rows
+    }
+
+    function exportGridToPDF3() {
+        const doc = new jsPDF();
+
+        // Get the DataGrid instance
+        const dataGrid = $("#grid3").dxDataGrid("instance");
+
+        // Export DataGrid to PDF
+        DevExpress.pdfExporter.exportDataGrid({
+            jsPDFDocument: doc,
+            component: dataGrid,
+            keepColumnWidths: true
+        }).then(() => {
+            // Save the PDF with a given file name
+            doc.save('GridData.pdf');
+        });
+    }
+
+    function exportGridToExcel3() {
+        var dataGrid = $("#grid3").dxDataGrid("instance");
+        dataGrid.exportToExcel(false); // 'false' means export all data, not just selected rows
+    }
+
+    function exportGridToPDF4() {
+        const doc = new jsPDF();
+
+        // Get the DataGrid instance
+        const dataGrid = $("#grid4").dxDataGrid("instance");
+
+        // Export DataGrid to PDF
+        DevExpress.pdfExporter.exportDataGrid({
+            jsPDFDocument: doc,
+            component: dataGrid,
+            keepColumnWidths: true
+        }).then(() => {
+            // Save the PDF with a given file name
+            doc.save('GridData.pdf');
+        });
+    }
+
+    function exportGridToExcel4() {
+        var dataGrid = $("#grid4").dxDataGrid("instance");
+        dataGrid.exportToExcel(false); // 'false' means export all data, not just selected rows
     }
 
     var waitingDialog = (function ($) {
@@ -490,6 +623,128 @@
             }
         }
     })(jQuery);
+
+    $(document).ready(function () {
+        $("#filterButton").dxButton({
+            onClick: function (e) {
+
+                // Get filter values
+                var startDate = $("#periodeAwalID").dxDateBox("instance").option("value");
+                var endDate = $("#periodeAkhirID").dxDateBox("instance").option("value");
+                var SID = $("#SID").dxTextBox("instance").option("value");
+                var Efek = $("#EfekID").dxTextBox("instance").option("value");
+
+                var startDateInt = dateToYYYYMMDD(startDate);
+                var endDateInt = dateToYYYYMMDD(endDate);
+
+
+                console.log("Filter button clicked");
+                console.log(startDate);
+                console.log(endDate);
+                console.log(SID);
+                console.log(Efek);
+
+                $("#grid1Container").show();
+                $("#grid2Container").show();
+                $("#grid3Container").show();
+                $("#grid4Container").show();
+
+               
+                //filter grid1
+                var filterconditions1 =[
+                    ["tanggal_balance", ">=", startDateInt],
+                    "and",
+                    ["tanggal_balance", "<=", endDateInt]
+                ];
+
+                if (SID) {
+                    filterconditions1.push("and");
+                    filterconditions1.push(["sid", "=", SID]);
+                }
+
+                if (Efek) {
+                    filterconditions1.push("and");
+                    filterconditions1.push(["efek", "=", Efek]);
+                }
+
+                //filtergrid2
+                var filterconditions2 = [
+                    ["settlementtransactiondatesk", ">=", startDateInt],
+                    "and",
+                    ["settlementtransactiondatesk", "<=", endDateInt]
+                ];
+
+                if (SID) {
+                    filterconditions2.push("and");
+                    filterconditions2.push(["fpinvestorid", "=", SID]);
+                }
+
+                if (Efek) {
+                    filterconditions2.push("and");
+                    filterconditions2.push(["securitycode", "=", Efek]);
+                }
+
+                //filtergrid3
+                var filterconditions3 = [
+                    ["clearingdatesk", ">=", startDateInt],
+                    "and",
+                    ["clearingdatesk", "<=", endDateInt]
+                ];
+
+                if (SID) {
+                    filterconditions3.push("and");
+                    filterconditions3.push(["investorid", "=", SID]);
+                }
+
+                if (Efek) {
+                    filterconditions3.push("and");
+                    filterconditions3.push(["securitycode", "=", Efek]);
+                }
+
+                //filtergrid4
+                var filterconditions4 = [
+                    ["tradedatesk", ">=", startDateInt],
+                    "and",
+                    ["tradedatesk", "<=", endDateInt]
+                ];
+
+                if (SID) {
+                    filterconditions4.push("and");
+                    filterconditions4.push(["sid", "=", SID]);
+                }
+
+                if (Efek) {
+                    filterconditions4.push("and");
+                    filterconditions4.push(["securitycode", "=", Efek]);
+                }
+
+                var dataGrid1 = $("#grid1").dxDataGrid("instance");
+                dataGrid1.filter(filterconditions1);
+
+                var dataGrid2 = $("#grid2").dxDataGrid("instance");
+                dataGrid2.filter(filterconditions2);
+
+                var dataGrid3 = $("#grid3").dxDataGrid("instance");
+                dataGrid3.filter(filterconditions3);
+
+
+                var dataGrid4 = $("#grid4").dxDataGrid("instance");
+                dataGrid4.filter(filterconditions4);
+
+                dataGrid1.refresh();
+                dataGrid2.refresh();
+                dataGrid3.refresh();
+                dataGrid4.refresh();
+            }
+        });
+    });
+
+    function dateToYYYYMMDD(date) {
+        var year = date.getFullYear();
+        var month = (date.getMonth() + 1).toString().padStart(2, '0');
+        var day = date.getDate().toString().padStart(2, '0');
+        return parseInt(year + month + day);
+    }
 </script>
 
 <style type="text/css">

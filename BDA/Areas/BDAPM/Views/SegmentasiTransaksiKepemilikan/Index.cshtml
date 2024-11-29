@@ -337,6 +337,7 @@
                 loadUrl: '@Url.Action("getGridSegmentasiTransaksiKepemilikan")?periode=' + periodeAwal + '&pe=' + namaPE
             });
             grid1.option('dataSource', ds4);
+            grid1.refresh();
         }
     }
 
