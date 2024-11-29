@@ -129,12 +129,8 @@ namespace BDA.Controllers
         }
 
         [HttpGet]
-        public object GetGridLeaderBoard(DataSourceLoadOptions loadOptions, string periode, string pe, string growthtype, string dimension, string investorOrigin, string LBType, string province, string loaddata)
+        public object GetGridLeaderBoard(DataSourceLoadOptions loadOptions, string periode, string pe, string growthtype, string dimension, string investorOrigin, string LBType, string province)
         {
-            if (loaddata == "0")
-            {
-                return DataSourceLoader.Load((dynamic)null, loadOptions);
-            }
             string stringPeriodeAwal = null;
             string stringNamaPE = null;
             if (!province.IsNullOrEmpty())
@@ -408,6 +404,7 @@ namespace BDA.Controllers
             string strSQL = db.appSettings.DataConnString;
             var list = new List<NamaPE>();
 
+            list.Add(new NamaPE { text = "All", value = "" });
             list.Add(new NamaPE { text = "Asing", value = "Asing" });
             list.Add(new NamaPE { text = "Lokal", value = "Lokal" });
             return DataSourceLoader.Load(list, loadOptions);

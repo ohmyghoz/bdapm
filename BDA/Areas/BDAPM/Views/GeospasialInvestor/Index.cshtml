@@ -15,8 +15,8 @@
 {
     @Html.AntiForgeryToken()
     <input type="hidden" id="province" value="" />
-    <input type="hidden" id="captionLB" value="Province" />
-    <input type="hidden" id="loaddata" value=0/>
+    <input type="hidden" id="captionLB" value="Country" />
+    <input type="hidden" id="loaddata" value="0"/>
     <div class="card card-default">
         @*filter*@
         <div class="row filter-panel" style="padding-top:0px;">
@@ -97,6 +97,7 @@
                             .DisplayExpr("text")
                             .SearchEnabled(true)
                             .Width("100%")
+                            .Value("")
                             )
                     </div>
                 </div>
@@ -168,12 +169,11 @@
                     </div>
                 </div>
                 <div class="row">
-                    <h4 class="headerTable">Local Leaderboard</h4>
+                    <h4 class="headerTable" id="headerTable">Local Leaderboard</h4>
                 </div>
                 <div class="row">
                     <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
-                        @(
-                                Html.DevExtreme().DataGrid()
+                        @(Html.DevExtreme().DataGrid()
                             .ID("gridLBLargest")
                             .KeyExpr("ID")
                             .RemoteOperations(true)
@@ -183,17 +183,6 @@
                             .Scrolling(s => s.ShowScrollbar(ShowScrollbarMode.Always))
                             .ShowBorders(true)
                             .Selection(c => c.Mode(SelectionMode.Single))
-                            .DataSource(d => d.Mvc().Controller("GeospasialInvestor").LoadAction("GetGridLeaderBoard").LoadMethod("Get").LoadParams(new
-                            {
-                                periode = new JS("function() { return $(\"#PeriodeAwal\").dxDateBox(\"instance\").option(\"value\").getFullYear() + '-' + ($(\"#PeriodeAwal\").dxDateBox(\"instance\").option(\"value\").getMonth() + 1);}"),
-                                pe = new JS("function() { return $(\"#namaPEid\").dxSelectBox(\"instance\").option(\"value\");}"),
-                                growthtype = new JS("function() { return $(\"#growthType\").dxSelectBox(\"instance\").option(\"value\");}"),
-                                dimension = new JS("function() { return $(\"#dimension\").dxSelectBox(\"instance\").option(\"value\");}"),
-                                investorOrigin = new JS("function() { return $(\"#investorOrigin\").dxSelectBox(\"instance\").option(\"value\");}"),
-                                LBType = "Lg",
-                                province = new JS("function() { return $(\"#province\").val();}"),
-                                loaddata = new JS("function() { return $(\"#loaddata\").val();}")
-                            }))
                             .ShowRowLines(true)
                             .Columns(c =>
                                     {
@@ -218,17 +207,6 @@
                             .Scrolling(s => s.ShowScrollbar(ShowScrollbarMode.Always))
                             .ShowBorders(true)
                             .Selection(c => c.Mode(SelectionMode.Single))
-                            .DataSource(d => d.Mvc().Controller("GeospasialInvestor").LoadAction("GetGridLeaderBoard").LoadMethod("Get").LoadParams(new
-                            {
-                                periode = new JS("function() { return $(\"#PeriodeAwal\").dxDateBox(\"instance\").option(\"value\").getFullYear() + '-' + ($(\"#PeriodeAwal\").dxDateBox(\"instance\").option(\"value\").getMonth() + 1);}"),
-                                pe = new JS("function() { return $(\"#namaPEid\").dxSelectBox(\"instance\").option(\"value\");}"),
-                                growthtype = new JS("function() { return $(\"#growthType\").dxSelectBox(\"instance\").option(\"value\");}"),
-                                dimension = new JS("function() { return $(\"#dimension\").dxSelectBox(\"instance\").option(\"value\");}"),
-                                investorOrigin = new JS("function() { return $(\"#investorOrigin\").dxSelectBox(\"instance\").option(\"value\");}"),
-                                LBType = "Ls",
-                                province = new JS("function() { return $(\"#province\").val();}"),
-                                loaddata = new JS("function() { return $(\"#loaddata\").val();}")
-                            }))
                             .ShowRowLines(true)
                             .Columns(c =>
                             {
@@ -418,6 +396,7 @@
     });
 
     $(window).on('load', function () {
+        updateCaptionLB();
         if ($("#investorOrigin").dxSelectBox("instance").option("value") == "Lokal") {
             $('#mapchartheader').show();
             $('#mapchart').show();
@@ -466,9 +445,31 @@
     }
 
     function onButtonFilterClicked(e) {
+        var periodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value").getFullYear() + '-' + ($("#PeriodeAwal").dxDateBox("instance").option("value").getMonth() + 1);
+        var pe = $("#namaPEid").dxSelectBox("instance").option("value");
+        var growthtype = $("#growthType").dxSelectBox("instance").option("value");
+        var dimension = $("#dimension").dxSelectBox("instance").option("value");
+        var investorOrigin = $("#investorOrigin").dxSelectBox("instance").option("value");
+        var province = $("#province").val();
+        
         $("#loaddata").val(1);
-        var dataGrid = $("#gridLBLargest").dxDataGrid("instance").refresh();
-        var dataGrid2 = $("#gridLBLowest").dxDataGrid("instance").refresh();
+        var grid1 = $("#gridLBLargest").dxDataGrid("instance");
+        var dsg1 = DevExpress.data.AspNet.createStore({
+            loadMethod: "GET",
+            loadMode: "processed",
+            loadUrl: '@Url.Action("GetGridLeaderBoard")?periode=' + periodeAwal + '&pe=' + pe + '&growthtype=' + growthtype + '&dimension=' + dimension + '&investorOrigin=' + investorOrigin + '&LBType=Lb&province=' + province
+        });
+        grid1.option('dataSource', dsg1);
+        grid1.refresh();
+
+        var grid2 = $("#gridLBLowest").dxDataGrid("instance");
+        var dsg2 = DevExpress.data.AspNet.createStore({
+            loadMethod: "GET",
+            loadMode: "processed",
+            loadUrl: '@Url.Action("GetGridLeaderBoard")?periode=' + periodeAwal + '&pe=' + pe + '&growthtype=' + growthtype + '&dimension=' + dimension + '&investorOrigin=' + investorOrigin + '&LBType=Ls&province=' + province
+        });
+        grid2.option('dataSource', dsg2);
+        grid2.refresh();
 
         var chart1 = $("#ChartSeriesCVGrowth").dxChart("instance");
         var ds1 = chart1.option('dataSource');
@@ -601,6 +602,10 @@
         var caption = "Provinsi";
         if ($("#province").val() == "") { 
             caption = "City";
+        }
+        if ($("#investorOrigin").dxSelectBox("instance").option("value") == "") { 
+            caption = "Country";
+            $("#headerTable").html("Global Leaderboard");
         }
 
         $("#captionLB").val(caption);
