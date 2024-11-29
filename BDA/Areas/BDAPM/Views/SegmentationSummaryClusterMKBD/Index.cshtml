@@ -154,7 +154,7 @@
                         columns.Add().DataField("no").Caption("No.").Alignment(HorizontalAlignment.Center);
                         columns.Add().DataField("securitycompanycode").Caption("Kode PE").Alignment(HorizontalAlignment.Center);
                         columns.Add().DataField("securitycompanyname").Caption("Nama PE").Width(300);
-                        columns.Add().DataField("simpanangiro").Caption("Simpanan Giro").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+                    columns.Add().DataField("simpanangiro").Caption("Simpanan Giro").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
                         columns.Add().DataField("depositolt3bulan").Caption("Deposito < 3 Bulan").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
                         columns.Add().DataField("depositogt3bulandijaminlps").Caption("Deposito > 3 Bulan Dijamin LPS").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
                         columns.Add().DataField("uangjaminanlkp").Caption("Uang Jaminan LKP").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
@@ -261,8 +261,6 @@
             }
         });
     });
-
-
 
     $(function () {
         const startDate = $("#PeriodeAwal").dxDateBox({

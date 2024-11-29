@@ -4980,7 +4980,7 @@ namespace BDA.Helper
                         cast(cast(kasdansetarakas as BIGINT)  as string) as kasdansetarakas,
                         cast(cast(mkbd as BIGINT)  as string) as mkbd,
                         cast(cast(mkbdminimum as BIGINT)  as string) as mkbdminimum,
-                        cast(cast(mkbdminimum as BIGINT)  as string) as mkbdpermkbdminimum,
+                        (cast(cast(mkbd as BIGINT)  as string)/cast(cast(mkbdminimum as BIGINT)  as string)) * 100 as mkbdpermkbdminimum,
                         CASE 
                             when cast(cast(kasdansetarakas as BIGINT)  as string) < cast(cast(mkbdminimum as BIGINT)  as string) then 'Alert'
                             when cast(cast(kasdansetarakas as BIGINT)  as string) > cast(cast(mkbdminimum as BIGINT)  as string) then 'Normal'
