@@ -25,6 +25,7 @@ using DevExpress.DocumentServices.ServiceModel.DataContracts;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using static DevExpress.XtraPrinting.Native.ExportOptionsPropertiesNames;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -54,8 +55,7 @@ namespace BDA.Controllers
             var currentNode = mdl.GetCurrentNode();
             
             string pageTitle = currentNode != null ? currentNode.Title : ""; 
-            TempData["pageTitle"] = pageTitle;
-            ViewBag.FullFilter = true;
+            TempData["pageTitle"] = pageTitle;            
             ViewBag.Export = false; // TODO ubah disini
             var obj = db.osida_master.Find(id);
             db.InsertAuditTrail("PM_" + id + "_Akses_Page", "Akses Page Dashboard " + obj.menu_nama, pageTitle);
@@ -64,7 +64,10 @@ namespace BDA.Controllers
             ViewBag.Export = true;
             var isHive = Helper.WSQueryStore.IsPeriodInHive(db, id);
             ViewBag.Hive = isHive;
-            
+            string roleId = HttpContext.User.FindFirst(ClaimTypes.Role).Value.ToString();
+            ViewBag.FullFilter = false;
+            if (roleId == "Pengawas PM" || roleId == "AdminAplikasi") ViewBag.FullFilter = true;
+
             if (obj == null) return NoContent();
             
             
@@ -81,11 +84,13 @@ namespace BDA.Controllers
 
                 DateTime p = DateTime.ParseExact(details[0], "yyyyMMdd", CultureInfo.InvariantCulture);//Convert.ToDateTime(details[0]);
                 ViewBag.period = p.Year == 9999? System.DateTime.Now: p;//string.Format("{0:yyyy-MM-01}", p);
-                //string[] p1 = new string[] { string.Format("{0:yyyy-MM-01}", p) };
-                //ViewBag.period = p1;
-                //ViewBag.endperiod = System.DateTime.Now;
-                                
-                ViewBag.sistem = details[1];
+                                                                        //string[] p1 = new string[] { string.Format("{0:yyyy-MM-01}", p) };
+                                                                        //ViewBag.period = p1;
+                                                                        //ViewBag.endperiod = System.DateTime.Now;
+
+                string sistem = details[1].ToUpper();//.Replace("Balance");
+
+                ViewBag.sistem = sistem;
                 ViewBag.sid = details[2];
             }
             
@@ -294,18 +299,19 @@ namespace BDA.Controllers
             return Json(se1);
         }
 
-        public IActionResult GetSistem(DataSourceLoadOptions loadOptions)
+        public IActionResult GetSistem(DataSourceLoadOptions loadOptions, string reportId)
         {
             //var q = db.macro_penetrasi_lending_ljk.Select(x => new { text = x.dm_jenis_debitur, kode = x.dm_jenis_debitur }).Distinct();
             var list = new List<RefDto>();
-            list.Add(new RefDto() { text = "C-Best", kode = "C-Best" });
-            list.Add(new RefDto() { text = "S-Invest", kode = "S-Invest" });
-            list.Add(new RefDto() { text = "SBN", kode = "SBN" });
-            list.Add(new RefDto() { text = "JATS", kode = "JATS" });
-            list.Add(new RefDto() { text = "PLTE", kode = "PLTE" });
-            list.Add(new RefDto() { text = "Transaksi RD", kode = "Transaksi RD" });
-            list.Add(new RefDto() { text = "C-Best Balance", kode = "C-Best Balance" });
-            list.Add(new RefDto() { text = "IFUA Balance", kode = "IFUA Balance" });
+
+            string query = @"Select ItemText, ItemValue from dbo.ref_items where TableName = '" + reportId + @"' and RefType = 'ProfilSistem'";
+            
+            DataTable dt = Helper.WSQueryStore.GetSystemDropdown(db, query).data;
+            foreach (DataRow dr in dt.Rows)
+            {
+                list.Add(new RefDto() { text = dr["ItemText"].ToString(), kode = dr["ItemValue"].ToString() });
+            }
+            
             return Json(DataSourceLoader.Load(list, loadOptions));
         }
 
