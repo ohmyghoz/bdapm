@@ -38,7 +38,7 @@
                     
                         <div class="col-lg-4 form-group">
                             <label>Trading Id<span class="one-mandatory">**</span></label>
-                            @(Html.DevExtreme().TextBox().ID("tbTradeId").Placeholder("Trade Id").InputAttr("aria-label", "Nomor Trade").ShowClearButton(true).ValueChangeEvent("change").OnValueChanged("tb_valueChanged").Width("100%").MaxLength(6))
+                            @(Html.DevExtreme().TextBox().ID("tbTradeId").Placeholder("Trading Id").InputAttr("aria-label", "Nomor Trade").ShowClearButton(true).ValueChangeEvent("change").OnValueChanged("tb_valueChanged").Width("100%").MaxLength(6))
                         </div>
                     @if (ViewBag.FullFilter)
                     {
