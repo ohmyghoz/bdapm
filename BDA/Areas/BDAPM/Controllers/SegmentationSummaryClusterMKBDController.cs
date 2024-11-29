@@ -27,6 +27,8 @@ using System.Reflection;
 using DevExpress.Xpo.DB;
 using DevExpress.Charts.Native;
 using static DevExpress.Data.ODataLinq.Helpers.ODataLinqHelpers;
+using Microsoft.AspNetCore.Mvc.Rendering;
+
 
 namespace BDA.Controllers
 {
@@ -646,7 +648,7 @@ namespace BDA.Controllers
             }
             return Json(new { message, success = result }, new Newtonsoft.Json.JsonSerializerSettings());
         }
-        public object GetNamaPEOnly(DataSourceLoadOptions loadOptions,string pName)
+        public object GetNamaPEOnly(DataSourceLoadOptions loadOptions, string pName)
         {
             var userId = HttpContext.User.Identity.Name;
             string strSQL = db.appSettings.DataConnString;
@@ -796,7 +798,7 @@ namespace BDA.Controllers
             {
                 stringNamaPE = namaPE;
                 TempData["pe"] = stringNamaPE;
-                strNamaPEOnly=  (string)GetNamaPEOnly(loadOptions, stringNamaPE);
+                strNamaPEOnly = (string)GetNamaPEOnly(loadOptions, stringNamaPE);
                 ViewBag.KodePE = namaPE;
                 ViewBag.NamaPE = strNamaPEOnly;
             }
@@ -804,6 +806,32 @@ namespace BDA.Controllers
             {
                 ViewBag.NamaPE = "";
             }
+
+            string reportId = "dim_exchange_members"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+            var result = Helper.WSQueryStore.GetBDAPMNamaPE(db, loadOptions, reportId, cekHive);
+            var varDataList = (dynamic)null;
+            varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                           select new
+                           {
+                               exchangemembercode = bs.Field<string>("exchangemembercode").ToString().Trim(),
+                               exchangemembername = bs.Field<string>("exchangemembername").ToString().Trim(),
+                           }).OrderBy(bs => bs.exchangemembername).ToList();
+
+            DataTable dtList = new DataTable();
+            dtList = Helper.WSQueryStore.LINQResultToDataTable(varDataList);
+
+            List<SelectListItem> entityTypelist = new List<SelectListItem>();
+            if (dtList.Rows.Count > 0)
+            {
+                entityTypelist.Add(new SelectListItem() { Value = "", Text = "(ALL)" });
+                for (int i = 0; i < dtList.Rows.Count; i++)
+                {
+                    string namakode = dtList.Rows[i]["exchangemembercode"].ToString() + " - " + dtList.Rows[i]["exchangemembername"].ToString();
+                    entityTypelist.Add(new SelectListItem() { Value = dtList.Rows[i]["exchangemembercode"].ToString(), Text = namakode });
+                }
+            }
+            ViewBag.Jenis = entityTypelist;
 
             db.Database.CommandTimeout = 420;
             db.CheckPermission("Detail Cluster MKBD View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
