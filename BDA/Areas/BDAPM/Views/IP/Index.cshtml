@@ -35,12 +35,13 @@
                         <label>Nomor SID<span class="one-mandatory">**</span></label>
                         @(Html.DevExtreme().TextBox().ID("tbSID").Placeholder("Nomor SID").InputAttr("aria-label", "Nomor SID").ShowClearButton(true).ValueChangeEvent("change").OnValueChanged("tb_valueChanged").Width("100%").Value(vbSID).MaxLength(15))
                     </div>
-                    @if (ViewBag.FullFilter)
-                    {
+                    
                         <div class="col-lg-4 form-group">
                             <label>Trading Id<span class="one-mandatory">**</span></label>
                             @(Html.DevExtreme().TextBox().ID("tbTradeId").Placeholder("Trade Id").InputAttr("aria-label", "Nomor Trade").ShowClearButton(true).ValueChangeEvent("change").OnValueChanged("tb_valueChanged").Width("100%").MaxLength(6))
                         </div>
+                    @if (ViewBag.FullFilter)
+                    {
                         <div class="col-lg-4 form-group">
                             <label>Nama SID<span class="one-mandatory">**</span></label>
                             @(Html.DevExtreme().SelectBox()
@@ -62,6 +63,7 @@
                                 .Placeholder("Ketik+Enter untuk mencari")
                                 )
                         </div>
+                    } 
                         <div class="col-lg-4 form-group">
                             <label>Nomor KTP<span class="one-mandatory">**</span></label>
                             @(Html.DevExtreme().TextBox().ID("tbKTP").Placeholder("Nomor KTP").InputAttr("aria-label", "Nomor KTP").ShowClearButton(true).ValueChangeEvent("change").OnValueChanged("tb_valueChanged").Width("100%").MaxLength(16))
@@ -83,13 +85,7 @@
                         <div class="col-lg-12 form-group">
                             <label id="lblHint1" class="bottom-corner">**Wajib Diisi Hanya Salah Satu</label>
                         </div>
-                    } else
-                    {
-                        
-                        <div class="col-lg-12 form-group">
-                            <label id="lblHint2" class="bottom-corner">**Wajib Diisi</label>
-                        </div>
-                    }
+                    
 
 
                 </div>
@@ -469,12 +465,18 @@
             if (idx > -1) { // only splice array when item is found
                 listReset.splice(idx, 1); // 2nd parameter means remove one item only
             }
+
+            if('@(ViewBag.FullFilter)' == 'False'){
+                const idxNama = listReset.indexOf("tbNamaSID");
+                if (idxNama > -1) { 
+                    listReset.splice(idxNama, 1); 
+                }
+            }
                         
             for (let tbId of listReset) {
                 if (tbId == "tbNamaSID") {
                     var isi = $("#" + tbId).dxSelectBox("instance").option("value");
-                    if (isi != null) {                           
-                        //console.log("not empty" + isi);
+                    if (isi != null) {                                                  
                         resetFilter[tbId] -= 1;
                         $("#" + tbId).dxSelectBox("reset");
                     }
@@ -500,12 +502,13 @@
         const res = e.validationGroup.validate();
         if (res.status === "valid") {
             let sid = $("#tbSID").dxTextBox("instance").option("value");
-            let tradeId = $("#tbTradeId").dxTextBox("instance").option("value");
-            let namaSID = $("#tbNamaSID").dxSelectBox("instance").option("value");
+            let tradeId = $("#tbTradeId").dxTextBox("instance").option("value");            
             let nomorKTP = $("#tbKTP").dxTextBox("instance").option("value");
             let nomorNPWP = $("#tbNPWP").dxTextBox("instance").option("value");
-
-
+            let namaSID = "";
+            if('@(ViewBag.FullFilter)' == 'True'){
+                namaSID = $("#tbNamaSID").dxSelectBox("instance").option("value");              
+            }
             if (sid != "" || tradeId != "" || (namaSID != "" && namaSID != null) || nomorKTP != "" || nomorNPWP != "") {
                 $("#ModalSimpanPenggunaanData").modal("show");
                 console.log(sid + ";" + tradeId + ";" + namaSID + ";" + nomorKTP + ";" + nomorNPWP);
@@ -523,12 +526,16 @@
     function onGridBeforeSend(method, ajaxOptions) {
         let mdl = '@Model.kode';
         let sid = $("#tbSID").dxTextBox("instance").option("value");
-        let tradeId = $("#tbTradeId").dxTextBox("instance").option("value");
-        let namaSID = $("#tbNamaSID").dxSelectBox("instance").option("value");
+        let tradeId = $("#tbTradeId").dxTextBox("instance").option("value");        
         let nomorKTP = $("#tbKTP").dxTextBox("instance").option("value");
         let nomorNPWP = $("#tbNPWP").dxTextBox("instance").option("value");
 
-        console.log(sid + "-" + tradeId + "-" + namaSID + "-" + nomorKTP + "-" + nomorNPWP);
+        let namaSID = "";
+        if('@(ViewBag.FullFilter)' == 'True'){
+            namaSID = $("#tbNamaSID").dxSelectBox("instance").option("value");
+        }
+
+        //console.log(sid + "-" + tradeId + "-" + namaSID + "-" + nomorKTP + "-" + nomorNPWP);
 
         let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
         let periode = null;
