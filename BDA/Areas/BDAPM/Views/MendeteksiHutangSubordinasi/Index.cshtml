@@ -93,9 +93,9 @@
                             })
                             .Columns(c =>
                             {
-                                c.Add().DataField("NamaPE");
-                                c.Add().DataField("TanggalHSOT0").Caption("Tanggal HSO (T0)");
-                                c.Add().DataField("HSO").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
+                                c.Add().DataField("namape").Caption("Nama PE");
+                                c.Add().DataField("tanggalhsot0").Caption("Tanggal HSO (T0)");
+                                c.Add().DataField("hso").Caption("HSO").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
                             })
                             .ShowRowLines(true)
                             )
@@ -128,9 +128,9 @@
                                 })
                                 .Columns(c =>
                                 {
-                                    c.Add().DataField("LawanTransaksi");
-                                    c.Add().DataField("BuyingDate");
-                                    c.Add().DataField("ReverseRepo").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
+                                    c.Add().DataField("lawantransaksi").Caption("Lawan Transaksi");
+                                    c.Add().DataField("buyingdate").Caption("Buying Date");
+                                    c.Add().DataField("reverserepo").Caption("Reverse Repo").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
                                 })
                                 .ShowRowLines(true)
                                 )
