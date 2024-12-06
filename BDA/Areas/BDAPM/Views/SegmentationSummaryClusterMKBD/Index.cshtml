@@ -75,14 +75,21 @@
                 <div class="col-lg-6">
                 @(Html.DevExtreme().PieChart()
                         .ID("pie-chart")
-                        .Type(PieChartType.Donut)
-                        .Palette(VizPalette.Carmine)
+                        .Type(PieChartType.Doughnut)
                         .Title("Jumlah Cluster")
                         .Legend(l => l
                         .HorizontalAlignment(HorizontalAlignment.Right)
                         .VerticalAlignment(VerticalEdge.Top)
                         .Margin(0)
                         )
+                    .CenterTemplate(@<text>
+                        <svg>
+                            <circle cx="100" cy="100" r="<%- getInnerRadius() - 6 %>" fill="#eee"></circle>
+                            <text text-anchor="middle" style="font-size: 35px" x="100" y="90" fill="#494949">
+                        <tspan x="100">@(ViewBag.TotalPie)</tspan><tspan x="100" dy="20px" style="font-weight: 600"><%- formatNumber(calculateTotal(getAllSeries())) %></tspan>
+                            </text>
+                        </svg>
+                    </text>)
                         .Export(e => e.Enabled(true))
                         .Series(s => s
                         .Add()
@@ -98,28 +105,30 @@
                         .OnBeforeSend("onGridBeforeSend")))
                 </div>
 
-                <div class="col-lg-6">
+            <div class="col-lg-6">
                 @(Html.DevExtreme().Chart()
-                        .ID("bar-chart")
-                        .Title("Cluster PE Berdasarkan Persentase MKBD dibandingkan MKBD Dipersyaratkan")
-                        .Export(e => e.Enabled(true))
-                        .Series(s => s
-                        .Add()
-                        .ArgumentField("cluster")
-                        .ValueField("total")
-                        .Name("Cluster PE")
-                        .Type(SeriesType.Bar)
-                        .Color("#f5403d")
-                        .Label(l => l
-                        .Visible(true)
-                        .Format(f => f
-                        .Type(Format.FixedPoint)
-                        .Precision(0))))
-                        .DataSource(d => d.Mvc()
-                        .Controller("SegmentationSummaryClusterMKBD")
-                        .LoadAction("GetChartClusterBarSearch")
-                        .OnBeforeSend("onGridBeforeSend")))
-                </div>
+                    .ID("bar-chart")
+                    .Title("Cluster PE Berdasarkan Persentase MKBD dibandingkan MKBD Dipersyaratkan")
+                    .Export(e => e.Enabled(true))
+                    .Series(s => s
+                    .Add()
+                    .ArgumentField("cluster")
+                    .ValueField("total")
+                    .Name("Cluster PE")
+                    .Type(SeriesType.Bar)
+                    .Color("red")
+                    .Label(l => l
+                    .Visible(true)
+                    .Format(f => f
+                    .Type(Format.FixedPoint)
+                    .Precision(0))))
+                    .DataSource(d => d.Mvc()
+                    .Controller("SegmentationSummaryClusterMKBD")
+                    .LoadAction("GetChartClusterBarSearch")
+                    .OnBeforeSend("onGridBeforeSend")))
+
+
+            </div>
             </div>
             <br />
             <br />
@@ -154,7 +163,7 @@
                         columns.Add().DataField("no").Caption("No.").Alignment(HorizontalAlignment.Center);
                         columns.Add().DataField("securitycompanycode").Caption("Kode PE").Alignment(HorizontalAlignment.Center);
                         columns.Add().DataField("securitycompanyname").Caption("Nama PE").Width(300);
-                    columns.Add().DataField("simpanangiro").Caption("Simpanan Giro").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+                        columns.Add().DataField("simpanangiro").Caption("Simpanan Giro").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
                         columns.Add().DataField("depositolt3bulan").Caption("Deposito < 3 Bulan").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
                         columns.Add().DataField("depositogt3bulandijaminlps").Caption("Deposito > 3 Bulan Dijamin LPS").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
                         columns.Add().DataField("uangjaminanlkp").Caption("Uang Jaminan LKP").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
@@ -230,6 +239,31 @@
 </script>
 
 <script>
+    var formatNumber = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format;
+    function customizeLabel(e) {
+        return e.argumentText + "\n" + e.valueText;
+    }
+
+    function calculateTotal(series) {
+        return series[0].getVisiblePoints().reduce(function (s, p) { return s + p.originalValue }, 0);
+    }
+    $(function () {
+        $("#pie-chart").dxPieChart({
+            customizePoint: function(pointInfo) {
+
+                if (pointInfo.argument == "Alert") {  
+                        return {  
+                            color: "red"  
+                        }  
+                    }  
+                    return {  
+                        color: "green"  
+                }  
+            }
+        });
+     });
+
+
     $(function () {
         $("#grid1").dxDataGrid({
             onCellPrepared: function (e) {
@@ -253,9 +287,9 @@
             onRowPrepared: function (e) {
                 if (e.rowType === "data") {
                     if (e.data.status === "Alert") {
-                        e.rowElement.css({ "color": "black", "background-color": "#fb7764" });
+                        e.rowElement.css({ "color": "black", "background-color": "red" });
                     }else{
-                        e.rowElement.css({ "color": "black", "background-color": "#73d47f" });
+                        e.rowElement.css({ "color": "black", "background-color": "green" });
                     }
                 }
             }

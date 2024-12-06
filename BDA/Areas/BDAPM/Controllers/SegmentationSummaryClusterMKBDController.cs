@@ -146,6 +146,17 @@ namespace BDA.Controllers
 
             db.Database.CommandTimeout = 420;
             var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryGetChartClusterSearch(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, stringStatus, cekHive);
+
+            int sum = 0;
+            foreach (DataRow dr in result.data.AsEnumerable())
+            {
+                dynamic value = dr["total"].ToString();
+                if (!string.IsNullOrEmpty(value))
+                {
+                    sum += Convert.ToInt32(value);
+                }
+            }
+            ViewBag.TotalPie = sum;
             return JsonConvert.SerializeObject(result);
         }
         public object GetChartClusterBarSearch(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE, string status)
@@ -788,6 +799,7 @@ namespace BDA.Controllers
                 TempData["pawal"] = stringPeriodeAwal;
                 stringPeriodeAwalDate = Convert.ToDateTime(periodeAwal).ToString("yyyy MMM dd");
                 ViewBag.PeriodeAwalDate = stringPeriodeAwalDate;
+                ViewBag.PeriodeAwalDateParam = stringPeriodeAwal;
             }
             else
             {
@@ -1016,7 +1028,7 @@ namespace BDA.Controllers
                 db.InsertAuditTrail("SummaryClusterMKBD_Akses_Page", "Export Data PDF Summary Cluster MKBD", pageTitle);
 
                 var directory = _env.WebRootPath;
-                var timeStamp = DateTime.Now.ToString();
+                var timeStamp = TempData["pawal"].ToString(); 
                 Workbook workbook = new Workbook(file.OpenReadStream());
                 Worksheet worksheet2 = workbook.Worksheets[0];
                 var columns1 = worksheet2.Cells.Columns.Count;
@@ -1054,12 +1066,24 @@ namespace BDA.Controllers
                     StyleFlag textFlag = new StyleFlag();
                     textFlag.NumberFormat = true;
 
+
+                    Style textStylesLeft = workbook.CreateStyle();
+                    textStylesLeft.HorizontalAlignment = TextAlignmentType.Left;
+
+                    Style textStylesRight = workbook.CreateStyle();
+                    textStylesRight.HorizontalAlignment = TextAlignmentType.Right;
+
+                    StyleFlag textStyleFlag = new StyleFlag();
+                    textStyleFlag.HorizontalAlignment = true;
+
+
                     worksheet.AutoFitRows(true);
                     worksheet.Cells.Columns[0].Width = 8;
                     worksheet.Cells.Columns[1].Width = 8;
-                    worksheet.Cells.Columns[2].Style.HorizontalAlignment = TextAlignmentType.Left;
+                    worksheet.Cells.Columns[2].Style.VerticalAlignment = TextAlignmentType.Center;
+                    worksheet.Cells.Columns[2].ApplyStyle(textStylesLeft, textStyleFlag);
+
                     worksheet.Cells.Columns[3].ApplyStyle(textStyle, textFlag);
-                    worksheet.Cells.Columns[3].Style.HorizontalAlignment = TextAlignmentType.Right;
                     worksheet.Cells.Columns[4].ApplyStyle(textStyle, textFlag);
                     worksheet.Cells.Columns[5].ApplyStyle(textStyle, textFlag);
                     worksheet.Cells.Columns[6].ApplyStyle(textStyle, textFlag);
@@ -1067,10 +1091,8 @@ namespace BDA.Controllers
                     worksheet.Cells.Columns[8].ApplyStyle(textStyle, textFlag);
                     worksheet.Cells.Columns[9].ApplyStyle(textStyle, textFlag);
                     worksheet.Cells.Columns[10].ApplyStyle(textStyle, textFlag);
-                    //worksheet.AutoFitRows(true);
-                    //worksheet.Cells.Columns[8].Style.HorizontalAlignment = TextAlignmentType.Right;
                     worksheet.Cells.Columns[8].Width = 20;
-                    worksheet.Cells.Columns[8].Style.HorizontalAlignment = TextAlignmentType.Right;
+                    worksheet.Cells.Columns[8].ApplyStyle(textStyle, textFlag);
                     //page setup
                     PageSetup pageSetup = worksheet.PageSetup;
                     pageSetup.Orientation = PageOrientationType.Landscape;

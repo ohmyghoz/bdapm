@@ -4954,6 +4954,58 @@ namespace BDA.Helper
             return WSQueryHelper.DoQueryNL(db, props, isC, isHive);
         }
 
+        public static DataTable GetInversedDataTable(DataTable table, string columnX,params string[] columnsToIgnore)
+        {
+            DataTable returnTable = new DataTable();
+
+            if (columnX == "")
+                columnX = table.Columns[0].ColumnName;
+
+            returnTable.Columns.Add(columnX);
+
+            List<string> columnXValues = new List<string>();
+            List<string> listColumnsToIgnore = new List<string>();
+            if (columnsToIgnore.Length > 0)
+                listColumnsToIgnore.AddRange(columnsToIgnore);
+
+            if (!listColumnsToIgnore.Contains(columnX))
+                listColumnsToIgnore.Add(columnX);
+
+            foreach (DataRow dr in table.Rows)
+            {
+                string columnXTemp = dr[columnX].ToString();
+                if (!columnXValues.Contains(columnXTemp))
+                {
+                    columnXValues.Add(columnXTemp);
+                    returnTable.Columns.Add(columnXTemp);
+                }
+                else
+                {
+                    throw new Exception("The inversion used must have " +
+                                        "unique values for column " + columnX);
+                }
+            }
+            foreach (DataColumn dc in table.Columns)
+            {
+                if (!columnXValues.Contains(dc.ColumnName) &&
+                    !listColumnsToIgnore.Contains(dc.ColumnName))
+                {
+                    DataRow dr = returnTable.NewRow();
+                    dr[0] = dc.ColumnName;
+                    returnTable.Rows.Add(dr);
+                }
+            }
+            for (int i = 0; i < returnTable.Rows.Count; i++)
+            {
+                for (int j = 1; j < returnTable.Columns.Count; j++)
+                {
+                    returnTable.Rows[i][j] =
+                      table.Rows[j - 1][returnTable.Rows[i][0].ToString()].ToString();
+                }
+            }
+
+            return returnTable;
+        }
         public static DataTable LINQResultToDataTable<T>(IEnumerable<T> Linqlist)
         {
             DataTable dt = new DataTable();
