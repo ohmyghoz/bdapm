@@ -5738,7 +5738,7 @@ namespace BDA.Helper
             return DecryptResultsNamaSID(WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive));
         }
 
-        public static WSQueryReturns GetPMIPQuery(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string SID, string tradeId, string namaSID, string nomorKTP, string nomorNPWP, string sistem, string businessReg, string startPeriod, string endPeriod, bool chk100 = false, bool isHive = false)
+        public static WSQueryReturns GetPMIPQuery(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string SID, string tradeId, string namaSID, string namaLike, string nomorKTP, string nomorNPWP, string passport, string sistem, string businessReg, string startPeriod, string endPeriod, bool chk100 = false, bool isHive = false)
         {
             bool isC = false;
             var whereQuery = "1=1";
@@ -5756,7 +5756,10 @@ namespace BDA.Helper
             else if (nomorKTP != null) whereQuery = whereQuery += " AND ktp = '" + EncryptKTP(nomorKTP) + "' ";
             else if (nomorNPWP != null) whereQuery = whereQuery += " AND npwp = '" + nomorNPWP + "' ";
             else if (namaSID != null) whereQuery = whereQuery += " AND nama_sid = '" + EncryptName(namaSID.ToUpper()) + "' ";
+            else if (namaLike != null) whereQuery = whereQuery += " AND nama_sid like '%" + EncryptName(namaLike.ToUpper()) + "%' ";
+            else if (passport != null) whereQuery = whereQuery += " AND passport = '" + passport + "' ";
             else if (businessReg != null) whereQuery = whereQuery += " AND business_registration_number = '" + businessReg + "' ";
+
 
             if (endPeriod != null)
             {

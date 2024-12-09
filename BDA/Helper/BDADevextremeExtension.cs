@@ -2640,7 +2640,7 @@ namespace BDA.Helper
                         visible = true;
                     }
 
-                    if (row.ColumnName == "ktp") caption = "Nomor KTP";
+                    if (row.ColumnName == "ktp") caption = "NIK";
                     if (row.ColumnName == "npwp") caption = "Nomor NPWP";
                     if (row.ColumnName == "trade_id") caption = "Trading ID";
 
@@ -2657,7 +2657,8 @@ namespace BDA.Helper
                     if (row.ColumnName == "rekening_status") caption = "Account Status";
                     if (row.ColumnName == "securityname") caption = "Nama Efek";
                     if (row.ColumnName == "securitycode") caption = "Kode Efek";
-                    
+                    if (row.ColumnName == "settlement_account") caption = "No Rekening";
+
 
                     if (kode == "ip_sid")
                     {

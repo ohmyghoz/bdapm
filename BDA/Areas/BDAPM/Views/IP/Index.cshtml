@@ -65,8 +65,8 @@
                         </div>
                     } 
                         <div class="col-lg-4 form-group">
-                            <label>Nomor KTP<span class="one-mandatory">**</span></label>
-                            @(Html.DevExtreme().TextBox().ID("tbKTP").Placeholder("Nomor KTP").InputAttr("aria-label", "Nomor KTP").ShowClearButton(true).ValueChangeEvent("change").OnValueChanged("tb_valueChanged").Width("100%").MaxLength(16))
+                            <label>NIK<span class="one-mandatory">**</span></label>
+                            @(Html.DevExtreme().TextBox().ID("tbKTP").Placeholder("NIK").InputAttr("aria-label", "NIK").ShowClearButton(true).ValueChangeEvent("change").OnValueChanged("tb_valueChanged").Width("100%").MaxLength(16))
                         </div>
 
                         <div class="col-lg-4 form-group">
@@ -74,7 +74,18 @@
                             @(Html.DevExtreme().TextBox().ID("tbNPWP").Placeholder("Nomor NPWP").InputAttr("aria-label", "Nomor NPWP").ShowClearButton(true).ValueChangeEvent("change").OnValueChanged("tb_valueChanged").Width("100%").Mask("0000000000000009").MaskRules(new { X = new JS("/[02-9]/") }).MaxLength(16))
                         </div>
 
-                        @if (Model.kode.IndexOf("ip_relation") == 0)
+                    @if (ViewBag.FullFilter)
+                    {
+                        <div class="col-lg-4 form-group">
+                            <label>Nama SID Menyerupai<span class="one-mandatory">**</span></label>
+                            @( 
+                                Html.DevExtreme().TextBox().ID("tbNamaLike").Placeholder("Min 8 digit").InputAttr("aria-label", "Min 8 Digit").ShowClearButton(true).ValueChangeEvent("change")
+                                .OnValueChanged("tb_valueChanged").Width("100%")                               
+                                )
+                                </div>
+                    }
+
+                    @if (Model.kode.IndexOf("ip_relation") == 0)
                         {
                             <div class="col-lg-4 form-group">
                                 <label>Business Reg. Number</label>
@@ -313,6 +324,10 @@
             validationGroup: "Filter",
             validationRules: [{ type: "required", message: "[Sistem] harus dipilih" }]
         })
+        $("#tbNamaLike").dxTextBox().dxValidator({
+            validationGroup: "Filter",
+            validationRules: [{ type: "stringLength", min: 8, ignoreEmptyValue: true, message: "Pencarian [Nama Menyerupai] minimal 8 digit" }]
+        })
     });
     @*
     $(function () {
@@ -360,7 +375,7 @@
 </script>
 
 <script type="text/javascript">
-    const resetFilter = { tbSID: 0, tbTradeId: 0, tbKTP: 0, tbNPWP: 0, tbNamaSID: 0 }
+    const resetFilter = { tbSID: 0, tbTradeId: 0, tbKTP: 0, tbNPWP: 0, tbNamaSID: 0 , tbNamaLike: 0}
     const maxItems = @maxItems;
     const searchEditorOptions = { placeholder: 'Search column', mode: 'text' };
 
@@ -505,11 +520,15 @@
             let tradeId = $("#tbTradeId").dxTextBox("instance").option("value");            
             let nomorKTP = $("#tbKTP").dxTextBox("instance").option("value");
             let nomorNPWP = $("#tbNPWP").dxTextBox("instance").option("value");
+            let passport = ""; @* $("#tbPassport").dxTextBox("instance").option("value");*@
+            let namaLike = $("#tbNamaLike").dxTextBox("instance").option("value");
             let namaSID = "";
             if('@(ViewBag.FullFilter)' == 'True'){
                 namaSID = $("#tbNamaSID").dxSelectBox("instance").option("value");              
             }
-            if (sid != "" || tradeId != "" || (namaSID != "" && namaSID != null) || nomorKTP != "" || nomorNPWP != "") {
+            if (sid != "" || tradeId != "" || (namaSID != "" && namaSID != null) || namaLike != "" || nomorKTP != "" || nomorNPWP != "" || passport != "") {
+
+                
                 $("#ModalSimpanPenggunaanData").modal("show");
                 console.log(sid + ";" + tradeId + ";" + namaSID + ";" + nomorKTP + ";" + nomorNPWP);
                 @* $("#grid1").dxDataGrid("instance").refresh(); *@
@@ -529,6 +548,7 @@
         let tradeId = $("#tbTradeId").dxTextBox("instance").option("value");        
         let nomorKTP = $("#tbKTP").dxTextBox("instance").option("value");
         let nomorNPWP = $("#tbNPWP").dxTextBox("instance").option("value");
+        let namaLike = $("#tbNamaLike").dxTextBox("instance").option("value");
 
         let namaSID = "";
         if('@(ViewBag.FullFilter)' == 'True'){
@@ -554,8 +574,10 @@
 
         ajaxOptions.data.tradeId = tradeId;
         ajaxOptions.data.namaSID = namaSID;
+        ajaxOptions.data.namaLike = namaLike;
         ajaxOptions.data.nomorKTP = nomorKTP;
         ajaxOptions.data.nomorNPWP = nomorNPWP;
+        ajaxOptions.data.passport = "";
         if (!mdl.includes("ip_relation")) {
             let sistem = $("#Sistem").dxSelectBox("instance").option("value");
             ajaxOptions.data.sistem = sistem;

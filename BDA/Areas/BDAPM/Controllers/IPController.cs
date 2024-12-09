@@ -327,7 +327,7 @@ namespace BDA.Controllers
         }
 
         #region "GetGridData"
-        public object GetGridData(DataSourceLoadOptions loadOptions, string reportId, string SID, string tradeId, string namaSID, string nomorKTP, string nomorNPWP, string sistem, string businessReg, string startPeriode, string endPeriode, bool chk100)
+        public object GetGridData(DataSourceLoadOptions loadOptions, string reportId, string SID, string tradeId, string namaSID, string namaLike, string nomorKTP, string nomorNPWP, string passport, string sistem, string businessReg, string startPeriode, string endPeriode, bool chk100)
         {
             var regex = new Regex(@"\Aip_relation");
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
@@ -338,6 +338,7 @@ namespace BDA.Controllers
             TempData["namaSID"] = null;
             TempData["nomorKTP"] = null;
             TempData["nomorNPWP"] = null;
+            TempData["passport"] = null;
             TempData["sistem"] = null;
             TempData["periodeValue"] = null;
 
@@ -358,7 +359,7 @@ namespace BDA.Controllers
 
 
 
-            if (startPeriode != null && (regex.Match(reportId).Success || sistem != null) && (SID != null || tradeId != null || namaSID != null || nomorKTP != null || nomorNPWP != null || businessReg != null))
+            if (startPeriode != null && (regex.Match(reportId).Success || sistem != null) && (SID != null || tradeId != null || namaSID != null || namaLike != null || nomorKTP != null || nomorNPWP != null || passport != null || businessReg != null))
                 {
                 var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId);
                 //cekHive = false;
@@ -367,8 +368,11 @@ namespace BDA.Controllers
 
                 //}
 
+                if (passport != null) {
+                    passport = passport.Replace("-", "").Replace(" ", "");
+                }
                 
-                var result = Helper.WSQueryStore.GetPMIPQuery(db, loadOptions, reportId, SID, tradeId, namaSID, nomorKTP, nomorNPWP, sistem, businessReg, stringStartPeriode, stringEndPeriode, chk100, cekHive);
+                var result = Helper.WSQueryStore.GetPMIPQuery(db, loadOptions, reportId, SID, tradeId, namaSID, namaLike, nomorKTP, nomorNPWP, passport, sistem, businessReg, stringStartPeriode, stringEndPeriode, chk100, cekHive);
                 return JsonConvert.SerializeObject(result);
 
                 
