@@ -180,7 +180,7 @@ namespace BDA.Helper
             }
             var props = new WSQueryProperties();
 
-            props.Query = @"select securitycompanyname as NamaPE, calendardate as TanggalHSOT0, cast(mkbdaccountbalance as bigint) as HSO from pasarmodal.pe_segmentation_hutang_subordinasi_det WHERE " + whereQuery;
+            props.Query = @"select securitycompanyname as namape, calendardate as tanggalhsot0, cast(mkbdaccountbalance as bigint) as hso from pasarmodal.pe_segmentation_hutang_subordinasi_det WHERE " + whereQuery;
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
         }
@@ -204,7 +204,7 @@ namespace BDA.Helper
             var props = new WSQueryProperties();
 
             props.Query = @"
-                    select sellername as LawanTransaksi, buyingdate as BuyingData, sum(cast(buyingamount as bigint)) as ReverseRepo from pasarmodal.pe_segmentation_hutang_subordinasi_det
+                    select sellername as lawantransaksi, buyingdate as buyingdate, sum(cast(buyingamount as bigint)) as reverserepo from pasarmodal.pe_segmentation_hutang_subordinasi_det
                     WHERE " + whereQuery + @" group by sellername, buyingdate";
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
@@ -626,7 +626,7 @@ namespace BDA.Helper
 
             if (investorOrigin != null)
             {
-                if (investorOrigin == "Lokal")
+                if (investorOrigin == "'Lokal'")
                 {
                     if (province != null)
                     {

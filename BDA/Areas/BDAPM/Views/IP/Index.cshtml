@@ -35,12 +35,13 @@
                         <label>Nomor SID<span class="one-mandatory">**</span></label>
                         @(Html.DevExtreme().TextBox().ID("tbSID").Placeholder("Nomor SID").InputAttr("aria-label", "Nomor SID").ShowClearButton(true).ValueChangeEvent("change").OnValueChanged("tb_valueChanged").Width("100%").Value(vbSID).MaxLength(15))
                     </div>
+                    
+                        <div class="col-lg-4 form-group">
+                            <label>Trading ID<span class="one-mandatory">**</span></label>
+                            @(Html.DevExtreme().TextBox().ID("tbTradeId").Placeholder("Trading ID").InputAttr("aria-label", "Nomor Trade").ShowClearButton(true).ValueChangeEvent("change").OnValueChanged("tb_valueChanged").Width("100%").MaxLength(6))
+                        </div>
                     @if (ViewBag.FullFilter)
                     {
-                        <div class="col-lg-4 form-group">
-                            <label>Trading Id<span class="one-mandatory">**</span></label>
-                            @(Html.DevExtreme().TextBox().ID("tbTradeId").Placeholder("Trade Id").InputAttr("aria-label", "Nomor Trade").ShowClearButton(true).ValueChangeEvent("change").OnValueChanged("tb_valueChanged").Width("100%").MaxLength(10))
-                        </div>
                         <div class="col-lg-4 form-group">
                             <label>Nama SID<span class="one-mandatory">**</span></label>
                             @(Html.DevExtreme().SelectBox()
@@ -50,7 +51,7 @@
                                 //.LoadAction("GetNamaSID")
                                 //.LoadParams(new { namaSID = new JS("function() { return $(\"#tbNama\").dxSelectBox(\"instance\").option(\"text\"); }") })
                                 //.Key("sid"))
-                                .ValueExpr("sid")
+                                .ValueExpr("nama_sid")
                                 .DisplayExpr("nama_sid")
                                 .SearchEnabled(true)
                                 .Option("cleanSearchOnOpening", false)
@@ -62,17 +63,29 @@
                                 .Placeholder("Ketik+Enter untuk mencari")
                                 )
                         </div>
+                    } 
                         <div class="col-lg-4 form-group">
-                            <label>Nomor KTP<span class="one-mandatory">**</span></label>
-                            @(Html.DevExtreme().TextBox().ID("tbKTP").Placeholder("Nomor KTP").InputAttr("aria-label", "Nomor KTP").ShowClearButton(true).ValueChangeEvent("change").OnValueChanged("tb_valueChanged").Width("100%").MaxLength(16))
+                            <label>NIK<span class="one-mandatory">**</span></label>
+                            @(Html.DevExtreme().TextBox().ID("tbKTP").Placeholder("NIK").InputAttr("aria-label", "NIK").ShowClearButton(true).ValueChangeEvent("change").OnValueChanged("tb_valueChanged").Width("100%").MaxLength(16))
                         </div>
 
                         <div class="col-lg-4 form-group">
                             <label>Nomor NPWP<span class="one-mandatory">**</span></label>
-                            @(Html.DevExtreme().TextBox().ID("tbNPWP").Placeholder("Nomor NPWP").InputAttr("aria-label", "Nomor NPWP").ShowClearButton(true).ValueChangeEvent("change").OnValueChanged("tb_valueChanged").Width("100%").MaxLength(16))
+                            @(Html.DevExtreme().TextBox().ID("tbNPWP").Placeholder("Nomor NPWP").InputAttr("aria-label", "Nomor NPWP").ShowClearButton(true).ValueChangeEvent("change").OnValueChanged("tb_valueChanged").Width("100%").Mask("0000000000000009").MaskRules(new { X = new JS("/[02-9]/") }).MaxLength(16))
                         </div>
 
-                        @if (Model.kode.IndexOf("ip_relation") == 0)
+                    @if (ViewBag.FullFilter)
+                    {
+                        <div class="col-lg-4 form-group">
+                            <label>Nama SID Menyerupai<span class="one-mandatory">**</span></label>
+                            @( 
+                                Html.DevExtreme().TextBox().ID("tbNamaLike").Placeholder("Min 8 digit").InputAttr("aria-label", "Min 8 Digit").ShowClearButton(true).ValueChangeEvent("change")
+                                .OnValueChanged("tb_valueChanged").Width("100%")                               
+                                )
+                                </div>
+                    }
+
+                    @if (Model.kode.IndexOf("ip_relation") == 0)
                         {
                             <div class="col-lg-4 form-group">
                                 <label>Business Reg. Number</label>
@@ -80,10 +93,10 @@
                             </div>
                         }
 
-
-                        <label id="lblHint" class="bottom-corner">**Wajib Diisi Hanya Salah Satu</label>
-
-                    }
+                        <div class="col-lg-12 form-group">
+                            <label id="lblHint1" class="bottom-corner">**Wajib Diisi Hanya Salah Satu</label>
+                        </div>
+                    
 
 
                 </div>
@@ -98,6 +111,7 @@
                                 .DataSource(d => d.Mvc()
                                 .Controller("IP")
                                 .LoadAction("GetSistem")
+                                .LoadParams(new { reportId = Model.kode })
                                 .Key("kode"))
                                 .ValueExpr("kode")
                                 .DisplayExpr("text")
@@ -108,13 +122,13 @@
                         </div>
                     }
                     <div class="col-lg-4 form-group">
-                        @if (Model.kode == "ip_sid")
+                        @if (Model.kode == "ip_transaction")
                         {
-                            <label>Periode<span class="mandatory">*</span></label>
+                            <label>Periode Awal<span class="mandatory">*</span></label>
                         }
                         else
                         {
-                            <label>Periode Awal<span class="mandatory">*</span></label>
+                            <label>Periode<span class="mandatory">*</span></label>                            
                         }
 
                         @(Html.DevExtreme().DateBox()
@@ -125,7 +139,9 @@
                             .Width("100%"))
                     </div>
 
-                    @if (Model.kode != "ip_sid")
+                    
+
+                    @if (Model.kode == "ip_transaction")
                     {
                         <div class="col-lg-4 form-group">
                             <label>Periode Akhir<span class="mandatory">*</span></label>
@@ -139,6 +155,10 @@
                                 .Width("100%"))
                         </div>
                     }
+
+                    <div class="col-lg-12 form-group"  >
+                        <label id="lblHint3" class="bottom-corner">*Wajib Dipilih</label>
+                    </div>
 
                 </div>
 
@@ -203,11 +223,15 @@
                      .RemoteOperations(true)
                      .Width("100%")
                      .AllowColumnResizing(true)
-                     .ColumnChooser(c => c.Enabled(true))
+                     .ColumnChooser(cc => {                         
+                         cc.Mode(GridColumnChooserMode.Select);
+                         cc.Search(ccs => ccs.Enabled(true).EditorOptions(new { Placeholder = "Search column" }) );
+                         cc.Enabled(true);
+                      })
                      .ColumnFixing(c => c.Enabled(true))
                      .Scrolling(s => s.ShowScrollbar(ShowScrollbarMode.Always))
                      .FilterRow(f => f.Visible(true))
-                     .OnCellPrepared("onCellPrepared")
+                     .OnCellPrepared("onCellPrepared") //add hover
                      .ShowBorders(false)
                      //.OnRowDblClick("onRowDblClick")
                      .Selection(c => c.Mode(SelectionMode.Single))
@@ -300,8 +324,12 @@
             validationGroup: "Filter",
             validationRules: [{ type: "required", message: "[Sistem] harus dipilih" }]
         })
+        $("#tbNamaLike").dxTextBox().dxValidator({
+            validationGroup: "Filter",
+            validationRules: [{ type: "stringLength", min: 8, ignoreEmptyValue: true, message: "Pencarian [Nama Menyerupai] minimal 8 digit" }]
+        })
     });
-
+    @*
     $(function () {
         $("#penggunaandataid").dxValidator({
             validationGroup: "Filter",
@@ -309,9 +337,9 @@
         })
     });
 
-    $(window).on('load', function () {
+     $(window).on('load', function () {
         $("#ModalSimpanPenggunaanData").modal("show");
-    });
+    }); *@
 
     $("#btnSavePenggunaanData").click(function () {
         let penggunaandataid = $("#penggunaandataid").dxSelectBox("instance").option("value");
@@ -329,7 +357,9 @@
                     if (data.success == true) {
                         //alert(data.message);
     @* waitingDialog.hide(); *@
+                            
                             $('#ModalSimpanPenggunaanData').modal('hide');
+                            $("#grid1").dxDataGrid("instance").refresh();
                         return "Saving Success !";
                     }
                     else if (data.success == false) {
@@ -345,16 +375,18 @@
 </script>
 
 <script type="text/javascript">
-    const resetFilter = { tbSID: 0, tbTradeId: 0, tbNamaSID: 0, tbKTP: 0, tbNPWP: 0 }
+    const resetFilter = { tbSID: 0, tbTradeId: 0, tbKTP: 0, tbNPWP: 0, tbNamaSID: 0 , tbNamaLike: 0}
     const maxItems = @maxItems;
+    const searchEditorOptions = { placeholder: 'Search column', mode: 'text' };
 
     function GetRowNumber(cellElement, cellInfo) {
         cellElement.text(cellInfo.row.rowIndex + 1)
     }
 
     function onCellPrepared(e) {
+    
         let listColumn = ["nama_sid", "sre_ifua", "tanggal_lahir", "tanggal_pendirian", "address1", "ktp", "npwp", "status_sid", "last_update_sid", "system", "email", "phone_number", "fax", "passport", "occupation", "nationality", "province", "city"];
-        if (e.rowType === "data" && e.column.dataField === "sid") {
+        if (e.rowType === "data" && e.column.dataField === "sid" && '@Model.kode' == "ip_sid") {
 
             var tooltipInstance = $("#gridtooltip").dxTooltip("instance");
             e.cellElement.mouseover(function (arg) {
@@ -389,12 +421,14 @@
 
                     contentElement.append(tooltipTable);
 
-    @* for (let i in e.data) {
-                        contentElement.addClass("tooltip-style").append(
-                        $("<div class='tooltip-itemname'>").text(i.toString() + " : " + e.data[i.toString()])
-                        );
-                        } *@
+    @*
+          //for (let i in e.data) {
+            //            contentElement.addClass("tooltip-style").append(
+            //            $("<div class='tooltip-itemname'>").text(i.toString() + " : " + e.data[i.toString()])
+            //            );
+                        //            } *@
                     });
+                        
 
                 tooltipInstance.show(arg.target);
             });
@@ -403,6 +437,7 @@
                 tooltipInstance.hide();
             });
         }
+    
     }
 
     function onRowDblClick(e) {
@@ -435,9 +470,10 @@
 
     function tb_valueChanged(data) {
         var listReset = Object.keys(resetFilter);
-        var idFilter = data.element.attr("id");
+        var idFilter = data.element.attr("id");        
         resetFilter[idFilter] += 1;
-        console.log("0. " + JSON.stringify(resetFilter));
+        //console.log("A. " + idFilter);
+        //console.log("0. " + JSON.stringify(resetFilter));
 
         if (resetFilter[idFilter] > 0) {
             const idx = listReset.indexOf(idFilter);
@@ -445,10 +481,17 @@
                 listReset.splice(idx, 1); // 2nd parameter means remove one item only
             }
 
-            //console.log("1. " + JSON.stringify(listReset));
+            if('@(ViewBag.FullFilter)' == 'False'){
+                const idxNama = listReset.indexOf("tbNamaSID");
+                if (idxNama > -1) { 
+                    listReset.splice(idxNama, 1); 
+                }
+            }
+                        
             for (let tbId of listReset) {
                 if (tbId == "tbNamaSID") {
-                    if ($("#" + tbId).dxSelectBox("instance").option("value") != "") {
+                    var isi = $("#" + tbId).dxSelectBox("instance").option("value");
+                    if (isi != null) {                                                  
                         resetFilter[tbId] -= 1;
                         $("#" + tbId).dxSelectBox("reset");
                     }
@@ -466,23 +509,29 @@
 
         resetFilter[idFilter] = 0;
         //console.log("2. " + JSON.stringify(resetFilter));
-
+        //console.log("B. " + idFilter);
     }
 
     function onButtonFilterClicked(e) {
-
+        
         const res = e.validationGroup.validate();
         if (res.status === "valid") {
             let sid = $("#tbSID").dxTextBox("instance").option("value");
-            let tradeId = $("#tbTradeId").dxTextBox("instance").option("value");
-            let namaSID = $("#tbNamaSID").dxSelectBox("instance").option("value");
+            let tradeId = $("#tbTradeId").dxTextBox("instance").option("value");            
             let nomorKTP = $("#tbKTP").dxTextBox("instance").option("value");
             let nomorNPWP = $("#tbNPWP").dxTextBox("instance").option("value");
+            let passport = ""; @* $("#tbPassport").dxTextBox("instance").option("value");*@
+            let namaLike = $("#tbNamaLike").dxTextBox("instance").option("value");
+            let namaSID = "";
+            if('@(ViewBag.FullFilter)' == 'True'){
+                namaSID = $("#tbNamaSID").dxSelectBox("instance").option("value");              
+            }
+            if (sid != "" || tradeId != "" || (namaSID != "" && namaSID != null) || namaLike != "" || nomorKTP != "" || nomorNPWP != "" || passport != "") {
 
-
-            if (sid != "" || tradeId != "" || (namaSID != "" && namaSID != null) || nomorKTP != "" || nomorNPWP != "") {
+                
+                $("#ModalSimpanPenggunaanData").modal("show");
                 console.log(sid + ";" + tradeId + ";" + namaSID + ";" + nomorKTP + ";" + nomorNPWP);
-                $("#grid1").dxDataGrid("instance").refresh();
+                @* $("#grid1").dxDataGrid("instance").refresh(); *@
             }
             else {
                 alert("Harap isi salah satu filter pada area **");
@@ -496,12 +545,17 @@
     function onGridBeforeSend(method, ajaxOptions) {
         let mdl = '@Model.kode';
         let sid = $("#tbSID").dxTextBox("instance").option("value");
-        let tradeId = $("#tbTradeId").dxTextBox("instance").option("value");
-        let namaSID = $("#tbNamaSID").dxSelectBox("instance").option("value");
+        let tradeId = $("#tbTradeId").dxTextBox("instance").option("value");        
         let nomorKTP = $("#tbKTP").dxTextBox("instance").option("value");
         let nomorNPWP = $("#tbNPWP").dxTextBox("instance").option("value");
+        let namaLike = $("#tbNamaLike").dxTextBox("instance").option("value");
 
-        console.log(sid + "-" + tradeId + "-" + namaSID + "-" + nomorKTP + "-" + nomorNPWP);
+        let namaSID = "";
+        if('@(ViewBag.FullFilter)' == 'True'){
+            namaSID = $("#tbNamaSID").dxSelectBox("instance").option("value");
+        }
+
+        //console.log(sid + "-" + tradeId + "-" + namaSID + "-" + nomorKTP + "-" + nomorNPWP);
 
         let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
         let periode = null;
@@ -509,17 +563,21 @@
             periode = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
         }
 
-        if (namaSID != null && namaSID != "") {
-            ajaxOptions.data.SID = namaSID;
-        }
-        else {
+
+        
+        //if (namaSID != null && namaSID != "") {
+        //    ajaxOptions.data.SID = namaSID;
+        //}
+        //else {
             ajaxOptions.data.SID = sid;
-        }
+        //}
 
         ajaxOptions.data.tradeId = tradeId;
-        //ajaxOptions.data.namaSID = namaSID;
+        ajaxOptions.data.namaSID = namaSID;
+        ajaxOptions.data.namaLike = namaLike;
         ajaxOptions.data.nomorKTP = nomorKTP;
         ajaxOptions.data.nomorNPWP = nomorNPWP;
+        ajaxOptions.data.passport = "";
         if (!mdl.includes("ip_relation")) {
             let sistem = $("#Sistem").dxSelectBox("instance").option("value");
             ajaxOptions.data.sistem = sistem;
@@ -530,7 +588,7 @@
         ajaxOptions.data.startPeriode = periode;
 
 
-        if (mdl != "ip_sid") {
+        if (mdl == "ip_transaction") {
             let tempPeriodeAkhir = $("#PeriodeAkhir").dxDateBox("instance").option("value");
             let endperiode = null;
             if (tempPeriodeAkhir != null) {
@@ -632,10 +690,10 @@
     }
 
     .bottom-corner {
-        float: right;
+        float: right !important;
         display: flex;
         align-items: flex-end;
-        color: orangered;
+        color: orangered !important;
         justify-content: flex-end;
     }
 

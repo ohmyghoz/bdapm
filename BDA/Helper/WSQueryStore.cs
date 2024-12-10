@@ -1,8 +1,11 @@
 ﻿using BDA.DataModel;
 using BDA.Helper.FW;
+using DevExpress.Charts.Native;
+using DevExpress.CodeParser;
 using DevExpress.Data.Extensions;
 using DevExpress.XtraRichEdit;
 using DevExtreme.AspNet.Mvc;
+using Microsoft.AspNetCore.Http;
 using Org.BouncyCastle.Asn1.Mozilla;
 using System;
 using System.Collections.Generic;
@@ -18,7 +21,7 @@ namespace BDA.Helper
     {
         #region Encrypt Decrypt PM
         private static string[] keySID = ["MFF", "FDD", "FDF", "CPD", "SCD", "IDD", "PFD", "OTF", "OTD", "IBD", "SCF", "IDF", "CPF", "MFD", "IBF", "PFF", "ISD", "ISF"];
-        private static char[] keyName = ['M', 'R', 'S', 'D', 'N', 'F', 'H', 'Y', 'T', 'J'];
+        private static string[] keyName = ["M", "R", "S", "D", "N", "F", "H", "Y", "T", "J"];
         private static char[] keyOne = ['X', 'A', 'Y', 'B', 'Z', 'C', 'L', 'R', 'H', 'S'];
         private static char[] keyTwo = ['D', 'N', 'J', 'P', 'E', 'I', 'O', 'K', 'Q', 'M'];
 
@@ -32,13 +35,29 @@ namespace BDA.Helper
                 dr["no"] = noRow.ToString();                
                 dr["sid"] = DecryptSID(dr["sid"].ToString());
                 dr["lem"] = dr["lem"].ToString() + dr["sid"].ToString();
+                dr["ktp"] = DecryptKTP(dr["ktp"].ToString());                
                 dr["nama_sid"] = DecryptName(dr["nama_sid"].ToString());
-                dr["full_name"] = DecryptName(dr["full_name"].ToString());
-                dr["email"] = DecryptName(dr["email"].ToString());
-                dr["nama_rekening"] = DecryptName(dr["nama_rekening"].ToString());
-                dr["phone_number"] = DecryptNumber(dr["phone_number"].ToString());
+                
                 noRow++;
             }
+
+            try
+            {
+                foreach (DataRow dr in dt.Rows)
+                {
+                    dr["full_name"] = DecryptName(dr["full_name"].ToString());
+                    dr["email"] = DecryptName(dr["email"].ToString());
+                    dr["nama_rekening"] = DecryptName(dr["nama_rekening"].ToString());
+                    dr["phone_number"] = DecryptNumber(dr["phone_number"].ToString());
+                }
+            }
+            catch (Exception)
+            {
+
+                
+            }
+
+            
             wqr.data = dt;
 
             return wqr;
@@ -50,7 +69,7 @@ namespace BDA.Helper
 
             foreach (DataRow dr in dt.Rows)
             {
-                dr["sid"] = DecryptSID(dr["sid"].ToString());
+                //dr["sid"] = DecryptSID(dr["sid"].ToString());
                 dr["nama_sid"] = DecryptName(dr["nama_sid"].ToString());
             }
 
@@ -66,6 +85,19 @@ namespace BDA.Helper
             return (Int32.TryParse(s.Substring(0, 2), out val) ? keySID[(val - 11)] : s.Substring(0, 2)) + s.Substring(2);
         }
 
+        private static string DecryptKTP(string s)
+        {
+            if (s.Length < 8) return s;
+            int val = 0;
+            long ktp = 0;
+            bool trySubs = Int32.TryParse(s.Substring(6, 2), out val);
+            if (trySubs)
+            {
+                return Int64.TryParse(s, out ktp) ? (val > 31 ? (ktp + 40).ToString(): (ktp - 40).ToString()) : s;
+            }
+            return s;
+        }
+
         private static string DecryptName(string s)
         {
             if (s.Length == 0) return s;
@@ -79,8 +111,7 @@ namespace BDA.Helper
             if (s.Length < 2) return s;
             int val = 0;
             string right = s.Substring(s.Length - 2, 2);
-            return (Int32.TryParse(right.Substring(0, 1), out val) ? keyOne[val] : right[0]) + (Int32.TryParse(right.Substring(1, 1), out val) ? keyTwo[val] : right[1])
-                + s.Substring(0, s.Length - 2);
+            return (Int32.TryParse(right.Substring(0, 1), out val) ? keyOne[val] : right[0]) + (Int32.TryParse(right.Substring(1, 1), out val) ? keyTwo[val] : right[1])  + s.Substring(0, s.Length - 2);
         }
 
         private static string EncryptSID(string s)
@@ -91,10 +122,24 @@ namespace BDA.Helper
             return s;
         }
 
+        private static string EncryptKTP(string s)
+        {
+            if (s.Length < 8) return s;
+            int val = 0;
+            long ktp = 0;
+            bool trySubs = Int32.TryParse(s.Substring(6, 2), out val);
+            if (trySubs)
+            {
+                return Int64.TryParse(s, out ktp) ? (val > 31 ? (ktp - 40).ToString() : (ktp + 40).ToString()) : s;
+            }
+            return s;
+        }
+
         private static string EncryptName(string s)
         {
             if (s.Length < 2) return s;
-            int idx = Array.IndexOf(keyName, s.Substring(0, 1));
+            string first = s.Substring(0, 1);
+            int idx = Array.IndexOf(keyName, first);
             return ((idx >= 0 ? idx.ToString() : s.Substring(0, 1)) + s.Substring(1)).Replace("O", "IOII").Replace("A", "IOOI").Replace("U", "IIOO").Replace("E", "IOIO");
         }
         #endregion
@@ -129,6 +174,11 @@ namespace BDA.Helper
                 }
                 return result;
             }
+        }
+
+        public static WSQueryReturns GetSystemDropdown(DataEntities db, string queryString)
+        {
+            return ExecuteSimpleSQL(db.appSettings.DataConnString, queryString);
         }
         #endregion
 
@@ -4904,6 +4954,58 @@ namespace BDA.Helper
             return WSQueryHelper.DoQueryNL(db, props, isC, isHive);
         }
 
+        public static DataTable GetInversedDataTable(DataTable table, string columnX,params string[] columnsToIgnore)
+        {
+            DataTable returnTable = new DataTable();
+
+            if (columnX == "")
+                columnX = table.Columns[0].ColumnName;
+
+            returnTable.Columns.Add(columnX);
+
+            List<string> columnXValues = new List<string>();
+            List<string> listColumnsToIgnore = new List<string>();
+            if (columnsToIgnore.Length > 0)
+                listColumnsToIgnore.AddRange(columnsToIgnore);
+
+            if (!listColumnsToIgnore.Contains(columnX))
+                listColumnsToIgnore.Add(columnX);
+
+            foreach (DataRow dr in table.Rows)
+            {
+                string columnXTemp = dr[columnX].ToString();
+                if (!columnXValues.Contains(columnXTemp))
+                {
+                    columnXValues.Add(columnXTemp);
+                    returnTable.Columns.Add(columnXTemp);
+                }
+                else
+                {
+                    throw new Exception("The inversion used must have " +
+                                        "unique values for column " + columnX);
+                }
+            }
+            foreach (DataColumn dc in table.Columns)
+            {
+                if (!columnXValues.Contains(dc.ColumnName) &&
+                    !listColumnsToIgnore.Contains(dc.ColumnName))
+                {
+                    DataRow dr = returnTable.NewRow();
+                    dr[0] = dc.ColumnName;
+                    returnTable.Rows.Add(dr);
+                }
+            }
+            for (int i = 0; i < returnTable.Rows.Count; i++)
+            {
+                for (int j = 1; j < returnTable.Columns.Count; j++)
+                {
+                    returnTable.Rows[i][j] =
+                      table.Rows[j - 1][returnTable.Rows[i][0].ToString()].ToString();
+                }
+            }
+
+            return returnTable;
+        }
         public static DataTable LINQResultToDataTable<T>(IEnumerable<T> Linqlist)
         {
             DataTable dt = new DataTable();
@@ -4971,22 +5073,40 @@ namespace BDA.Helper
                 if (tableName == "pe_segmentation_sum_cluster_mkbd")
                 {
                     props.Query = @"
-                    SELECT row_number() over(order by securitycompanycode) as no,* from (
+                   SELECT row_number() over(order by securitycompanycode) as no,calendardate,securitycompanycode,securitycompanyname,simpanangiro,depositolt3bulan,depositogt3bulandijaminlps,uangjaminanlkp,cast(cast(kasdansetarakas as BIGINT)  as string) as kasdansetarakas,mkbd,mkbdminimum,mkbdpermkbdminimum,status,periode from (
                     SELECT calendardate,securitycompanycode,securitycompanyname,
                         cast(cast(simpanangiro as BIGINT)  as string) as simpanangiro,
                         cast(cast(depositolt3bulan as BIGINT)  as string) as depositolt3bulan,
                         cast(cast(depositogt3bulandijaminlps as BIGINT)  as string) as depositogt3bulandijaminlps,
                         cast(cast(uangjaminanlkp as BIGINT)  as string) as uangjaminanlkp,
-                        cast(cast(kasdansetarakas as BIGINT)  as string) as kasdansetarakas,
+                        (cast(cast(simpanangiro as BIGINT)  as string) + cast(cast(depositolt3bulan as BIGINT)  as string) + cast(cast(depositogt3bulandijaminlps as BIGINT)  as string) + cast(cast(uangjaminanlkp as BIGINT)  as string)) as kasdansetarakas,
                         cast(cast(mkbd as BIGINT)  as string) as mkbd,
                         cast(cast(mkbdminimum as BIGINT)  as string) as mkbdminimum,
-                        cast(cast(mkbdminimum as BIGINT)  as string) as mkbdpermkbdminimum,
+                        (cast(cast(mkbd as BIGINT)  as string)/cast(cast(mkbdminimum as BIGINT)  as string)) * 100 as mkbdpermkbdminimum,
                         CASE 
                             when cast(cast(kasdansetarakas as BIGINT)  as string) < cast(cast(mkbdminimum as BIGINT)  as string) then 'Alert'
                             when cast(cast(kasdansetarakas as BIGINT)  as string) > cast(cast(mkbdminimum as BIGINT)  as string) then 'Normal'
                         END AS status,periode
                         From pasarmodal." + tableName + @") as x
                 WHERE " + whereQuery + @"";
+
+                    //    props.Query = @"
+                    //    SELECT row_number() over(order by securitycompanycode) as no,* from (
+                    //    SELECT calendardate,securitycompanycode,securitycompanyname,
+                    //        cast(cast(simpanangiro as BIGINT)  as string) as simpanangiro,
+                    //        cast(cast(depositolt3bulan as BIGINT)  as string) as depositolt3bulan,
+                    //        cast(cast(depositogt3bulandijaminlps as BIGINT)  as string) as depositogt3bulandijaminlps,
+                    //        cast(cast(uangjaminanlkp as BIGINT)  as string) as uangjaminanlkp,
+                    //        cast(cast(kasdansetarakas as BIGINT)  as string) as kasdansetarakas,
+                    //        cast(cast(mkbd as BIGINT)  as string) as mkbd,
+                    //        cast(cast(mkbdminimum as BIGINT)  as string) as mkbdminimum,
+                    //        (cast(cast(mkbd as BIGINT)  as string)/cast(cast(mkbdminimum as BIGINT)  as string)) * 100 as mkbdpermkbdminimum,
+                    //        CASE 
+                    //            when cast(cast(kasdansetarakas as BIGINT)  as string) < cast(cast(mkbdminimum as BIGINT)  as string) then 'Alert'
+                    //            when cast(cast(kasdansetarakas as BIGINT)  as string) > cast(cast(mkbdminimum as BIGINT)  as string) then 'Normal'
+                    //        END AS status,periode
+                    //        From pasarmodal." + tableName + @") as x
+                    //WHERE " + whereQuery + @"";
                 }
             }
             else
@@ -5611,27 +5731,35 @@ namespace BDA.Helper
 
             }
             var props = new WSQueryProperties();
-            props.Query = @"SELECT top 20 nama_sid, sid, len(nama_sid) len_nama FROM pasarmodal.master_sid x WHERE " + whereQuery + @" ORDER BY len_nama asc";
-            if (isHive)
-                props.Query = @"SELECT nama_sid, sid, length(nama_sid) len_nama FROM pasarmodal.src_sid x WHERE " + whereQuery + @" ORDER BY len_nama asc LIMIT 20";
+            props.Query = @"SELECT top 10 nama_sid from pasarmodal.master_sid WHERE " + whereQuery + @" group by nama_sid ORDER BY len(nama_sid) asc";
+            if (isHive) props.Query = @"SELECT nama_sid FROM pasarmodal.src_sid x WHERE " + whereQuery + @" group by nama_sid ORDER BY length(nama_sid) asc LIMIT 10";
+            //props.Query = @"SELECT top 20 nama_sid, sid, len(nama_sid) len_nama FROM pasarmodal.master_sid x WHERE " + whereQuery + @" ORDER BY len_nama asc";
+            //if (isHive) props.Query = @"SELECT nama_sid, sid, length(nama_sid) len_nama FROM pasarmodal.src_sid x WHERE " + whereQuery + @" ORDER BY len_nama asc LIMIT 20";
             return DecryptResultsNamaSID(WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive));
         }
 
-        public static WSQueryReturns GetPMIPQuery(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string SID, string tradeId, string namaSID, string nomorKTP, string nomorNPWP, string sistem, string businessReg, string startPeriod, string endPeriod, bool chk100 = false, bool isHive = false)
+        public static WSQueryReturns GetPMIPQuery(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string SID, string tradeId, string namaSID, string namaLike, string nomorKTP, string nomorNPWP, string passport, string sistem, string businessReg, string startPeriod, string endPeriod, bool chk100 = false, bool isHive = false)
         {
             bool isC = false;
             var whereQuery = "1=1";
             var periodWhereQuery = "";
             //isHive = false;
 
-            if (sistem != null) whereQuery = whereQuery += " AND UPPER(system) = '" + sistem.ToUpper() + "' ";
+            if (sistem != null)
+            {
+                whereQuery = whereQuery += " AND UPPER(system) = '" + sistem.ToUpper() + "' ";
+            }
+                
 
             if (SID != null) whereQuery = whereQuery += " AND sid = '" + EncryptSID(SID) + "' ";
             else if (tradeId != null) whereQuery = whereQuery += " AND SUBSTRING(sid, 7, 6) = '" + tradeId + "' ";
-            else if (nomorKTP != null) whereQuery = whereQuery += " AND ktp = '" + nomorKTP + "' ";
+            else if (nomorKTP != null) whereQuery = whereQuery += " AND ktp = '" + EncryptKTP(nomorKTP) + "' ";
             else if (nomorNPWP != null) whereQuery = whereQuery += " AND npwp = '" + nomorNPWP + "' ";
-            //else if (namaSID != null) whereQuery = whereQuery += " AND nama_sid = " + EncryptName(namaSID);
+            else if (namaSID != null) whereQuery = whereQuery += " AND nama_sid = '" + EncryptName(namaSID.ToUpper()) + "' ";
+            else if (namaLike != null) whereQuery = whereQuery += " AND nama_sid like '%" + EncryptName(namaLike.ToUpper()) + "%' ";
+            else if (passport != null) whereQuery = whereQuery += " AND passport = '" + passport + "' ";
             else if (businessReg != null) whereQuery = whereQuery += " AND business_registration_number = '" + businessReg + "' ";
+
 
             if (endPeriod != null)
             {
@@ -5642,7 +5770,8 @@ namespace BDA.Helper
             else if (startPeriod != null)
             {
                 string periodes = "'" + startPeriod.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                periodWhereQuery = " AND " + periodes + " between valid_from and valid_until"; //date_format(CURRENT_DATE(), 'YYYYMMdd')
+                if (tableName == "ip_sid") periodWhereQuery = " AND " + periodes + " between valid_from and valid_until"; //date_format(CURRENT_DATE(), 'YYYYMMdd')
+                else periodWhereQuery = " AND " + periodes + " = periode"; //date_format(CURRENT_DATE(), 'YYYYMMdd')
             }
 
             string sqlGetQuery = "select table_" + (isHive ? "hive" : "sql") + @" as queryString from dbo.ref_query where table_id = '" + tableName + "'";

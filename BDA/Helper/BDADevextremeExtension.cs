@@ -2640,7 +2640,7 @@ namespace BDA.Helper
                         visible = true;
                     }
 
-                    if (row.ColumnName == "ktp") caption = "Nomor KTP";
+                    if (row.ColumnName == "ktp") caption = "NIK";
                     if (row.ColumnName == "npwp") caption = "Nomor NPWP";
                     if (row.ColumnName == "trade_id") caption = "Trading ID";
 
@@ -2657,11 +2657,13 @@ namespace BDA.Helper
                     if (row.ColumnName == "rekening_status") caption = "Account Status";
                     if (row.ColumnName == "securityname") caption = "Nama Efek";
                     if (row.ColumnName == "securitycode") caption = "Kode Efek";
+                    if (row.ColumnName == "settlement_account") caption = "No Rekening";
+
 
                     if (kode == "ip_sid")
                     {
                         //if (new string[] { "", "" }.Any(row.ColumnName.Contains))
-                        if ((new string[] { "trade_id", "ktp", "npwp" }.Any(s => row.ColumnName == s)))
+                        if ((new string[] { "trade_id", "ktp", "npwp", "no_rekening" }.Any(s => row.ColumnName == s)))
                         {
                             visible = true;
                         }
@@ -2671,6 +2673,8 @@ namespace BDA.Helper
                             caption = "Jenis Kelamin";
                             width = 250;
                         }
+
+
                         //else continue;
 
                     }
@@ -2774,19 +2778,19 @@ namespace BDA.Helper
                 {
                     c1.Add().Caption("Value").DataField("buy_value").Width(150).DataType(GridColumnDataType.Number).Format(",##0");
                     c1.Add().Caption("Volume").DataField("buy_quantity").Width(150).DataType(GridColumnDataType.Number).Format(",##0");
-                    c1.Add().Caption("Transaksi").DataField("buy_freq").Width(150).DataType(GridColumnDataType.Number).Format(",##0");
+                    c1.Add().Caption("Frekuensi").DataField("buy_freq").Width(150).DataType(GridColumnDataType.Number).Format(",##0");
                 }));
                 grid.Columns(c => c.Add().Caption("Sell").CssClass("header-sell").Columns(c1 =>
                 {
                     c1.Add().Caption("Value").DataField("sell_value").Width(150).DataType(GridColumnDataType.Number).Format(",##0");
                     c1.Add().Caption("Volume").DataField("sell_quantity").Width(150).DataType(GridColumnDataType.Number).Format(",##0");
-                    c1.Add().Caption("Transaksi").DataField("sell_freq").Width(150).DataType(GridColumnDataType.Number).Format(",##0");
+                    c1.Add().Caption("Frekuensi").DataField("sell_freq").Width(150).DataType(GridColumnDataType.Number).Format(",##0");
                 }));
                 grid.Columns(c => c.Add().Caption("Net Sell/Buy").CssClass("header-net").Columns(c1 =>
                 {
                     c1.Add().Caption("Value").DataField("net_value").Width(150).DataType(GridColumnDataType.Number).Format(",##0");
                     c1.Add().Caption("Volume").DataField("net_quantity").Width(150).DataType(GridColumnDataType.Number).Format(",##0");
-                    c1.Add().Caption("Transaksi").DataField("net_freq").Width(150).DataType(GridColumnDataType.Number).Format(",##0");
+                    c1.Add().Caption("Frekuensi").DataField("net_freq").Width(150).DataType(GridColumnDataType.Number).Format(",##0");
                 }));
             }
 
@@ -2842,6 +2846,8 @@ namespace BDA.Helper
             {
                 grid.OnRowDblClick("onRowDblClick");
             }
+
+            
 
             return grid;
         }

@@ -27,6 +27,8 @@ using System.Reflection;
 using DevExpress.Xpo.DB;
 using DevExpress.Charts.Native;
 using static DevExpress.Data.ODataLinq.Helpers.ODataLinqHelpers;
+using Microsoft.AspNetCore.Mvc.Rendering;
+
 
 namespace BDA.Controllers
 {
@@ -44,7 +46,7 @@ namespace BDA.Controllers
         {
             var roleId = HttpContext.User.FindFirst(ClaimTypes.Role).Value;
 
-            if (roleId.Contains("PengawasPM")) //cek jika role Pengawas PM
+            if (roleId.Contains("Pengawas PM")) //cek jika role Pengawas PM
             {
                 return true;
             }
@@ -144,6 +146,17 @@ namespace BDA.Controllers
 
             db.Database.CommandTimeout = 420;
             var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryGetChartClusterSearch(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, stringStatus, cekHive);
+
+            int sum = 0;
+            foreach (DataRow dr in result.data.AsEnumerable())
+            {
+                dynamic value = dr["total"].ToString();
+                if (!string.IsNullOrEmpty(value))
+                {
+                    sum += Convert.ToInt32(value);
+                }
+            }
+            ViewBag.TotalPie = sum;
             return JsonConvert.SerializeObject(result);
         }
         public object GetChartClusterBarSearch(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE, string status)
@@ -646,6 +659,29 @@ namespace BDA.Controllers
             }
             return Json(new { message, success = result }, new Newtonsoft.Json.JsonSerializerSettings());
         }
+        public object GetNamaPEOnly(DataSourceLoadOptions loadOptions, string pName)
+        {
+            var userId = HttpContext.User.Identity.Name;
+            string strSQL = db.appSettings.DataConnString;
+            var list = new List<NamaPE>();
+
+            string reportId = "dim_exchange_members"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+            var result = Helper.WSQueryStore.GetBDAPMNamaPE(db, loadOptions, reportId, cekHive);
+            var varDataList = (dynamic)null;
+            varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                           where bs.Field<string>("exchangemembercode") == pName
+                           select new
+                           {
+                               exchangemembercode = bs.Field<string>("exchangemembercode").ToString().Trim(),
+                               exchangemembername = bs.Field<string>("exchangemembername").ToString().Trim(),
+                           }).OrderBy(bs => bs.exchangemembername).ToList();
+
+            DataTable dtList = new DataTable();
+            dtList = Helper.WSQueryStore.LINQResultToDataTable(varDataList);
+            pName = dtList.Rows[0]["exchangemembercode"].ToString() + " - " + dtList.Rows[0]["exchangemembername"].ToString();
+            return pName;
+        }
         [HttpGet]
         public object GetNamaPE(DataSourceLoadOptions loadOptions)
         {
@@ -755,6 +791,7 @@ namespace BDA.Controllers
             string stringPeriodeAwal = null;
             string stringPeriodeAwalDate = null;
             string stringNamaPE = null;
+            string strNamaPEOnly = null;
 
             if (periodeAwal != null)
             {
@@ -762,6 +799,7 @@ namespace BDA.Controllers
                 TempData["pawal"] = stringPeriodeAwal;
                 stringPeriodeAwalDate = Convert.ToDateTime(periodeAwal).ToString("yyyy MMM dd");
                 ViewBag.PeriodeAwalDate = stringPeriodeAwalDate;
+                ViewBag.PeriodeAwalDateParam = stringPeriodeAwal;
             }
             else
             {
@@ -772,8 +810,40 @@ namespace BDA.Controllers
             {
                 stringNamaPE = namaPE;
                 TempData["pe"] = stringNamaPE;
-                ViewBag.NamaPE = stringNamaPE;
+                strNamaPEOnly = (string)GetNamaPEOnly(loadOptions, stringNamaPE);
+                ViewBag.KodePE = namaPE;
+                ViewBag.NamaPE = strNamaPEOnly;
             }
+            else
+            {
+                ViewBag.NamaPE = "";
+            }
+
+            string reportId = "dim_exchange_members"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+            var result = Helper.WSQueryStore.GetBDAPMNamaPE(db, loadOptions, reportId, cekHive);
+            var varDataList = (dynamic)null;
+            varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                           select new
+                           {
+                               exchangemembercode = bs.Field<string>("exchangemembercode").ToString().Trim(),
+                               exchangemembername = bs.Field<string>("exchangemembername").ToString().Trim(),
+                           }).OrderBy(bs => bs.exchangemembername).ToList();
+
+            DataTable dtList = new DataTable();
+            dtList = Helper.WSQueryStore.LINQResultToDataTable(varDataList);
+
+            List<SelectListItem> entityTypelist = new List<SelectListItem>();
+            if (dtList.Rows.Count > 0)
+            {
+                entityTypelist.Add(new SelectListItem() { Value = "", Text = "(ALL)" });
+                for (int i = 0; i < dtList.Rows.Count; i++)
+                {
+                    string namakode = dtList.Rows[i]["exchangemembercode"].ToString() + " - " + dtList.Rows[i]["exchangemembername"].ToString();
+                    entityTypelist.Add(new SelectListItem() { Value = dtList.Rows[i]["exchangemembercode"].ToString(), Text = namakode });
+                }
+            }
+            ViewBag.Jenis = entityTypelist;
 
             db.Database.CommandTimeout = 420;
             db.CheckPermission("Detail Cluster MKBD View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
@@ -958,7 +1028,7 @@ namespace BDA.Controllers
                 db.InsertAuditTrail("SummaryClusterMKBD_Akses_Page", "Export Data PDF Summary Cluster MKBD", pageTitle);
 
                 var directory = _env.WebRootPath;
-                var timeStamp = DateTime.Now.ToString();
+                var timeStamp = TempData["pawal"].ToString(); 
                 Workbook workbook = new Workbook(file.OpenReadStream());
                 Worksheet worksheet2 = workbook.Worksheets[0];
                 var columns1 = worksheet2.Cells.Columns.Count;
@@ -996,12 +1066,24 @@ namespace BDA.Controllers
                     StyleFlag textFlag = new StyleFlag();
                     textFlag.NumberFormat = true;
 
+
+                    Style textStylesLeft = workbook.CreateStyle();
+                    textStylesLeft.HorizontalAlignment = TextAlignmentType.Left;
+
+                    Style textStylesRight = workbook.CreateStyle();
+                    textStylesRight.HorizontalAlignment = TextAlignmentType.Right;
+
+                    StyleFlag textStyleFlag = new StyleFlag();
+                    textStyleFlag.HorizontalAlignment = true;
+
+
                     worksheet.AutoFitRows(true);
                     worksheet.Cells.Columns[0].Width = 8;
                     worksheet.Cells.Columns[1].Width = 8;
-                    worksheet.Cells.Columns[2].Style.HorizontalAlignment = TextAlignmentType.Left;
+                    worksheet.Cells.Columns[2].Style.VerticalAlignment = TextAlignmentType.Center;
+                    worksheet.Cells.Columns[2].ApplyStyle(textStylesLeft, textStyleFlag);
+
                     worksheet.Cells.Columns[3].ApplyStyle(textStyle, textFlag);
-                    worksheet.Cells.Columns[3].Style.HorizontalAlignment = TextAlignmentType.Right;
                     worksheet.Cells.Columns[4].ApplyStyle(textStyle, textFlag);
                     worksheet.Cells.Columns[5].ApplyStyle(textStyle, textFlag);
                     worksheet.Cells.Columns[6].ApplyStyle(textStyle, textFlag);
@@ -1009,10 +1091,8 @@ namespace BDA.Controllers
                     worksheet.Cells.Columns[8].ApplyStyle(textStyle, textFlag);
                     worksheet.Cells.Columns[9].ApplyStyle(textStyle, textFlag);
                     worksheet.Cells.Columns[10].ApplyStyle(textStyle, textFlag);
-                    //worksheet.AutoFitRows(true);
-                    //worksheet.Cells.Columns[8].Style.HorizontalAlignment = TextAlignmentType.Right;
                     worksheet.Cells.Columns[8].Width = 20;
-                    worksheet.Cells.Columns[8].Style.HorizontalAlignment = TextAlignmentType.Right;
+                    worksheet.Cells.Columns[8].ApplyStyle(textStyle, textFlag);
                     //page setup
                     PageSetup pageSetup = worksheet.PageSetup;
                     pageSetup.Orientation = PageOrientationType.Landscape;
