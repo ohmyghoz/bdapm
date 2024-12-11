@@ -170,7 +170,8 @@
                         columns.Add().DataField("kasdansetarakas").Caption("Kas dan Setara Kas (Simpanan Giro + Deposito < 3 Bulan + Uang Jaminan LKP)").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
                         columns.Add().DataField("mkbd").Caption("MKBD").Format("#,##0").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
                         columns.Add().DataField("mkbdminimum").Caption("MKBD Minimum").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
-                        columns.Add().DataField("mkbdpermkbdminimum").Caption("MKBD Terhadap MKBD Minimum").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+                        columns.Add().DataField("mkbdpermkbdminimum").Caption("MKBD Terhadap MKBD Minimum %").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+                        columns.Add().DataField("cluster").Caption("Cluster").Alignment(HorizontalAlignment.Center);
                         @* columns.Add().DataField("status").Caption("Status"); *@
                         columns.Add().DataField("status").Visible(false);
                         columns.Add().Type(GridCommandColumnType.Buttons).Caption("Action").Buttons(b =>

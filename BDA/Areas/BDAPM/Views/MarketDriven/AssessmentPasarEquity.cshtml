@@ -98,11 +98,10 @@
 
                     <div class="col-lg-3 form-group">
                         <label>Buy/Sell@*<span class="mandatory">*</span>*@</label>
-                        @(Html.DevExtreme().TagBox()
+                        @(Html.DevExtreme().SelectBox()
                             .ID("Buysellid")
                             .DataSource(new[] { "Buy", "Sell" })
-                            .ShowSelectionControls(true)
-                            .MaxDisplayedTags(3)
+                            .ShowSelectionControls(true)                
                             .SearchEnabled(true)
                             .OnSelectionChanged("onSelectionChanged")
                             .Width("100%"))
@@ -112,7 +111,7 @@
                         <label>Board@*<span class="mandatory">*</span>*@</label>
                         @(Html.DevExtreme().TagBox()
                             .ID("Boardid")
-                            .DataSource(new[] { "Tahap I", "Tahap II - Hybrid", "Tahap II - Full Call" })
+                            .DataSource(new[] { "Main", "Development", "Acceleration", "New Economy", "Watchlist" })
                             .ShowSelectionControls(true)
                             .MaxDisplayedTags(3)
                             .SearchEnabled(true)
@@ -136,7 +135,7 @@
                         <label>Market@*<span class="mandatory">*</span>*@</label>
                         @(Html.DevExtreme().TagBox()
                             .ID("Marketid")
-                            .DataSource(new[] { "Primary", "Secondary" })
+                            .DataSource(new[] { "Reguler", "Negosiasi","Tunai" })
                             .ShowSelectionControls(true)
                             .MaxDisplayedTags(3)
                             .SearchEnabled(true)
@@ -145,10 +144,10 @@
                     </div>
                     
                     <div class="col-lg-3 form-group">
-                        <label>Value/Volume/Market@*<span class="mandatory">*</span>*@</label>
+                        <label>Value/Volume/Market Cap@*<span class="mandatory">*</span>*@</label>
                         @(Html.DevExtreme().TagBox()
                             .ID("VVMid")
-                            .DataSource(new[] { "Value", "Volume","Market" })
+                            .DataSource(new[] { "Value", "Volume","Market Cap" })
                             .ShowSelectionControls(true)
                             .MaxDisplayedTags(3)
                             .SearchEnabled(true)
@@ -169,11 +168,10 @@
                     </div>
                     <div class="col-lg-3 form-group">
                         <label>Summarize/Netting@*<span class="mandatory">*</span>*@</label>
-                        @(Html.DevExtreme().TagBox()
+                        @(Html.DevExtreme().SelectBox()
                             .ID("SummarizeNettingid")
                             .DataSource(new[] { "Summarize", "Netting" })
                             .ShowSelectionControls(true)
-                            .MaxDisplayedTags(3)
                             .SearchEnabled(true)
                             .OnSelectionChanged("onSelectionChanged")
                             .Width("100%"))
@@ -278,7 +276,7 @@
                     </div>
                     <div class="col-lg-3 form-group" style="padding-right:10px;padding-left:10px;border: 1px solid black">
                         <div class="row">
-                            <h4 class="headerTable">Net Buy Value</h4>
+                            <h4 class="headerTable">Net Buy (Sell) Value</h4>
                         </div>
                         <div class="row" id="cardGrid3" style="padding-top:50px; padding-bottom:50px; padding-right:5px; padding-left:5px; display: none">
                             @(
@@ -308,7 +306,7 @@
                     </div>
                     <div class="col-lg-3 form-group" style="padding-right:10px;padding-left:10px;border: 1px solid black">
                         <div class="row">
-                            <h4 class="headerTable">Net Buy Volume</h4>
+                            <h4 class="headerTable">Net Buy (Sell) Volume</h4>
                         </div>
                         <div class="row" id="cardGrid4" style="padding-top:50px; padding-bottom:50px; padding-right:5px; padding-left:5px; display: none">
                             @(
