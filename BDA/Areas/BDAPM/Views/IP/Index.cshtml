@@ -80,7 +80,8 @@
                             <label>Nama SID Menyerupai<span class="one-mandatory">**</span></label>
                             @( 
                                 Html.DevExtreme().TextBox().ID("tbNamaLike").Placeholder("Min 8 digit").InputAttr("aria-label", "Min 8 Digit").ShowClearButton(true).ValueChangeEvent("change")
-                                .OnValueChanged("tb_valueChanged").Width("100%")                               
+                                .OnValueChanged("tb_valueChanged").Width("100%")
+                                //.Validator(v => { v.Add(r => r.Type(ValidationType.Pattern).Message("My custom message ").Pattern("^\\d{3}$")})
                                 )
                                 </div>
                     }

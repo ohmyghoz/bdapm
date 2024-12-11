@@ -102,8 +102,8 @@ namespace BDA.Helper
         {
             if (s.Length == 0) return s;
             int val = 0;
-            return ((Int32.TryParse(s.Substring(0, 1), out val) ? keyName[val] : s.Substring(0, 1))
-                + s.Substring(1)).Replace("IOII", "O").Replace("IOOI", "A").Replace("IIOO", "U").Replace("IOIO", "E");
+            string first = Int32.TryParse(s.Substring(0, 1), out val) ? keyName[val] : s.Substring(0, 1);
+            return s.Replace(s.Substring(0, 1), first).Replace("IOII", "O").Replace("IOOI", "A").Replace("IIOO", "U").Replace("IOIO", "E");
         }
 
         private static string DecryptNumber(string s)
@@ -140,7 +140,7 @@ namespace BDA.Helper
             if (s.Length < 2) return s;
             string first = s.Substring(0, 1);
             int idx = Array.IndexOf(keyName, first);
-            return ((idx >= 0 ? idx.ToString() : s.Substring(0, 1)) + s.Substring(1)).Replace("O", "IOII").Replace("A", "IOOI").Replace("U", "IIOO").Replace("E", "IOIO");
+            return (idx >= 0 ? s.Replace(s, idx.ToString()) : s).Replace("O", "IOII").Replace("A", "IOOI").Replace("U", "IIOO").Replace("E", "IOIO");
         }
         #endregion
 
