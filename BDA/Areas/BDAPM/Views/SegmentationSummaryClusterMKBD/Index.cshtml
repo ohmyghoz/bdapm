@@ -254,11 +254,11 @@
 
                 if (pointInfo.argument == "Alert") {  
                         return {  
-                            color: "red"  
+                            color: "#fb7764"
                         }  
                     }  
                     return {  
-                        color: "green"  
+                        color: "#73d47f"  
                 }  
             }
         });
@@ -288,9 +288,9 @@
             onRowPrepared: function (e) {
                 if (e.rowType === "data") {
                     if (e.data.status === "Alert") {
-                        e.rowElement.css({ "color": "black", "background-color": "red" });
+                        e.rowElement.css({ "color": "black", "background-color": "#fb7764" });
                     }else{
-                        e.rowElement.css({ "color": "black", "background-color": "green" });
+                        e.rowElement.css({ "color": "black", "background-color": "#73d47f" });
                     }
                 }
             }
