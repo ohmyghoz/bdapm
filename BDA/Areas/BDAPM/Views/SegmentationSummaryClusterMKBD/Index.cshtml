@@ -172,8 +172,8 @@
                         columns.Add().DataField("mkbdminimum").Caption("MKBD Minimum").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
                         columns.Add().DataField("mkbdpermkbdminimum").Caption("MKBD Terhadap MKBD Minimum %").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
                         columns.Add().DataField("cluster").Caption("Cluster").Alignment(HorizontalAlignment.Center);
-                        @* columns.Add().DataField("status").Caption("Status"); *@
-                        columns.Add().DataField("status").Visible(false);
+                        columns.Add().DataField("status").Caption("Status");
+                       @*  columns.Add().DataField("status").Visible(false); *@
                         columns.Add().Type(GridCommandColumnType.Buttons).Caption("Action").Buttons(b =>
                         {
                             b.Add()
@@ -379,6 +379,23 @@
                             var { gridCell, excelCell } = options;
 
                             if (gridCell.rowType === 'data') {
+                                if(gridCell.column.dataField === "status") {
+                                    if(gridCell.data.status === "Alert") {
+                                        options.excelCell.fill = {
+                                         type: 'pattern',
+                                         pattern: 'solid',
+                                         fgColor: { argb:'fb7764' }
+                                        };
+                                    }else{
+                                         options.excelCell.fill = {
+                                         type: 'pattern',
+                                         pattern: 'solid',
+                                         fgColor: { argb:'73d47f' }
+                                        };
+                                    }
+                                    
+                                 }
+
                                 if (options.gridCell.column.dataType === 'number') {
                                     excelCell.numFmt = '#,##0';
                                 }
