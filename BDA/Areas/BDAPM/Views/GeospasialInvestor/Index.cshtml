@@ -232,8 +232,20 @@
                                 .IgnoreEmptyPoints(true))
                             .Series(s =>
                             {
-                                s.Add().ValueField("currentvalue").Name("Current Value").Type(SeriesType.Bar);
-                                s.Add().ValueField("growth").Name("Growth").Type(SeriesType.Line);
+                                s.Add().ValueField("currentvalue").Name("Current Value").Type(SeriesType.Bar)
+                                    .Label(l => l.CustomizeText(@<text> 
+                                       function () { 
+                                            return thousandSeparatorDecimal(parseFloat(this.valueText));
+                                       } 
+                                    </text>).Font(f => f.Size(10)).Visible(true).Connector(c => c.Visible(true)).Position(RelativePosition.Outside)
+                                );
+                                s.Add().ValueField("growth").Name("Growth").Type(SeriesType.Line)
+                                    .Label(l => l.CustomizeText(@<text> 
+                                        function () {
+                                            return thousandSeparatorDecimal(parseFloat(this.valueText));
+                                        }
+                                    </text>).Font(f => f.Size(10)).Visible(true).Connector(c => c.Visible(true)).Position(RelativePosition.Outside)
+                            );
                             })
                             .DataSource(d => d.Mvc().Controller("GeospasialInvestor").LoadAction("GetGridDataCVGrowth").LoadMethod("Get").LoadParams(new
                             {

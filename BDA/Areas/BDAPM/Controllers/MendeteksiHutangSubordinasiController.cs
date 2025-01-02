@@ -73,7 +73,7 @@ namespace BDA.Controllers
                 stringPeriodeAwal = Convert.ToDateTime(periode).ToString("yyyy-MM-dd");
                 TempData["pawal"] = stringPeriodeAwal;
             }
-            if (pe != null)
+            if (pe != null && string.IsNullOrEmpty(pe))
             {
                 stringNamaPE = pe;
                 TempData["pe"] = stringNamaPE;
@@ -105,7 +105,7 @@ namespace BDA.Controllers
                 stringPeriodeAwal = Convert.ToDateTime(periode).ToString("yyyy-MM-dd");
                 TempData["pawal"] = stringPeriodeAwal;
             }
-            if (pe != null)
+            if (pe != null && string.IsNullOrEmpty(pe))
             {
                 stringNamaPE = pe;
                 TempData["pe"] = stringNamaPE;
@@ -170,6 +170,7 @@ namespace BDA.Controllers
             var userId = HttpContext.User.Identity.Name;
             string strSQL = db.appSettings.DataConnString;
             var list = new List<NamaPE>();
+            list.Add(new NamaPE() { value = "", text = "(ALL)" });
 
             using (SqlConnection conn = new SqlConnection(strSQL))
             {
@@ -190,7 +191,7 @@ namespace BDA.Controllers
                 }
                 conn.Close();
                 conn.Dispose();
-            }
+            }            
             return DataSourceLoader.Load(list, loadOptions);
         }
         public class NamaPE

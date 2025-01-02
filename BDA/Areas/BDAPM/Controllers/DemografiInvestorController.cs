@@ -68,6 +68,9 @@ namespace BDA.Controllers
         public object getTotalValueTraded(string periode, string pe, string origin, string tipeInvestor)
         {
             DataSourceLoadOptions loadOptions = new DataSourceLoadOptions();
+            if (string.IsNullOrEmpty(pe)) {
+                pe = null;
+            }
 
             db.Database.CommandTimeout = 420;
             var result = Helper.WSQueryPS.GetBDAPMDemografiInvestorTV(db, loadOptions, periode, pe, origin, tipeInvestor).data.Rows[0];
@@ -87,7 +90,7 @@ namespace BDA.Controllers
                 stringPeriodeAwal = Convert.ToDateTime(periode).ToString("yyyy-MM-dd");
                 TempData["pawal"] = stringPeriodeAwal;
             }
-            if (pe != null)
+            if (pe != null && string.IsNullOrEmpty(pe))
             {
                 stringNamaPE = pe;
                 TempData["pe"] = stringNamaPE;
@@ -119,7 +122,7 @@ namespace BDA.Controllers
                 stringPeriodeAwal = Convert.ToDateTime(periode).ToString("yyyy-MM-dd");
                 TempData["pawal"] = stringPeriodeAwal;
             }
-            if (pe != null)
+            if (pe != null && string.IsNullOrEmpty(pe))
             {
                 stringNamaPE = pe;
                 TempData["pe"] = stringNamaPE;
@@ -151,7 +154,7 @@ namespace BDA.Controllers
                 stringPeriodeAwal = Convert.ToDateTime(periode).ToString("yyyy-MM-dd");
                 TempData["pawal"] = stringPeriodeAwal;
             }
-            if (pe != null)
+            if (pe != null && string.IsNullOrEmpty(pe))
             {
                 stringNamaPE = pe;
                 TempData["pe"] = stringNamaPE;
@@ -183,7 +186,7 @@ namespace BDA.Controllers
                 stringPeriodeAwal = Convert.ToDateTime(periode).ToString("yyyy-MM-dd");
                 TempData["pawal"] = stringPeriodeAwal;
             }
-            if (pe != null)
+            if (pe != null && string.IsNullOrEmpty(pe))
             {
                 stringNamaPE = pe;
                 TempData["pe"] = stringNamaPE;
@@ -215,7 +218,7 @@ namespace BDA.Controllers
                 stringPeriodeAwal = Convert.ToDateTime(periode).ToString("yyyy-MM-dd");
                 TempData["pawal"] = stringPeriodeAwal;
             }
-            if (pe != null)
+            if (pe != null && string.IsNullOrEmpty(pe))
             {
                 stringNamaPE = pe;
                 TempData["pe"] = stringNamaPE;
@@ -281,6 +284,7 @@ namespace BDA.Controllers
             var userId = HttpContext.User.Identity.Name;
             string strSQL = db.appSettings.DataConnString;
             var list = new List<SelectionList>();
+            list.Add(new NamaPE() { value = "", text = "(ALL)" });
 
             using (SqlConnection conn = new SqlConnection(strSQL))
             {

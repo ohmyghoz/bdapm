@@ -96,44 +96,12 @@
                                 c.Add().DataField("namape").Caption("Nama PE");
                                 c.Add().DataField("tanggalhsot0").Caption("Tanggal HSO (T0)");
                                 c.Add().DataField("hso").Caption("HSO").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
+                                c.Add().DataField("lawantransaksi").Caption("Lawan Transaksi");
+                                c.Add().DataField("buyingdate").Caption("Buying Date");
+                                c.Add().DataField("reverserepo").Caption("Reverse Repo").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
                             })
                             .ShowRowLines(true)
                             )
-                        </div>
-                    </div>
-
-                    <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
-                        <div class="row">
-                            @(Html.DevExtreme().DataGrid()
-                                .ID("gridContainer2")
-                                .KeyExpr("ID")
-                                .RemoteOperations(true)
-                                .Width("100%")
-                                .AllowColumnResizing(true)
-                                .ColumnFixing(c => c.Enabled(true))
-                                .Scrolling(s => s.ShowScrollbar(ShowScrollbarMode.Always))
-                                .FilterRow(f => f.Visible(true))
-                                .ShowBorders(true)
-                                .Selection(c => c.Mode(SelectionMode.Single))
-                                .Paging(p =>
-                                {
-                                    p.PageSize(15);
-                                    p.Enabled(true);
-
-                                })
-                                .Pager(p =>
-                                {
-                                    p.Visible(true);
-                                    p.ShowInfo(true);
-                                })
-                                .Columns(c =>
-                                {
-                                    c.Add().DataField("lawantransaksi").Caption("Lawan Transaksi");
-                                    c.Add().DataField("buyingdate").Caption("Buying Date");
-                                    c.Add().DataField("reverserepo").Caption("Reverse Repo").Alignment(HorizontalAlignment.Right).CellTemplate("<%= thousandSeparatorDecimal(value)%>");
-                                })
-                                .ShowRowLines(true)
-                                )
                         </div>
                     </div>
                 </div>
@@ -260,14 +228,6 @@
                 loadUrl: '@Url.Action("getGrid1")?periode=' + periodeAwal + '&pe=' + namaPE
             });
             grid1.option('dataSource', ds1);
-            
-            var grid2 = $("#gridContainer2").dxDataGrid("instance");
-            var ds2 = DevExpress.data.AspNet.createStore({
-                loadMethod: "GET",
-                loadMode: "processed",
-                loadUrl: '@Url.Action("getGrid2")?periode=' + periodeAwal + '&pe=' + namaPE
-            });
-            grid2.option('dataSource', ds2);
         }
     }
 
@@ -286,7 +246,6 @@
                 if (response.result == "Success") {
                     var workbook = new ExcelJS.Workbook();
                     var worksheet1 = workbook.addWorksheet('Sheet1');
-                    var worksheet2 = workbook.addWorksheet('Sheet2');
 
                     DevExpress.excelExporter.exportDataGrid({
                         component: $("#gridContainer").dxDataGrid("instance"),
@@ -300,19 +259,7 @@
                                 }
                             }
                         }
-                    }).then(() => DevExpress.excelExporter.exportDataGrid({
-                        component: $("#gridContainer2").dxDataGrid("instance"),
-                        worksheet: worksheet2,
-                        customizeCell: function (options) {
-                            var { gridCell, excelCell } = options;
-
-                            if (gridCell.rowType === 'data') {
-                                if (options.gridCell.column.dataType === 'number') {
-                                    excelCell.numFmt = '#,##0';
-                                }
-                            }
-                        }
-                    })).then(function () {
+                    }).then(function () {
                         workbook.xlsx.writeBuffer().then(function (buffer) {
                             saveAs(new Blob([buffer], { type: "application/octet-stream" }), "MendeteksiHutangSubOrdinasi_" + new Date().toISOString().slice(0, 10) + ".xlsx");
                         });
@@ -328,7 +275,7 @@
         dataGrid.option("onFileSaving", function (e) {
             var fd = new FormData();
             fd.append("file", e.data);
-            fd.append("name", "grid1");
+            fd.append("name", " ");
             $.ajax({
                 type: "POST",
                 url: "@Url.Action("ExportPDF", "MendeteksiHutangSubOrdinasi")",
@@ -336,30 +283,10 @@
                 processData: false,
                 contentType: false
             }).done(function (data) {
-                var dataGrid2 = $("#gridContainer2").dxDataGrid("instance");
-                dataGrid2.option("onExporting", function (e) { });
-                dataGrid2.option("onFileSaving", function (e) {
-                    var fd = new FormData();
-                    fd.append("file", e.data);
-                    fd.append("name", "grid2");
-                    $.ajax({
-                        type: "POST",
-                        url: "@Url.Action("ExportPDF", "MendeteksiHutangSubOrdinasi")",
-                        data: fd,
-                        processData: false,
-                        contentType: false
-                    }).done(function (data) {
-                        window.location = "@Url.Action("FileIndex", "MendeteksiHutangSubOrdinasi", new { name = "grid2" })"
-                    });
-                    e.cancel = true;
-                });
-                dataGrid2.exportToExcel();
-                window.location = "@Url.Action("FileIndex", "MendeteksiHutangSubOrdinasi", new { name = "grid1"})"                
+                window.location = "@Url.Action("FileIndex", "SegmentasiTransaksiKepemilikan", new { name = " " })"
             });
             e.cancel = true;
         });
         dataGrid.exportToExcel();
-        
-
     }
 </script>

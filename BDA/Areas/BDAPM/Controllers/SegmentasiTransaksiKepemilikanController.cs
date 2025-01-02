@@ -62,7 +62,11 @@ namespace BDA.Controllers
         {
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
             TempData.Clear(); //membersihkan data filtering
-            
+
+            if (string.IsNullOrEmpty(pe)) {
+                pe = null;
+            }
+
             db.Database.CommandTimeout = 420;
             if (periode.Length > 0) //jika ada parameter nya
             {
@@ -80,6 +84,11 @@ namespace BDA.Controllers
         {
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
             TempData.Clear(); //membersihkan data filtering
+
+            if (string.IsNullOrEmpty(pe))
+            {
+                pe = null;
+            }
 
             db.Database.CommandTimeout = 420;
             if (periode.Length > 0) //jika ada parameter nya
@@ -99,6 +108,11 @@ namespace BDA.Controllers
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
             TempData.Clear(); //membersihkan data filtering
 
+            if (string.IsNullOrEmpty(pe))
+            {
+                pe = null;
+            }
+
             db.Database.CommandTimeout = 420;
             if (periode.Length > 0) //jika ada parameter nya
             {
@@ -116,6 +130,11 @@ namespace BDA.Controllers
         {
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
             TempData.Clear(); //membersihkan data filtering
+
+            if (string.IsNullOrEmpty(pe))
+            {
+                pe = null;
+            }
 
             db.Database.CommandTimeout = 420;
             if (periode.Length > 0) //jika ada parameter nya
@@ -176,6 +195,7 @@ namespace BDA.Controllers
             var userId = HttpContext.User.Identity.Name;
             string strSQL = db.appSettings.DataConnString;
             var list = new List<NamaPE>();
+            list.Add(new NamaPE() { value = "", text = "(ALL)" });
 
             using (SqlConnection conn = new SqlConnection(strSQL))
             {
