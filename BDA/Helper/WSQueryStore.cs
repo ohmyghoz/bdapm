@@ -63,6 +63,22 @@ namespace BDA.Helper
             return wqr;
         }
 
+        public static WSQueryReturns NonDecryptResults(WSQueryReturns wqr)
+        {
+            DataTable dt = wqr.data;
+            dt.Columns.Add("no", typeof(System.String));
+            int noRow = 1;
+            foreach (DataRow dr in dt.Rows)
+            {
+                dr["no"] = noRow.ToString();                
+                noRow++;
+            }
+                        
+            wqr.data = dt;
+
+            return wqr;
+        }
+
         public static WSQueryReturns DecryptResultsNamaSID(WSQueryReturns wqr)
         {
             DataTable dt = wqr.data;
@@ -146,8 +162,8 @@ namespace BDA.Helper
 
         public static string CheckAndModifyFilterVal(string colName, string colValue)
         {
-            if (colName == "sid")
-                return WSQueryStore.EncryptSID(colValue);
+            //encrypt version
+            //if (colName == "sid") return WSQueryStore.EncryptSID(colValue);
 
             return colValue;
         }
@@ -5727,7 +5743,9 @@ namespace BDA.Helper
             {
                 namaSID = namaSID.Replace("'", "").Replace(",", "','").Replace("' ", "'"); //cegah sql inject dikit
                 namaSID = "'%" + namaSID.ToUpper() + "%'";
-                whereQuery = "REPLACE(REPLACE(REPLACE(REPLACE(CONCAT(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(SUBSTRING(nama_sid, 1, 1), 0,'M'), 1,'R'), 2,'S'), 3,'D'), 4,'N'), 5,'F'), 6,'H'), 7,'Y'), 8,'T'), 9,'J'), SUBSTRING(nama_sid, 2, " + (isHive ? "LENGTH" : "LEN") + "(nama_sid))), 'IOII','O') , 'IOOI', 'A'), 'IIOO', 'U'),'IOIO' , 'E') LIKE " + namaSID + " ";
+                whereQuery = "nama_sid like " + namaSID + " ";
+                //encrypt version
+                //whereQuery = "REPLACE(REPLACE(REPLACE(REPLACE(CONCAT(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(SUBSTRING(nama_sid, 1, 1), 0,'M'), 1,'R'), 2,'S'), 3,'D'), 4,'N'), 5,'F'), 6,'H'), 7,'Y'), 8,'T'), 9,'J'), SUBSTRING(nama_sid, 2, " + (isHive ? "LENGTH" : "LEN") + "(nama_sid))), 'IOII','O') , 'IOOI', 'A'), 'IIOO', 'U'),'IOIO' , 'E') LIKE " + namaSID + " ";
 
             }
             var props = new WSQueryProperties();
@@ -5735,10 +5753,14 @@ namespace BDA.Helper
             if (isHive) props.Query = @"SELECT nama_sid FROM pasarmodal.src_sid x WHERE " + whereQuery + @" group by nama_sid ORDER BY length(nama_sid) asc LIMIT 10";
             //props.Query = @"SELECT top 20 nama_sid, sid, len(nama_sid) len_nama FROM pasarmodal.master_sid x WHERE " + whereQuery + @" ORDER BY len_nama asc";
             //if (isHive) props.Query = @"SELECT nama_sid, sid, length(nama_sid) len_nama FROM pasarmodal.src_sid x WHERE " + whereQuery + @" ORDER BY len_nama asc LIMIT 20";
-            return DecryptResultsNamaSID(WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive));
+
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+            //encrypt version
+            //return DecryptResultsNamaSID(WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive));
         }
 
-        public static WSQueryReturns GetPMIPQuery(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string SID, string tradeId, string namaSID, string namaLike, string nomorKTP, string nomorNPWP, string passport, string sistem, string businessReg, string startPeriod, string endPeriod, bool chk100 = false, bool isHive = false)
+        public static WSQueryReturns GetPMIPQueryDecrypt(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string SID, string tradeId, string namaSID, string namaLike, string nomorKTP, string nomorNPWP, string passport, string sistem, string businessReg, string startPeriod, string endPeriod, bool chk100 = false, bool isHive = false)
         {
             bool isC = false;
             var whereQuery = "1=1";
@@ -5859,6 +5881,59 @@ namespace BDA.Helper
 
             return DecryptResults(WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive));
         }
+
+        public static WSQueryReturns GetPMIPQuery(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string SID, string tradeId, string namaSID, string namaLike, string nomorKTP, string nomorNPWP, string passport, string sistem, string businessReg, string startPeriod, string endPeriod, bool chk100 = false, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            var periodWhereQuery = "";
+            //isHive = false;
+
+            if (sistem != null)
+            {
+                whereQuery = whereQuery += " AND UPPER(system) = '" + sistem.ToUpper() + "' ";
+            }
+
+
+            if (SID != null) whereQuery = whereQuery += " AND sid = '" + SID + "' ";
+            else if (tradeId != null) whereQuery = whereQuery += " AND SUBSTRING(sid, 7, 6) = '" + tradeId + "' ";
+            else if (nomorKTP != null) whereQuery = whereQuery += " AND ktp = '" + nomorKTP + "' ";
+            else if (nomorNPWP != null) whereQuery = whereQuery += " AND npwp = '" + nomorNPWP + "' ";
+            else if (namaSID != null) whereQuery = whereQuery += " AND nama_sid = '" + namaSID.ToUpper() + "' ";
+            else if (namaLike != null) whereQuery = whereQuery += " AND nama_sid like '%" + namaLike.ToUpper() + "%' ";
+            else if (passport != null) whereQuery = whereQuery += " AND passport = '" + passport + "' ";
+            else if (businessReg != null) whereQuery = whereQuery += " AND business_registration_number = '" + businessReg + "' ";
+
+
+            if (endPeriod != null)
+            {
+                string startperiodes = "'" + startPeriod.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                string endperiodes = "'" + endPeriod.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                periodWhereQuery = " AND periode between " + startperiodes + " and " + endperiodes;
+            }
+            else if (startPeriod != null)
+            {
+                string periodes = "'" + startPeriod.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                if (tableName == "ip_sid") periodWhereQuery = " AND " + periodes + " between valid_from and valid_until"; //date_format(CURRENT_DATE(), 'YYYYMMdd')
+                else periodWhereQuery = " AND " + periodes + " = periode"; //date_format(CURRENT_DATE(), 'YYYYMMdd')
+            }
+
+            string sqlGetQuery = "select table_" + (isHive ? "hive" : "sql") + @" as queryString from dbo.ref_query where table_id = '" + tableName + "'";
+            //var propsQuery = new WSQueryProperties();
+            //propsQuery.Query = sqlGetQuery;
+            //DataRow dr = WSQueryHelper.DoQuery(db, propsQuery, loadOptions, false, false).data.Rows[0];
+
+            DataRow dr = ExecuteSimpleSQL(db.appSettings.DataConnString, sqlGetQuery).data.Rows[0];
+            string queryString = dr["queryString"].ToString();
+            queryString = queryString.Replace("@wherefilter", whereQuery).Replace("@whereperiode", periodWhereQuery);
+
+            var props = new WSQueryProperties();
+            props.Query = queryString;
+
+
+            return NonDecryptResults(WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive));
+        }
+
 
         public static WSQueryReturns GetPMMMQuery(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string startPeriod, string endPeriod, bool isHive = false)
         {
