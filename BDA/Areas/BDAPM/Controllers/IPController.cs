@@ -89,7 +89,7 @@ namespace BDA.Controllers
                                                                         //ViewBag.endperiod = System.DateTime.Now;
 
                 string sistem = details[1].ToUpper();//.Replace("Balance");
-                if (sistem == "DTE") sistem = "C-BEST";
+                if (sistem == "DTE") sistem = "CBEST";
                 ViewBag.sistem = sistem;
                 ViewBag.sid = details[2];
             }
