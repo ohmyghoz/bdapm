@@ -278,35 +278,42 @@ namespace BDA.Controllers
             }
             return Json(new { message, success = result }, new Newtonsoft.Json.JsonSerializerSettings());
         }
+        public class NamaPE
+        {
+            public string value { get; set; }
+            public string text { get; set; }
+        }
         [HttpGet]
         public object GetNamaPE(DataSourceLoadOptions loadOptions)
         {
             var userId = HttpContext.User.Identity.Name;
             string strSQL = db.appSettings.DataConnString;
-            var list = new List<SelectionList>();
-            list.Add(new NamaPE() { value = "", text = "(ALL)" });
+            var list = new List<NamaPE>();
 
-            using (SqlConnection conn = new SqlConnection(strSQL))
+            string reportId = "dim_exchange_members"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+            var result = Helper.WSQueryStore.GetBDAPMNamaPE(db, loadOptions, reportId, cekHive);
+            var varDataList = (dynamic)null;
+            varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                           select new
+                           {
+                               exchangemembercode = bs.Field<string>("exchangemembercode").ToString().Trim(),
+                               exchangemembername = bs.Field<string>("exchangemembername").ToString().Trim(),
+                           }).OrderBy(bs => bs.exchangemembername).ToList();
+
+            DataTable dtList = new DataTable();
+            dtList = Helper.WSQueryStore.LINQResultToDataTable(varDataList);
+
+            if (dtList.Rows.Count > 0)
             {
-                conn.Open();
-                string strQuery = "Select [SecurityCompanySK],[SecurityCompanyCode],[SecurityCompanyName] from PM_dimSecurityCompanies where CurrentStatus='A' order by SecurityCompanyName asc ";
-                SqlDataAdapter da = new SqlDataAdapter(strQuery, conn);
-                DataTable dt = new DataTable();
-                da.Fill(dt);
-                if (dt.Rows.Count > 0)
+                list.Add(new NamaPE() { value = "", text = "(ALL)" });
+                for (int i = 0; i < dtList.Rows.Count; i++)
                 {
-                    for (int i = 0; i < dt.Rows.Count; i++)
-                    {
-                        string namakode = dt.Rows[i]["SecurityCompanyCode"].ToString() + " - " + dt.Rows[i]["SecurityCompanyName"].ToString();
-                        list.Add(new SelectionList() { value = dt.Rows[i]["SecurityCompanyCode"].ToString(), text = namakode });
-                    }
-
-                    return Json(DataSourceLoader.Load(list, loadOptions));
+                    string namakode = dtList.Rows[i]["exchangemembercode"].ToString() + " - " + dtList.Rows[i]["exchangemembername"].ToString();
+                    list.Add(new NamaPE() { value = dtList.Rows[i]["exchangemembercode"].ToString(), text = namakode });
                 }
-                conn.Close();
-                conn.Dispose();
             }
-            return DataSourceLoader.Load(list, loadOptions);
+            return Json(DataSourceLoader.Load(list, loadOptions));
         }
 
         public object GetOrigin(DataSourceLoadOptions loadOptions)
