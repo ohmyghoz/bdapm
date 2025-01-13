@@ -90,6 +90,7 @@ namespace BDA.Controllers
 
                 string sistem = details[1].ToUpper();//.Replace("Balance");
                 if (sistem == "DTE") sistem = "CBEST";
+                else if (sistem == "C-BEST") sistem = "CBEST";
                 ViewBag.sistem = sistem;
                 ViewBag.sid = details[2];
             }
