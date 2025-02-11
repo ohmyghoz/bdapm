@@ -483,9 +483,14 @@
             }
 
             if('@(ViewBag.FullFilter)' == 'False'){
-                const idxNama = listReset.indexOf("tbNamaSID");
+                const idxNama = listReset.indexOf("tbNamaSID");                
                 if (idxNama > -1) { 
                     listReset.splice(idxNama, 1); 
+                }
+
+                const idxLike = listReset.indexOf("tbNamaLike");
+                if (idxLike > -1) {
+                    listReset.splice(idxLike, 1);
                 }
             }
                         
@@ -522,10 +527,11 @@
             let nomorKTP = $("#tbKTP").dxTextBox("instance").option("value");
             let nomorNPWP = $("#tbNPWP").dxTextBox("instance").option("value");
             let passport = ""; @* $("#tbPassport").dxTextBox("instance").option("value");*@
-            let namaLike = $("#tbNamaLike").dxTextBox("instance").option("value");
+            let namaLike = "";
             let namaSID = "";
             if('@(ViewBag.FullFilter)' == 'True'){
-                namaSID = $("#tbNamaSID").dxSelectBox("instance").option("value");              
+                namaSID = $("#tbNamaSID").dxSelectBox("instance").option("value");
+                namaLike = $("#tbNamaLike").dxTextBox("instance").option("value");
             }
             if (sid != "" || tradeId != "" || (namaSID != "" && namaSID != null) || namaLike != "" || nomorKTP != "" || nomorNPWP != "" || passport != "") {
 
@@ -549,10 +555,12 @@
         let tradeId = $("#tbTradeId").dxTextBox("instance").option("value");        
         let nomorKTP = $("#tbKTP").dxTextBox("instance").option("value");
         let nomorNPWP = $("#tbNPWP").dxTextBox("instance").option("value");
-        let namaLike = $("#tbNamaLike").dxTextBox("instance").option("value");
+        let namaLike = null;
+        
 
         let namaSID = "";
         if('@(ViewBag.FullFilter)' == 'True'){
+            namaLike = $("#tbNamaLike").dxTextBox("instance").option("value");
             namaSID = $("#tbNamaSID").dxSelectBox("instance").option("value");
         }
 

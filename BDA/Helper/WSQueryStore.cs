@@ -5896,7 +5896,7 @@ namespace BDA.Helper
 
 
             if (SID != null) whereQuery = whereQuery += " AND sid = '" + SID + "' ";
-            else if (tradeId != null) whereQuery = whereQuery += " AND SUBSTRING(sid, 7, 6) = '" + tradeId + "' ";
+            else if (tradeId != null) whereQuery = whereQuery += " AND SUBSTRING(sid, 8, 6) = '" + tradeId + "' ";
             else if (nomorKTP != null) whereQuery = whereQuery += " AND ktp = '" + nomorKTP + "' ";
             else if (nomorNPWP != null) whereQuery = whereQuery += " AND npwp = '" + nomorNPWP + "' ";
             else if (namaSID != null) whereQuery = whereQuery += " AND nama_sid = '" + namaSID.ToUpper() + "' ";
