@@ -66,7 +66,9 @@ namespace BDA.Controllers
             ViewBag.Hive = isHive;
             string roleId = HttpContext.User.FindFirst(ClaimTypes.Role).Value.ToString();
             ViewBag.FullFilter = false;
+            ViewBag.IsExternal = false;
             if (roleId == "Pengawas TE" || roleId == "AdminAplikasi" || roleId == "Admin PM") ViewBag.FullFilter = true;
+            if (roleId == "External") ViewBag.IsExternal = true;
 
             if (obj == null) return NoContent();
             

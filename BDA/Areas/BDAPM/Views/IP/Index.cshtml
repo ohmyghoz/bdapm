@@ -71,7 +71,8 @@
 
                         <div class="col-lg-4 form-group">
                             <label>Nomor NPWP<span class="one-mandatory">**</span></label>
-                            @(Html.DevExtreme().TextBox().ID("tbNPWP").Placeholder("Nomor NPWP").InputAttr("aria-label", "Nomor NPWP").ShowClearButton(true).ValueChangeEvent("change").OnValueChanged("tb_valueChanged").Width("100%").Mask("0000000000000009").MaskRules(new { X = new JS("/[02-9]/") }).MaxLength(16))
+                            @(Html.DevExtreme().TextBox().ID("tbNPWP").Placeholder("Nomor NPWP").InputAttr("aria-label", "Nomor NPWP").ShowClearButton(true).ValueChangeEvent("change").OnValueChanged("tb_valueChanged").Width("100%")//.Mask("0000000000000009").MaskRules(new { X = new JS("/[02-9]/") }).MaxLength(16)
+                            )
                         </div>
 
                     @if (ViewBag.FullFilter)
@@ -535,10 +536,13 @@
             }
             if (sid != "" || tradeId != "" || (namaSID != "" && namaSID != null) || namaLike != "" || nomorKTP != "" || nomorNPWP != "" || passport != "") {
 
-                
-                $("#ModalSimpanPenggunaanData").modal("show");
-                console.log(sid + ";" + tradeId + ";" + namaSID + ";" + nomorKTP + ";" + nomorNPWP);
-                @* $("#grid1").dxDataGrid("instance").refresh(); *@
+                if ('@(ViewBag.IsExternal)' == 'True') {
+                    $("#ModalSimpanPenggunaanData").modal("show");
+                }
+                else { 
+                     $("#grid1").dxDataGrid("instance").refresh(); 
+                }
+                @*console.log(sid + ";" + tradeId + ";" + namaSID + ";" + nomorKTP + ";" + nomorNPWP);*@                
             }
             else {
                 alert("Harap isi salah satu filter pada area **");
