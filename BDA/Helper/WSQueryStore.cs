@@ -5071,7 +5071,7 @@ namespace BDA.Helper
             if (periodes != null)
             {
                 periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND periode in (" + periodes.Replace("-","") + ")";
+                whereQuery = whereQuery += " AND periode in (" + periodes.Replace("-", "") + ")";
             }
             if (stringPE != null)
             {
@@ -5088,23 +5088,23 @@ namespace BDA.Helper
             {
                 if (tableName == "pe_segmentation_sum_cluster_mkbd")
                 {
-                //    props.Query = @"
-                //   SELECT row_number() over(order by securitycompanycode) as no,calendardate,securitycompanycode,securitycompanyname,simpanangiro,depositolt3bulan,depositogt3bulandijaminlps,uangjaminanlkp,cast(cast(kasdansetarakas as BIGINT)  as string) as kasdansetarakas,mkbd,mkbdminimum,mkbdpermkbdminimum,status,periode from (
-                //    SELECT calendardate,securitycompanycode,securitycompanyname,
-                //        cast(cast(simpanangiro as BIGINT)  as string) as simpanangiro,
-                //        cast(cast(depositolt3bulan as BIGINT)  as string) as depositolt3bulan,
-                //        cast(cast(depositogt3bulandijaminlps as BIGINT)  as string) as depositogt3bulandijaminlps,
-                //        cast(cast(uangjaminanlkp as BIGINT)  as string) as uangjaminanlkp,
-                //        (cast(cast(simpanangiro as BIGINT)  as string) + cast(cast(depositolt3bulan as BIGINT)  as string) + cast(cast(depositogt3bulandijaminlps as BIGINT)  as string) + cast(cast(uangjaminanlkp as BIGINT)  as string)) as kasdansetarakas,
-                //        cast(cast(mkbd as BIGINT)  as string) as mkbd,
-                //        cast(cast(mkbdminimum as BIGINT)  as string) as mkbdminimum,
-                //        (cast(cast(mkbd as BIGINT)  as string)/cast(cast(mkbdminimum as BIGINT)  as string)) * 100 as mkbdpermkbdminimum,
-                //        CASE 
-                //            when cast(cast(kasdansetarakas as BIGINT)  as string) < cast(cast(mkbdminimum as BIGINT)  as string) then 'Alert'
-                //            when cast(cast(kasdansetarakas as BIGINT)  as string) > cast(cast(mkbdminimum as BIGINT)  as string) then 'Normal'
-                //        END AS status,periode,cluster
-                //        From pasarmodal." + tableName + @") as x
-                //WHERE " + whereQuery + @"";
+                    //    props.Query = @"
+                    //   SELECT row_number() over(order by securitycompanycode) as no,calendardate,securitycompanycode,securitycompanyname,simpanangiro,depositolt3bulan,depositogt3bulandijaminlps,uangjaminanlkp,cast(cast(kasdansetarakas as BIGINT)  as string) as kasdansetarakas,mkbd,mkbdminimum,mkbdpermkbdminimum,status,periode from (
+                    //    SELECT calendardate,securitycompanycode,securitycompanyname,
+                    //        cast(cast(simpanangiro as BIGINT)  as string) as simpanangiro,
+                    //        cast(cast(depositolt3bulan as BIGINT)  as string) as depositolt3bulan,
+                    //        cast(cast(depositogt3bulandijaminlps as BIGINT)  as string) as depositogt3bulandijaminlps,
+                    //        cast(cast(uangjaminanlkp as BIGINT)  as string) as uangjaminanlkp,
+                    //        (cast(cast(simpanangiro as BIGINT)  as string) + cast(cast(depositolt3bulan as BIGINT)  as string) + cast(cast(depositogt3bulandijaminlps as BIGINT)  as string) + cast(cast(uangjaminanlkp as BIGINT)  as string)) as kasdansetarakas,
+                    //        cast(cast(mkbd as BIGINT)  as string) as mkbd,
+                    //        cast(cast(mkbdminimum as BIGINT)  as string) as mkbdminimum,
+                    //        (cast(cast(mkbd as BIGINT)  as string)/cast(cast(mkbdminimum as BIGINT)  as string)) * 100 as mkbdpermkbdminimum,
+                    //        CASE 
+                    //            when cast(cast(kasdansetarakas as BIGINT)  as string) < cast(cast(mkbdminimum as BIGINT)  as string) then 'Alert'
+                    //            when cast(cast(kasdansetarakas as BIGINT)  as string) > cast(cast(mkbdminimum as BIGINT)  as string) then 'Normal'
+                    //        END AS status,periode,cluster
+                    //        From pasarmodal." + tableName + @") as x
+                    //WHERE " + whereQuery + @"";
 
                     props.Query = @"
                         SELECT row_number() over(order by securitycompanycode) as no,* from (
@@ -5118,8 +5118,8 @@ namespace BDA.Helper
                             cast(cast(mkbdminimum as BIGINT)  as string) as mkbdminimum,
                             (cast(cast(mkbd as BIGINT)  as string)/cast(cast(mkbdminimum as BIGINT)  as string)) * 100 as mkbdpermkbdminimum,
                             CASE 
-                                when cast(cast(kasdansetarakas as BIGINT)  as string) < cast(cast(mkbdminimum as BIGINT)  as string) then 'Alert'
-                                when cast(cast(kasdansetarakas as BIGINT)  as string) > cast(cast(mkbdminimum as BIGINT)  as string) then 'Normal'
+                                when cast(cast(kasdansetarakas as BIGINT)  as BIGINT) < cast(cast(mkbdminimum as BIGINT)  as BIGINT) then 'Alert'
+                                when cast(cast(kasdansetarakas as BIGINT)  as BIGINT) >= cast(cast(mkbdminimum as BIGINT)  as BIGINT) then 'Normal'
                             END AS status,periode,cluster
                             From pasarmodal." + tableName + @") as x
                     WHERE " + whereQuery + @"";
@@ -5134,7 +5134,7 @@ namespace BDA.Helper
                     SELECT calendardate,securitycompanycode,securitycompanyname,simpanangiro,depositolt3bulan,depositogt3bulandijaminlps,uangjaminanlkp,kasdansetarakas,mkbd,mkbdminimum,mkbdpermkbdminimum,
                         CASE 
                             when kasdansetarakas < mkbdminimum then 'Alert'
-                            when kasdansetarakas > mkbdminimum then 'Normal'
+                            when kasdansetarakas >= mkbdminimum then 'Normal'
                         END AS status,periode
                         From pasarmodal." + tableName + @") as x
                     WHERE " + whereQuery + @"";
@@ -5182,8 +5182,8 @@ namespace BDA.Helper
                         cast(cast(mkbdminimum as BIGINT)  as string) as mkbdminimum,
                         cast(cast(mkbdminimum as BIGINT)  as string) as mkbdpermkbdminimum,
                         CASE 
-                            when cast(cast(kasdansetarakas as BIGINT)  as string) < cast(cast(mkbdminimum as BIGINT)  as string) then 'Alert'
-                            when cast(cast(kasdansetarakas as BIGINT)  as string) > cast(cast(mkbdminimum as BIGINT)  as string) then 'Normal'
+                            when cast(cast(kasdansetarakas as BIGINT)  as BIGINT) < cast(cast(mkbdminimum as BIGINT)  as BIGINT) then 'Alert'
+                            when cast(cast(kasdansetarakas as BIGINT)  as BIGINT) >= cast(cast(mkbdminimum as BIGINT)  as BIGINT) then 'Normal'
                         END AS status,periode
                         From pasarmodal." + tableName + @") as x
                     WHERE " + whereQuery + @" group by status";
@@ -5239,8 +5239,8 @@ namespace BDA.Helper
                     SELECT * FROM (                    
                     SELECT calendardate,securitycompanycode,
                         CASE 
-                            when cast(cast(kasdansetarakas as BIGINT)  as string) < cast(cast(mkbdminimum as BIGINT)  as string) then 'Alert'
-                            when cast(cast(kasdansetarakas as BIGINT)  as string) > cast(cast(mkbdminimum as BIGINT)  as string) then 'Normal'
+                            when cast(cast(kasdansetarakas as BIGINT)  as BIGINT) < cast(cast(mkbdminimum as BIGINT)  as BIGINT) then 'Alert'
+                            when cast(cast(kasdansetarakas as BIGINT)  as BIGINT) >= cast(cast(mkbdminimum as BIGINT)  as BIGINT) then 'Normal'
                         END AS status,cluster,
                         CASE 
                            WHEN cluster ='<100%'  then '1'
@@ -5264,7 +5264,7 @@ namespace BDA.Helper
                     SELECT calendardate,securitycompanycode,
                     	CASE 
                     		WHEN kasdansetarakas < mkbdminimum then 'Alert'
-                    		WHEN kasdansetarakas > mkbdminimum then 'Normal'
+                    		WHEN kasdansetarakas >= mkbdminimum then 'Normal'
                     	END AS status,cluster,
                         CASE 
                            WHEN cluster ='<100%'  then '1'
@@ -5448,7 +5448,7 @@ namespace BDA.Helper
                         WHERE " + whereQuery + @"";
                 }
 
-               
+
             }
             else
             {
@@ -5606,7 +5606,7 @@ namespace BDA.Helper
             var props = new WSQueryProperties();
             if (isHive == true)
             {
-                if (tableName == "pe_segmentation_det_reverse_repo_new")
+                if (tableName == "pe_segmentation_det_reverse_repo")
                 {
                     props.Query = @"
                         SELECT  row_number() over(order by securitycompanycode) as no,calendardate,securitycompanysk,securitycompanycode,securitycompanyname,securitycode,sellername,buyingdate,sellingdate,
@@ -5623,7 +5623,7 @@ namespace BDA.Helper
             }
             else
             {
-                if (tableName == "pe_segmentation_det_reverse_repo_new")
+                if (tableName == "pe_segmentation_det_reverse_repo")
                 {
                     props.Query = @"
                         Select row_number() over(order by securitycompanycode) as no, * from pasarmodal." + tableName + @" x
@@ -5653,7 +5653,7 @@ namespace BDA.Helper
             var props = new WSQueryProperties();
             if (isHive == true)
             {
-                if (tableName == "pe_segmentation_det_reverse_repo_sum_new")
+                if (tableName == "pe_segmentation_det_reverse_repo_sum")
                 {
                     props.Query = @"
                         SELECT calendardate,securitycompanysk,securitycompanycode,securitycompanyname,mkbdvd510accountsk,mkbdvd510accountcode,mkbdvd510description,
@@ -5667,7 +5667,7 @@ namespace BDA.Helper
             }
             else
             {
-                if (tableName == "pe_segmentation_det_reverse_repo_sum_new")
+                if (tableName == "pe_segmentation_det_reverse_repo_sum")
                 {
                     props.Query = @"
                         select * from pasarmodal." + tableName + @" x
