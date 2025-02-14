@@ -5312,7 +5312,7 @@ namespace BDA.Helper
         public static WSQueryReturns GetBDAPMSegmentationSummaryClusterMKBDQueryDetailRincian(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string periodes, string stringPE, bool isHive = false)
         {
             bool isC = false;
-            var whereQuery = "1=1 and f_level_1 not in ('Pembiayaan Marjin','Reverse Repo','Portofolio Efek') and f_level_2 in ('Pembiayaan Marjin','Reverse Repo','Portofolio Efek') ";
+            var whereQuery = "1=1 and f_level_1 in ('Pembiayaan Marjin','Reverse Repo','Portofolio Efek') and f_level_2 not in ('Pembiayaan Marjin','Reverse Repo','Portofolio Efek') ";
             //isHive = true;
 
             if (periodes != null)
