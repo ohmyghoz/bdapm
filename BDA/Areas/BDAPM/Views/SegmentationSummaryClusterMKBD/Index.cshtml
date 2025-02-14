@@ -72,11 +72,34 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-lg-6">
+            <div class="col-lg-6">
+                @(Html.DevExtreme().Chart()
+                    .ID("bar-chart")
+                    .Title("Cluster PE Berdasarkan Persentase MKBD dibandingkan MKBD Dipersyaratkan")
+                    .Export(e => e.Enabled(true))
+                    .Series(s => s
+                    .Add()
+                    .ArgumentField("cluster")
+                    .ValueField("total")
+                    .Name("Cluster PE")
+                    .Type(SeriesType.Bar)
+                    .Color("red")
+                    .Label(l => l
+                    .Visible(true)
+                    .Format(f => f
+                    .Type(Format.FixedPoint)
+                    .Precision(0))))
+                    .DataSource(d => d.Mvc()
+                    .Controller("SegmentationSummaryClusterMKBD")
+                    .LoadAction("GetChartClusterBarSearch")
+                    .OnBeforeSend("onGridBeforeSend")))
+            </div>
+
+            <div class="col-lg-6">
                 @(Html.DevExtreme().PieChart()
                         .ID("pie-chart")
                         .Type(PieChartType.Doughnut)
-                        .Title("Jumlah Cluster")
+                    .Title("Jumlah PE dengan Alert Kas dan Setara Kas")
                         .Legend(l => l
                         .HorizontalAlignment(HorizontalAlignment.Right)
                         .VerticalAlignment(VerticalEdge.Top)
@@ -105,30 +128,7 @@
                         .OnBeforeSend("onGridBeforeSend")))
                 </div>
 
-            <div class="col-lg-6">
-                @(Html.DevExtreme().Chart()
-                    .ID("bar-chart")
-                    .Title("Cluster PE Berdasarkan Persentase MKBD dibandingkan MKBD Dipersyaratkan")
-                    .Export(e => e.Enabled(true))
-                    .Series(s => s
-                    .Add()
-                    .ArgumentField("cluster")
-                    .ValueField("total")
-                    .Name("Cluster PE")
-                    .Type(SeriesType.Bar)
-                    .Color("red")
-                    .Label(l => l
-                    .Visible(true)
-                    .Format(f => f
-                    .Type(Format.FixedPoint)
-                    .Precision(0))))
-                    .DataSource(d => d.Mvc()
-                    .Controller("SegmentationSummaryClusterMKBD")
-                    .LoadAction("GetChartClusterBarSearch")
-                    .OnBeforeSend("onGridBeforeSend")))
-
-
-            </div>
+            
             </div>
             <br />
             <br />
@@ -317,16 +317,7 @@
         })
     });
 
-    @* $(function () {
-        $("#namaPEid").dxValidator({
-            validationGroup: "Filter",
-            validationRules: [{ type: "required", message: "[Nama PE] harus dipilih" }]
-        })
-    }); *@
 
-    $(window).on('load', function () {
-        $("#ModalSimpanPenggunaanData").modal("show");
-    });
 
     $("#btnSavePenggunaanData").click(function () {
         let penggunaandataid = $("#penggunaandataid").dxSelectBox("instance").option("value");

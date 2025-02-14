@@ -5088,35 +5088,17 @@ namespace BDA.Helper
             {
                 if (tableName == "pe_segmentation_sum_cluster_mkbd")
                 {
-                    //    props.Query = @"
-                    //   SELECT row_number() over(order by securitycompanycode) as no,calendardate,securitycompanycode,securitycompanyname,simpanangiro,depositolt3bulan,depositogt3bulandijaminlps,uangjaminanlkp,cast(cast(kasdansetarakas as BIGINT)  as string) as kasdansetarakas,mkbd,mkbdminimum,mkbdpermkbdminimum,status,periode from (
-                    //    SELECT calendardate,securitycompanycode,securitycompanyname,
-                    //        cast(cast(simpanangiro as BIGINT)  as string) as simpanangiro,
-                    //        cast(cast(depositolt3bulan as BIGINT)  as string) as depositolt3bulan,
-                    //        cast(cast(depositogt3bulandijaminlps as BIGINT)  as string) as depositogt3bulandijaminlps,
-                    //        cast(cast(uangjaminanlkp as BIGINT)  as string) as uangjaminanlkp,
-                    //        (cast(cast(simpanangiro as BIGINT)  as string) + cast(cast(depositolt3bulan as BIGINT)  as string) + cast(cast(depositogt3bulandijaminlps as BIGINT)  as string) + cast(cast(uangjaminanlkp as BIGINT)  as string)) as kasdansetarakas,
-                    //        cast(cast(mkbd as BIGINT)  as string) as mkbd,
-                    //        cast(cast(mkbdminimum as BIGINT)  as string) as mkbdminimum,
-                    //        (cast(cast(mkbd as BIGINT)  as string)/cast(cast(mkbdminimum as BIGINT)  as string)) * 100 as mkbdpermkbdminimum,
-                    //        CASE 
-                    //            when cast(cast(kasdansetarakas as BIGINT)  as string) < cast(cast(mkbdminimum as BIGINT)  as string) then 'Alert'
-                    //            when cast(cast(kasdansetarakas as BIGINT)  as string) > cast(cast(mkbdminimum as BIGINT)  as string) then 'Normal'
-                    //        END AS status,periode,cluster
-                    //        From pasarmodal." + tableName + @") as x
-                    //WHERE " + whereQuery + @"";
-
                     props.Query = @"
                         SELECT row_number() over(order by securitycompanycode) as no,* from (
                         SELECT calendardate,securitycompanycode,securitycompanyname,
-                            cast(cast(simpanangiro as BIGINT)  as string) as simpanangiro,
-                            cast(cast(depositolt3bulan as BIGINT)  as string) as depositolt3bulan,
-                            cast(cast(depositogt3bulandijaminlps as BIGINT)  as string) as depositogt3bulandijaminlps,
-                            cast(cast(uangjaminanlkp as BIGINT)  as string) as uangjaminanlkp,
-                            cast(cast(kasdansetarakas as BIGINT)  as string) as kasdansetarakas,
-                            cast(cast(mkbd as BIGINT)  as string) as mkbd,
-                            cast(cast(mkbdminimum as BIGINT)  as string) as mkbdminimum,
-                            (cast(cast(mkbd as BIGINT)  as string)/cast(cast(mkbdminimum as BIGINT)  as string)) * 100 as mkbdpermkbdminimum,
+                            cast(cast(simpanangiro as BIGINT)  as BIGINT) as simpanangiro,
+                            cast(cast(depositolt3bulan as BIGINT)  as BIGINT) as depositolt3bulan,
+                            cast(cast(depositogt3bulandijaminlps as BIGINT)  as BIGINT) as depositogt3bulandijaminlps,
+                            cast(cast(uangjaminanlkp as BIGINT)  as BIGINT) as uangjaminanlkp,
+                            cast(cast(kasdansetarakas as BIGINT)  as BIGINT) as kasdansetarakas,
+                            cast(cast(mkbd as BIGINT)  as BIGINT) as mkbd,
+                            cast(cast(mkbdminimum as BIGINT)  as BIGINT) as mkbdminimum,
+                            (cast(cast(mkbd as BIGINT)  as BIGINT)/cast(cast(mkbdminimum as BIGINT)  as BIGINT)) * 100 as mkbdpermkbdminimum,
                             CASE 
                                 when cast(cast(kasdansetarakas as BIGINT)  as BIGINT) < cast(cast(mkbdminimum as BIGINT)  as BIGINT) then 'Alert'
                                 when cast(cast(kasdansetarakas as BIGINT)  as BIGINT) >= cast(cast(mkbdminimum as BIGINT)  as BIGINT) then 'Normal'
@@ -5173,14 +5155,14 @@ namespace BDA.Helper
                     props.Query = @"
                     SELECT status,COUNT(status) total from (
                     SELECT calendardate,securitycompanycode,securitycompanyname,
-                        cast(cast(simpanangiro as BIGINT)  as string) as simpanangiro,
-                        cast(cast(depositolt3bulan as BIGINT)  as string) as depositolt3bulan,
+                        cast(cast(simpanangiro as BIGINT)  as BIGINT) as simpanangiro,
+                        cast(cast(depositolt3bulan as BIGINT)  as BIGINT) as depositolt3bulan,
                         cast(cast(depositogt3bulandijaminlps as BIGINT)  as string) as depositogt3bulandijaminlps,
-                        cast(cast(uangjaminanlkp as BIGINT)  as string) as uangjaminanlkp,
-                        cast(cast(kasdansetarakas as BIGINT)  as string) as kasdansetarakas,
-                        cast(cast(mkbd as BIGINT)  as string) as mkbd,
-                        cast(cast(mkbdminimum as BIGINT)  as string) as mkbdminimum,
-                        cast(cast(mkbdminimum as BIGINT)  as string) as mkbdpermkbdminimum,
+                        cast(cast(uangjaminanlkp as BIGINT)  as BIGINT) as uangjaminanlkp,
+                        cast(cast(kasdansetarakas as BIGINT)  as BIGINT) as kasdansetarakas,
+                        cast(cast(mkbd as BIGINT)  as BIGINT) as mkbd,
+                        cast(cast(mkbdminimum as BIGINT)  as BIGINT) as mkbdminimum,
+                        cast(cast(mkbdminimum as BIGINT)  as BIGINT) as mkbdpermkbdminimum,
                         CASE 
                             when cast(cast(kasdansetarakas as BIGINT)  as BIGINT) < cast(cast(mkbdminimum as BIGINT)  as BIGINT) then 'Alert'
                             when cast(cast(kasdansetarakas as BIGINT)  as BIGINT) >= cast(cast(mkbdminimum as BIGINT)  as BIGINT) then 'Normal'
@@ -5235,7 +5217,7 @@ namespace BDA.Helper
                 if (tableName == "pe_segmentation_sum_cluster_mkbd")
                 {
                     props.Query = @"
-                    SELECT cluster,COUNT(status) total,urut from (
+                    SELECT cluster,COUNT(status) total,cast(urut as BIGINT) as urut from (
                     SELECT * FROM (                    
                     SELECT calendardate,securitycompanycode,
                         CASE 
@@ -5251,7 +5233,8 @@ namespace BDA.Helper
                         END AS urut,periode
                     FROM pasarmodal." + tableName + @") as x  
                     WHERE " + whereQuery + @") AS t 						
-                    GROUP BY urut,cluster";
+                    GROUP BY urut,cluster
+                    ORDER BY urut asc";
                 }
             }
             else
@@ -5284,7 +5267,7 @@ namespace BDA.Helper
         public static WSQueryReturns GetBDAPMSegmentationSummaryClusterMKBDQueryDetail(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string periodes, string stringPE, bool isHive = false)
         {
             bool isC = false;
-            var whereQuery = "1=1";
+            var whereQuery = "1=1 and f_level_1 in ('Pembiayaan Marjin','Reverse Repo','Portofolio Efek') and f_level_2 in ('Pembiayaan Marjin','Reverse Repo','Portofolio Efek') ";
             //isHive = true;
 
             if (periodes != null)
@@ -5305,10 +5288,55 @@ namespace BDA.Helper
                 {
                     props.Query = @"
                         SELECT calendardate,securitycompanysk,securitycompanycode,securitycompanyname,f_level_1,f_level_2,
-                            cast(cast(total_balance as BIGINT)  as string) as total_balance,
-                            cast(cast(total_aset_lancar as BIGINT)  as string) as total_aset_lancar,
-                            cast(cast(persentase as BIGINT)  as string) as persentase,
-                            CASE WHEN cast(cast(fairmarketvalue as BIGINT) as string) is null then '0' else cast(cast(fairmarketvalue as BIGINT) as string) END as fairmarketvalue,flag,periode
+                            cast(cast(total_balance as BIGINT)  as BIGINT) as total_balance,
+                            cast(cast(total_aset_lancar as BIGINT)  as BIGINT) as total_aset_lancar,
+                            cast(cast(persentase as BIGINT)  as BIGINT) as persentase,
+                            CASE WHEN cast(cast(fairmarketvalue as BIGINT) as BIGINT) is null then '0' else cast(cast(fairmarketvalue as BIGINT) as BIGINT) END as fairmarketvalue,flag,periode
+                        FROM pasarmodal." + tableName + @" x
+                        WHERE " + whereQuery + @"";
+                }
+            }
+            else
+            {
+                if (tableName == "pe_segmentation_bridging_detail")
+                {
+                    props.Query = @"
+                        select * 
+                        from pasarmodal." + tableName + @" x
+                        WHERE " + whereQuery + @"";
+                }
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMSegmentationSummaryClusterMKBDQueryDetailRincian(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string periodes, string stringPE, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1 and f_level_1 not in ('Pembiayaan Marjin','Reverse Repo','Portofolio Efek') and f_level_2 in ('Pembiayaan Marjin','Reverse Repo','Portofolio Efek') ";
+            //isHive = true;
+
+            if (periodes != null)
+            {
+                periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND periode in (" + periodes.Replace("-", "") + ")";
+            }
+            if (stringPE != null)
+            {
+                stringPE = "'" + stringPE.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND securitycompanycode in (" + stringPE + ")";
+            }
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "pe_segmentation_bridging_detail")
+                {
+                    props.Query = @"
+                        SELECT calendardate,securitycompanysk,securitycompanycode,securitycompanyname,f_level_1,f_level_2,
+                            cast(cast(total_balance as BIGINT)  as BIGINT) as total_balance,
+                            cast(cast(total_aset_lancar as BIGINT)  as BIGINT) as total_aset_lancar,
+                            cast(cast(persentase as BIGINT)  as BIGINT) as persentase,
+                            CASE WHEN cast(cast(fairmarketvalue as BIGINT) as BIGINT) is null then '0' else cast(cast(fairmarketvalue as BIGINT) as BIGINT) END as fairmarketvalue,flag,periode
                         FROM pasarmodal." + tableName + @" x
                         WHERE " + whereQuery + @"";
                 }
@@ -5352,9 +5380,9 @@ namespace BDA.Helper
                         SELECT row_number() over(order by securitycompanycode) as no,
                             calendardate,securitycompanysk,securitycompanycode,securitycompanyname,securitysk,securitycode,securitytypename,
                             affiliated,nominalsheet,acquisitionprice,fairmarketprice,
-                            CASE WHEN cast(cast(fairmarketvalue as BIGINT) as string) is null then '0' else cast(cast(fairmarketvalue as BIGINT) as string) END as fairmarketvalue,gainperloss,
-                            cast(cast(fairmarketvaluepertotalporto as BIGINT)  as string) as fairmarketvaluepertotalporto,entitygroup,marketvaluepercentage,
-                            CASE WHEN cast(cast(liabilitiesrankingvalue as BIGINT) as string) is null then '0' else cast(cast(liabilitiesrankingvalue as BIGINT) as string) END as liabilitiesrankingvalue,periode 
+                            CASE WHEN cast(cast(fairmarketvalue as BIGINT) as BIGINT) is null then '0' else cast(cast(fairmarketvalue as BIGINT) as BIGINT) END as fairmarketvalue,gainperloss,
+                            cast(cast(fairmarketvaluepertotalporto as BIGINT)  as BIGINT) as fairmarketvaluepertotalporto,entitygroup,marketvaluepercentage,
+                            CASE WHEN cast(cast(liabilitiesrankingvalue as BIGINT) as BIGINT) is null then '0' else cast(cast(liabilitiesrankingvalue as BIGINT) as BIGINT) END as liabilitiesrankingvalue,periode 
                         from pasarmodal." + tableName + @" x
                         WHERE " + whereQuery + @"";
                 }
@@ -5397,8 +5425,8 @@ namespace BDA.Helper
                     props.Query = @"
                         SELECT 
                             calendardate,securitycompanysk,securitycompanycode,securitycompanyname,mkbdvd510accountsk,mkbdvd510accountcode,mkbdvd510description,
-                            CASE WHEN cast(cast(fairmarketvalue as BIGINT) as string) is null then '0' else cast(cast(fairmarketvalue as BIGINT) as string) END as fairmarketvalue,
-                            CASE WHEN cast(cast(liabilitiesrankingvalue as BIGINT) as string) is null then '0' else cast(cast(liabilitiesrankingvalue as BIGINT) as string) END as liabilitiesrankingvalue,periode 
+                            CASE WHEN cast(cast(fairmarketvalue as BIGINT) as BIGINT) is null then '0' else cast(cast(fairmarketvalue as BIGINT) as BIGINT) END as fairmarketvalue,
+                            CASE WHEN cast(cast(liabilitiesrankingvalue as BIGINT) as BIGINT) is null then '0' else cast(cast(liabilitiesrankingvalue as BIGINT) as BIGINT) END as liabilitiesrankingvalue,periode 
                             from pasarmodal." + tableName + @" x
                         WHERE " + whereQuery + @"";
                 }
@@ -5439,10 +5467,10 @@ namespace BDA.Helper
                 {
                     props.Query = @"
                         SELECT calendardate,securitycompanysk,securitycompanycode,securitycompanyname,mutualfundtypesk,mutualfundtypecode,mutualfundtypename,mutualfundname,isaffiliated,
-                        CASE WHEN cast(cast(netassetvalueunit as BIGINT) as string) is null then '0' else cast(cast(netassetvalueunit as BIGINT) as string) END as netassetvalueunit,
-                        CASE WHEN cast(cast(netassetvaluemutualfund as BIGINT) as string) is null then '0' else cast(cast(netassetvaluemutualfund as BIGINT) as string) END as netassetvaluemutualfund,
-                        CASE WHEN cast(cast(mkbdlimitationvalue as BIGINT) as string) is null then '0' else cast(cast(mkbdlimitationvalue as BIGINT) as string) END as mkbdlimitationvalue,liabilitiesrankingcal,
-                        CASE WHEN cast(cast(mkbdlimitationexcessvalue as BIGINT) as string) is null then '0' else cast(cast(mkbdlimitationexcessvalue as BIGINT) as string) END as mkbdlimitationexcessvalue,
+                        CASE WHEN cast(cast(netassetvalueunit as BIGINT) as BIGINT) is null then '0' else cast(cast(netassetvalueunit as BIGINT) as BIGINT) END as netassetvalueunit,
+                        CASE WHEN cast(cast(netassetvaluemutualfund as BIGINT) as BIGINT) is null then '0' else cast(cast(netassetvaluemutualfund as BIGINT) as BIGINT) END as netassetvaluemutualfund,
+                        CASE WHEN cast(cast(mkbdlimitationvalue as BIGINT) as BIGINT) is null then '0' else cast(cast(mkbdlimitationvalue as BIGINT) as BIGINT) END as mkbdlimitationvalue,liabilitiesrankingcal,
+                        CASE WHEN cast(cast(mkbdlimitationexcessvalue as BIGINT) as BIGINT) is null then '0' else cast(cast(mkbdlimitationexcessvalue as BIGINT) as BIGINT) END as mkbdlimitationexcessvalue,
                         periode 
                         from pasarmodal." + tableName + @" x
                         WHERE " + whereQuery + @"";
@@ -5486,8 +5514,8 @@ namespace BDA.Helper
                 {
                     props.Query = @"
                         SELECT calendardate,securitycompanysk,securitycompanycode,securitycompanyname, mkbdvd510accountsk,mkbdvd510accountcode,
-                        CASE WHEN cast(cast(mkbdvd510description as BIGINT) as string) is null then '' else cast(cast(mkbdvd510description as BIGINT) as string) END as mkbdvd510description,
-                        CASE WHEN cast(cast(mkbdlimitationexcessvalue as BIGINT) as string) is null then '0' else cast(cast(mkbdlimitationexcessvalue as BIGINT) as string) END as mkbdlimitationexcessvalue
+                        CASE WHEN cast(cast(mkbdvd510description as BIGINT) as BIGINT) is null then '' else cast(cast(mkbdvd510description as BIGINT) as BIGINT) END as mkbdvd510description,
+                        CASE WHEN cast(cast(mkbdlimitationexcessvalue as BIGINT) as BIGINT) is null then '0' else cast(cast(mkbdlimitationexcessvalue as BIGINT) as BIGINT) END as mkbdlimitationexcessvalue
                         from pasarmodal." + tableName + @" x
                         WHERE " + whereQuery + @"";
                 }
@@ -5528,7 +5556,7 @@ namespace BDA.Helper
                 {
                     props.Query = @"
                         Select row_number() over(order by securitycompanycode) as no,calendardate,securitycompanysk,securitycompanycode,securitycompanyname,securitysk,securitycode,securityname,volume,price,
-                            CASE WHEN cast(cast(fairmarketvalue as BIGINT) as string) is null then '0' else cast(cast(fairmarketvalue as BIGINT) as string) END as fairmarketvalue,periode 
+                            CASE WHEN cast(cast(fairmarketvalue as BIGINT) as BIGINT) is null then '0' else cast(cast(fairmarketvalue as BIGINT) as BIGINT) END as fairmarketvalue,periode 
                         from pasarmodal." + tableName + @" x
                         WHERE " + whereQuery + @"";
                 }
@@ -5569,7 +5597,7 @@ namespace BDA.Helper
                 {
                     props.Query = @"
                         select calendardate,securitycompanysk,securitycompanycode,securitycompanyname,mkbdvd510accountsk,mkbdvd510accountcode,mkbdvd510description,
-                            CASE WHEN cast(cast(fairmarketvalue as BIGINT) as string) is null then '0' else cast(cast(fairmarketvalue as BIGINT) as string) END as fairmarketvalue,periode 
+                            CASE WHEN cast(cast(fairmarketvalue as BIGINT) as BIGINT) is null then '0' else cast(cast(fairmarketvalue as BIGINT) as BIGINT) END as fairmarketvalue,periode 
                         from pasarmodal." + tableName + @" x
                         WHERE " + whereQuery + @"";
                 }
@@ -5610,13 +5638,13 @@ namespace BDA.Helper
                 {
                     props.Query = @"
                         SELECT  row_number() over(order by securitycompanycode) as no,calendardate,securitycompanysk,securitycompanycode,securitycompanyname,securitycode,sellername,buyingdate,sellingdate,
-                            CASE WHEN cast(cast(buyingamount as BIGINT) as string) is null then '0' else cast(cast(buyingamount as BIGINT) as string) END as buyingamount,
-                            CASE WHEN cast(cast(sellingamount as BIGINT) as string) is null then '0' else cast(cast(sellingamount as BIGINT) as string) END as sellingamount,
+                            CASE WHEN cast(cast(buyingamount as BIGINT) as BIGINT) is null then '0' else cast(cast(buyingamount as BIGINT) as BIGINT) END as buyingamount,
+                            CASE WHEN cast(cast(sellingamount as BIGINT) as BIGINT) is null then '0' else cast(cast(sellingamount as BIGINT) as BIGINT) END as sellingamount,
                             collateralsecuritycode,
-                            CASE WHEN cast(cast(collateralamount as BIGINT) as string) is null then '0' else cast(cast(collateralamount as BIGINT) as string) END as collateralamount,
-                            CASE WHEN cast(cast(fairmarketvalue as BIGINT) as string) is null then '0' else cast(cast(fairmarketvalue as BIGINT) as string) END as fairmarketvalue,
-                            CASE WHEN cast(cast(liabilitiesrankingvalue as BIGINT) as string) is null then '0' else cast(cast(liabilitiesrankingvalue as BIGINT) as string) END as liabilitiesrankingvalue,
-                            cast(cast(rasio as BIGINT)  as string) as rasio,periode 
+                            CASE WHEN cast(cast(collateralamount as BIGINT) as BIGINT) is null then '0' else cast(cast(collateralamount as BIGINT) as BIGINT) END as collateralamount,
+                            CASE WHEN cast(cast(fairmarketvalue as BIGINT) as BIGINT) is null then '0' else cast(cast(fairmarketvalue as BIGINT) as BIGINT) END as fairmarketvalue,
+                            CASE WHEN cast(cast(liabilitiesrankingvalue as BIGINT) as BIGINT) is null then '0' else cast(cast(liabilitiesrankingvalue as BIGINT) as BIGINT) END as liabilitiesrankingvalue,
+                            cast(cast(rasio as BIGINT)  as BIGINT) as rasio,periode 
                         FROM pasarmodal." + tableName + @" x
                         WHERE " + whereQuery + @"";
                 }
@@ -5657,10 +5685,10 @@ namespace BDA.Helper
                 {
                     props.Query = @"
                         SELECT calendardate,securitycompanysk,securitycompanycode,securitycompanyname,mkbdvd510accountsk,mkbdvd510accountcode,mkbdvd510description,
-                        CASE WHEN cast(cast(buyingamount as BIGINT) as string) is null then '0' else cast(cast(buyingamount as BIGINT) as string) END as buyingamount,
-                        CASE WHEN cast(cast(sellingamount as BIGINT) as string) is null then '0' else cast(cast(sellingamount as BIGINT) as string) END as sellingamount,
-                        CASE WHEN cast(cast(fairmarketvalue as BIGINT) as string) is null then '0' else cast(cast(fairmarketvalue as BIGINT) as string) END as fairmarketvalue,
-                        CASE WHEN cast(cast(liabilitiesrankingvalue as BIGINT) as string) is null then '0' else cast(cast(liabilitiesrankingvalue as BIGINT) as string) END as liabilitiesrankingvalue,periode 
+                        CASE WHEN cast(cast(buyingamount as BIGINT) as BIGINT) is null then '0' else cast(cast(buyingamount as BIGINT) as BIGINT) END as buyingamount,
+                        CASE WHEN cast(cast(sellingamount as BIGINT) as BIGINT) is null then '0' else cast(cast(sellingamount as BIGINT) as BIGINT) END as sellingamount,
+                        CASE WHEN cast(cast(fairmarketvalue as BIGINT) as BIGINT) is null then '0' else cast(cast(fairmarketvalue as BIGINT) as BIGINT) END as fairmarketvalue,
+                        CASE WHEN cast(cast(liabilitiesrankingvalue as BIGINT) as BIGINT) is null then '0' else cast(cast(liabilitiesrankingvalue as BIGINT) as BIGINT) END as liabilitiesrankingvalue,periode 
                         FROM pasarmodal." + tableName + @" x
                         WHERE " + whereQuery + @"";
                 }

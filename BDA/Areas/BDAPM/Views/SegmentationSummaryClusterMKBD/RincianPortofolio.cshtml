@@ -122,7 +122,7 @@
                 .WordWrapEnabled(true)
                 .Columns(columns =>
                 {
-                    columns.Add().DataField("securitytypename").Caption("Jenis Efek*").Width(300);
+                        //columns.Add().DataField("securitytypename").Caption("Jenis Efek*").Width(300); 
                     columns.Add().DataField("no").Caption("No.").Alignment(HorizontalAlignment.Center);
                     columns.Add().DataField("securitycode").Caption("Kode Efek");
                     columns.Add().DataField("affiliated").Caption("Terafiliasi/Tidak Terafiliasi");
@@ -362,15 +362,16 @@
     }
 
     $(function () {
-        const startDate = $("#PeriodeAwal").dxDateBox({
-            onValueChanged: function (e) {
-    @* endDate.option("min", e.value); *@
-            }
-        }).dxDateBox("instance");
+        const startDate = $("#PeriodeAwal").dxDateBox({onValueChanged: function (e) {}}).dxDateBox("instance");
 
         $("#PeriodeAwal").dxValidator({
             validationGroup: "Filter",
             validationRules: [{ type: "required", message: "[Tanggal] harus dipilih" }]
+        })
+
+         $("#namaPEid").dxValidator({
+            validationGroup: "Filter",
+            validationRules: [{ type: "required", message: "[Nama PE] harus dipilih" }]
         })
     });
 
@@ -380,17 +381,6 @@
             validationRules: [{ type: "required", message: "[Penggunaan Data] harus dipilih" }]
         })
     });
-
-    @* $(function () {
-        $("#namaPEid").dxValidator({
-        validationGroup: "Filter",
-        validationRules: [{ type: "required", message: "[Nama PE] harus dipilih" }]
-        })
-        }); *@
-
-        $(window).on('load', function () {
-            $("#ModalSimpanPenggunaanData").modal("show");
-        });
 
     $("#btnSavePenggunaanData").click(function () {
         let penggunaandataid = $("#penggunaandataid").dxSelectBox("instance").option("value");

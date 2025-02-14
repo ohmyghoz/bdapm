@@ -362,15 +362,16 @@
     }
 
     $(function () {
-        const startDate = $("#PeriodeAwal").dxDateBox({
-            onValueChanged: function (e) {
-    @* endDate.option("min", e.value); *@
-            }
-        }).dxDateBox("instance");
+        const startDate = $("#PeriodeAwal").dxDateBox({onValueChanged: function (e) {}}).dxDateBox("instance");
 
         $("#PeriodeAwal").dxValidator({
             validationGroup: "Filter",
             validationRules: [{ type: "required", message: "[Tanggal] harus dipilih" }]
+        })
+
+         $("#namaPEid").dxValidator({
+            validationGroup: "Filter",
+            validationRules: [{ type: "required", message: "[Nama PE] harus dipilih" }]
         })
     });
 
@@ -381,16 +382,6 @@
         })
     });
 
-    @* $(function () {
-        $("#namaPEid").dxValidator({
-        validationGroup: "Filter",
-        validationRules: [{ type: "required", message: "[Nama PE] harus dipilih" }]
-        })
-        }); *@
-
-        $(window).on('load', function () {
-            $("#ModalSimpanPenggunaanData").modal("show");
-        });
 
     $("#btnSavePenggunaanData").click(function () {
         let penggunaandataid = $("#penggunaandataid").dxSelectBox("instance").option("value");

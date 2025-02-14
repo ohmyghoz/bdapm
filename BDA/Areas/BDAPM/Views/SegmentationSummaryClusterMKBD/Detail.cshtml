@@ -130,7 +130,7 @@
                     columns.Add().DataField("f_level_1").Caption("Konsentrasi Aset Lancar Selain Kas Dan Setara Kas").Width(150);
                     columns.Add().DataField("total_balance").Caption("Total Balance").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
                     columns.Add().DataField("total_aset_lancar").Caption("Total Aset Lancar").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
-                    columns.Add().DataField("persentase").Caption("Persentase").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+                    columns.Add().DataField("persentase").Caption("Persentase").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##00");
                     columns.Add().DataField("fairmarketvalue").Caption("Nilai Jaminan Margin").Width(150).Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
                 })
                 .ColumnResizingMode(ColumnResizingMode.Widget)
@@ -181,7 +181,7 @@
                     columns.Add().DataField("f_level_2").Caption("Nama Akun").Width(300);
                     columns.Add().DataField("total_balance").Caption("Total Balance").DataType(GridColumnDataType.Number).Format(",##0");
                     columns.Add().DataField("total_aset_lancar").Caption("Total Portofolio Efek").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
-                    columns.Add().DataField("persentase").Caption("Persentase").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+                    columns.Add().DataField("persentase").Caption("Persentase").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##00");
                     columns.Add().DataField("fairmarketvalue").Caption("Haircut").Width(150).Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
                 })
                 .ColumnResizingMode(ColumnResizingMode.Widget)
@@ -372,6 +372,11 @@
             validationGroup: "Filter",
             validationRules: [{ type: "required", message: "[Tanggal] harus dipilih" }]
         })
+
+        $("#namaPEid").dxValidator({
+            validationGroup: "Filter",
+            validationRules: [{ type: "required", message: "[Nama PE] harus dipilih" }]
+        })
     });
 
     $(function () {
@@ -381,20 +386,13 @@
         })
     });
 
-    @* $(function () {
-        $("#namaPEid").dxValidator({
-            validationGroup: "Filter",
-            validationRules: [{ type: "required", message: "[Nama PE] harus dipilih" }]
-        })
-    }); *@
-
     $(window).on('load', function () {
         var someStringValue = '@(ViewBag.KodePE)';
 
         var vJenis = $("#CboJenis").val(someStringValue);
         $("#CboJenis option:selected").val(someStringValue);
 
-        $("#ModalSimpanPenggunaanData").modal("show");
+        
     });
 
     $("#btnSavePenggunaanData").click(function () {
@@ -413,6 +411,7 @@
                     if (data.success == true) {
                         $('#ModalSimpanPenggunaanData').modal('hide');
                         return "Saving Success !";
+                        //$("#ModalSimpanPenggunaanData").modal("show");
                     }
                     else if (data.success == false) {
                         alert(data.message);
