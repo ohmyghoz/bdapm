@@ -317,8 +317,17 @@
         })
     });
 
+    @* $(function () {
+        $("#namaPEid").dxValidator({
+            validationGroup: "Filter",
+            validationRules: [{ type: "required", message: "[Nama PE] harus dipilih" }]
+        })
+    }); *@
 
-
+@*     $(window).on('load', function () {
+       $("#grid1").dxDataGrid("instance").refresh();
+    });
+ *@
     $("#btnSavePenggunaanData").click(function () {
         let penggunaandataid = $("#penggunaandataid").dxSelectBox("instance").option("value");
 
@@ -435,40 +444,37 @@
     }
 
     function onButtonFilterClicked(e) {
-        const res = e.validationGroup.validate();
-        if (res.status === "valid") {
-            let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
-            let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
-            let status = $("#Statusid").dxTagBox("instance").option("value");
+        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
+        let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
+        let status = $("#Statusid").dxTagBox("instance").option("value");
 
 
-            let periodeAwal = null;
-            if (tempPeriodeAwal != null) {
-                periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
-            }
-
-            $("#grid1").dxDataGrid("instance").refresh();
-
-            $.ajax({
-                url: '@Url.Action("GetChartClusterSearch", "SegmentationSummaryClusterMKBD")',
-                data: { periodeAwal: periodeAwal, namaPE: namaPE, status: JSON.stringify(status) },
-                dataType: "json",
-                type: "POST",
-                success: function (response) {
-                    $("#pie-chart").dxPieChart("instance").refresh();
-                }
-            });
-
-            $.ajax({
-                url: '@Url.Action("GetChartClusterBarSearch", "SegmentationSummaryClusterMKBD")',
-                data: { periodeAwal: periodeAwal, namaPE: namaPE, status: JSON.stringify(status) },
-                dataType: "json",
-                type: "POST",
-                success: function (response) {
-                    $("#bar-chart").dxChart("instance").refresh();
-                }
-            });
+        let periodeAwal = null;
+        if (tempPeriodeAwal != null) {
+        periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
         }
+
+        $("#grid1").dxDataGrid("instance").refresh();
+
+        $.ajax({
+            url: '@Url.Action("GetChartClusterSearch", "SegmentationSummaryClusterMKBD")',
+            data: { periodeAwal: periodeAwal, namaPE: namaPE, status: JSON.stringify(status) },
+            dataType: "json",
+            type: "POST",
+            success: function (response) {
+            $("#pie-chart").dxPieChart("instance").refresh();
+            }
+        });
+
+        $.ajax({
+            url: '@Url.Action("GetChartClusterBarSearch", "SegmentationSummaryClusterMKBD")',
+            data: { periodeAwal: periodeAwal, namaPE: namaPE, status: JSON.stringify(status) },
+            dataType: "json",
+            type: "POST",
+            success: function (response) {
+            $("#bar-chart").dxChart("instance").refresh();
+            }
+        });
     }
 
     function onGridBeforeSend(method, ajaxOptions) {
