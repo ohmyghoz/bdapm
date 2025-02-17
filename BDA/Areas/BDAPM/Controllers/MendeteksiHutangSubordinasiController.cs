@@ -57,6 +57,9 @@ namespace BDA.Controllers
             db.CheckPermission("Hutang Subordinasi View", DataEntities.PermissionMessageType.ThrowInvalidOperationException); //check permission nya view/lihat nya
             db.InsertAuditTrail("MendeteksiHutangSubordinasi_Akses_Page", "Akses Page Hutang Subordinasi", pageTitle); //simpan kedalam audit trail
 
+            var userId = HttpContext.User.Identity.Name;
+            db.InsertAuditTrail("MendeteksiHutangSubordinasi_Akses_Page", "user " + userId + " mengakases halaman Mendeteksi Hutang Subordinasi untuk digunakan sebagai Pengawasan Perusahaan Efek", pageTitle);
+
             return View();
         }
 

@@ -55,6 +55,9 @@ namespace BDA.Controllers
             db.CheckPermission("Pendanaan MKBD View", DataEntities.PermissionMessageType.ThrowInvalidOperationException); //check permission nya view/lihat nya
             db.InsertAuditTrail("PendanaanMKBD_Akses_Page", "Akses Page Pendanaan MKBD", pageTitle); //simpan kedalam audit trail
 
+            var userId = HttpContext.User.Identity.Name;
+            db.InsertAuditTrail("PendanaanMKBD_Akses_Page", "user " + userId + " mengakases halaman Pendanaan MKBD untuk digunakan sebagai Pengawasan Perusahaan Efek", pageTitle);
+
             return View();
         }
         [HttpGet]

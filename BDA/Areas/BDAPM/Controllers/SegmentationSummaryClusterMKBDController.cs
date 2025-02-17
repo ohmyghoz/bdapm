@@ -100,7 +100,7 @@ namespace BDA.Controllers
                 TempData["sts"] = stringStatus;
             }
 
-            db.Database.CommandTimeout = 420;
+            db.Database.CommandTimeout = 1200;
             if (periodeAwal.Length > 0) //jika ada parameter nya
             {
                 var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQuery(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, stringStatus, cekHive);

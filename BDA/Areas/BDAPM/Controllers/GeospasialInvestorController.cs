@@ -64,6 +64,9 @@ namespace BDA.Controllers
             db.CheckPermission("Geospasial View", DataEntities.PermissionMessageType.ThrowInvalidOperationException); //check permission nya view/lihat nya
             db.InsertAuditTrail("geospasial_Akses_Page", "Akses Page geospasial Investor", pageTitle); //simpan kedalam audit trail
 
+            var userId = HttpContext.User.Identity.Name;
+            db.InsertAuditTrail("DemografiInvestor_Akses_Page", "user " + userId + " mengakases halaman Geospasial Investor untuk digunakan sebagai Pengawasan Perusahaan Efek", pageTitle);
+
             return View();
         }
 
@@ -350,6 +353,7 @@ namespace BDA.Controllers
             var userId = HttpContext.User.Identity.Name;
             string strSQL = db.appSettings.DataConnString;
             var list = new List<NamaPE>();
+            list.Add(new NamaPE() { value = "", text = "(ALL)" });
 
             using (SqlConnection conn = new SqlConnection(strSQL))
             {
