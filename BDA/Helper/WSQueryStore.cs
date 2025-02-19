@@ -5290,7 +5290,7 @@ namespace BDA.Helper
                         SELECT calendardate,securitycompanysk,securitycompanycode,securitycompanyname,f_level_1,f_level_2,
                             cast(cast(total_balance as BIGINT)  as BIGINT) as total_balance,
                             cast(cast(total_aset_lancar as BIGINT)  as BIGINT) as total_aset_lancar,
-                            cast(cast(persentase as BIGINT)  as BIGINT) as persentase,
+                            cast(persentase as DECIMAL(10,2)) AS persentase,
                             CASE WHEN cast(cast(fairmarketvalue as BIGINT) as BIGINT) is null then '0' else cast(cast(fairmarketvalue as BIGINT) as BIGINT) END as fairmarketvalue,flag,periode
                         FROM pasarmodal." + tableName + @" x
                         WHERE " + whereQuery + @"";
@@ -5335,7 +5335,7 @@ namespace BDA.Helper
                         SELECT calendardate,securitycompanysk,securitycompanycode,securitycompanyname,f_level_1,f_level_2,
                             cast(cast(total_balance as BIGINT)  as BIGINT) as total_balance,
                             cast(cast(total_aset_lancar as BIGINT)  as BIGINT) as total_aset_lancar,
-                            cast(cast(persentase as BIGINT)  as BIGINT) as persentase,
+                            cast(persentase as DECIMAL(10,2)) AS persentase,
                             CASE WHEN cast(cast(fairmarketvalue as BIGINT) as BIGINT) is null then '0' else cast(cast(fairmarketvalue as BIGINT) as BIGINT) END as fairmarketvalue,flag,periode
                         FROM pasarmodal." + tableName + @" x
                         WHERE " + whereQuery + @"";

@@ -23,12 +23,15 @@
                         @(Html.DevExtreme().DateBox()
                             .ID("PeriodeAwal")
                             .DisplayFormat("dd MMM yyyy")
-                            .Value(DateTime.Now)
+                            .Value(Convert.ToDateTime(@ViewBag.PeriodeAwalDate))
                             .Max(DateTime.Now)
                             .Width("100%"))
                     </div>
-
                     <div class="col-lg-4 form-group">
+                        <label>Nama PE</label>
+                        @(Html.DropDownList("CboJenis", (IEnumerable<SelectListItem>)@ViewBag.Jenis, new { @class = "form-control" }))
+                    </div>
+                    <div class="col-lg-4 form-group" hidden="hidden">
                         <label>Nama PE</label>
                         @(Html.DevExtreme().SelectBox()
                             .ID("namaPEid")
@@ -41,7 +44,6 @@
                             .DisplayExpr("text")
                             .SearchEnabled(true)
                             .Width("100%")
-                            .Placeholder("(ALL)")
                             )
                     </div>
                     <div class="col-lg-4 form-group" style="padding-top:25px;">
@@ -63,7 +65,7 @@
                 <tr>
                     <td>
                         <div class="form-group">
-                            <input type="button" id="btnDetailCluster" class="btn btn-danger" value="Detail Cluster MKBD" onclick="location.href='@Url.Action("Detail", "SegmentationSummaryClusterMKBD")'" />
+                            <input type="button" id="btnDetailCluster" class="btn btn-danger" value="Detail Cluster MKBD"  />
                         </div>
                     </td>
                     <td></td>
@@ -75,19 +77,19 @@
                     <td></td>
                     <td>
                         <div class="form-group">
-                            <input type="button" id="btnReksadana" class="btn btn-danger" value="Reksadana" onclick="location.href='@Url.Action("Reksadana", "SegmentationSummaryClusterMKBD")'" />
+                            <input type="button" id="btnReksadana" class="btn btn-danger" value="Reksadana"  />
                         </div>
                     </td>
                     <td></td>
                     <td>
                         <div class="form-group">
-                            <input type="button" id="btnJaminanMargin" class="btn btn-danger" value="Jaminan Margin" onclick="location.href='@Url.Action("JaminanMargin", "SegmentationSummaryClusterMKBD")'" />
+                            <input type="button" id="btnJaminanMargin" class="btn btn-danger" value="Jaminan Margin"  />
                         </div>
                     </td>
                     <td></td>
                     <td>
                         <div class="form-group">
-                            <input type="button" id="btnReverseRepo" class="btn btn-danger" value="Reverse Repo" onclick="location.href='@Url.Action("ReverseRepo", "SegmentationSummaryClusterMKBD")'" />
+                            <input type="button" id="btnReverseRepo" class="btn btn-danger" value="Reverse Repo"  />
                         </div>
                     </td>
                 </tr>
@@ -242,6 +244,53 @@
 </script>
 
 <script>
+    $("#btnDetailCluster").click(function () {
+        let Kode_PE = $("#CboJenis option:selected").val();
+        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
+        let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
+
+        let periodeAwal = null;
+        if (tempPeriodeAwal != null) {
+            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
+        }
+        window.open('@Url.Action("Detail", "SegmentationSummaryClusterMKBD")?id=' + Kode_PE + '&periodeAwal=' + periodeAwal);
+      });
+
+     $("#btnReksadana").click(function () {
+        let Kode_PE = $("#CboJenis option:selected").val();
+        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
+        let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
+
+        let periodeAwal = null;
+        if (tempPeriodeAwal != null) {
+            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
+        }
+        window.open('@Url.Action("Reksadana", "SegmentationSummaryClusterMKBD")?id=' + Kode_PE + '&periodeAwal=' + periodeAwal);
+      });
+
+      $("#btnJaminanMargin").click(function () {
+        let Kode_PE = $("#CboJenis option:selected").val();
+        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
+        let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
+
+        let periodeAwal = null;
+        if (tempPeriodeAwal != null) {
+            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
+        }
+        window.open('@Url.Action("JaminanMargin", "SegmentationSummaryClusterMKBD")?id=' + Kode_PE + '&periodeAwal=' + periodeAwal);
+      });
+
+      $("#btnReverseRepo").click(function () {
+        let Kode_PE = $("#CboJenis option:selected").val();
+        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
+        let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
+
+        let periodeAwal = null;
+        if (tempPeriodeAwal != null) {
+            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
+        }
+        window.open('@Url.Action("ReverseRepo", "SegmentationSummaryClusterMKBD")?id=' + Kode_PE + '&periodeAwal=' + periodeAwal);
+      });
 
     function ExportToExcelRincianPortofolio() {
         $.ajax({
@@ -379,6 +428,18 @@
         })
     });
 
+    $(window).on('load', function () {
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const myParam = urlParams.get('id');
+        
+        var someStringValue = myParam;
+
+        var vJenis = $("#CboJenis").val(someStringValue);
+        $("#CboJenis option:selected").val(someStringValue);
+        
+    });
+
     $("#btnSavePenggunaanData").click(function () {
         let penggunaandataid = $("#penggunaandataid").dxSelectBox("instance").option("value");
 
@@ -413,9 +474,8 @@
     }
 
     function onButtonFilterClicked(e) {
-        const res = e.validationGroup.validate();
-        if (res.status === "valid") {
-            let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
+        let Kode_PE = $("#CboJenis option:selected").val();
+        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
             let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
 
             let periodeAwal = null;
@@ -452,12 +512,12 @@
             } else {
                 $.ajax({
                     url: '@Url.Action("GetGridDataRincianPortofolio", "SegmentationSummaryClusterMKBD")',
-                    data: { periodeAwal: periodeAwal, namaPE: namaPE },
+                    data: { periodeAwal: periodeAwal, namaPE: Kode_PE },
                     dataType: "json",
                     type: "POST",
                     success: function (response) {
 
-                        window.history.pushState('', 'My Page', 'RincianPortofolio?id=' + namaPE + '&periodeAwal=' + periodeAwal + '');
+                        window.history.pushState('', 'My Page', 'RincianPortofolio?id=' + Kode_PE + '&periodeAwal=' + periodeAwal + '');
                         $("#grid1").dxDataGrid("refresh");
                         $('#ModalSimpanPenggunaanData').modal('hide');
                     }
@@ -465,17 +525,16 @@
 
                 $.ajax({
                     url: '@Url.Action("GetGridDataRincianPortofolioDetailSummary", "SegmentationSummaryClusterMKBD")',
-                    data: { periodeAwal: periodeAwal, namaPE: namaPE },
+                    data: { periodeAwal: periodeAwal, namaPE: Kode_PE },
                     dataType: "json",
                     type: "POST",
                     success: function (response) {
 
-                        window.history.pushState('', 'My Page', 'RincianPortofolio?id=' + namaPE + '&periodeAwal=' + periodeAwal + '');
+                        window.history.pushState('', 'My Page', 'RincianPortofolio?id=' + Kode_PE + '&periodeAwal=' + periodeAwal + '');
                         $("#grid2").dxDataGrid("refresh");
                         $('#ModalSimpanPenggunaanData').modal('hide');
                     }
                 });
             }
-        }
     }
 </script>
