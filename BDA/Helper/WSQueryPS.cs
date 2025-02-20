@@ -180,7 +180,7 @@ namespace BDA.Helper
             }
             var props = new WSQueryProperties();
 
-            props.Query = @"select securitycompanyname as namape, calendardate as tanggalhsot0, cast(mkbdaccountbalance as bigint) as hso, sellername as lawantransaksi, buyingdate as buyingdate, sum(cast(buyingamount as bigint)) as reverserepo from pasarmodal.pe_segmentation_hutang_subordinasi_det WHERE " + whereQuery;
+            props.Query = @"select securitycompanyname as namape, calendardate as tanggalhsot0, cast(mkbdaccountbalance as bigint) as hso, sellername as lawantransaksi, buyingdate as buyingdate, cast(buyingamount as bigint) as reverserepo from pasarmodal.pe_segmentation_hutang_subordinasi_det WHERE " + whereQuery;
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
         }
