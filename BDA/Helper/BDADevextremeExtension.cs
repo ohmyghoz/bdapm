@@ -2683,13 +2683,13 @@ namespace BDA.Helper
                         visible = true;
                         string left3 = row.ColumnName.Substring(0, 3);
                         if (left3 == "buy" || left3 == "sel" || left3 == "net") continue;
-                        if ((new string[] { "trade_id", "ktp", "npwp", "periode", "system" }.Any(s => row.ColumnName == s))) visible = false;
+                        if ((new string[] { "trade_id", "ktp", "npwp", "system" }.Any(s => row.ColumnName == s))) visible = false;
                         
                     }
                     else if (kode == "ip_ownership")
                     {
                         visible = true;
-                        if ((new string[] { "trade_id", "ktp", "npwp", "periode" }.Any(s => row.ColumnName == s))) visible = false;
+                        if ((new string[] { "trade_id", "ktp", "npwp" }.Any(s => row.ColumnName == s))) visible = false;
                         
                     }
                     else if (regex.Match(kode).Success)

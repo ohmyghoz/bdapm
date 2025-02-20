@@ -75,7 +75,7 @@ namespace BDA.Helper
             }
                         
             wqr.data = dt;
-
+            wqr.totalCount = dt.Rows.Count;
             return wqr;
         }
 

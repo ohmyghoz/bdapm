@@ -368,7 +368,7 @@ namespace BDA.Controllers
                 TempData["ePeriod"] = stringEndPeriode;
             }
 
-
+            loadOptions.RequireTotalCount = false;
 
             if (startPeriode != null && (regex.Match(reportId).Success || sistem != null) && (SID != null || tradeId != null || namaSID != null || namaLike != null || nomorKTP != null || nomorNPWP != null || passport != null || businessReg != null))
                 {
