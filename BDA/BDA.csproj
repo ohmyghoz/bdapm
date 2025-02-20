@@ -15,6 +15,7 @@
     <Company>BDA</Company>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Areas\BDAPM\Views\SampleGrid\**" />
     <Compile Remove="Areas\Master\Views\Calendar\**" />
     <Compile Remove="Areas\Master\Views\LOV\**" />
     <Compile Remove="Areas\Master\Views\MasterThreshold\**" />
@@ -24,6 +25,7 @@
     <Compile Remove="Controllers\**" />
     <Compile Remove="Helper\WSQueryStore.cs\**" />
     <Compile Remove="Views\Login\**" />
+    <Content Remove="Areas\BDAPM\Views\SampleGrid\**" />
     <Content Remove="Areas\Master\Views\Calendar\**" />
     <Content Remove="Areas\Master\Views\LOV\**" />
     <Content Remove="Areas\Master\Views\MasterThreshold\**" />
@@ -33,6 +35,7 @@
     <Content Remove="Controllers\**" />
     <Content Remove="Helper\WSQueryStore.cs\**" />
     <Content Remove="Views\Login\**" />
+    <EmbeddedResource Remove="Areas\BDAPM\Views\SampleGrid\**" />
     <EmbeddedResource Remove="Areas\Master\Views\Calendar\**" />
     <EmbeddedResource Remove="Areas\Master\Views\LOV\**" />
     <EmbeddedResource Remove="Areas\Master\Views\MasterThreshold\**" />
@@ -42,6 +45,7 @@
     <EmbeddedResource Remove="Controllers\**" />
     <EmbeddedResource Remove="Helper\WSQueryStore.cs\**" />
     <EmbeddedResource Remove="Views\Login\**" />
+    <None Remove="Areas\BDAPM\Views\SampleGrid\**" />
     <None Remove="Areas\Master\Views\Calendar\**" />
     <None Remove="Areas\Master\Views\LOV\**" />
     <None Remove="Areas\Master\Views\MasterThreshold\**" />

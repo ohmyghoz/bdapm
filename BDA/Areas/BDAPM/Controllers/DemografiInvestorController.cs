@@ -61,6 +61,9 @@ namespace BDA.Controllers
             db.CheckPermission("Demografi Investor View", DataEntities.PermissionMessageType.ThrowInvalidOperationException); //check permission nya view/lihat nya
             db.InsertAuditTrail("DemografiInvestor_Akses_Page", "Akses Page Demografi Investor", pageTitle); //simpan kedalam audit trail
 
+            var userId = HttpContext.User.Identity.Name;
+            db.InsertAuditTrail("DemografiInvestor_Akses_Page", "user " + userId + " mengakases halaman Demografi Investor untuk digunakan sebagai Pengawasan Perusahaan Efek", pageTitle);
+
             return View();
         }
 

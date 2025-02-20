@@ -57,6 +57,7 @@ namespace BDA.Controllers
         }
         public IActionResult Index()
         {
+            var userId = HttpContext.User.Identity.Name;
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
             var currentNode = mdl.GetCurrentNode();
             string pageTitle = currentNode != null ? currentNode.Title : ""; //menampilkan data menu
@@ -64,6 +65,7 @@ namespace BDA.Controllers
             db.CheckPermission("Summary Cluster MKBD View", DataEntities.PermissionMessageType.ThrowInvalidOperationException); //check permission nya view/lihat nya
             ViewBag.Export = db.CheckPermission("Summary Cluster MKBD Export", DataEntities.PermissionMessageType.NoMessage); //check permission export
             db.InsertAuditTrail("SegmentationSummaryClusterMKBD_Akses_Page", "Akses Page Segmentation Summary Cluster MKBD", pageTitle); //simpan kedalam audit trail
+            db.InsertAuditTrail("SegmentationSummaryClusterMKBD_Akses_Page", "user " + userId + " mengakases halaman Segmentation Summary Cluster MKBD untuk digunakan sebagai Pengawasan Perusahaan Efek", pageTitle);
 
             return View();
         }
@@ -98,7 +100,7 @@ namespace BDA.Controllers
                 TempData["sts"] = stringStatus;
             }
 
-            db.Database.CommandTimeout = 420;
+            db.Database.CommandTimeout = 1200;
             if (periodeAwal.Length > 0) //jika ada parameter nya
             {
                 var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQuery(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, stringStatus, cekHive);
@@ -204,7 +206,7 @@ namespace BDA.Controllers
                                {
                                    cluster = bs.Field<string>("cluster").ToString(),
                                    total = bs.Field<Int64>("total").ToString(),
-                                   urut = bs.Field<string>("urut").ToString(),
+                                   urut = bs.Field<Int64>("urut").ToString(),
                                }).OrderBy(bs => bs.urut).ToList();
             }
             else
@@ -290,12 +292,12 @@ namespace BDA.Controllers
             db.Database.CommandTimeout = 420;
             if (periodeAwal != null) //jika ada parameter nya
             {
-                var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryDetail(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, cekHive);
+                var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryDetailRincian(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, cekHive);
                 return JsonConvert.SerializeObject(result);
             }
             else
             {
-                var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryDetail(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, cekHive);
+                var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryDetailRincian(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, cekHive);
                 return JsonConvert.SerializeObject(result);
             }
         }
@@ -546,7 +548,7 @@ namespace BDA.Controllers
 
             string stringPeriodeAwal = null;
             string stringNamaPE = null;
-            string reportId = "pe_segmentation_det_reverse_repo_new"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+            string reportId = "pe_segmentation_det_reverse_repo"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
 
             var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
 
@@ -586,7 +588,7 @@ namespace BDA.Controllers
 
             string stringPeriodeAwal = null;
             string stringNamaPE = null;
-            string reportId = "pe_segmentation_det_reverse_repo_sum_new"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+            string reportId = "pe_segmentation_det_reverse_repo_sum"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
 
             var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
 
@@ -782,6 +784,7 @@ namespace BDA.Controllers
         //-----------------------------detail-----------------------------------//
         public IActionResult Detail(DataSourceLoadOptions loadOptions, string id, string periodeAwal)
         {
+            var userId = HttpContext.User.Identity.Name;
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
             var currentNode = mdl.GetCurrentNode();
@@ -849,6 +852,7 @@ namespace BDA.Controllers
             db.CheckPermission("Detail Cluster MKBD View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
             ViewBag.Export = db.CheckPermission("Detail Cluster MKBD Export", DataEntities.PermissionMessageType.NoMessage);
             db.InsertAuditTrail("AksesPageDetailCluster_Akses_Page", "Akses Page Detail Cluster MKBD", pageTitle);
+            db.InsertAuditTrail("AksesPageDetailCluster_Akses_Page", "user " + userId + " mengakases halaman Detail Cluster MKBD untuk digunakan sebagai Pengawasan Perusahaan Efek", pageTitle);
 
             return View();
         }
@@ -858,6 +862,7 @@ namespace BDA.Controllers
         //-----------------------------Rincian Portofolio-----------------------------------//
         public IActionResult RincianPortofolio(DataSourceLoadOptions loadOptions, string id, string periodeAwal)
         {
+            var userId = HttpContext.User.Identity.Name;
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
             var currentNode = mdl.GetCurrentNode();
@@ -865,24 +870,67 @@ namespace BDA.Controllers
 
             string namaPE = id;
             string stringPeriodeAwal = null;
+            string stringPeriodeAwalDate = null;
             string stringNamaPE = null;
+            string strNamaPEOnly = null;
 
             if (periodeAwal != null)
             {
                 stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
                 TempData["pawal"] = stringPeriodeAwal;
+                stringPeriodeAwalDate = Convert.ToDateTime(periodeAwal).ToString("yyyy MMM dd");
+                ViewBag.PeriodeAwalDate = stringPeriodeAwalDate;
+                ViewBag.PeriodeAwalDateParam = stringPeriodeAwal;
+            }
+            else
+            {
+                stringPeriodeAwalDate = Convert.ToDateTime(DateTime.Now).ToString("yyyy MMM dd");
+                ViewBag.PeriodeAwalDate = stringPeriodeAwalDate;
             }
             if (namaPE != null)
             {
                 stringNamaPE = namaPE;
                 TempData["pe"] = stringNamaPE;
+                strNamaPEOnly = (string)GetNamaPEOnly(loadOptions, stringNamaPE);
+                ViewBag.KodePE = namaPE;
+                ViewBag.NamaPE = strNamaPEOnly;
             }
+            else
+            {
+                ViewBag.NamaPE = "";
+            }
+
+            string reportId = "dim_exchange_members"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+            var result = Helper.WSQueryStore.GetBDAPMNamaPE(db, loadOptions, reportId, cekHive);
+            var varDataList = (dynamic)null;
+            varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                           select new
+                           {
+                               exchangemembercode = bs.Field<string>("exchangemembercode").ToString().Trim(),
+                               exchangemembername = bs.Field<string>("exchangemembername").ToString().Trim(),
+                           }).OrderBy(bs => bs.exchangemembername).ToList();
+
+            DataTable dtList = new DataTable();
+            dtList = Helper.WSQueryStore.LINQResultToDataTable(varDataList);
+
+            List<SelectListItem> entityTypelist = new List<SelectListItem>();
+            if (dtList.Rows.Count > 0)
+            {
+                entityTypelist.Add(new SelectListItem() { Value = "", Text = "(ALL)" });
+                for (int i = 0; i < dtList.Rows.Count; i++)
+                {
+                    string namakode = dtList.Rows[i]["exchangemembercode"].ToString() + " - " + dtList.Rows[i]["exchangemembername"].ToString();
+                    entityTypelist.Add(new SelectListItem() { Value = dtList.Rows[i]["exchangemembercode"].ToString(), Text = namakode });
+                }
+            }
+            ViewBag.Jenis = entityTypelist;
 
             db.Database.CommandTimeout = 420;
             db.CheckPermission("Rincian Portofolio View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
             ViewBag.Export = db.CheckPermission("Rincian Portofolio Export", DataEntities.PermissionMessageType.NoMessage);
             db.InsertAuditTrail("RincianPortofolio_Akses_Page", "Akses Page Rincian Portofolio", pageTitle);
-
+            db.InsertAuditTrail("AksesPageDetailCluster_Akses_Page", "user " + userId + " mengakases halaman Rincian Portofolio untuk digunakan sebagai Pengawasan Perusahaan Efek", pageTitle);
             return View();
         }
         //-----------------------------Rincian Portofolio-----------------------------------//
@@ -890,6 +938,7 @@ namespace BDA.Controllers
         //-----------------------------Reksadana-----------------------------------//
         public IActionResult Reksadana(DataSourceLoadOptions loadOptions, string id, string periodeAwal)
         {
+            var userId = HttpContext.User.Identity.Name;
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
             var currentNode = mdl.GetCurrentNode();
@@ -897,24 +946,67 @@ namespace BDA.Controllers
 
             string namaPE = id;
             string stringPeriodeAwal = null;
+            string stringPeriodeAwalDate = null;
             string stringNamaPE = null;
+            string strNamaPEOnly = null;
 
             if (periodeAwal != null)
             {
                 stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
                 TempData["pawal"] = stringPeriodeAwal;
+                stringPeriodeAwalDate = Convert.ToDateTime(periodeAwal).ToString("yyyy MMM dd");
+                ViewBag.PeriodeAwalDate = stringPeriodeAwalDate;
+                ViewBag.PeriodeAwalDateParam = stringPeriodeAwal;
+            }
+            else
+            {
+                stringPeriodeAwalDate = Convert.ToDateTime(DateTime.Now).ToString("yyyy MMM dd");
+                ViewBag.PeriodeAwalDate = stringPeriodeAwalDate;
             }
             if (namaPE != null)
             {
                 stringNamaPE = namaPE;
                 TempData["pe"] = stringNamaPE;
+                strNamaPEOnly = (string)GetNamaPEOnly(loadOptions, stringNamaPE);
+                ViewBag.KodePE = namaPE;
+                ViewBag.NamaPE = strNamaPEOnly;
             }
+            else
+            {
+                ViewBag.NamaPE = "";
+            }
+
+            string reportId = "dim_exchange_members"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+            var result = Helper.WSQueryStore.GetBDAPMNamaPE(db, loadOptions, reportId, cekHive);
+            var varDataList = (dynamic)null;
+            varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                           select new
+                           {
+                               exchangemembercode = bs.Field<string>("exchangemembercode").ToString().Trim(),
+                               exchangemembername = bs.Field<string>("exchangemembername").ToString().Trim(),
+                           }).OrderBy(bs => bs.exchangemembername).ToList();
+
+            DataTable dtList = new DataTable();
+            dtList = Helper.WSQueryStore.LINQResultToDataTable(varDataList);
+
+            List<SelectListItem> entityTypelist = new List<SelectListItem>();
+            if (dtList.Rows.Count > 0)
+            {
+                entityTypelist.Add(new SelectListItem() { Value = "", Text = "(ALL)" });
+                for (int i = 0; i < dtList.Rows.Count; i++)
+                {
+                    string namakode = dtList.Rows[i]["exchangemembercode"].ToString() + " - " + dtList.Rows[i]["exchangemembername"].ToString();
+                    entityTypelist.Add(new SelectListItem() { Value = dtList.Rows[i]["exchangemembercode"].ToString(), Text = namakode });
+                }
+            }
+            ViewBag.Jenis = entityTypelist;
 
             db.Database.CommandTimeout = 420;
             db.CheckPermission("Reksadana View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
             ViewBag.Export = db.CheckPermission("Reksadana Export", DataEntities.PermissionMessageType.NoMessage);
             db.InsertAuditTrail("Reksadana_Akses_Page", "Akses Page Reksadana", pageTitle);
-
+            db.InsertAuditTrail("AksesPageDetailCluster_Akses_Page", "user " + userId + " mengakases halaman Reksadana untuk digunakan sebagai Pengawasan Perusahaan Efek", pageTitle);
             return View();
         }
         //-----------------------------Reksadana-----------------------------------//
@@ -922,6 +1014,7 @@ namespace BDA.Controllers
         //-----------------------------JaminanMargin-----------------------------------//
         public IActionResult JaminanMargin(DataSourceLoadOptions loadOptions, string id, string periodeAwal)
         {
+            var userId = HttpContext.User.Identity.Name;
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
             var currentNode = mdl.GetCurrentNode();
@@ -929,24 +1022,67 @@ namespace BDA.Controllers
 
             string namaPE = id;
             string stringPeriodeAwal = null;
+            string stringPeriodeAwalDate = null;
             string stringNamaPE = null;
+            string strNamaPEOnly = null;
 
             if (periodeAwal != null)
             {
                 stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
                 TempData["pawal"] = stringPeriodeAwal;
+                stringPeriodeAwalDate = Convert.ToDateTime(periodeAwal).ToString("yyyy MMM dd");
+                ViewBag.PeriodeAwalDate = stringPeriodeAwalDate;
+                ViewBag.PeriodeAwalDateParam = stringPeriodeAwal;
+            }
+            else
+            {
+                stringPeriodeAwalDate = Convert.ToDateTime(DateTime.Now).ToString("yyyy MMM dd");
+                ViewBag.PeriodeAwalDate = stringPeriodeAwalDate;
             }
             if (namaPE != null)
             {
                 stringNamaPE = namaPE;
                 TempData["pe"] = stringNamaPE;
+                strNamaPEOnly = (string)GetNamaPEOnly(loadOptions, stringNamaPE);
+                ViewBag.KodePE = namaPE;
+                ViewBag.NamaPE = strNamaPEOnly;
             }
+            else
+            {
+                ViewBag.NamaPE = "";
+            }
+
+            string reportId = "dim_exchange_members"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+            var result = Helper.WSQueryStore.GetBDAPMNamaPE(db, loadOptions, reportId, cekHive);
+            var varDataList = (dynamic)null;
+            varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                           select new
+                           {
+                               exchangemembercode = bs.Field<string>("exchangemembercode").ToString().Trim(),
+                               exchangemembername = bs.Field<string>("exchangemembername").ToString().Trim(),
+                           }).OrderBy(bs => bs.exchangemembername).ToList();
+
+            DataTable dtList = new DataTable();
+            dtList = Helper.WSQueryStore.LINQResultToDataTable(varDataList);
+
+            List<SelectListItem> entityTypelist = new List<SelectListItem>();
+            if (dtList.Rows.Count > 0)
+            {
+                entityTypelist.Add(new SelectListItem() { Value = "", Text = "(ALL)" });
+                for (int i = 0; i < dtList.Rows.Count; i++)
+                {
+                    string namakode = dtList.Rows[i]["exchangemembercode"].ToString() + " - " + dtList.Rows[i]["exchangemembername"].ToString();
+                    entityTypelist.Add(new SelectListItem() { Value = dtList.Rows[i]["exchangemembercode"].ToString(), Text = namakode });
+                }
+            }
+            ViewBag.Jenis = entityTypelist;
 
             db.Database.CommandTimeout = 420;
             db.CheckPermission("Jaminan Margin View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
             ViewBag.Export = db.CheckPermission("Jaminan Margin Export", DataEntities.PermissionMessageType.NoMessage);
             db.InsertAuditTrail("Jaminan_Margin_Akses_Page", "Akses Page Jaminan Margin", pageTitle);
-
+            db.InsertAuditTrail("AksesPageDetailCluster_Akses_Page", "user " + userId + " mengakases halaman Jaminan Margin untuk digunakan sebagai Pengawasan Perusahaan Efek", pageTitle);
             return View();
         }
         //-----------------------------JaminanMargin-----------------------------------//
@@ -955,6 +1091,7 @@ namespace BDA.Controllers
         //-----------------------------ReverseRepo-----------------------------------//
         public IActionResult ReverseRepo(DataSourceLoadOptions loadOptions, string id, string periodeAwal)
         {
+            var userId = HttpContext.User.Identity.Name;
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
             var currentNode = mdl.GetCurrentNode();
@@ -962,24 +1099,67 @@ namespace BDA.Controllers
 
             string namaPE = id;
             string stringPeriodeAwal = null;
+            string stringPeriodeAwalDate = null;
             string stringNamaPE = null;
+            string strNamaPEOnly = null;
 
             if (periodeAwal != null)
             {
                 stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
                 TempData["pawal"] = stringPeriodeAwal;
+                stringPeriodeAwalDate = Convert.ToDateTime(periodeAwal).ToString("yyyy MMM dd");
+                ViewBag.PeriodeAwalDate = stringPeriodeAwalDate;
+                ViewBag.PeriodeAwalDateParam = stringPeriodeAwal;
+            }
+            else
+            {
+                stringPeriodeAwalDate = Convert.ToDateTime(DateTime.Now).ToString("yyyy MMM dd");
+                ViewBag.PeriodeAwalDate = stringPeriodeAwalDate;
             }
             if (namaPE != null)
             {
                 stringNamaPE = namaPE;
                 TempData["pe"] = stringNamaPE;
+                strNamaPEOnly = (string)GetNamaPEOnly(loadOptions, stringNamaPE);
+                ViewBag.KodePE = namaPE;
+                ViewBag.NamaPE = strNamaPEOnly;
             }
+            else
+            {
+                ViewBag.NamaPE = "";
+            }
+
+            string reportId = "dim_exchange_members"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+            var result = Helper.WSQueryStore.GetBDAPMNamaPE(db, loadOptions, reportId, cekHive);
+            var varDataList = (dynamic)null;
+            varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                           select new
+                           {
+                               exchangemembercode = bs.Field<string>("exchangemembercode").ToString().Trim(),
+                               exchangemembername = bs.Field<string>("exchangemembername").ToString().Trim(),
+                           }).OrderBy(bs => bs.exchangemembername).ToList();
+
+            DataTable dtList = new DataTable();
+            dtList = Helper.WSQueryStore.LINQResultToDataTable(varDataList);
+
+            List<SelectListItem> entityTypelist = new List<SelectListItem>();
+            if (dtList.Rows.Count > 0)
+            {
+                entityTypelist.Add(new SelectListItem() { Value = "", Text = "(ALL)" });
+                for (int i = 0; i < dtList.Rows.Count; i++)
+                {
+                    string namakode = dtList.Rows[i]["exchangemembercode"].ToString() + " - " + dtList.Rows[i]["exchangemembername"].ToString();
+                    entityTypelist.Add(new SelectListItem() { Value = dtList.Rows[i]["exchangemembercode"].ToString(), Text = namakode });
+                }
+            }
+            ViewBag.Jenis = entityTypelist;
 
             db.Database.CommandTimeout = 420;
             db.CheckPermission("Reverse Repo View", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
             ViewBag.Export = db.CheckPermission("Reverse Repo Export", DataEntities.PermissionMessageType.NoMessage);
             db.InsertAuditTrail("Reverse_Repo_Akses_Page", "Akses Page Reverse Repo", pageTitle);
-
+            db.InsertAuditTrail("AksesPageDetailCluster_Akses_Page", "user " + userId + " mengakases halaman Reverse Repo untuk digunakan sebagai Pengawasan Perusahaan Efek", pageTitle);
             return View();
         }
         //-----------------------------ReverseRepo-----------------------------------//

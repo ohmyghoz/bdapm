@@ -55,6 +55,9 @@ namespace BDA.Controllers
             db.CheckPermission("Segmentasi Transaksi Dan Kepemilikan View", DataEntities.PermissionMessageType.ThrowInvalidOperationException); //check permission nya view/lihat nya
             db.InsertAuditTrail("SegmentasiTransaksiKepemilikan_Akses_Page", "Akses Page Segmentasi Dan Transaksi MKBD", pageTitle); //simpan kedalam audit trail
 
+            var userId = HttpContext.User.Identity.Name;
+            db.InsertAuditTrail("SegmentasiTransaksiKepemilikan_Akses_Page", "user " + userId + " mengakases halaman PSegmentasi Transaksi Dan Kepemilikan untuk digunakan sebagai Pengawasan Perusahaan Efek", pageTitle);
+
             return View();
         }
 
@@ -226,8 +229,8 @@ namespace BDA.Controllers
             string strSQL = db.appSettings.DataConnString;
             var list = new List<NamaPE>();
 
-            list.Add(new NamaPE { value = "Transaction", text = "Transaksi" });
-            list.Add(new NamaPE { value = "Ownership", text = "Kepemilikan" });
+            list.Add(new NamaPE { value = "Transaction", text = "Transaksi (Brokerage)" });
+            list.Add(new NamaPE { value = "Ownership", text = "Kepemilikan (Dealer)" });
             return DataSourceLoader.Load(list, loadOptions);
         }
         public class NamaPE

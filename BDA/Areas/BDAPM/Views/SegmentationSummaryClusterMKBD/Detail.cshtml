@@ -71,25 +71,25 @@
                     <td></td>
                     <td>
                         <div class="form-group">
-                            <input type="button" id="btnRincianPortofolio" class="btn btn-danger" value="Rincian Portofolio" onclick="location.href='@Url.Action("RincianPortofolio", "SegmentationSummaryClusterMKBD")'" />
+                            <input type="button" id="btnRincianPortofolio" class="btn btn-danger" value="Rincian Portofolio" />
                         </div>
                     </td>
                     <td></td>
                     <td>
                         <div class="form-group">
-                            <input type="button" id="btnReksadana" class="btn btn-danger" value="Reksadana" onclick="location.href='@Url.Action("Reksadana", "SegmentationSummaryClusterMKBD")'" />
+                            <input type="button" id="btnReksadana" class="btn btn-danger" value="Reksadana" />
                         </div>
                     </td>
                     <td></td>
                     <td>
                         <div class="form-group">
-                            <input type="button" id="btnJaminanMargin" class="btn btn-danger" value="Jaminan Margin" onclick="location.href='@Url.Action("JaminanMargin", "SegmentationSummaryClusterMKBD")'" />
+                            <input type="button" id="btnJaminanMargin" class="btn btn-danger" value="Jaminan Margin" />
                         </div>
                     </td>
                     <td></td>
                     <td>
                         <div class="form-group">
-                            <input type="button" id="btnReverseRepo" class="btn btn-danger" value="Reverse Repo" onclick="location.href='@Url.Action("ReverseRepo", "SegmentationSummaryClusterMKBD")'" />
+                            <input type="button" id="btnReverseRepo" class="btn btn-danger" value="Reverse Repo" />
                         </div>
                     </td>
                 </tr>
@@ -130,7 +130,7 @@
                     columns.Add().DataField("f_level_1").Caption("Konsentrasi Aset Lancar Selain Kas Dan Setara Kas").Width(150);
                     columns.Add().DataField("total_balance").Caption("Total Balance").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
                     columns.Add().DataField("total_aset_lancar").Caption("Total Aset Lancar").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
-                    columns.Add().DataField("persentase").Caption("Persentase").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+                    columns.Add().DataField("persentase").Caption("Persentase").Alignment(HorizontalAlignment.Right);
                     columns.Add().DataField("fairmarketvalue").Caption("Nilai Jaminan Margin").Width(150).Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
                 })
                 .ColumnResizingMode(ColumnResizingMode.Widget)
@@ -181,7 +181,7 @@
                     columns.Add().DataField("f_level_2").Caption("Nama Akun").Width(300);
                     columns.Add().DataField("total_balance").Caption("Total Balance").DataType(GridColumnDataType.Number).Format(",##0");
                     columns.Add().DataField("total_aset_lancar").Caption("Total Portofolio Efek").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
-                    columns.Add().DataField("persentase").Caption("Persentase").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+                    columns.Add().DataField("persentase").Caption("Persentase").Alignment(HorizontalAlignment.Right);
                     columns.Add().DataField("fairmarketvalue").Caption("Haircut").Width(150).Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
                 })
                 .ColumnResizingMode(ColumnResizingMode.Widget)
@@ -244,6 +244,54 @@
 </script>
 
 <script>
+    $("#btnRincianPortofolio").click(function () {
+        let Kode_PE = $("#CboJenis option:selected").val();
+        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
+        let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
+
+        let periodeAwal = null;
+        if (tempPeriodeAwal != null) {
+            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
+        }
+        window.open('@Url.Action("RincianPortofolio", "SegmentationSummaryClusterMKBD")?id=' + Kode_PE + '&periodeAwal=' + periodeAwal);
+      });
+
+     $("#btnReksadana").click(function () {
+        let Kode_PE = $("#CboJenis option:selected").val();
+        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
+        let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
+
+        let periodeAwal = null;
+        if (tempPeriodeAwal != null) {
+            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
+        }
+        window.open('@Url.Action("Reksadana", "SegmentationSummaryClusterMKBD")?id=' + Kode_PE + '&periodeAwal=' + periodeAwal);
+      });
+
+      $("#btnJaminanMargin").click(function () {
+        let Kode_PE = $("#CboJenis option:selected").val();
+        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
+        let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
+
+        let periodeAwal = null;
+        if (tempPeriodeAwal != null) {
+            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
+        }
+        window.open('@Url.Action("JaminanMargin", "SegmentationSummaryClusterMKBD")?id=' + Kode_PE + '&periodeAwal=' + periodeAwal);
+      });
+
+      $("#btnReverseRepo").click(function () {
+        let Kode_PE = $("#CboJenis option:selected").val();
+        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
+        let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
+
+        let periodeAwal = null;
+        if (tempPeriodeAwal != null) {
+            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
+        }
+        window.open('@Url.Action("ReverseRepo", "SegmentationSummaryClusterMKBD")?id=' + Kode_PE + '&periodeAwal=' + periodeAwal);
+      });
+
 
     function ExportToExcelDetail() {
          $.ajax({
@@ -381,20 +429,12 @@
         })
     });
 
-    @* $(function () {
-        $("#namaPEid").dxValidator({
-            validationGroup: "Filter",
-            validationRules: [{ type: "required", message: "[Nama PE] harus dipilih" }]
-        })
-    }); *@
-
     $(window).on('load', function () {
         var someStringValue = '@(ViewBag.KodePE)';
 
         var vJenis = $("#CboJenis").val(someStringValue);
         $("#CboJenis option:selected").val(someStringValue);
-
-        $("#ModalSimpanPenggunaanData").modal("show");
+        
     });
 
     $("#btnSavePenggunaanData").click(function () {
@@ -431,9 +471,7 @@
     }
 
     function onButtonFilterClicked(e) {
-        const res = e.validationGroup.validate();
-        if (res.status === "valid") {
-            let Kode_PE = $("#CboJenis option:selected").val();
+        let Kode_PE = $("#CboJenis option:selected").val();
             let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
             let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
 
@@ -449,13 +487,21 @@
                     dataType: "json",
                     type: "POST",
                     success: function (response) {
-
-                        window.history.pushState('', 'My Page', 'Detail?periodeAwal=' + periodeAwal + '');
                         $("#grid1").dxDataGrid("refresh");
-                        $("#grid2").dxDataGrid("refresh");
-                        $('#ModalSimpanPenggunaanData').modal('hide');
                     }
                 });
+
+                $.ajax({
+                    url: '@Url.Action("GetGridDataDetailRincian", "SegmentationSummaryClusterMKBD")',
+                    data: { periodeAwal: periodeAwal },
+                    dataType: "json",
+                    type: "POST",
+                    success: function (response) {
+                        $("#grid2").dxDataGrid("refresh");
+                    }
+                });
+
+                window.history.pushState('', 'My Page', 'Detail?periodeAwal=' + periodeAwal + '');
             }else{
                 $.ajax({
                     url: '@Url.Action("GetGridDataDetail", "SegmentationSummaryClusterMKBD")',
@@ -463,14 +509,22 @@
                     dataType: "json",
                     type: "POST",
                     success: function (response) {
-
-                        window.history.pushState('', 'My Page', 'Detail?id=' + Kode_PE + '&periodeAwal=' + periodeAwal + '');
                         $("#grid1").dxDataGrid("refresh");
-                        $("#grid2").dxDataGrid("refresh");
-                        $('#ModalSimpanPenggunaanData').modal('hide');
                     }
                 });
+
+                 $.ajax({
+                    url: '@Url.Action("GetGridDataDetailRincian", "SegmentationSummaryClusterMKBD")',
+                    data: { periodeAwal: periodeAwal, namaPE: Kode_PE },
+                    dataType: "json",
+                    type: "POST",
+                    success: function (response) {
+                        $("#grid2").dxDataGrid("refresh");
+                    }
+                });
+
+                window.history.pushState('', 'My Page', 'Detail?id=' + Kode_PE + '&periodeAwal=' + periodeAwal + '');
+
             }
-        }
     }
 </script>

@@ -57,6 +57,9 @@ namespace BDA.Controllers
             ViewBag.Export = db.CheckPermission("Summary Cluster MKBD Export", DataEntities.PermissionMessageType.NoMessage); //check permission export
             db.InsertAuditTrail("PembiayaanVSJaminanSaham_Akses_Page", "Akses Page Pembiayaan VS Jaminan Saham", pageTitle); //simpan kedalam audit trail
 
+            var userId = HttpContext.User.Identity.Name;
+            db.InsertAuditTrail("PembiayaanVSJaminanSaham_Akses_Page", "user " + userId + " mengakases halaman Pembiayaan vs Jaminan Saham untuk digunakan sebagai Pengawasan Perusahaan Efek", pageTitle);
+
             return View();
         }
 

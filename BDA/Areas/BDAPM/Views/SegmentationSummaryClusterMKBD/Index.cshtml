@@ -72,11 +72,34 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-lg-6">
+            <div class="col-lg-6">
+                @(Html.DevExtreme().Chart()
+                    .ID("bar-chart")
+                    .Title("Cluster PE Berdasarkan Persentase MKBD dibandingkan MKBD Dipersyaratkan")
+                    .Export(e => e.Enabled(true))
+                    .Series(s => s
+                    .Add()
+                    .ArgumentField("cluster")
+                    .ValueField("total")
+                    .Name("Cluster PE")
+                    .Type(SeriesType.Bar)
+                    .Color("red")
+                    .Label(l => l
+                    .Visible(true)
+                    .Format(f => f
+                    .Type(Format.FixedPoint)
+                    .Precision(0))))
+                    .DataSource(d => d.Mvc()
+                    .Controller("SegmentationSummaryClusterMKBD")
+                    .LoadAction("GetChartClusterBarSearch")
+                    .OnBeforeSend("onGridBeforeSend")))
+            </div>
+
+            <div class="col-lg-6">
                 @(Html.DevExtreme().PieChart()
                         .ID("pie-chart")
                         .Type(PieChartType.Doughnut)
-                        .Title("Jumlah Cluster")
+                    .Title("Jumlah PE dengan Alert Kas dan Setara Kas")
                         .Legend(l => l
                         .HorizontalAlignment(HorizontalAlignment.Right)
                         .VerticalAlignment(VerticalEdge.Top)
@@ -105,30 +128,7 @@
                         .OnBeforeSend("onGridBeforeSend")))
                 </div>
 
-            <div class="col-lg-6">
-                @(Html.DevExtreme().Chart()
-                    .ID("bar-chart")
-                    .Title("Cluster PE Berdasarkan Persentase MKBD dibandingkan MKBD Dipersyaratkan")
-                    .Export(e => e.Enabled(true))
-                    .Series(s => s
-                    .Add()
-                    .ArgumentField("cluster")
-                    .ValueField("total")
-                    .Name("Cluster PE")
-                    .Type(SeriesType.Bar)
-                    .Color("red")
-                    .Label(l => l
-                    .Visible(true)
-                    .Format(f => f
-                    .Type(Format.FixedPoint)
-                    .Precision(0))))
-                    .DataSource(d => d.Mvc()
-                    .Controller("SegmentationSummaryClusterMKBD")
-                    .LoadAction("GetChartClusterBarSearch")
-                    .OnBeforeSend("onGridBeforeSend")))
-
-
-            </div>
+            
             </div>
             <br />
             <br />
@@ -324,10 +324,10 @@
         })
     }); *@
 
-    $(window).on('load', function () {
-        $("#ModalSimpanPenggunaanData").modal("show");
+@*     $(window).on('load', function () {
+       $("#grid1").dxDataGrid("instance").refresh();
     });
-
+ *@
     $("#btnSavePenggunaanData").click(function () {
         let penggunaandataid = $("#penggunaandataid").dxSelectBox("instance").option("value");
 
@@ -342,13 +342,10 @@
                 type: "POST",
                 success: function (data) {
                     if (data.success == true) {
-                        //alert(data.message);
-    @* waitingDialog.hide(); *@
                         $('#ModalSimpanPenggunaanData').modal('hide');
                         return "Saving Success !";
                     }
                     else if (data.success == false) {
-    @*  waitingDialog.hide(); *@
                         alert(data.message);
                         $('#ModalSimpanPenggunaanData').modal('hide');
                         return "Saving Failed !";
@@ -444,40 +441,37 @@
     }
 
     function onButtonFilterClicked(e) {
-        const res = e.validationGroup.validate();
-        if (res.status === "valid") {
-            let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
-            let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
-            let status = $("#Statusid").dxTagBox("instance").option("value");
+        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
+        let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
+        let status = $("#Statusid").dxTagBox("instance").option("value");
 
 
-            let periodeAwal = null;
-            if (tempPeriodeAwal != null) {
-                periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
-            }
-
-            $("#grid1").dxDataGrid("instance").refresh();
-
-            $.ajax({
-                url: '@Url.Action("GetChartClusterSearch", "SegmentationSummaryClusterMKBD")',
-                data: { periodeAwal: periodeAwal, namaPE: namaPE, status: JSON.stringify(status) },
-                dataType: "json",
-                type: "POST",
-                success: function (response) {
-                    $("#pie-chart").dxPieChart("instance").refresh();
-                }
-            });
-
-            $.ajax({
-                url: '@Url.Action("GetChartClusterBarSearch", "SegmentationSummaryClusterMKBD")',
-                data: { periodeAwal: periodeAwal, namaPE: namaPE, status: JSON.stringify(status) },
-                dataType: "json",
-                type: "POST",
-                success: function (response) {
-                    $("#bar-chart").dxChart("instance").refresh();
-                }
-            });
+        let periodeAwal = null;
+        if (tempPeriodeAwal != null) {
+        periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
         }
+
+        $("#grid1").dxDataGrid("instance").refresh();
+
+        $.ajax({
+            url: '@Url.Action("GetChartClusterSearch", "SegmentationSummaryClusterMKBD")',
+            data: { periodeAwal: periodeAwal, namaPE: namaPE, status: JSON.stringify(status) },
+            dataType: "json",
+            type: "POST",
+            success: function (response) {
+            $("#pie-chart").dxPieChart("instance").refresh();
+            }
+        });
+
+        $.ajax({
+            url: '@Url.Action("GetChartClusterBarSearch", "SegmentationSummaryClusterMKBD")',
+            data: { periodeAwal: periodeAwal, namaPE: namaPE, status: JSON.stringify(status) },
+            dataType: "json",
+            type: "POST",
+            success: function (response) {
+            $("#bar-chart").dxChart("instance").refresh();
+            }
+        });
     }
 
     function onGridBeforeSend(method, ajaxOptions) {
