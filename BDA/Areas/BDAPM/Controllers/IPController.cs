@@ -26,6 +26,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using static DevExpress.XtraPrinting.Native.ExportOptionsPropertiesNames;
+using Microsoft.AspNetCore.Components.Web;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -332,6 +333,13 @@ namespace BDA.Controllers
         #region "GetGridData"
         public object GetGridData(DataSourceLoadOptions loadOptions, string reportId, string SID, string tradeId, string namaSID, string namaLike, string nomorKTP, string nomorNPWP, string passport, string sistem, string businessReg, string startPeriode, string endPeriode, bool chk100)
         {
+            var userId = HttpContext.User.Identity.Name;
+            var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+            var currentNode = mdl.GetCurrentNode();
+            string pageTitle = currentNode != null ? currentNode.Title : "";
+            string filterValue = "sid=" + SID + ";trade=" + tradeId + ";nama=" + namaSID + ";namamirip=" + namaLike + ";ktp=" + nomorKTP + ";npwp=" + nomorNPWP + ";passport=" + passport + ";sistem=" + sistem + ";breg=" + businessReg + ";periode=" + startPeriode + " - " + endPeriode + ";";
+            db.InsertAuditTrail("IP_Akses_Page", "user " + userId + " mengakases " + reportId + "; " + filterValue + "", pageTitle);
+
             var regex = new Regex(@"\Aip_relation");
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
             TempData.Clear();
