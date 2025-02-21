@@ -229,7 +229,7 @@ namespace BDA.Helper
             var props = new WSQueryProperties();
 
             props.Query = @"
-                    select kodeefek, groupemiten, cast(sum(volume) as bigint) as volume, cast(sum(value) as bigint) as value from pasarmodal.pe_segmentasi_pembiayaan_vs_jaminan_saham_add
+                    select kodeefek, groupemiten, cast(sum(volume) as bigint) as volume, cast(sum(value) as bigint) as value from pasarmodal.pe_segmentation_pembiayaan_vs_jaminan_saham
                     WHERE " + whereQuery + @" AND flag = 1 group by kodeefek, groupemiten";
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
@@ -254,7 +254,7 @@ namespace BDA.Helper
             var props = new WSQueryProperties();
 
             props.Query = @"
-                    select kodeefek, groupemiten, cast(sum(volume) as bigint) as volume, cast(sum(value) as bigint) as value from pasarmodal.pe_segmentasi_pembiayaan_vs_jaminan_saham_add
+                    select kodeefek, groupemiten, cast(sum(volume) as bigint) as volume, cast(sum(value) as bigint) as value from pasarmodal.pe_segmentation_pembiayaan_vs_jaminan_saham
                     WHERE " + whereQuery + @" AND flag = 2 group by kodeefek, groupemiten";
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);

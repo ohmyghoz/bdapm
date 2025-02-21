@@ -5233,8 +5233,7 @@ namespace BDA.Helper
                         END AS urut,periode
                     FROM pasarmodal." + tableName + @") as x  
                     WHERE " + whereQuery + @") AS t 						
-                    GROUP BY urut,cluster
-                    ORDER BY urut asc";
+                    GROUP BY urut,cluster";
                 }
             }
             else

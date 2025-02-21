@@ -331,7 +331,16 @@
         </div>
     </div>
 
-
+    @(Html.DevExtreme().LoadPanel()
+                .ID("loadPanel")
+                .ShadingColor("rgba(0,0,0,0.2)")
+                            .Position(p => p.Of("#vectorMap"))
+                .Visible(false)
+                .ShowIndicator(true)
+                .ShowPane(true)
+                .Shading(true)
+                .HideOnOutsideClick(false)
+            )
 
 
 <!-- The Modal  Detail-->
@@ -417,7 +426,6 @@
             $('#mapchartheader').hide();
             $('#mapchart').hide();
         }
-        $("#ModalSimpanPenggunaanData").modal("show");        
     });
 
     $("#btnSavePenggunaanData").click(function () {
@@ -454,6 +462,10 @@
         if (e.addedItems.length > 0) {
             e.component.field().val(""); // Clears the search text. However, search filter is only applied to the widget after focus is lost in the input element
         }
+    }
+
+    unction hideloadpage() {
+        $("#loadPanel").dxLoadPanel("instance").hide();
     }
 
     function onButtonFilterClicked(e) {
@@ -495,12 +507,14 @@
         var ds3 = chart3.option('dataSource');
         chart3.option('dataSource', ds3);
         if ($("#investorOrigin").dxSelectBox("instance").option("value") == "Lokal") {
+            $("#loadPanel").dxLoadPanel("instance").show();
             $('#mapchartheader').show();
             $('#mapchart').show();
             var widget = $("#vectorMap").dxVectorMap("instance");
             var ds4 = widget.option("layers[1].dataSource");
             widget.option('layers[1].dataSource', ds4);
-            widget.render()
+            widget.render();
+            hideloadpage();
         } else {
             $('#mapchartheader').hide();
             $('#mapchart').hide();
@@ -518,7 +532,7 @@
     }
 
     function MapClick(e) {
-        var clickedElement = e.target;
+        @* var clickedElement = e.target;
         if (clickedElement != null && clickedElement.layer.type == "area") {
             $("#province").val(clickedElement.attribute().text);
         } else { 
@@ -540,7 +554,7 @@
         
         var chart3 = $("#ChartIO").dxPieChart("instance");
         var ds3 = chart3.option('dataSource');
-        chart3.option('dataSource', ds3);
+        chart3.option('dataSource', ds3); *@
     }
 
     function vectorMap_customizeTooltip(arg) {

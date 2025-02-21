@@ -176,7 +176,7 @@ namespace BDA.Controllers
 
             if (periode != null)
             {
-                if (growthtype == "MoM")
+                if (growthtype == "MoM" || growthtype == "YtD")
                 {
                     stringPeriodeAwal = Convert.ToDateTime(periode).AddMonths(-12).ToString("yyyy-MM");
                 }
@@ -193,7 +193,15 @@ namespace BDA.Controllers
 
             db.Database.CommandTimeout = 420;
             var result = Helper.WSQueryPS.GetBDAPGeospasialInvestorCG(db, loadOptions, stringPeriodeAwal, stringPeriodeAkhir, stringNamaPE, growthtype, dimension, investorOrigin, province);
-
+            var varDataList = (dynamic)null;
+            varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                           select new
+                           {
+                               periode = bs.Field<string>("periode").ToString(),
+                               currentvalue = bs.Field<Int64>("currentvalue").ToString(),
+                               growth = bs.Field<Int64>("growth").ToString(),
+                               ord = bs.Field<Int64>("periode").ToString(),
+                           }).OrderBy(bs => bs.ord).ToList();
             return JsonConvert.SerializeObject(result);
         }
 
@@ -386,6 +394,7 @@ namespace BDA.Controllers
 
             list.Add(new NamaPE { text="MoM", value="MoM" });
             list.Add(new NamaPE { text = "YoY", value="YoY" });
+            list.Add(new NamaPE { text = "YtD", value = "YtD" });
             return DataSourceLoader.Load(list, loadOptions);
         }
 
