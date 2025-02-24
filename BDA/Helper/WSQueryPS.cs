@@ -696,8 +696,9 @@ namespace BDA.Helper
             var props = new WSQueryProperties();
 
             props.Query = @"
-                        select pperiode as periode, cast(sum(current_value) as bigint) as currentvalue, cast(sum(prev_value - current_value) as bigint) as growth From pasarmodal.pe_segmentation_geo where "
-                            + whereQuery + " group by pperiode order by pperiode";
+                         SELECT row_number() over(order by periode) as no,* from (
+                            select cast(cast(pperiode as BIGINT)  as BIGINT) as periode, cast(sum(current_value) as bigint) as currentvalue, cast(sum(prev_value - current_value) as bigint) as growth From pasarmodal.pe_segmentation_geo where "
+                            + whereQuery + " group by pperiode order by pperiode) as t";
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
         }

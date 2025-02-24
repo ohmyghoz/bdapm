@@ -92,7 +92,7 @@ namespace BDA.Controllers
                     {
                         coordinates = mr.geometry.coordinates,
                         name = mr.properties.name,
-                        value = r.Field<float>("current_value")
+                        value = r.Field<Int64>("current_value")
                     });
                 }
                 else
@@ -193,15 +193,15 @@ namespace BDA.Controllers
 
             db.Database.CommandTimeout = 420;
             var result = Helper.WSQueryPS.GetBDAPGeospasialInvestorCG(db, loadOptions, stringPeriodeAwal, stringPeriodeAkhir, stringNamaPE, growthtype, dimension, investorOrigin, province);
-            var varDataList = (dynamic)null;
-            varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
-                           select new
-                           {
-                               periode = bs.Field<string>("periode").ToString(),
-                               currentvalue = bs.Field<Int64>("currentvalue").ToString(),
-                               growth = bs.Field<Int64>("growth").ToString(),
-                               ord = bs.Field<Int64>("periode").ToString(),
-                           }).OrderBy(bs => bs.ord).ToList();
+            //var varDataList = (dynamic)null;
+            //varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+            //               select new
+            //               {
+            //                   no = Convert.ToInt64(bs.Field<string>("no").ToString()),
+            //                   periode = Convert.ToInt64(bs.Field<string>("periode").ToString()),
+            //                   currentvalue = Convert.ToInt64(bs.Field<Int32>("currentvalue")),
+            //                   growth = Convert.ToInt64(bs.Field<Int32>("growth")),
+            //               }).OrderBy(bs => bs.no).ToList();
             return JsonConvert.SerializeObject(result);
         }
 
