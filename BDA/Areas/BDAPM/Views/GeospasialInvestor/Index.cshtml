@@ -228,7 +228,8 @@
                             .Title("Current Value VS Growth")
                             .Palette(VizPalette.Vintage)
                             .CommonSeriesSettings(s => s
-                                .ArgumentField("periode"))
+                                .ArgumentField("periode")
+                                .IgnoreEmptyPoints(true))
                             .Series(s =>
                             {
                                 s.Add().ValueField("currentvalue").Name("Current Value").Type(SeriesType.Bar)
