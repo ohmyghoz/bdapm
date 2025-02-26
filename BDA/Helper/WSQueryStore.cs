@@ -66,16 +66,21 @@ namespace BDA.Helper
         public static WSQueryReturns NonDecryptResults(WSQueryReturns wqr)
         {
             DataTable dt = wqr.data;
-            dt.Columns.Add("no", typeof(System.String));
-            int noRow = 1;
-            foreach (DataRow dr in dt.Rows)
+            int cnt = dt.Rows.Count;
+            wqr.totalCount = cnt;
+
+            if (cnt > 0)
             {
-                dr["no"] = noRow.ToString();                
-                noRow++;
+                dt.Columns.Add("no", typeof(System.String));
+                int noRow = 1;
+                foreach (DataRow dr in dt.Rows)
+                {
+                    dr["no"] = noRow.ToString();
+                    noRow++;
+                }
+
+                wqr.data = dt;
             }
-                        
-            wqr.data = dt;
-            wqr.totalCount = dt.Rows.Count;
             return wqr;
         }
 
