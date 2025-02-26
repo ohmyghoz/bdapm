@@ -95,7 +95,7 @@
             </div>
         </div>
         @*grid*@
-        <div class="row filter-panel" style="padding-top:0px;">
+        <div id="contentdiv" class="row filter-panel" style="padding-top:0px;">
             <div class="card-body">
                 <div class="row">
                     <div class="col-lg-4 form-group" style="padding-right:25px;padding-left:25px">
@@ -236,7 +236,16 @@
         </div>
     </div>
 
-
+    @(Html.DevExtreme().LoadPanel()
+            .ID("loadPanel")
+            .ShadingColor("rgba(0,0,0,0.2)")
+                    .Position(p => p.Of("#contentdiv"))
+            .Visible(false)
+            .ShowIndicator(true)
+            .ShowPane(true)
+            .Shading(true)
+            .HideOnOutsideClick(false)
+        )
 <!-- The Modal  Detail-->
 @* <div class="modal fade" id="ModalSimpanPenggunaanData" tabindex="-1" role="document" aria-hidden="true" data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog modal-lg">
@@ -333,9 +342,14 @@
         }
     }
 
+    function hideloadpage() {
+        $("#loadPanel").dxLoadPanel("instance").hide();
+    }    
+
     function onButtonFilterClicked(e) {
         const res = e.validationGroup.validate();
         if (res.status === "valid") {
+            $("#loadPanel").dxLoadPanel("instance").show();
             var namaPE = $("#namaPEid").dxSelectBox("instance").option("value") ?? "";
             var tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value") ?? "";  
             var origin = $("#originList").dxSelectBox("instance").option("value") ?? "";
@@ -396,6 +410,8 @@
                         loadUrl: '@Url.Action("getChartPenghasilan")?periode=' + periodeAwal + '&pe=' + namaPE + '&origin=' + origin + '&tipeInvestor=' + tipeInvestor
                     });
                     chart6.option('dataSource', ds6);
+                    chart6.option('onDrawn', hideloadpage());
+                                        
                 }
             });
         }
@@ -426,6 +442,7 @@
             format: 'PNG'
         });
     }
+
 
 </script>
 <style>

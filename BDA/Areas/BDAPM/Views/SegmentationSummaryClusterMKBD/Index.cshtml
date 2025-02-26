@@ -93,6 +93,42 @@
                     .Controller("SegmentationSummaryClusterMKBD")
                     .LoadAction("GetChartClusterBarSearch")
                     .OnBeforeSend("onGridBeforeSend")))
+
+                @* @(Html.DevExtreme().Chart()
+                    .ID("bar-chart")
+                    .CommonSeriesSettings(s => s
+                    .ArgumentField("cluster")
+                    .Type(SeriesType.Bar)
+                    .HoverMode(ChartSeriesHoverMode.AllArgumentPoints)
+                    .SelectionMode(ChartSeriesSelectionMode.AllArgumentPoints)
+                    .Label(l => l
+                    .Visible(true)
+                    .Format(f => f
+                    .Type(Format.FixedPoint)
+                    .Precision(0)
+                    )
+                    )
+                    )
+                    .Series(s =>
+                    {
+                        s.Add().ValueField("total").Name("total");
+                    })
+                    .Title("Cluster PE Berdasarkan Persentase MKBD dibandingkan MKBD Dipersyaratkan")
+                    .Legend(l => l
+                    .VerticalAlignment(VerticalEdge.Bottom)
+                    .HorizontalAlignment(HorizontalAlignment.Center)
+                    )
+                    .Export(e => e.Enabled(true))
+                    .OnPointClick(@<text>
+                function(e) {
+                e.target.select();
+                }
+            </text>)
+                    .DataSource(d => d.Mvc()
+                    .Controller("SegmentationSummaryClusterMKBD")
+                    .LoadAction("GetChartClusterBarSearch")
+                    .OnBeforeSend("onGridBeforeSend"))
+                    ) *@
             </div>
 
             <div class="col-lg-6">

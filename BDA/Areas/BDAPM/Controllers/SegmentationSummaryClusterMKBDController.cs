@@ -205,8 +205,8 @@ namespace BDA.Controllers
                                select new
                                {
                                    cluster = bs.Field<string>("cluster").ToString(),
-                                   total = bs.Field<Int64>("total").ToString(),
-                                   urut = bs.Field<Int64>("urut").ToString(),
+                                   total = Convert.ToInt64(bs.Field<Int64>("total").ToString()),
+                                   urut = Convert.ToInt64(bs.Field<Int64>("urut").ToString()),
                                }).OrderBy(bs => bs.urut).ToList();
             }
             else
@@ -215,8 +215,8 @@ namespace BDA.Controllers
                                select new
                                {
                                    cluster = bs.Field<string>("cluster").ToString(),
-                                   total = bs.Field<Int32>("total").ToString(),
-                                   urut = bs.Field<string>("urut").ToString(),
+                                   total = Convert.ToInt32(bs.Field<Int32>("total").ToString()),
+                                   urut = Convert.ToInt32(bs.Field<string>("urut").ToString()),
                                }).OrderBy(bs => bs.urut).ToList();
             }
 
