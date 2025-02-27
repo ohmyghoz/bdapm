@@ -5090,19 +5090,19 @@ namespace BDA.Helper
                 {
                     props.Query = @"
                         SELECT row_number() over(order by securitycompanycode) as no,* from (
-                        SELECT calendardate,securitycompanycode,securitycompanyname,
-                            cast(cast(simpanangiro as BIGINT)  as BIGINT) as simpanangiro,
-                            cast(cast(depositolt3bulan as BIGINT)  as BIGINT) as depositolt3bulan,
-                            cast(cast(depositogt3bulandijaminlps as BIGINT)  as BIGINT) as depositogt3bulandijaminlps,
-                            cast(cast(uangjaminanlkp as BIGINT)  as BIGINT) as uangjaminanlkp,
-                            cast(cast(kasdansetarakas as BIGINT)  as BIGINT) as kasdansetarakas,
-                            cast(cast(mkbd as BIGINT)  as BIGINT) as mkbd,
-                            cast(cast(mkbdminimum as BIGINT)  as BIGINT) as mkbdminimum,
-                            (cast(cast(mkbd as BIGINT)  as BIGINT)/cast(cast(mkbdminimum as BIGINT)  as BIGINT)) * 100 as mkbdpermkbdminimum,
-                            CASE 
-                                when cast(cast(kasdansetarakas as BIGINT)  as BIGINT) < cast(cast(mkbdminimum as BIGINT)  as BIGINT) then 'Alert'
-                                when cast(cast(kasdansetarakas as BIGINT)  as BIGINT) >= cast(cast(mkbdminimum as BIGINT)  as BIGINT) then 'Normal'
-                            END AS status,periode,cluster
+                            SELECT calendardate,securitycompanycode,securitycompanyname,
+                                CAST(simpanangiro as BIGINT) as simpanangiro,
+                                CAST(depositolt3bulan as BIGINT) as depositolt3bulan,
+                                CAST(depositogt3bulandijaminlps as BIGINT) as depositogt3bulandijaminlps,
+                                CAST(uangjaminanlkp as BIGINT) as uangjaminanlkp,
+                                CAST(kasdansetarakas as BIGINT) as kasdansetarakas,
+                                CAST(mkbd as BIGINT) as mkbd,
+                                CAST(mkbdminimum as BIGINT) as mkbdminimum,
+                                CAST(mkbd as BIGINT)/CAST(mkbdminimum as BIGINT) * 100 as mkbdpermkbdminimum,
+                                CASE 
+                                    when CAST(kasdansetarakas as BIGINT) < CAST(mkbdminimum as BIGINT) then 'Alert'
+                                    when CAST(kasdansetarakas as BIGINT) >= CAST(mkbdminimum as BIGINT) then 'Normal'
+                                END AS status,periode,cluster
                             From pasarmodal." + tableName + @") as x
                     WHERE " + whereQuery + @"";
                 }
@@ -5112,13 +5112,21 @@ namespace BDA.Helper
                 if (tableName == "pe_segmentation_sum_cluster_mkbd")
                 {
                     props.Query = @"
-                    SELECT row_number() over(order by securitycompanycode) as no,* from (
-                    SELECT calendardate,securitycompanycode,securitycompanyname,simpanangiro,depositolt3bulan,depositogt3bulandijaminlps,uangjaminanlkp,kasdansetarakas,mkbd,mkbdminimum,mkbdpermkbdminimum,
-                        CASE 
-                            when kasdansetarakas < mkbdminimum then 'Alert'
-                            when kasdansetarakas >= mkbdminimum then 'Normal'
-                        END AS status,periode
-                        From pasarmodal." + tableName + @") as x
+                        SELECT row_number() over(order by securitycompanycode) as no,* from (
+                            SELECT calendardate,securitycompanycode,securitycompanyname,
+                                CAST(simpanangiro as BIGINT) as simpanangiro,
+                                CAST(depositolt3bulan as BIGINT) as depositolt3bulan,
+                                CAST(depositogt3bulandijaminlps as BIGINT) as depositogt3bulandijaminlps,
+                                CAST(uangjaminanlkp as BIGINT) as uangjaminanlkp,
+                                CAST(kasdansetarakas as BIGINT) as kasdansetarakas,
+                                CAST(mkbd as BIGINT) as mkbd,
+                                CAST(mkbdminimum as BIGINT) as mkbdminimum,
+                                CAST(mkbd as BIGINT)/CAST(mkbdminimum as BIGINT) * 100 as mkbdpermkbdminimum,
+                                CASE 
+                                    when CAST(kasdansetarakas as BIGINT) < CAST(mkbdminimum as BIGINT) then 'Alert'
+                                    when CAST(kasdansetarakas as BIGINT) >= CAST(mkbdminimum as BIGINT) then 'Normal'
+                                END AS status,periode,cluster
+                            From pasarmodal." + tableName + @") as x
                     WHERE " + whereQuery + @"";
                 }
             }
@@ -5154,19 +5162,11 @@ namespace BDA.Helper
                 {
                     props.Query = @"
                     SELECT status,COUNT(status) total from (
-                    SELECT calendardate,securitycompanycode,securitycompanyname,
-                        cast(cast(simpanangiro as BIGINT)  as BIGINT) as simpanangiro,
-                        cast(cast(depositolt3bulan as BIGINT)  as BIGINT) as depositolt3bulan,
-                        cast(cast(depositogt3bulandijaminlps as BIGINT)  as string) as depositogt3bulandijaminlps,
-                        cast(cast(uangjaminanlkp as BIGINT)  as BIGINT) as uangjaminanlkp,
-                        cast(cast(kasdansetarakas as BIGINT)  as BIGINT) as kasdansetarakas,
-                        cast(cast(mkbd as BIGINT)  as BIGINT) as mkbd,
-                        cast(cast(mkbdminimum as BIGINT)  as BIGINT) as mkbdminimum,
-                        cast(cast(mkbdminimum as BIGINT)  as BIGINT) as mkbdpermkbdminimum,
+                    SELECT 
                         CASE 
-                            when cast(cast(kasdansetarakas as BIGINT)  as BIGINT) < cast(cast(mkbdminimum as BIGINT)  as BIGINT) then 'Alert'
-                            when cast(cast(kasdansetarakas as BIGINT)  as BIGINT) >= cast(cast(mkbdminimum as BIGINT)  as BIGINT) then 'Normal'
-                        END AS status,periode
+                            when CAST(kasdansetarakas as BIGINT) < CAST(mkbdminimum as BIGINT) then 'Alert'
+                            when CAST(kasdansetarakas as BIGINT) >= CAST(mkbdminimum as BIGINT) then 'Normal'
+                        END AS status,periode,securitycompanycode
                         From pasarmodal." + tableName + @") as x
                     WHERE " + whereQuery + @" group by status";
                 }
@@ -5177,11 +5177,11 @@ namespace BDA.Helper
                 {
                     props.Query = @"
                     SELECT status,COUNT(status) total from (
-                    SELECT calendardate,securitycompanycode,securitycompanyname,simpanangiro,depositolt3bulan,depositogt3bulandijaminlps,uangjaminanlkp,kasdansetarakas,mkbd,mkbdminimum,mkbdpermkbdminimum,
+                    SELECT 
                         CASE 
-                            when kasdansetarakas < mkbdminimum then 'Alert'
-                            when kasdansetarakas > mkbdminimum then 'Normal'
-                        END AS status,periode
+                            when CAST(kasdansetarakas as BIGINT) < CAST(mkbdminimum as BIGINT) then 'Alert'
+                            when CAST(kasdansetarakas as BIGINT) >= CAST(mkbdminimum as BIGINT) then 'Normal'
+                        END AS status,periode,securitycompanycode
                         From pasarmodal." + tableName + @") as x
                     WHERE " + whereQuery + @" group by status";
                 }
@@ -5217,20 +5217,20 @@ namespace BDA.Helper
                 if (tableName == "pe_segmentation_sum_cluster_mkbd")
                 {
                     props.Query = @"
-                    SELECT cluster,COUNT(status) total,cast(urut as BIGINT) as urut from (
-                    SELECT * FROM (                    
-                    SELECT calendardate,securitycompanycode,
-                        CASE 
-                            when cast(cast(kasdansetarakas as BIGINT)  as BIGINT) < cast(cast(mkbdminimum as BIGINT)  as BIGINT) then 'Alert'
-                            when cast(cast(kasdansetarakas as BIGINT)  as BIGINT) >= cast(cast(mkbdminimum as BIGINT)  as BIGINT) then 'Normal'
-                        END AS status,cluster,
-                        CASE 
-                           WHEN cluster ='<100%'  then '1'
-                           WHEN cluster ='100% s.d. <120%'  then '2'
-                           WHEN cluster ='120% s.d. <200%'  then '3'
-                           WHEN cluster ='200% s.d. <500%'  then '4'
-                           WHEN cluster ='>=500%'  then '5'
-                        END AS urut,periode
+                    SELECT cluster,COUNT(status) total,CAST(urut as BIGINT) as urut from (
+					SELECT * FROM (                    
+					SELECT calendardate,securitycompanycode,
+						CASE 
+							when CAST(kasdansetarakas as BIGINT) < CAST(mkbdminimum as BIGINT) then 'Alert'
+							when CAST(kasdansetarakas as BIGINT) >= CAST(mkbdminimum as BIGINT) then 'Normal'
+						END AS status,cluster,
+						CASE 
+						   WHEN cluster ='<100%'  then '1'
+						   WHEN cluster ='100% s.d. <120%'  then '2'
+						   WHEN cluster ='120% s.d. <200%'  then '3'
+						   WHEN cluster ='200% s.d. <500%'  then '4'
+						   WHEN cluster ='>=500%'  then '5'
+						END AS urut,periode
                     FROM pasarmodal." + tableName + @") as x  
                     WHERE " + whereQuery + @") AS t 						
                     GROUP BY urut,cluster";
@@ -5241,20 +5241,20 @@ namespace BDA.Helper
                 if (tableName == "pe_segmentation_sum_cluster_mkbd")
                 {
                     props.Query = @"
-                    SELECT cluster,COUNT(status) total,urut from (
-                    SELECT * FROM (                    
-                    SELECT calendardate,securitycompanycode,
-                    	CASE 
-                    		WHEN kasdansetarakas < mkbdminimum then 'Alert'
-                    		WHEN kasdansetarakas >= mkbdminimum then 'Normal'
-                    	END AS status,cluster,
-                        CASE 
-                           WHEN cluster ='<100%'  then '1'
-                           WHEN cluster ='100% s.d. <120%'  then '2'
-                           WHEN cluster ='120% s.d. <200%'  then '3'
-                           WHEN cluster ='200% s.d. <500%'  then '4'
-                           WHEN cluster ='>=500%'  then '5'
-                        END AS urut,periode
+                    SELECT cluster,COUNT(status) total,CAST(urut as BIGINT) as urut from (
+					SELECT * FROM (                    
+					SELECT calendardate,securitycompanycode,
+						CASE 
+							when CAST(kasdansetarakas as BIGINT) < CAST(mkbdminimum as BIGINT) then 'Alert'
+							when CAST(kasdansetarakas as BIGINT) >= CAST(mkbdminimum as BIGINT) then 'Normal'
+						END AS status,cluster,
+						CASE 
+						   WHEN cluster ='<100%'  then '1'
+						   WHEN cluster ='100% s.d. <120%'  then '2'
+						   WHEN cluster ='120% s.d. <200%'  then '3'
+						   WHEN cluster ='200% s.d. <500%'  then '4'
+						   WHEN cluster ='>=500%'  then '5'
+						END AS urut,periode
                     FROM pasarmodal." + tableName + @") as x  
                     WHERE " + whereQuery + @") AS t 						
                     GROUP BY urut,cluster";

@@ -216,7 +216,7 @@ namespace BDA.Controllers
                                {
                                    cluster = bs.Field<string>("cluster").ToString(),
                                    total = Convert.ToInt32(bs.Field<Int32>("total").ToString()),
-                                   urut = Convert.ToInt32(bs.Field<string>("urut").ToString()),
+                                   urut = Convert.ToInt64(bs.Field<Int64>("urut").ToString()),
                                }).OrderBy(bs => bs.urut).ToList();
             }
 
