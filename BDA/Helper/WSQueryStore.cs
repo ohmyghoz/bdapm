@@ -5747,6 +5747,46 @@ namespace BDA.Helper
 
             return WSQueryHelper.DoQueryNL(db, props, isC, isHive);
         }
+        public static WSQueryReturns GetBDAPMAmandedTypeInfo(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, bool isHive = false)
+        {
+            var filter = (dynamic)null;
+            filter = loadOptions.Filter;
+            if (loadOptions.Filter != null)
+            {
+                filter = filter[0][2];
+                filter = "AND amended_info_type LIKE '%" + filter + "%'";
+            }
+            else
+            {
+                filter = "";
+            }
+            bool isC = false;
+            var whereQuery = "1=1";
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "mm_bond_trades_amended")
+                {
+                    props.Query = @"
+                        SELECT amended_info_type from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @" 
+                        group by amended_info_type";
+                }
+            }
+            else
+            {
+                if (tableName == "mm_bond_trades_amended")
+                {
+                    props.Query = @"
+                        SELECT amended_info_type from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @"
+                        group by amended_info_type";
+                }
+            }
+
+            return WSQueryHelper.DoQueryNL(db, props, isC, isHive);
+        }
         public static WSQueryReturns GetBDAPMSID(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, bool isHive = false)
         {
             bool isC = false;
