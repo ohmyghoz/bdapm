@@ -63,7 +63,7 @@ namespace BDA.Controllers
 
             string reportId = "mm_bond_trades_amended"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
             var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
-            var result = Helper.WSQueryStore.GetBDAPMAmandedTypeInfo(db, loadOptions, reportId, cekHive);
+            var result = Helper.WSQueryStore.GetBDAPMFilterAmandedTypeInfo(db, loadOptions, reportId, cekHive);
             var varDataList = (dynamic)null;
             varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
                            select new
@@ -88,6 +88,40 @@ namespace BDA.Controllers
         {
             public string value { get; set; }
             public string text { get; set; }
+        }
+        public object GetChartTypeInfo(DataSourceLoadOptions loadOptions, string periodeAwal, string periodeAkhir, string amandedtypeinfo)
+        {
+            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+            TempData.Clear(); //membersihkan data filtering
+            string[] StatusAmandedTypeInfo = JsonConvert.DeserializeObject<string[]>(amandedtypeinfo);
+
+            string stringPeriodeAwal = null;
+            string stringPeriodeAkhir = null;
+            string stringAmandedtypeinfo = null;
+            string reportId = "mm_bond_trades_amended"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+
+            if (periodeAwal != null)
+            {
+                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
+                TempData["StringPeriodeAwal"] = stringPeriodeAwal;
+            }
+            if (periodeAkhir != null)
+            {
+                stringPeriodeAkhir = Convert.ToDateTime(periodeAkhir).ToString("yyyy-MM-dd");
+                TempData["StringPeriodeAkhir"] = stringPeriodeAkhir;
+            }
+
+            if (StatusAmandedTypeInfo.Length > 0)
+            {
+                stringAmandedtypeinfo = string.Join(", ", StatusAmandedTypeInfo);
+                TempData["StringAmandedTypeInfo"] = stringAmandedtypeinfo;
+            }
+
+            db.Database.CommandTimeout = 420;
+            var result = Helper.WSQueryStore.GetBDAPMMM08TypeInfo(db, loadOptions, reportId, stringPeriodeAwal, stringPeriodeAkhir, stringAmandedtypeinfo, cekHive);
+            return JsonConvert.SerializeObject(result);
         }
     }
 }

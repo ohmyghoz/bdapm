@@ -41,7 +41,7 @@
 
                     <div class="col-lg-4 form-group">
                         <label>Amanded Info Type</label>
-                        @(Html.DevExtreme().TagBox()
+                        @* @(Html.DevExtreme().TagBox()
                             .ID("MemberTypes")
                             .DataSource(d => d.Mvc()
                             .Controller("MMKoreksiTransaksi")
@@ -53,7 +53,18 @@
                             .MaxDisplayedTags(3)
                             .SearchEnabled(true)
                             .ShowClearButton(true)
-                            .Width("100%"))
+                            .Width("100%")) *@
+
+                        @(Html.DevExtreme().TagBox()
+                            .ID("Amandedid")
+                            .DataSource(new[] { "Market", "Non Market" })
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .Width("100%")
+                            .Placeholder("(ALL)")
+                            )
                     </div>
 
                 </div>
@@ -69,50 +80,41 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-lg-3">
-                @(Html.DevExtreme().Chart()
-                    .ID("chart")
-                    .Series(s => s
-                    .Add()
-                    .ArgumentField("Day")
-                    .ValueField("Oranges")
-                    .Name("My oranges")
-                    .Type(SeriesType.Bar)
-                    .Color("#ffaa66")
-                    )
-                    .DataSource(new[] {
-                    new { Day = "Monday", Oranges = 3 },
-                    new { Day = "Tuesday", Oranges = 2 },
-                    new { Day = "Wednesday", Oranges = 3 },
-                    new { Day = "Thursday", Oranges = 4 },
-                    new { Day = "Friday", Oranges = 6 },
-                    new { Day = "Saturday", Oranges = 11 },
-                    new { Day = "Sunday", Oranges = 4 }
-                    })
-                    )
-                @* @(Html.DevExtreme().Chart()
-                    .ID("bar-chart")
-                    .Title("Cluster PE Berdasarkan Persentase MKBD dibandingkan MKBD Dipersyaratkan")
+            <div class="col-lg-6">
+                @(Html.DevExtreme().PieChart()
+                    .ID("pie-chart")
+                    .Title("Type Of Info")
+                    .Legend(l => l
+                    .HorizontalAlignment(HorizontalAlignment.Right)
+                    .VerticalAlignment(VerticalEdge.Top)
+                    .Margin(0))
                     .Export(e => e.Enabled(true))
                     .Series(s => s
                     .Add()
-                    .ArgumentField("cluster")
+                    .ArgumentField("amended_info_type")
                     .ValueField("total")
-                    .Name("Cluster PE")
-                    .Type(SeriesType.Bar)
-                    .Color("red")
                     .Label(l => l
                     .Visible(true)
-                    .Format(f => f
-                    .Type(Format.FixedPoint)
-                    .Precision(0))))
+                    .Font(f => f.Size(16))
+                    .Connector(c => c
+                    .Visible(true)
+                    .Width(0.5)
+                    )
+                    .Position(PieChartLabelPosition.Columns)
+                    .CustomizeText(@<text>
+                function(arg) {
+                return arg.valueText + " (" + arg.percentText + ")";
+                }
+            </text>)
+                    )
+                    )
                     .DataSource(d => d.Mvc()
-                    .Controller("SegmentationSummaryClusterMKBD")
-                    .LoadAction("GetChartClusterBarSearch")
-                    .OnBeforeSend("onGridBeforeSend"))) *@
+                    .Controller("MMKoreksiTransaksi")
+                    .LoadAction("GetChartTypeInfo")
+                    .OnBeforeSend("onGridBeforeSend")))
             </div>
 
-            <div class="col-lg-3">
+            <div class="col-lg-6">
                 @(Html.DevExtreme().Chart()
                     .ID("charts")
                     .Series(s => s
@@ -124,59 +126,6 @@
                     .Color("#ffaa66")
                     )
                     .DataSource(new[] {
-                    new { Day = "Monday", Oranges = 3 },
-                    new { Day = "Tuesday", Oranges = 2 },
-                    new { Day = "Wednesday", Oranges = 3 },
-                    new { Day = "Thursday", Oranges = 4 },
-                    new { Day = "Friday", Oranges = 6 },
-                    new { Day = "Saturday", Oranges = 11 },
-                    new { Day = "Sunday", Oranges = 4 }
-                    })
-                    )
-                @* @(Html.DevExtreme().PieChart()
-                    .ID("pie-chart")
-                    .Type(PieChartType.Doughnut)
-                    .Title("Jumlah PE dengan Alert Kas dan Setara Kas")
-                    .Legend(l => l
-                    .HorizontalAlignment(HorizontalAlignment.Right)
-                    .VerticalAlignment(VerticalEdge.Top)
-                    .Margin(0)
-                    )
-                    .CenterTemplate(@<text>
-                <svg>
-                    <circle cx="100" cy="100" r="<%- getInnerRadius() - 6 %>" fill="#eee"></circle>
-                    <text text-anchor="middle" style="font-size: 35px" x="100" y="90" fill="#494949">
-                        <tspan x="100">@(ViewBag.TotalPie)</tspan><tspan x="100" dy="20px" style="font-weight: 600"><%- formatNumber(calculateTotal(getAllSeries())) %></tspan>
-                    </text>
-                </svg>
-            </text>)
-                    .Export(e => e.Enabled(true))
-                    .Series(s => s
-                    .Add()
-                    .ArgumentField("status")
-                    .ValueField("total")
-                    .Label(l => l
-                    .Visible(true)
-                    .Connector(c => c.Visible(true))
-                    ))
-                    .DataSource(d => d.Mvc()
-                    .Controller("SegmentationSummaryClusterMKBD")
-                    .LoadAction("GetChartClusterSearch")
-                    .OnBeforeSend("onGridBeforeSend"))) *@
-            </div>
-
-            <div class="col-lg-6">
-                        @(Html.DevExtreme().Chart()
-                            .ID("chartsss")
-                            .Series(s => s
-                            .Add()
-                            .ArgumentField("Day")
-                            .ValueField("Oranges")
-                            .Name("My oranges")
-                            .Type(SeriesType.Bar)
-                            .Color("#ffaa66")
-                            )
-                            .DataSource(new[] {
                     new { Day = "Monday", Oranges = 3 },
                     new { Day = "Tuesday", Oranges = 2 },
                     new { Day = "Wednesday", Oranges = 3 },
@@ -212,26 +161,6 @@
             new { Day = "Sunday", Oranges = 4 }
             })
                     )
-                @* @(Html.DevExtreme().Chart()
-                    .ID("bar-chart")
-                    .Title("Cluster PE Berdasarkan Persentase MKBD dibandingkan MKBD Dipersyaratkan")
-                    .Export(e => e.Enabled(true))
-                    .Series(s => s
-                    .Add()
-                    .ArgumentField("cluster")
-                    .ValueField("total")
-                    .Name("Cluster PE")
-                    .Type(SeriesType.Bar)
-                    .Color("red")
-                    .Label(l => l
-                    .Visible(true)
-                    .Format(f => f
-                    .Type(Format.FixedPoint)
-                    .Precision(0))))
-                    .DataSource(d => d.Mvc()
-                    .Controller("SegmentationSummaryClusterMKBD")
-                    .LoadAction("GetChartClusterBarSearch")
-                    .OnBeforeSend("onGridBeforeSend"))) *@
             </div>
 
             <div class="col-lg-6">
@@ -255,36 +184,32 @@
             new { Day = "Sunday", Oranges = 4 }
             })
                     )
-                @* @(Html.DevExtreme().PieChart()
-                    .ID("pie-chart")
-                    .Type(PieChartType.Doughnut)
-                    .Title("Jumlah PE dengan Alert Kas dan Setara Kas")
-                    .Legend(l => l
-                    .HorizontalAlignment(HorizontalAlignment.Right)
-                    .VerticalAlignment(VerticalEdge.Top)
-                    .Margin(0)
-                    )
-                    .CenterTemplate(@<text>
-                <svg>
-                    <circle cx="100" cy="100" r="<%- getInnerRadius() - 6 %>" fill="#eee"></circle>
-                    <text text-anchor="middle" style="font-size: 35px" x="100" y="90" fill="#494949">
-                        <tspan x="100">@(ViewBag.TotalPie)</tspan><tspan x="100" dy="20px" style="font-weight: 600"><%- formatNumber(calculateTotal(getAllSeries())) %></tspan>
-                    </text>
-                </svg>
-            </text>)
-                    .Export(e => e.Enabled(true))
+            </div>
+        </div>
+        <br />
+        <br />
+        <div class="row">
+            <div class="col-lg-12">
+                @(Html.DevExtreme().Chart()
+                    .ID("chartsdadaccc")
                     .Series(s => s
                     .Add()
-                    .ArgumentField("status")
-                    .ValueField("total")
-                    .Label(l => l
-                    .Visible(true)
-                    .Connector(c => c.Visible(true))
-                    ))
-                    .DataSource(d => d.Mvc()
-                    .Controller("SegmentationSummaryClusterMKBD")
-                    .LoadAction("GetChartClusterSearch")
-                    .OnBeforeSend("onGridBeforeSend"))) *@
+                    .ArgumentField("Day")
+                    .ValueField("Oranges")
+                    .Name("My oranges")
+                    .Type(SeriesType.Bar)
+                    .Color("#ffaa66")
+                    )
+                    .DataSource(new[] {
+            new { Day = "Monday", Oranges = 3 },
+            new { Day = "Tuesday", Oranges = 2 },
+            new { Day = "Wednesday", Oranges = 3 },
+            new { Day = "Thursday", Oranges = 4 },
+            new { Day = "Friday", Oranges = 6 },
+            new { Day = "Saturday", Oranges = 11 },
+            new { Day = "Sunday", Oranges = 4 }
+            })
+                    )
             </div>
         </div>
         <br />
@@ -479,79 +404,102 @@
 </script>
 
 <script>
-        var formatNumber = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format;
-        function customizeLabel(e) {
-            return e.argumentText + "\n" + e.valueText;
-        }
 
-        function calculateTotal(series) {
-            return series[0].getVisiblePoints().reduce(function (s, p) { return s + p.originalValue }, 0);
-        }
+    var formatNumber = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format;
+    function customizeLabel(e) {
+        return e.argumentText + "\n" + e.valueText;
+    }
 
-        $("#PeriodeAwal").dxValidator({
-            validationGroup: "Filter",
-            validationRules: [{ type: "required", message: "[Periode Awal] harus dipilih" }]
-        })
-        $("#PeriodeAkhir").dxValidator({
-            validationGroup: "Filter",
-            validationRules: [{ type: "required", message: "[Periode Akhir] harus dipilih" }]
-        })
+    function calculateTotal(series) {
+        return series[0].getVisiblePoints().reduce(function (s, p) { return s + p.originalValue }, 0);
+    }
 
-        function onButtonFilterClicked(e) {
-            let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
-            let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
-            let status = $("#Statusid").dxTagBox("instance").option("value");
+    $(function () {
+        $("#pie-chart").dxPieChart({
+            customizePoint: function(pointInfo) {
+
+                if (pointInfo.argument == "Market") {
+                        return {
+                            color: "#64a0fb"
+                        }
+                    }
+                    return {
+                        color: "#f59453"
+                }
+            }
+        });
+     });
 
 
-            let periodeAwal = null;
-            if (tempPeriodeAwal != null) {
+
+    $("#PeriodeAwal").dxValidator({
+        validationGroup: "Filter",
+        validationRules: [{ type: "required", message: "[Periode Awal] harus dipilih" }]
+    })
+    $("#PeriodeAkhir").dxValidator({
+        validationGroup: "Filter",
+        validationRules: [{ type: "required", message: "[Periode Akhir] harus dipilih" }]
+    })
+
+    function onButtonFilterClicked(e) {
+        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
+        let tempPeriodeAkhir = $("#PeriodeAkhir").dxDateBox("instance").option("value");
+        let amandedtypeinfo = $("#Amandedid").dxTagBox("instance").option("value");
+
+
+        let periodeAwal = null;
+        if (tempPeriodeAwal != null) {
             periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
-            }
-
-            $("#grid1").dxDataGrid("instance").refresh();
-
-            $.ajax({
-                url: '@Url.Action("GetChartClusterSearch", "SegmentationSummaryClusterMKBD")',
-                data: { periodeAwal: periodeAwal, namaPE: namaPE, status: JSON.stringify(status) },
-                dataType: "json",
-                type: "POST",
-                success: function (response) {
-                $("#pie-chart").dxPieChart("instance").refresh();
-                }
-            });
-
-            $.ajax({
-                url: '@Url.Action("GetChartClusterBarSearch", "SegmentationSummaryClusterMKBD")',
-                data: { periodeAwal: periodeAwal, namaPE: namaPE, status: JSON.stringify(status) },
-                dataType: "json",
-                type: "POST",
-                success: function (response) {
-                $("#bar-chart").dxChart("instance").refresh();
-                }
-            });
         }
 
-        function onGridBeforeSend(method, ajaxOptions) {
-            let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
-            let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
-            let status = $("#Statusid").dxTagBox("instance").option("value");
-
-
-            let periodeAwal = null;
-            if (tempPeriodeAwal != null) {
-                periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
-            }
-
-            ajaxOptions.data.periodeAwal = periodeAwal;
-            ajaxOptions.data.namaPE = namaPE;
-            ajaxOptions.data.status = JSON.stringify(status);
+        let periodeAkhir = null;
+        if (tempPeriodeAkhir != null) {
+            periodeAkhir = tempPeriodeAkhir.getFullYear() + '-' + String(tempPeriodeAkhir.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAkhir.getDate()).padStart(2, '0');
         }
 
-        function onSelectionChanged(e) {
-            if (e.addedItems.length > 0) {
-                e.component.field().val("");
+        //$("#grid1").dxDataGrid("instance").refresh();
+
+        $.ajax({
+            url: '@Url.Action("GetChartTypeInfo", "MMKoreksiTransaksi")',
+            data: { periodeAwal: periodeAwal, periodeAkhir: periodeAkhir, amandedtypeinfo: JSON.stringify(amandedtypeinfo) },
+            dataType: "json",
+            type: "POST",
+            success: function (response) {
+            $("#pie-chart").dxPieChart("instance").refresh();
             }
+        });
+
+        
+    }
+
+    function onSelectionChanged(e) {
+        if (e.addedItems.length > 0) {
+            e.component.field().val(""); // Clears the search text. However, search filter is only applied to the widget after focus is lost in the input element
         }
+    }
+    function onGridBeforeSend(method, ajaxOptions) {
+        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
+        let tempPeriodeAkhir = $("#PeriodeAkhir").dxDateBox("instance").option("value");
+        let amandedtypeinfo = $("#Amandedid").dxTagBox("instance").option("value");
+
+
+        let periodeAwal = null;
+        if (tempPeriodeAwal != null) {
+            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
+        }
+
+        let periodeAkhir = null;
+        if (tempPeriodeAkhir != null) {
+            periodeAkhir = tempPeriodeAkhir.getFullYear() + '-' + String(tempPeriodeAkhir.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAkhir.getDate()).padStart(2, '0');
+        }
+
+        ajaxOptions.data.periodeAwal = periodeAwal;
+        ajaxOptions.data.periodeAkhir = periodeAkhir;
+        ajaxOptions.data.amandedtypeinfo = JSON.stringify(amandedtypeinfo);
+    }
+
+        
+    
 
 
 </script>

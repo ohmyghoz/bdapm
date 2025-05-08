@@ -5747,46 +5747,6 @@ namespace BDA.Helper
 
             return WSQueryHelper.DoQueryNL(db, props, isC, isHive);
         }
-        public static WSQueryReturns GetBDAPMAmandedTypeInfo(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, bool isHive = false)
-        {
-            var filter = (dynamic)null;
-            filter = loadOptions.Filter;
-            if (loadOptions.Filter != null)
-            {
-                filter = filter[0][2];
-                filter = "AND amended_info_type LIKE '%" + filter + "%'";
-            }
-            else
-            {
-                filter = "";
-            }
-            bool isC = false;
-            var whereQuery = "1=1";
-
-            var props = new WSQueryProperties();
-            if (isHive == true)
-            {
-                if (tableName == "mm_bond_trades_amended")
-                {
-                    props.Query = @"
-                        SELECT amended_info_type from pasarmodal." + tableName + @"
-                        WHERE " + whereQuery + @" 
-                        group by amended_info_type";
-                }
-            }
-            else
-            {
-                if (tableName == "mm_bond_trades_amended")
-                {
-                    props.Query = @"
-                        SELECT amended_info_type from pasarmodal." + tableName + @"
-                        WHERE " + whereQuery + @"
-                        group by amended_info_type";
-                }
-            }
-
-            return WSQueryHelper.DoQueryNL(db, props, isC, isHive);
-        }
         public static WSQueryReturns GetBDAPMSID(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, bool isHive = false)
         {
             bool isC = false;
@@ -6190,6 +6150,100 @@ namespace BDA.Helper
         }
 
 
+
+
+        public static WSQueryReturns GetBDAPMFilterAmandedTypeInfo(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, bool isHive = false)
+        {
+            var filter = (dynamic)null;
+            filter = loadOptions.Filter;
+            if (loadOptions.Filter != null)
+            {
+                filter = filter[0][2];
+                filter = "AND amended_info_type LIKE '%" + filter + "%'";
+            }
+            else
+            {
+                filter = "";
+            }
+            bool isC = false;
+            var whereQuery = "1=1";
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "mm_bond_trades_amended")
+                {
+                    props.Query = @"
+                        SELECT amended_info_type from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @" 
+                        group by amended_info_type";
+                }
+            }
+            else
+            {
+                if (tableName == "mm_bond_trades_amended")
+                {
+                    props.Query = @"
+                        SELECT amended_info_type from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @"
+                        group by amended_info_type";
+                }
+            }
+
+            return WSQueryHelper.DoQueryNL(db, props, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMMM08TypeInfo(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string stringPeriodeAwal, string stringPeriodeAkhir, string stringAmandedtypeinfo, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            //isHive = true;
+
+            if (stringPeriodeAwal != null && stringPeriodeAkhir != null)
+            {
+                if (isHive == true)
+                {
+                    stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    whereQuery = whereQuery += " AND  date_format(date_sub(amend_date,14),'yyyy-MM-dd') BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
+                }
+                else
+                {
+                    stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    whereQuery = whereQuery += " AND  CONVERT(char(10), amend_date,126) BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
+                }
+
+            }
+            
+            if (stringAmandedtypeinfo != null)
+            {
+                stringAmandedtypeinfo = "'" + stringAmandedtypeinfo.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND amended_info_type in (" + stringAmandedtypeinfo + ")";
+            }
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "mm_bond_trades_amended")
+                {
+                    props.Query = @"
+                    SELECT amended_info_type,COUNT(amended_info_type) total
+                        From pasarmodal." + tableName + @"
+                    WHERE " + whereQuery + @" group by amended_info_type";
+                }
+            }
+            else
+            {
+                if (tableName == "mm_bond_trades_amended")
+                {
+                    props.Query = @"
+                    SELECT amended_info_type,COUNT(amended_info_type) total
+                        From pasarmodal." + tableName + @"
+                    WHERE " + whereQuery + @" group by amended_info_type";
+                }
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
         #endregion
     }
 }
