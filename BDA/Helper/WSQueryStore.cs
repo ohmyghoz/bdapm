@@ -6244,6 +6244,180 @@ namespace BDA.Helper
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
         }
+        public static WSQueryReturns GetBDAPMMM08TypeFirmID(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string stringPeriodeAwal, string stringPeriodeAkhir, string stringAmandedtypeinfo, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            //isHive = true;
+
+            if (stringPeriodeAwal != null && stringPeriodeAkhir != null)
+            {
+                if (isHive == true)
+                {
+                    stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    whereQuery = whereQuery += " AND  date_format(date_sub(amend_date,14),'yyyy-MM-dd') BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
+                }
+                else
+                {
+                    stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    whereQuery = whereQuery += " AND  CONVERT(char(10), amend_date,126) BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
+                }
+
+            }
+
+            if (stringAmandedtypeinfo != null)
+            {
+                stringAmandedtypeinfo = "'" + stringAmandedtypeinfo.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND amended_info_type in (" + stringAmandedtypeinfo + ")";
+            }
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "mm_bond_trades_amended")
+                {
+                    props.Query = @"
+                    SELECT type_firm_id,COUNT(type_firm_id) total
+                        From pasarmodal." + tableName + @"
+                    WHERE " + whereQuery + @" group by type_firm_id";
+                }
+            }
+            else
+            {
+                if (tableName == "mm_bond_trades_amended")
+                {
+                    props.Query = @"
+                    SELECT type_firm_id,COUNT(type_firm_id) total
+                        From pasarmodal." + tableName + @"
+                    WHERE " + whereQuery + @" group by type_firm_id";
+                }
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMMM08AmendMarket(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string stringPeriodeAwal, string stringPeriodeAkhir, string stringAmandedtypeinfo, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            //isHive = true;
+
+            if (stringPeriodeAwal != null && stringPeriodeAkhir != null)
+            {
+                if (isHive == true)
+                {
+                    stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    whereQuery = whereQuery += " AND  date_format(date_sub(amend_date,14),'yyyy-MM-dd') BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
+                }
+                else
+                {
+                    stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    whereQuery = whereQuery += " AND  CONVERT(char(10), amend_date,126) BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
+                }
+
+            }
+
+            if (stringAmandedtypeinfo != null)
+            {
+                stringAmandedtypeinfo = "'" + stringAmandedtypeinfo.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                //whereQuery = whereQuery += " AND amended_info_type in (" + stringAmandedtypeinfo + ")";
+                whereQuery = whereQuery += " AND amended_info_type in ('Market')";
+            }
+            else
+            {
+                //stringAmandedtypeinfo = "'" + stringAmandedtypeinfo.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                //whereQuery = whereQuery += " AND amended_info_type in (" + stringAmandedtypeinfo + ")";
+                whereQuery = whereQuery += " AND amended_info_type in ('Market')";
+            }
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "mm_bond_trades_amended")
+                {
+                    props.Query = @"
+                    SELECT amended_info,COUNT(amended_info) total
+                        From pasarmodal." + tableName + @"
+                    WHERE " + whereQuery + @" group by amended_info";
+                }
+            }
+            else
+            {
+                if (tableName == "mm_bond_trades_amended")
+                {
+                    props.Query = @"
+                    SELECT amended_info,COUNT(amended_info) total
+                        From pasarmodal." + tableName + @"
+                    WHERE " + whereQuery + @" group by amended_info";
+                }
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMMM08AmendNonMarket(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string stringPeriodeAwal, string stringPeriodeAkhir, string stringAmandedtypeinfo, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            //isHive = true;
+
+            if (stringPeriodeAwal != null && stringPeriodeAkhir != null)
+            {
+                if (isHive == true)
+                {
+                    stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    whereQuery = whereQuery += " AND  date_format(date_sub(amend_date,14),'yyyy-MM-dd') BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
+                }
+                else
+                {
+                    stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    whereQuery = whereQuery += " AND  CONVERT(char(10), amend_date,126) BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
+                }
+
+            }
+
+            if (stringAmandedtypeinfo != null)
+            {
+                stringAmandedtypeinfo = "'" + stringAmandedtypeinfo.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                //whereQuery = whereQuery += " AND amended_info_type in (" + stringAmandedtypeinfo + ")";
+                whereQuery = whereQuery += " AND amended_info_type in ('Non Market')";
+            }
+            else
+            {
+                //stringAmandedtypeinfo = "'" + stringAmandedtypeinfo.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                //whereQuery = whereQuery += " AND amended_info_type in (" + stringAmandedtypeinfo + ")";
+                whereQuery = whereQuery += " AND amended_info_type in ('Non Market')";
+            }
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "mm_bond_trades_amended")
+                {
+                    props.Query = @"
+                    SELECT amended_info,COUNT(amended_info) total
+                        From pasarmodal." + tableName + @"
+                    WHERE " + whereQuery + @" group by amended_info";
+                }
+            }
+            else
+            {
+                if (tableName == "mm_bond_trades_amended")
+                {
+                    props.Query = @"
+                    SELECT amended_info,COUNT(amended_info) total
+                        From pasarmodal." + tableName + @"
+                    WHERE " + whereQuery + @" group by amended_info";
+                }
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+
+
         #endregion
     }
 }

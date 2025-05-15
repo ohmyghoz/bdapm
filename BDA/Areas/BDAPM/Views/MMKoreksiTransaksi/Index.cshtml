@@ -5,6 +5,8 @@
     var periodeAkhir = (DateTime?)TempData.Peek("PeriodeAkhir");
     var amended_info_type = (string[])TempData.Peek("amended_info_type");
     var p = (string[])ViewBag.period;
+    var vwperiodeAwal = (string)TempData.Peek("monthyearawal");
+    var vwperiodeAkhir = (string[])ViewBag.monthyearakhir;
 }
 
 @inject BDA.DataModel.DataEntities db
@@ -82,7 +84,7 @@
         <div class="row">
             <div class="col-lg-6">
                 @(Html.DevExtreme().PieChart()
-                    .ID("pie-chart")
+                    .ID("pie-chartTypeOfInfo")
                     .Title("Type Of Info")
                     .Legend(l => l
                     .HorizontalAlignment(HorizontalAlignment.Right)
@@ -115,26 +117,37 @@
             </div>
 
             <div class="col-lg-6">
-                @(Html.DevExtreme().Chart()
-                    .ID("charts")
+                @(Html.DevExtreme().PieChart()
+                    .ID("pie-chartTypeOfFirmID")
+                    .Title("Type Of Firm ID")
+                    .Legend(l => l
+                    .HorizontalAlignment(HorizontalAlignment.Right)
+                    .VerticalAlignment(VerticalEdge.Top)
+                    .Margin(0))
+                    .Export(e => e.Enabled(true))
                     .Series(s => s
                     .Add()
-                    .ArgumentField("Day")
-                    .ValueField("Oranges")
-                    .Name("My oranges")
-                    .Type(SeriesType.Bar)
-                    .Color("#ffaa66")
+                    .ArgumentField("type_firm_id")
+                    .ValueField("total")
+                    .Label(l => l
+                    .Visible(true)
+                    .Font(f => f.Size(16))
+                    .Connector(c => c
+                    .Visible(true)
+                    .Width(0.5)
                     )
-                    .DataSource(new[] {
-                    new { Day = "Monday", Oranges = 3 },
-                    new { Day = "Tuesday", Oranges = 2 },
-                    new { Day = "Wednesday", Oranges = 3 },
-                    new { Day = "Thursday", Oranges = 4 },
-                    new { Day = "Friday", Oranges = 6 },
-                    new { Day = "Saturday", Oranges = 11 },
-                    new { Day = "Sunday", Oranges = 4 }
-                    })
+                    .Position(PieChartLabelPosition.Columns)
+                    .CustomizeText(@<text>
+                function(arg) {
+                return arg.valueText + " (" + arg.percentText + ")";
+                }
+            </text>)
                     )
+                    )
+                    .DataSource(d => d.Mvc()
+                    .Controller("MMKoreksiTransaksi")
+                    .LoadAction("GetChartTypeFirmID")
+                    .OnBeforeSend("onGridBeforeSend")))
             </div>
         </div>
         <br />
@@ -142,48 +155,52 @@
         <div class="row">
             <div class="col-lg-6">
                 @(Html.DevExtreme().Chart()
-                    .ID("chartsdada")
+                    .ID("bar-chartJumlahMarket")
+                    .Title("Jumlah Amend (Market) Periode 2024")
+                    .ArgumentAxis(o => o.Color("#767676").Label(l => l.Font(f => f.Color("#767676")).OverlappingBehavior(OverlappingBehavior.Rotate).RotationAngle(-45).WordWrap(VizWordWrap.None)))
+                    .Rotated(false)
+                    .Export(e => e.Enabled(true))
                     .Series(s => s
                     .Add()
-                    .ArgumentField("Day")
-                    .ValueField("Oranges")
-                    .Name("My oranges")
+                    .ArgumentField("amended_info")
+                    .ValueField("total")
+                    .Name("Amend (Market)")
                     .Type(SeriesType.Bar)
-                    .Color("#ffaa66")
-                    )
-                    .DataSource(new[] {
-            new { Day = "Monday", Oranges = 3 },
-            new { Day = "Tuesday", Oranges = 2 },
-            new { Day = "Wednesday", Oranges = 3 },
-            new { Day = "Thursday", Oranges = 4 },
-            new { Day = "Friday", Oranges = 6 },
-            new { Day = "Saturday", Oranges = 11 },
-            new { Day = "Sunday", Oranges = 4 }
-            })
-                    )
+                    .Color("#64a0fb")
+                    .Label(l => l
+                    .Visible(true)                 
+                    .Format(f => f
+                    .Type(Format.FixedPoint)
+                    .Precision(0))))
+                    .DataSource(d => d.Mvc()
+                    .Controller("MMKoreksiTransaksi")
+                    .LoadAction("GetBarChartAmendMarket")
+                    .OnBeforeSend("onGridBeforeSend")))
             </div>
 
             <div class="col-lg-6">
                 @(Html.DevExtreme().Chart()
-                    .ID("chartsxvxvx")
+                    .ID("bar-chartJumlahNonMarket")
+                    .Title("Jumlah Amend (Non Market) Periode " + new { periodeAwal = new JS("getperiodeAwalIdValue") } + "")
+                    .ArgumentAxis(o => o.Color("#767676").Label(l => l.Font(f => f.Color("#767676")).OverlappingBehavior(OverlappingBehavior.Rotate).RotationAngle(-45).WordWrap(VizWordWrap.None)))
+                    .Rotated(false)
+                    .Export(e => e.Enabled(true))
                     .Series(s => s
                     .Add()
-                    .ArgumentField("Day")
-                    .ValueField("Oranges")
-                    .Name("My oranges")
+                    .ArgumentField("amended_info")
+                    .ValueField("total")
+                    .Name("Amend (Non Market)")
                     .Type(SeriesType.Bar)
-                    .Color("#ffaa66")
-                    )
-                    .DataSource(new[] {
-            new { Day = "Monday", Oranges = 3 },
-            new { Day = "Tuesday", Oranges = 2 },
-            new { Day = "Wednesday", Oranges = 3 },
-            new { Day = "Thursday", Oranges = 4 },
-            new { Day = "Friday", Oranges = 6 },
-            new { Day = "Saturday", Oranges = 11 },
-            new { Day = "Sunday", Oranges = 4 }
-            })
-                    )
+                    .Color("#64a0fb")
+                    .Label(l => l
+                    .Visible(true)
+                    .Format(f => f
+                    .Type(Format.FixedPoint)
+                    .Precision(0))))
+                    .DataSource(d => d.Mvc()
+                    .Controller("MMKoreksiTransaksi")
+                    .LoadAction("GetBarChartNonAmendMarket")
+                    .OnBeforeSend("onGridBeforeSend")))
             </div>
         </div>
         <br />
@@ -415,7 +432,7 @@
     }
 
     $(function () {
-        $("#pie-chart").dxPieChart({
+        $("#pie-chartTypeOfInfo").dxPieChart({
             customizePoint: function(pointInfo) {
 
                 if (pointInfo.argument == "Market") {
@@ -430,7 +447,10 @@
         });
      });
 
-
+     function getperiodeAwalIdValue() {
+        var periodeAwal = '@(ViewBag.monthyearawal)';
+        return periodeAwal
+    }
 
     $("#PeriodeAwal").dxValidator({
         validationGroup: "Filter",
@@ -465,11 +485,39 @@
             dataType: "json",
             type: "POST",
             success: function (response) {
-            $("#pie-chart").dxPieChart("instance").refresh();
+            $("#pie-chartTypeOfInfo").dxPieChart("instance").refresh();
             }
         });
 
-        
+        $.ajax({
+            url: '@Url.Action("GetChartTypeFirmID", "MMKoreksiTransaksi")',
+            data: { periodeAwal: periodeAwal, periodeAkhir: periodeAkhir, amandedtypeinfo: JSON.stringify(amandedtypeinfo) },
+            dataType: "json",
+            type: "POST",
+            success: function (response) {
+            $("#pie-chartTypeOfFirmID").dxPieChart("instance").refresh();
+            }
+        });
+
+        $.ajax({
+            url: '@Url.Action("GetBarChartAmendMarket", "MMKoreksiTransaksi")',
+            data: { periodeAwal: periodeAwal, periodeAkhir: periodeAkhir, amandedtypeinfo: JSON.stringify(amandedtypeinfo) },
+            dataType: "json",
+            type: "POST",
+            success: function (response) {
+            $("#bar-chartJumlahMarket").dxChart("instance").refresh();
+            }
+        });
+
+         $.ajax({
+            url: '@Url.Action("GetBarChartNonAmendMarket", "MMKoreksiTransaksi")',
+            data: { periodeAwal: periodeAwal, periodeAkhir: periodeAkhir, amandedtypeinfo: JSON.stringify(amandedtypeinfo) },
+            dataType: "json",
+            type: "POST",
+            success: function (response) {
+            $("#bar-chartJumlahNonMarket").dxChart("instance").refresh();
+            }
+        });
     }
 
     function onSelectionChanged(e) {
