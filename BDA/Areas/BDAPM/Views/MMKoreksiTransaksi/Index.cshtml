@@ -1,8 +1,8 @@
 ﻿@using DevExtreme.AspNet.Mvc
 @{
     Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
-    var periodeAwal = (DateTime?)TempData.Peek("PeriodeAwal");
-    var periodeAkhir = (DateTime?)TempData.Peek("PeriodeAkhir");
+    // var periodeAwal = (DateTime?)TempData.Peek("PeriodeAwal");
+    // var periodeAkhir = (DateTime?)TempData.Peek("PeriodeAkhir");
     var amended_info_type = (string[])TempData.Peek("amended_info_type");
     var p = (string[])ViewBag.period;
     var vwperiodeAwal = (string)TempData.Peek("monthyearawal");
@@ -26,7 +26,7 @@
                         @(Html.DevExtreme().DateBox()
                             .ID("PeriodeAwal")
                             .DisplayFormat("dd MMM yyyy")
-                            .Value(periodeAwal == null ? DateTime.Now : periodeAwal)
+                            .Value(DateTime.Now)
                             .Max(DateTime.Now)
                             .Width("100%"))
                     </div>
@@ -36,27 +36,13 @@
                         @(Html.DevExtreme().DateBox()
                             .ID("PeriodeAkhir")
                             .DisplayFormat("dd MMM yyyy")
-                            .Value(periodeAkhir == null ? DateTime.Now : periodeAkhir)
+                            .Value(DateTime.Now)
                             .Min(DateTime.Now)
                             .Width("100%"))
                     </div>
 
                     <div class="col-lg-4 form-group">
                         <label>Amanded Info Type</label>
-                        @* @(Html.DevExtreme().TagBox()
-                            .ID("MemberTypes")
-                            .DataSource(d => d.Mvc()
-                            .Controller("MMKoreksiTransaksi")
-                                .LoadAction("GetMemberTypes")
-                            .Key("value"))
-                            .ValueExpr("value")
-                            .DisplayExpr("text")
-                            .ShowSelectionControls(true)
-                            .MaxDisplayedTags(3)
-                            .SearchEnabled(true)
-                            .ShowClearButton(true)
-                            .Width("100%")) *@
-
                         @(Html.DevExtreme().TagBox()
                             .ID("Amandedid")
                             .DataSource(new[] { "Market", "Non Market" })
@@ -181,7 +167,7 @@
             <div class="col-lg-6">
                 @(Html.DevExtreme().Chart()
                     .ID("bar-chartJumlahNonMarket")
-                    .Title("Jumlah Amend (Non Market) Periode " + new { periodeAwal = new JS("getperiodeAwalIdValue") } + "")
+                    .Title("Jumlah Amend (Non Market) Periode " + (string)ViewBag.monthyearawal + "")
                     .ArgumentAxis(o => o.Color("#767676").Label(l => l.Font(f => f.Color("#767676")).OverlappingBehavior(OverlappingBehavior.Rotate).RotationAngle(-45).WordWrap(VizWordWrap.None)))
                     .Rotated(false)
                     .Export(e => e.Enabled(true))
@@ -208,24 +194,42 @@
         <div class="row">
             <div class="col-lg-12">
                 @(Html.DevExtreme().Chart()
-                    .ID("chartsdadaccc")
-                    .Series(s => s
-                    .Add()
-                    .ArgumentField("Day")
-                    .ValueField("Oranges")
-                    .Name("My oranges")
-                    .Type(SeriesType.Bar)
-                    .Color("#ffaa66")
+                    .ID("bar-chartJumlahTop10Market")
+                    .CommonSeriesSettings(s => s
+                    .ArgumentField("amended_info_type")
+                    .Type(SeriesType.StackedBar)
                     )
-                    .DataSource(new[] {
-            new { Day = "Monday", Oranges = 3 },
-            new { Day = "Tuesday", Oranges = 2 },
-            new { Day = "Wednesday", Oranges = 3 },
-            new { Day = "Thursday", Oranges = 4 },
-            new { Day = "Friday", Oranges = 6 },
-            new { Day = "Saturday", Oranges = 11 },
-            new { Day = "Sunday", Oranges = 4 }
-            })
+                    .Series(s =>
+                    {
+                        s.Add().ValueField("amended_info_type").Name("Market (frek)");
+                        s.Add().ValueField("amended_info_type").Name("Non Market (frek)");
+                    })
+                    .Legend(l => l
+                    .VerticalAlignment(VerticalEdge.Bottom)
+                    .HorizontalAlignment(HorizontalAlignment.Center)
+                    .ItemTextPosition(Position.Top)
+                    )
+                    .ValueAxis(a => a
+                    .Add()
+                    .Position(Position.Left)
+                    )
+                    .Title("Top 10 Partisipan Yang Melakukan Amend Berdasarkan Frekuensi Periode Januari - Juli 2025")
+                    .Export(e => e.Enabled(true))
+                    .Tooltip(t => t
+                    .Enabled(true)
+                    .Location(ChartTooltipLocation.Edge)
+                    .CustomizeTooltip(@<text>
+                    function(arg) {
+                    return {
+                    text: arg.seriesName + " " + arg.valueText
+                    };
+                    }
+                </text>)
+                    )
+                    .DataSource(d => d.Mvc()
+                    .Controller("MMKoreksiTransaksi")
+                    .LoadAction("GetBarChartTop10AmendMarket")
+                    .OnBeforeSend("onGridBeforeSend"))
                     )
             </div>
         </div>
@@ -447,19 +451,27 @@
         });
      });
 
-     function getperiodeAwalIdValue() {
-        var periodeAwal = '@(ViewBag.monthyearawal)';
-        return periodeAwal
-    }
+    $(function () {
+           const startDate = $("#PeriodeAwal").dxDateBox({
+               onValueChanged: function (e) {
+                   endDate.option("min", e.value);
+               }
+           }).dxDateBox("instance");
+           const endDate = $("#PeriodeAkhir").dxDateBox({
+               onValueChanged: function (e) {
+                   startDate.option("max", e.value);
+               }
+           }).dxDateBox("instance");
 
-    $("#PeriodeAwal").dxValidator({
-        validationGroup: "Filter",
-        validationRules: [{ type: "required", message: "[Periode Awal] harus dipilih" }]
-    })
-    $("#PeriodeAkhir").dxValidator({
-        validationGroup: "Filter",
-        validationRules: [{ type: "required", message: "[Periode Akhir] harus dipilih" }]
-    })
+           $("#PeriodeAwal").dxValidator({
+               validationGroup: "Filter",
+               validationRules: [{ type: "required", message: "[Periode Awal] harus dipilih" }]
+           })
+           $("#PeriodeAkhir").dxValidator({
+               validationGroup: "Filter",
+               validationRules: [{ type: "required", message: "[Periode Akhir] harus dipilih" }]
+           })
+       });
 
     function onButtonFilterClicked(e) {
         let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
@@ -516,6 +528,16 @@
             type: "POST",
             success: function (response) {
             $("#bar-chartJumlahNonMarket").dxChart("instance").refresh();
+            }
+        });
+
+        $.ajax({
+            url: '@Url.Action("GetBarChartTop10AmendMarket", "MMKoreksiTransaksi")',
+            data: { periodeAwal: periodeAwal, periodeAkhir: periodeAkhir, amandedtypeinfo: JSON.stringify(amandedtypeinfo) },
+            dataType: "json",
+            type: "POST",
+            success: function (response) {
+            $("#bar-chartJumlahTop10Market").dxChart("instance").refresh();
             }
         });
     }
