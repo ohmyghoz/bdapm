@@ -295,7 +295,7 @@ namespace BDA.Controllers
             string stringPeriodeAwal = null;
             string stringPeriodeAkhir = null;
             string stringAmandedtypeinfo = null;
-            string reportId = "vw_GetBDAPMMM08Top10AmendMarket"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+            string reportId = "vw_GetBDAPMMM08Top10AmendMarketNonMarket"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
             string monthpawal = null;
             string yearpawal = null;
             string monthpakhir = null;
@@ -343,62 +343,21 @@ namespace BDA.Controllers
             }
             else
             {
+                //varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                //              select new
+                //              {
+                //                  amended_firm_id = bs.Field<string>("amended_firm_id").ToString(),
+                //                  amended_info_type = bs.Field<string>("amended_info_type").ToString(),
+                //                  total = Convert.ToInt32(bs.Field<Int32>("total").ToString()),
+                //              }).OrderByDescending(bs => bs.total).ToList().Take(20);
+
                 varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
-                               select new
-                               {
-                                   amended_info_type = bs.Field<string>("amended_info_type").ToString(),
-                                   B_AGRO = bs.Field<Int32>("B-AGRO"),
-                                   B_ANZP = bs.Field<Int32>("B-ANZP"),
-                                   B_BALI = bs.Field<Int32>("B-BALI"),
-                                   B_BBSI = bs.Field<Int32>("B-BBSI"),
-                                   B_BCA = bs.Field<Int32>("B-BCA"),
-                                   B_BDMN = bs.Field<Int32>("B-BDMN"),
-                                   B_BMDR = bs.Field<Int32>("B-BMDR"),
-                                   B_BNGA = bs.Field<Int32>("B-BNGA"),
-                                   B_BNI = bs.Field<Int32>("B-BNI"),
-                                   B_BOFA = bs.Field<Int32>("B-BOFA"),
-                                   B_BRI = bs.Field<Int32>("B-BRI"),
-                                   B_CBNA = bs.Field<Int32>("B-CBNA"),
-                                   B_DBAG = bs.Field<Int32>("B-DBAG"),
-                                   B_DBSB = bs.Field<Int32>("B-DBSB"),
-                                   B_HNBN = bs.Field<Int32>("B-HNBN"),
-                                   B_HSBC = bs.Field<Int32>("B-HSBC"),
-                                   B_JPMB = bs.Field<Int32>("B-JPMB"),
-                                   B_MEGA = bs.Field<Int32>("B-MEGA"),
-                                   B_NISP = bs.Field<Int32>("B-NISP"),
-                                   B_SCBI = bs.Field<Int32>("B-SCBI"),
-                                   C_BNGA = bs.Field<Int32>("C-BNGA"),
-                                   C_CBNA = bs.Field<Int32>("C-CBNA"),
-                                   S_AH = bs.Field<Int32>("S-AH"),
-                                   S_AI = bs.Field<Int32>("S-AI"),
-                                   S_AO = bs.Field<Int32>("S-AO"),
-                                   S_AR = bs.Field<Int32>("S-AR"),
-                                   S_AZ = bs.Field<Int32>("S-AZ"),
-                                   S_BZ = bs.Field<Int32>("S-BZ"),
-                                   S_CC = bs.Field<Int32>("S-CC"),
-                                   S_CD = bs.Field<Int32>("S-CD"),
-                                   S_CP = bs.Field<Int32>("S-CP"),
-                                   S_DH = bs.Field<Int32>("S-DH"),
-                                   S_DR = bs.Field<Int32>("S-DR"),
-                                   S_DX = bs.Field<Int32>("S-DX"),
-                                   S_ID = bs.Field<Int32>("S-ID"),
-                                   S_IF = bs.Field<Int32>("S-IF"),
-                                   S_KI = bs.Field<Int32>("S-KI"),
-                                   S_LG = bs.Field<Int32>("S-LG"),
-                                   S_LH = bs.Field<Int32>("S-LH"),
-                                   S_MG = bs.Field<Int32>("S-MG"),
-                                   S_MI = bs.Field<Int32>("S-MI"),
-                                   S_NI = bs.Field<Int32>("S-NI"),
-                                   S_OD = bs.Field<Int32>("S-OD"),
-                                   S_PD = bs.Field<Int32>("S-PD"),
-                                   S_PP = bs.Field<Int32>("S-PP"),
-                                   S_RO = bs.Field<Int32>("S-RO"),
-                                   S_RS = bs.Field<Int32>("S-RS"),
-                                   S_SQ = bs.Field<Int32>("S-SQ"),
-                                   S_YP = bs.Field<Int32>("S-YP"),
-                                   S_YU = bs.Field<Int32>("S-YU"),
-                                   S_ZR = bs.Field<Int32>("S-ZR"),
-                               }).ToList();
+                              select new
+                              {
+                                  amended_firm_id = bs.Field<string>("amended_firm_id").ToString(),
+                                  Market = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("Market").ToString()) ? bs.Field<Int32>("Market").ToString() : "0"),
+                                  Non_Market = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("Non Market").ToString()) ? bs.Field<Int32>("Non Market").ToString() : "0"),
+                              }).OrderByDescending(bs => bs.Non_Market).ToList().Take(10);
             }
             return JsonConvert.SerializeObject(varDataList);
         }

@@ -6440,11 +6440,11 @@ namespace BDA.Helper
 
             }
 
-            if (stringAmandedtypeinfo != null)
-            {
-                stringAmandedtypeinfo = "'" + stringAmandedtypeinfo.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND amended_info_type in (" + stringAmandedtypeinfo + ")";
-            }
+            //if (stringAmandedtypeinfo != null)
+            //{
+            //    stringAmandedtypeinfo = "'" + stringAmandedtypeinfo.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+            //    whereQuery = whereQuery += " AND amended_info_type in (" + stringAmandedtypeinfo + ")";
+            //}
             
 
             var props = new WSQueryProperties();
@@ -6453,20 +6453,51 @@ namespace BDA.Helper
                 if (tableName == "mm_bond_trades_amended")
                 {
                     props.Query = @"
-                    SELECT amended_firm_id,amended_info_type,COUNT(amended_firm_id) total
+                    SELECT top 10 amended_firm_id,amended_info_type,COUNT(amended_firm_id) total
                         From pasarmodal." + tableName + @"
                     WHERE " + whereQuery + @" group by amended_firm_id,amended_info_type";
                 }
             }
             else
             {
-                if (tableName == "vw_GetBDAPMMM08Top10AmendMarket")
+                //if (tableName == "mm_bond_trades_amended")
+                //{
+                //    props.Query = @"
+                //    SELECT total, amended_firm_id,amended_info_type FROM (
+                //    SELECT amended_firm_id,amended_info_type,COUNT(amended_firm_id) total
+                //        From pasarmodal." + tableName + @"
+                //    WHERE " + whereQuery + @" group by amended_firm_id,amended_info_type) AS t ";
+                //}
+
+                if (tableName == "vw_GetBDAPMMM08Top10AmendMarketNonMarket")
                 {
                     props.Query = @"
-                    SELECT *
+                    SELECT amended_firm_id,SUM([Market]) as [Market],SUM([Non Market])as [Non Market]
                         From " + tableName + @"
-                    WHERE " + whereQuery + @"";
+                    WHERE " + whereQuery + @" GROUP BY amended_firm_id ";
                 }
+
+
+                //if (tableName == "mm_bond_trades_amended")
+                //{
+                //    props.Query = @"
+                //    SELECT * FROM (
+                //        SELECT amended_firm_id,amend_date,
+                //        CASE WHEN [Market] IS NULL THEN '0' ELSE [Market] END [Market],
+                //        CASE WHEN [Non Market] IS NULL THEN '0' ELSE [Non Market] END [Non Market]
+                //        FROM
+                //            (
+                //                SELECT amended_firm_id,amended_info_type,amend_date,total from (
+                //          SELECT	amended_firm_id,amended_info_type,amend_date,COUNT(amended_firm_id) total From pasarmodal." + tableName + @"
+                //          WHERE " + whereQuery + @" 
+                //          group by amended_firm_id,amended_info_type,amend_date) as t
+                //            ) AS source
+                //        PIVOT
+                //        (
+                //        SUM(total)
+                //            FOR amended_info_type IN ([Market],[Non Market])
+                //        ) AS pivot_table ) AS t ";
+                //}
             }
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);

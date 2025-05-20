@@ -195,14 +195,14 @@
             <div class="col-lg-12">
                 @(Html.DevExtreme().Chart()
                     .ID("bar-chartJumlahTop10Market")
+                    .Palette(VizPalette.Bright)
                     .CommonSeriesSettings(s => s
-                    .ArgumentField("amended_info_type")
-                    .Type(SeriesType.StackedBar)
-                    )
+                    .ArgumentField("amended_firm_id")
+                    .Type(SeriesType.StackedBar))
                     .Series(s =>
                     {
-                        s.Add().ValueField("amended_info_type").Name("Market (frek)");
-                        s.Add().ValueField("amended_info_type").Name("Non Market (frek)");
+                        s.Add().ValueField("Market").Name("Market (frek)");
+                        s.Add().ValueField("Non_Market").Name("Non Market (frek)");
                     })
                     .Legend(l => l
                     .VerticalAlignment(VerticalEdge.Bottom)
