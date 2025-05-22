@@ -6148,10 +6148,10 @@ namespace BDA.Helper
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
         }
+        #endregion
 
 
-
-
+        #region MM08
         public static WSQueryReturns GetBDAPMFilterAmandedTypeInfo(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, bool isHive = false)
         {
             var filter = (dynamic)null;
@@ -6416,10 +6416,10 @@ namespace BDA.Helper
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
         }
-
         public static WSQueryReturns GetBDAPMMM08Top10AmendMarket(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string stringPeriodeAwal, string stringPeriodeAkhir, string stringAmandedtypeinfo, bool isHive = false)
         {
             bool isC = false;
+            var whereMarketNonMarket = "";
             var whereQuery = "1=1";
             //isHive = true;
 
@@ -6440,12 +6440,20 @@ namespace BDA.Helper
 
             }
 
-            //if (stringAmandedtypeinfo != null)
-            //{
-            //    stringAmandedtypeinfo = "'" + stringAmandedtypeinfo.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-            //    whereQuery = whereQuery += " AND amended_info_type in (" + stringAmandedtypeinfo + ")";
-            //}
-            
+            if (stringAmandedtypeinfo != null)
+            {
+                if(stringAmandedtypeinfo == "Market")
+                {
+                    stringAmandedtypeinfo = "'" + stringAmandedtypeinfo.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    whereMarketNonMarket += " WHERE amended_info_type in (" + stringAmandedtypeinfo + ")";
+                }
+                else
+                {
+                    stringAmandedtypeinfo = "'" + stringAmandedtypeinfo.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    whereMarketNonMarket += " WHERE amended_info_type in (" + stringAmandedtypeinfo + ")";
+                }
+            }
+
 
             var props = new WSQueryProperties();
             if (isHive == true)
@@ -6453,56 +6461,86 @@ namespace BDA.Helper
                 if (tableName == "mm_bond_trades_amended")
                 {
                     props.Query = @"
-                    SELECT top 10 amended_firm_id,amended_info_type,COUNT(amended_firm_id) total
-                        From pasarmodal." + tableName + @"
-                    WHERE " + whereQuery + @" group by amended_firm_id,amended_info_type";
+                    SELECT amended_firm_id,
+                        SUM(CASE WHEN amended_info_type = 'Market'  THEN total ELSE 0 END) AS Market,
+                        SUM(CASE WHEN amended_info_type = 'Non Market' THEN total ELSE 0 END) AS Non_Market
+                        FROM
+                            (
+                                SELECT	amended_firm_id,amended_info_type,CONVERT(char(10), amend_date,126) as amend_date,COUNT(amended_firm_id) AS total 
+									FROM  pasarmodal.mm_bond_trades_amended 
+                                " + whereMarketNonMarket + @"
+		                        GROUP by amended_firm_id,amended_info_type,amend_date
+                            ) AS t
+                    WHERE " + whereQuery + @" 
+                    GROUP BY amended_firm_id ";
                 }
             }
             else
             {
-                //if (tableName == "mm_bond_trades_amended")
-                //{
-                //    props.Query = @"
-                //    SELECT total, amended_firm_id,amended_info_type FROM (
-                //    SELECT amended_firm_id,amended_info_type,COUNT(amended_firm_id) total
-                //        From pasarmodal." + tableName + @"
-                //    WHERE " + whereQuery + @" group by amended_firm_id,amended_info_type) AS t ";
-                //}
-
-                if (tableName == "vw_GetBDAPMMM08Top10AmendMarketNonMarket")
+                if (tableName == "mm_bond_trades_amended")
                 {
                     props.Query = @"
-                    SELECT amended_firm_id,SUM([Market]) as [Market],SUM([Non Market])as [Non Market]
-                        From " + tableName + @"
-                    WHERE " + whereQuery + @" GROUP BY amended_firm_id ";
+                    SELECT amended_firm_id,
+                        SUM(CASE WHEN amended_info_type = 'Market'  THEN total ELSE 0 END) AS Market,
+                        SUM(CASE WHEN amended_info_type = 'Non Market' THEN total ELSE 0 END) AS Non_Market
+                        FROM
+                            (
+                               SELECT	amended_firm_id,amended_info_type,CONVERT(char(10), amend_date,126) as amend_date,COUNT(amended_firm_id) AS total 
+									FROM  pasarmodal.mm_bond_trades_amended 
+                                " + whereMarketNonMarket + @"
+		                        GROUP by amended_firm_id,amended_info_type,amend_date
+                            ) AS t
+                    WHERE " + whereQuery + @" 
+                    GROUP BY amended_firm_id ";
                 }
-
-
-                //if (tableName == "mm_bond_trades_amended")
-                //{
-                //    props.Query = @"
-                //    SELECT * FROM (
-                //        SELECT amended_firm_id,amend_date,
-                //        CASE WHEN [Market] IS NULL THEN '0' ELSE [Market] END [Market],
-                //        CASE WHEN [Non Market] IS NULL THEN '0' ELSE [Non Market] END [Non Market]
-                //        FROM
-                //            (
-                //                SELECT amended_firm_id,amended_info_type,amend_date,total from (
-                //          SELECT	amended_firm_id,amended_info_type,amend_date,COUNT(amended_firm_id) total From pasarmodal." + tableName + @"
-                //          WHERE " + whereQuery + @" 
-                //          group by amended_firm_id,amended_info_type,amend_date) as t
-                //            ) AS source
-                //        PIVOT
-                //        (
-                //        SUM(total)
-                //            FOR amended_info_type IN ([Market],[Non Market])
-                //        ) AS pivot_table ) AS t ";
-                //}
             }
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
         }
-
         #endregion
+
+        #region MM09
+        public static WSQueryReturns GetBDAPMFilterBondTypeInfo(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, bool isHive = false)
+        {
+            var filter = (dynamic)null;
+            filter = loadOptions.Filter;
+            if (loadOptions.Filter != null)
+            {
+                filter = filter[0][2];
+                filter = "AND bondissuertypecode LIKE '%" + filter + "%'";
+            }
+            else
+            {
+                filter = "";
+            }
+            bool isC = false;
+            var whereQuery = "1=1";
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "mm_bond_trades_cancel")
+                {
+                    props.Query = @"
+                        SELECT bondissuertypecode from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @" 
+                        group by bondissuertypecode";
+                }
+            }
+            else
+            {
+                if (tableName == "mm_bond_trades_cancel")
+                {
+                    props.Query = @"
+                        SELECT bondissuertypecode from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @"
+                        group by bondissuertypecode";
+                }
+            }
+
+            return WSQueryHelper.DoQueryNL(db, props, isC, isHive);
+        }
+        #endregion
+        
     }
 }

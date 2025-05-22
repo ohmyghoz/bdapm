@@ -1,12 +1,6 @@
 ﻿@using DevExtreme.AspNet.Mvc
 @{
     Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
-    // var periodeAwal = (DateTime?)TempData.Peek("PeriodeAwal");
-    // var periodeAkhir = (DateTime?)TempData.Peek("PeriodeAkhir");
-    var amended_info_type = (string[])TempData.Peek("amended_info_type");
-    var p = (string[])ViewBag.period;
-    var vwperiodeAwal = (string)TempData.Peek("monthyearawal");
-    var vwperiodeAkhir = (string[])ViewBag.monthyearakhir;
 }
 
 @inject BDA.DataModel.DataEntities db
@@ -19,6 +13,7 @@
         @*filter*@
         <div class="row filter-panel" style="padding-top:0px;">
             <div class="card-body">
+
                 <div class="row">
 
                     <div class="col-lg-4 form-group">
@@ -57,351 +52,368 @@
 
                 </div>
 
-                <div class="float-left">
-                    @(Html.DevExtreme().Button()
-                        .ID("Filter")
-                        .Type(ButtonType.Default)
-                        .Text("Tampilkan")
-                        .OnClick("onButtonFilterClicked")
-                        .ValidationGroup("Filter"))
+                <table>
+                    <tr>
+                        <td>
+                            <div class="float-left">
+                                @(Html.DevExtreme().Button()
+                                    .ID("Filter")
+                                    .Type(ButtonType.Default)
+                                    .Text("Tampilkan")
+                                    .OnClick("onButtonFilterClicked")
+                                    .ValidationGroup("Filter"))
+                            </div>
+                        </td>
+                        <td>
+                            <div class="float-left">
+                                @(Html.DevExtreme().Button()
+                                    .ID("Filters")
+                                    .Type(ButtonType.Success)
+                                    .Text("Cancel")
+                                    .OnClick("onButtonFilterClickedCancel"))
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+
+                
+
+                <div class="row">
+                    <div class="col-lg-6">
+                        @(Html.DevExtreme().PieChart()
+                            .ID("pie-chartTypeOfInfo")
+                            .Title("Type Of Info")
+                            .Legend(l => l
+                            .HorizontalAlignment(HorizontalAlignment.Right)
+                            .VerticalAlignment(VerticalEdge.Top)
+                            .Margin(0))
+                            .Export(e => e.Enabled(true))
+                            .Series(s => s
+                            .Add()
+                            .ArgumentField("amended_info_type")
+                            .ValueField("total")
+                            .Label(l => l
+                            .Visible(true)
+                            .Font(f => f.Size(16))
+                            .Connector(c => c
+                            .Visible(true)
+                            .Width(0.5)
+                            )
+                            .Position(PieChartLabelPosition.Columns)
+                            .CustomizeText(@<text>
+                        function(arg) {
+                        return arg.valueText + " (" + arg.percentText + ")";
+                        }
+                    </text>)
+                            )
+                            )
+                            .DataSource(d => d.Mvc()
+                            .Controller("MMKoreksiTransaksi")
+                            .LoadAction("GetChartTypeInfo")
+                            .OnBeforeSend("onGridBeforeSend")))
+                    </div>
+
+                    <div class="col-lg-6">
+                        @(Html.DevExtreme().PieChart()
+                            .ID("pie-chartTypeOfFirmID")
+                            .Title("Type Of Firm ID")
+                            .Legend(l => l
+                            .HorizontalAlignment(HorizontalAlignment.Right)
+                            .VerticalAlignment(VerticalEdge.Top)
+                            .Margin(0))
+                            .Export(e => e.Enabled(true))
+                            .Series(s => s
+                            .Add()
+                            .ArgumentField("type_firm_id")
+                            .ValueField("total")
+                            .Label(l => l
+                            .Visible(true)
+                            .Font(f => f.Size(16))
+                            .Connector(c => c
+                            .Visible(true)
+                            .Width(0.5)
+                            )
+                            .Position(PieChartLabelPosition.Columns)
+                            .CustomizeText(@<text>
+                        function(arg) {
+                        return arg.valueText + " (" + arg.percentText + ")";
+                        }
+                    </text>)
+                            )
+                            )
+                            .DataSource(d => d.Mvc()
+                            .Controller("MMKoreksiTransaksi")
+                            .LoadAction("GetChartTypeFirmID")
+                            .OnBeforeSend("onGridBeforeSend")))
+                    </div>
                 </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-lg-6">
-                @(Html.DevExtreme().PieChart()
-                    .ID("pie-chartTypeOfInfo")
-                    .Title("Type Of Info")
-                    .Legend(l => l
-                    .HorizontalAlignment(HorizontalAlignment.Right)
-                    .VerticalAlignment(VerticalEdge.Top)
-                    .Margin(0))
-                    .Export(e => e.Enabled(true))
-                    .Series(s => s
-                    .Add()
-                    .ArgumentField("amended_info_type")
-                    .ValueField("total")
-                    .Label(l => l
-                    .Visible(true)
-                    .Font(f => f.Size(16))
-                    .Connector(c => c
-                    .Visible(true)
-                    .Width(0.5)
-                    )
-                    .Position(PieChartLabelPosition.Columns)
-                    .CustomizeText(@<text>
-                function(arg) {
-                return arg.valueText + " (" + arg.percentText + ")";
-                }
-            </text>)
-                    )
-                    )
-                    .DataSource(d => d.Mvc()
-                    .Controller("MMKoreksiTransaksi")
-                    .LoadAction("GetChartTypeInfo")
-                    .OnBeforeSend("onGridBeforeSend")))
-            </div>
+                <br />
+                <br />
+                <div class="row">
+                    <div class="col-lg-6">
+                        @(Html.DevExtreme().Chart()
+                            .ID("bar-chartJumlahMarket")
+                            .Title("Jumlah Amend (Market) Periode 2024")
+                            .ArgumentAxis(o => o.Color("#767676").Label(l => l.Font(f => f.Color("#767676")).OverlappingBehavior(OverlappingBehavior.Rotate).RotationAngle(-45).WordWrap(VizWordWrap.None)))
+                            .Rotated(false)
+                            .Export(e => e.Enabled(true))
+                            .Series(s => s
+                            .Add()
+                            .ArgumentField("amended_info")
+                            .ValueField("total")
+                            .Name("Amend (Market)")
+                            .Type(SeriesType.Bar)
+                            .Color("#64a0fb")
+                            .Label(l => l
+                            .Visible(true)
+                            .Format(f => f
+                            .Type(Format.FixedPoint)
+                            .Precision(0))))
+                            .DataSource(d => d.Mvc()
+                            .Controller("MMKoreksiTransaksi")
+                            .LoadAction("GetBarChartAmendMarket")
+                            .OnBeforeSend("onGridBeforeSend")))
+                    </div>
 
-            <div class="col-lg-6">
-                @(Html.DevExtreme().PieChart()
-                    .ID("pie-chartTypeOfFirmID")
-                    .Title("Type Of Firm ID")
-                    .Legend(l => l
-                    .HorizontalAlignment(HorizontalAlignment.Right)
-                    .VerticalAlignment(VerticalEdge.Top)
-                    .Margin(0))
-                    .Export(e => e.Enabled(true))
-                    .Series(s => s
-                    .Add()
-                    .ArgumentField("type_firm_id")
-                    .ValueField("total")
-                    .Label(l => l
-                    .Visible(true)
-                    .Font(f => f.Size(16))
-                    .Connector(c => c
-                    .Visible(true)
-                    .Width(0.5)
-                    )
-                    .Position(PieChartLabelPosition.Columns)
-                    .CustomizeText(@<text>
-                function(arg) {
-                return arg.valueText + " (" + arg.percentText + ")";
-                }
-            </text>)
-                    )
-                    )
-                    .DataSource(d => d.Mvc()
-                    .Controller("MMKoreksiTransaksi")
-                    .LoadAction("GetChartTypeFirmID")
-                    .OnBeforeSend("onGridBeforeSend")))
-            </div>
-        </div>
-        <br />
-        <br />
-        <div class="row">
-            <div class="col-lg-6">
-                @(Html.DevExtreme().Chart()
-                    .ID("bar-chartJumlahMarket")
-                    .Title("Jumlah Amend (Market) Periode 2024")
-                    .ArgumentAxis(o => o.Color("#767676").Label(l => l.Font(f => f.Color("#767676")).OverlappingBehavior(OverlappingBehavior.Rotate).RotationAngle(-45).WordWrap(VizWordWrap.None)))
-                    .Rotated(false)
-                    .Export(e => e.Enabled(true))
-                    .Series(s => s
-                    .Add()
-                    .ArgumentField("amended_info")
-                    .ValueField("total")
-                    .Name("Amend (Market)")
-                    .Type(SeriesType.Bar)
-                    .Color("#64a0fb")
-                    .Label(l => l
-                    .Visible(true)                 
-                    .Format(f => f
-                    .Type(Format.FixedPoint)
-                    .Precision(0))))
-                    .DataSource(d => d.Mvc()
-                    .Controller("MMKoreksiTransaksi")
-                    .LoadAction("GetBarChartAmendMarket")
-                    .OnBeforeSend("onGridBeforeSend")))
-            </div>
-
-            <div class="col-lg-6">
-                @(Html.DevExtreme().Chart()
-                    .ID("bar-chartJumlahNonMarket")
-                    .Title("Jumlah Amend (Non Market) Periode " + (string)ViewBag.monthyearawal + "")
-                    .ArgumentAxis(o => o.Color("#767676").Label(l => l.Font(f => f.Color("#767676")).OverlappingBehavior(OverlappingBehavior.Rotate).RotationAngle(-45).WordWrap(VizWordWrap.None)))
-                    .Rotated(false)
-                    .Export(e => e.Enabled(true))
-                    .Series(s => s
-                    .Add()
-                    .ArgumentField("amended_info")
-                    .ValueField("total")
-                    .Name("Amend (Non Market)")
-                    .Type(SeriesType.Bar)
-                    .Color("#64a0fb")
-                    .Label(l => l
-                    .Visible(true)
-                    .Format(f => f
-                    .Type(Format.FixedPoint)
-                    .Precision(0))))
-                    .DataSource(d => d.Mvc()
-                    .Controller("MMKoreksiTransaksi")
-                    .LoadAction("GetBarChartNonAmendMarket")
-                    .OnBeforeSend("onGridBeforeSend")))
-            </div>
-        </div>
-        <br />
-        <br />
-        <div class="row">
-            <div class="col-lg-12">
-                @(Html.DevExtreme().Chart()
-                    .ID("bar-chartJumlahTop10Market")
-                    .Palette(VizPalette.Bright)
-                    .CommonSeriesSettings(s => s
-                    .ArgumentField("amended_firm_id")
-                    .Type(SeriesType.StackedBar))
-                    .Series(s =>
-                    {
-                        s.Add().ValueField("Market").Name("Market (frek)");
-                        s.Add().ValueField("Non_Market").Name("Non Market (frek)");
-                    })
-                    .Legend(l => l
-                    .VerticalAlignment(VerticalEdge.Bottom)
-                    .HorizontalAlignment(HorizontalAlignment.Center)
-                    .ItemTextPosition(Position.Top)
-                    )
-                    .ValueAxis(a => a
-                    .Add()
-                    .Position(Position.Left)
-                    )
-                    .Title("Top 10 Partisipan Yang Melakukan Amend Berdasarkan Frekuensi Periode Januari - Juli 2025")
-                    .Export(e => e.Enabled(true))
-                    .Tooltip(t => t
-                    .Enabled(true)
-                    .Location(ChartTooltipLocation.Edge)
-                    .CustomizeTooltip(@<text>
-                    function(arg) {
-                    return {
-                    text: arg.seriesName + " " + arg.valueText
-                    };
+                    <div class="col-lg-6">
+                        @(Html.DevExtreme().Chart()
+                            .ID("bar-chartJumlahNonMarket")
+                            .Title("Jumlah Amend (Non Market) Periode " + (string)ViewBag.monthyearawal + "")
+                            .ArgumentAxis(o => o.Color("#767676").Label(l => l.Font(f => f.Color("#767676")).OverlappingBehavior(OverlappingBehavior.Rotate).RotationAngle(-45).WordWrap(VizWordWrap.None)))
+                            .Rotated(false)
+                            .Export(e => e.Enabled(true))
+                            .Series(s => s
+                            .Add()
+                            .ArgumentField("amended_info")
+                            .ValueField("total")
+                            .Name("Amend (Non Market)")
+                            .Type(SeriesType.Bar)
+                            .Color("#64a0fb")
+                            .Label(l => l
+                            .Visible(true)
+                            .Format(f => f
+                            .Type(Format.FixedPoint)
+                            .Precision(0))))
+                            .DataSource(d => d.Mvc()
+                            .Controller("MMKoreksiTransaksi")
+                            .LoadAction("GetBarChartNonAmendMarket")
+                            .OnBeforeSend("onGridBeforeSend")))
+                    </div>
+                </div>
+                <br />
+                <br />
+                <div class="row">
+                    <div class="col-lg-12">
+                        @(Html.DevExtreme().Chart()
+                            .ID("bar-chartJumlahTop10Market")
+                            .Palette(VizPalette.Bright)
+                            .CommonSeriesSettings(s => s
+                            .ArgumentField("amended_firm_id")
+                            .Type(SeriesType.StackedBar))
+                            .Series(s =>
+                            {
+                                s.Add().ValueField("Market").Name("Market (frek)");
+                                s.Add().ValueField("Non_Market").Name("Non Market (frek)");
+                            })
+                            .Legend(l => l
+                            .VerticalAlignment(VerticalEdge.Bottom)
+                            .HorizontalAlignment(HorizontalAlignment.Center)
+                            .ItemTextPosition(Position.Top)
+                            )
+                            .ValueAxis(a => a
+                            .Add()
+                            .Position(Position.Left)
+                            )
+                            .Title("Top 10 Partisipan Yang Melakukan Amend Berdasarkan Frekuensi Periode Januari - Juli 2025")
+                            .Export(e => e.Enabled(true))
+                            .Tooltip(t => t
+                            .Enabled(true)
+                            .Location(ChartTooltipLocation.Edge)
+                            .CustomizeTooltip(@<text>
+                        function(arg) {
+                        return {
+                        text: arg.seriesName + " " + arg.valueText
+                        };
+                        }
+                    </text>)
+                            )
+                            .DataSource(d => d.Mvc()
+                            .Controller("MMKoreksiTransaksi")
+                            .LoadAction("GetBarChartTop10AmendMarket")
+                            .OnBeforeSend("onGridBeforeSend"))
+                            )
+                    </div>
+                </div>
+                <br />
+                <br />
+                <div class="row filter-panel" style="padding-top:0px;" hidden="hidden">
+                    <div class="card-body">
+                        <div class="float-right">
+                            @if (ViewBag.Export)
+                            {
+                                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcelIndex();"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdfIndex();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="gridview-div" hidden="hidden">
+                    @(Html.DevExtreme().DataGrid()
+                        .ID("grid1")
+                        .ShowBorders(true).Width("100%").ShowColumnLines(true).ShowRowLines(true)
+                        .RemoteOperations(true)
+                        .Width("100%")
+                        .AllowColumnResizing(true)
+                        .ColumnAutoWidth(true)
+                        .WordWrapEnabled(true)
+                        .Columns(columns =>
+                        {
+                            columns.Add().DataField("no").Caption("No.").Alignment(HorizontalAlignment.Center);
+                            columns.Add().DataField("securitycompanycode").Caption("Kode PE").Alignment(HorizontalAlignment.Center);
+                            columns.Add().DataField("securitycompanyname").Caption("Nama PE").Width(300);
+                            columns.Add().DataField("simpanangiro").Caption("Simpanan Giro").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+                            columns.Add().DataField("depositolt3bulan").Caption("Deposito < 3 Bulan").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+                            columns.Add().DataField("depositogt3bulandijaminlps").Caption("Deposito > 3 Bulan Dijamin LPS").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+                            columns.Add().DataField("uangjaminanlkp").Caption("Uang Jaminan LKP").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+                            columns.Add().DataField("kasdansetarakas").Caption("Kas dan Setara Kas (Simpanan Giro + Deposito < 3 Bulan + Uang Jaminan LKP)").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+                            columns.Add().DataField("mkbd").Caption("MKBD").Format("#,##0").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+                            columns.Add().DataField("mkbdminimum").Caption("MKBD Minimum").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+                            columns.Add().DataField("mkbdpermkbdminimum").Caption("MKBD Terhadap MKBD Minimum %").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+                            columns.Add().DataField("cluster").Caption("Cluster").Alignment(HorizontalAlignment.Center);
+                            columns.Add().DataField("status").Caption("Status");
+                        })
+                        .FilterRow(f => f.Visible(true))
+                        .ShowBorders(true)
+                        .Paging(p =>
+                        {
+                            p.PageSize(20);
+                            p.Enabled(true);
+                        })
+                        .Pager(p =>
+                        {
+                            p.ShowInfo(true);
+                        }))
+                </div>
+                <br />
+                <br />
+                <div class="row filter-panel" style="padding-top:0px;" hidden="hidden">
+                    <div class="card-body">
+                        <div class="float-right">
+                            @if (ViewBag.Export)
+                            {
+                                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcelIndex();"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdfIndex();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="gridview-div" hidden="hidden">
+                    @(Html.DevExtreme().DataGrid()
+                        .ID("gridContainer")
+                        .DataSource(d => d
+                        .OData()
+                        .Version(2)
+                        .Url("https://js.devexpress.com/Demos/SalesViewer/odata/DaySaleDtoes")
+                        .Key("Id")
+                        .BeforeSend(@<text>
+                    function(request) {
+                    const year = new Date().getFullYear() - 1;
+                    request.params.startDate = `${year}-05-10`;
+                    request.params.endDate = `${year}-5-15`;
                     }
                 </text>)
+                            )
+                            .RemoteOperations(false)
+                            .AllowColumnReordering(true)
+                            .RowAlternationEnabled(true)
+                            .Width("100%")
+                            .ShowBorders(true)
+                            .OnContentReady("contentReady")
+                            .Paging(p => p.PageSize(10))
+                            .Pager(p => p
+                            .Visible(true)
+                            .ShowPageSizeSelector(true)
+                            .AllowedPageSizes(new[] { 10, 25, 50, 100 })
+                            )
+                            .SearchPanel(s => s
+                            .Visible(true)
+                            .HighlightCaseSensitive(true)
+                            )
+                            .GroupPanel(g => g.Visible(true))
+                            .Grouping(g => g.AutoExpandAll(false))
+                            .Columns(columns =>
+                            {
+                                columns.Add()
+                            .DataField("Product")
+                            .GroupIndex(0);
+
+                                columns.Add()
+                            .DataField("Amount")
+                            .Caption("Sale Amount")
+                            .DataType(GridColumnDataType.Number)
+                            .Format(Format.Currency)
+                            .Alignment(HorizontalAlignment.Right);
+
+                                columns.Add()
+                            .DataField("Discount")
+                            .Caption("Discount %")
+                            .DataType(GridColumnDataType.Number)
+                            .Format(Format.Percent)
+                            .Alignment(HorizontalAlignment.Right)
+                            .AllowGrouping(false)
+                            .CssClass("bullet")
+                            .CellTemplate(@<text>
+                    @(Html.DevExtreme().Bullet()
+                    .Value(new JS("value * 100"))
+                    .Size(s => s
+                    .Height(35)
+                    .Width(150)
                     )
-                    .DataSource(d => d.Mvc()
-                    .Controller("MMKoreksiTransaksi")
-                    .LoadAction("GetBarChartTop10AmendMarket")
-                    .OnBeforeSend("onGridBeforeSend"))
+                    .Margin(m => m
+                    .Top(5)
+                    .Bottom(0)
+                    .Left(5)
                     )
-            </div>
-        </div>
-        <br />
-        <br />
-        <div class="row filter-panel" style="padding-top:0px;">
-            <div class="card-body">
-                <div class="float-right">
-                    @if (ViewBag.Export)
-                    {
-                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcelIndex();"><span class="image fa fa-file-excel"></span> Export Excel</a>
-                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdfIndex();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
-                    }
+                    .ShowTarget(false)
+                    .ShowZeroLevel(true)
+                    .StartScaleValue(0)
+                    .EndScaleValue(100)
+                    .Tooltip(t => t
+                    .Enabled(true)
+                    .Font(f => f.Size(18))
+                    .PaddingTopBottom(2)
+                    .CustomizeTooltip("customizeTooltip")
+                    )
+                    )
+                </text>);
+
+                                columns.Add()
+                            .DataField("SaleDate")
+                            .DataType(GridColumnDataType.Date);
+
+                                columns.Add()
+                            .DataField("Region")
+                            .DataType(GridColumnDataType.String);
+
+                                columns.Add()
+                            .DataField("Sector")
+                            .DataType(GridColumnDataType.String);
+
+                                columns.Add()
+                            .DataField("Channel")
+                            .DataType(GridColumnDataType.String);
+
+                                columns.Add()
+                            .DataField("Customer")
+                            .DataType(GridColumnDataType.String)
+                            .Width(150);
+                            })
+                        )
                 </div>
+
             </div>
         </div>
-        <div class="gridview-div">
-            @(Html.DevExtreme().DataGrid()
-                .ID("grid1")
-                .ShowBorders(true).Width("100%").ShowColumnLines(true).ShowRowLines(true)
-                .RemoteOperations(true)
-                .Width("100%")
-                .AllowColumnResizing(true)
-                .ColumnAutoWidth(true)
-                .WordWrapEnabled(true)
-                .Columns(columns =>
-                {
-                    columns.Add().DataField("no").Caption("No.").Alignment(HorizontalAlignment.Center);
-                    columns.Add().DataField("securitycompanycode").Caption("Kode PE").Alignment(HorizontalAlignment.Center);
-                    columns.Add().DataField("securitycompanyname").Caption("Nama PE").Width(300);
-                    columns.Add().DataField("simpanangiro").Caption("Simpanan Giro").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
-                    columns.Add().DataField("depositolt3bulan").Caption("Deposito < 3 Bulan").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
-                    columns.Add().DataField("depositogt3bulandijaminlps").Caption("Deposito > 3 Bulan Dijamin LPS").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
-                    columns.Add().DataField("uangjaminanlkp").Caption("Uang Jaminan LKP").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
-                    columns.Add().DataField("kasdansetarakas").Caption("Kas dan Setara Kas (Simpanan Giro + Deposito < 3 Bulan + Uang Jaminan LKP)").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
-                    columns.Add().DataField("mkbd").Caption("MKBD").Format("#,##0").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
-                    columns.Add().DataField("mkbdminimum").Caption("MKBD Minimum").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
-                    columns.Add().DataField("mkbdpermkbdminimum").Caption("MKBD Terhadap MKBD Minimum %").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
-                    columns.Add().DataField("cluster").Caption("Cluster").Alignment(HorizontalAlignment.Center);
-                    columns.Add().DataField("status").Caption("Status");
-                })
-                .FilterRow(f => f.Visible(true))
-                .ShowBorders(true)
-                .Paging(p =>
-                {
-                    p.PageSize(20);
-                    p.Enabled(true);
-                })
-                .Pager(p =>
-                {
-                    p.ShowInfo(true);
-                }))
-        </div>
-        <br />
-        <br />
-        <div class="row filter-panel" style="padding-top:0px;">
-            <div class="card-body">
-                <div class="float-right">
-                    @if (ViewBag.Export)
-                    {
-                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcelIndex();"><span class="image fa fa-file-excel"></span> Export Excel</a>
-                        <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdfIndex();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
-                    }
-                </div>
-            </div>
-        </div>
-        <div class="gridview-div">
-            @(Html.DevExtreme().DataGrid()
-                .ID("gridContainer")
-                .DataSource(d => d
-                .OData()
-                .Version(2)
-                .Url("https://js.devexpress.com/Demos/SalesViewer/odata/DaySaleDtoes")
-                .Key("Id")
-                .BeforeSend(@<text>
-            function(request) {
-            const year = new Date().getFullYear() - 1;
-            request.params.startDate = `${year}-05-10`;
-            request.params.endDate = `${year}-5-15`;
-            }
-        </text>)
-                    )
-                    .RemoteOperations(false)
-                    .AllowColumnReordering(true)
-                    .RowAlternationEnabled(true)
-                    .Width("100%")
-                    .ShowBorders(true)
-                    .OnContentReady("contentReady")
-                    .Paging(p => p.PageSize(10))
-                    .Pager(p => p
-                    .Visible(true)
-                    .ShowPageSizeSelector(true)
-                    .AllowedPageSizes(new[] { 10, 25, 50, 100 })
-                    )
-                    .SearchPanel(s => s
-                    .Visible(true)
-                    .HighlightCaseSensitive(true)
-                    )
-                    .GroupPanel(g => g.Visible(true))
-                    .Grouping(g => g.AutoExpandAll(false))
-                    .Columns(columns =>
-                    {
-                        columns.Add()
-                    .DataField("Product")
-                    .GroupIndex(0);
 
-                        columns.Add()
-                    .DataField("Amount")
-                    .Caption("Sale Amount")
-                    .DataType(GridColumnDataType.Number)
-                    .Format(Format.Currency)
-                    .Alignment(HorizontalAlignment.Right);
-
-                        columns.Add()
-                    .DataField("Discount")
-                    .Caption("Discount %")
-                    .DataType(GridColumnDataType.Number)
-                    .Format(Format.Percent)
-                    .Alignment(HorizontalAlignment.Right)
-                    .AllowGrouping(false)
-                    .CssClass("bullet")
-                    .CellTemplate(@<text>
-            @(Html.DevExtreme().Bullet()
-            .Value(new JS("value * 100"))
-            .Size(s => s
-            .Height(35)
-            .Width(150)
-            )
-            .Margin(m => m
-            .Top(5)
-            .Bottom(0)
-            .Left(5)
-            )
-            .ShowTarget(false)
-            .ShowZeroLevel(true)
-            .StartScaleValue(0)
-            .EndScaleValue(100)
-            .Tooltip(t => t
-            .Enabled(true)
-            .Font(f => f.Size(18))
-            .PaddingTopBottom(2)
-            .CustomizeTooltip("customizeTooltip")
-            )
-            )
-        </text>);
-
-                        columns.Add()
-            .DataField("SaleDate")
-            .DataType(GridColumnDataType.Date);
-
-                        columns.Add()
-            .DataField("Region")
-            .DataType(GridColumnDataType.String);
-
-                        columns.Add()
-            .DataField("Sector")
-            .DataType(GridColumnDataType.String);
-
-                        columns.Add()
-            .DataField("Channel")
-            .DataType(GridColumnDataType.String);
-
-                        columns.Add()
-            .DataField("Customer")
-            .DataType(GridColumnDataType.String)
-            .Width(150);
-                    })
-                )
-
-
-
-        </div>
     </div>
 }
 
@@ -542,6 +554,10 @@
         });
     }
 
+    function onButtonFilterClickedCancel(e) {
+        location.reload(); // Reloads the page, possibly from cache
+    }
+
     function onSelectionChanged(e) {
         if (e.addedItems.length > 0) {
             e.component.field().val(""); // Clears the search text. However, search filter is only applied to the widget after focus is lost in the input element
@@ -567,11 +583,6 @@
         ajaxOptions.data.periodeAkhir = periodeAkhir;
         ajaxOptions.data.amandedtypeinfo = JSON.stringify(amandedtypeinfo);
     }
-
-        
-    
-
-
 </script>
 
 <style type="text/css">

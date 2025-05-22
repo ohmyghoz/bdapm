@@ -1,0 +1,161 @@
+﻿@using DevExtreme.AspNet.Mvc
+@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+}
+
+@inject BDA.DataModel.DataEntities db
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="card card-default">
+        @*filter*@
+        <div class="row filter-panel" style="padding-top:0px;">
+            <div class="card-body">
+
+                <div class="row">
+
+                    <div class="col-lg-3 form-group">
+                        <label>Periode Awal<span class="mandatory">*</span></label>
+                        @(Html.DevExtreme().DateBox()
+                            .ID("PeriodeAwal")
+                            .DisplayFormat("dd MMM yyyy")
+                            .Value(DateTime.Now)
+                            .Max(DateTime.Now)
+                            .Width("100%"))
+                    </div>
+
+                    <div class="col-lg-3 form-group">
+                        <label>Periode Akhir<span class="mandatory">*</span></label>
+                        @(Html.DevExtreme().DateBox()
+                            .ID("PeriodeAkhir")
+                            .DisplayFormat("dd MMM yyyy")
+                            .Value(DateTime.Now)
+                            .Min(DateTime.Now)
+                            .Width("100%"))
+                    </div>
+
+                    <div class="col-lg-3 form-group">
+                        <label>Bond Type</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("BondTypeid")
+                            .DataSource(d => d.Mvc()
+                            .Controller("MMCancelTransaksi")
+                            .LoadAction("GetBondTypes")
+                            .Key("value"))
+                            .ValueExpr("value")
+                            .DisplayExpr("text")
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .ShowClearButton(true)
+                            .Width("100%"))
+                    </div>
+
+                    <div class="col-lg-3 form-group">
+                        <label>Cancelation Status</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("Amandedid")
+                            .DataSource(new[] { "Market", "Non Market" })
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .Width("100%")
+                            .Placeholder("(ALL)")
+                            )
+                    </div>
+
+                </div>
+
+                <table>
+                    <tr>
+                        <td>
+                            <div class="float-left">
+                                @(Html.DevExtreme().Button()
+                                    .ID("Filter")
+                                    .Type(ButtonType.Default)
+                                    .Text("Tampilkan")
+                                    .OnClick("onButtonFilterClicked")
+                                    .ValidationGroup("Filter"))
+                            </div>
+                        </td>
+                        <td>
+                            <div class="float-left">
+                                @(Html.DevExtreme().Button()
+                                    .ID("Filters")
+                                    .Type(ButtonType.Success)
+                                    .Text("Cancel")
+                                    .OnClick("onButtonFilterClickedCancel"))
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+
+            </div>
+        </div>
+    </div>
+
+}
+<script>
+    window.jsPDF = window.jspdf.jsPDF;
+    applyPlugin(window.jsPDF);
+</script>
+<style type="text/css">
+    .mandatory {
+        color: red;
+    }
+</style>
+<script>
+    $(function () {
+           const startDate = $("#PeriodeAwal").dxDateBox({
+               onValueChanged: function (e) {
+                   endDate.option("min", e.value);
+               }
+           }).dxDateBox("instance");
+           const endDate = $("#PeriodeAkhir").dxDateBox({
+               onValueChanged: function (e) {
+                   startDate.option("max", e.value);
+               }
+           }).dxDateBox("instance");
+
+           $("#PeriodeAwal").dxValidator({
+               validationGroup: "Filter",
+               validationRules: [{ type: "required", message: "[Periode Awal] harus dipilih" }]
+           })
+           $("#PeriodeAkhir").dxValidator({
+               validationGroup: "Filter",
+               validationRules: [{ type: "required", message: "[Periode Akhir] harus dipilih" }]
+           })
+       });
+
+    function onSelectionChanged(e) {
+        if (e.addedItems.length > 0) {
+            e.component.field().val(""); // Clears the search text. However, search filter is only applied to the widget after focus is lost in the input element
+        }
+    }
+
+    function onButtonFilterClicked(e) {
+        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
+        let tempPeriodeAkhir = $("#PeriodeAkhir").dxDateBox("instance").option("value");
+        let amandedtypeinfo = $("#Amandedid").dxTagBox("instance").option("value");
+
+
+        let periodeAwal = null;
+        if (tempPeriodeAwal != null) {
+            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
+        }
+
+        let periodeAkhir = null;
+        if (tempPeriodeAkhir != null) {
+            periodeAkhir = tempPeriodeAkhir.getFullYear() + '-' + String(tempPeriodeAkhir.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAkhir.getDate()).padStart(2, '0');
+        }
+
+        //$("#grid1").dxDataGrid("instance").refresh();
+
+    }
+
+    function onButtonFilterClickedCancel(e) {
+        location.reload(); // Reloads the page, possibly from cache
+    }
+</script>

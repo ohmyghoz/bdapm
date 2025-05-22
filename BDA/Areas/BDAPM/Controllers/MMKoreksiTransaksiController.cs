@@ -50,8 +50,8 @@ namespace BDA.Controllers
             ViewBag.monthyearawal = "Mei 2025";
             db.CheckPermission("Pola Koreksi Per Transaksi / Pola Transaksi View", DataEntities.PermissionMessageType.ThrowInvalidOperationException); //check permission nya view/lihat nya
             ViewBag.Export = db.CheckPermission("Pola Koreksi Per Transaksi / Pola Transaksi Export", DataEntities.PermissionMessageType.NoMessage); //check permission export
-            db.InsertAuditTrail("Pola_Koreksi_Pola_Transaksi_Akses_Page", "Akses Page Pola Koreksi Per Transaksi / Pola Transaksi", pageTitle); //simpan kedalam audit trail
-            db.InsertAuditTrail("Pola_Koreksi_Pola_Transaksi_Akses_Page", "user " + userId + " mengakases halaman Pola Koreksi Per Transaksi / Pola Transaksi", pageTitle);
+            db.InsertAuditTrail("Pola_Koreksi_Transaksi_Akses_Page", "Akses Page Pola Koreksi Per Transaksi / Pola Transaksi", pageTitle); //simpan kedalam audit trail
+            db.InsertAuditTrail("Pola_Koreksi_Transaksi_Akses_Page", "user " + userId + " mengakases halaman Pola Koreksi Per Transaksi / Pola Transaksi", pageTitle);
 
             return View();
         }
@@ -295,7 +295,7 @@ namespace BDA.Controllers
             string stringPeriodeAwal = null;
             string stringPeriodeAkhir = null;
             string stringAmandedtypeinfo = null;
-            string reportId = "vw_GetBDAPMMM08Top10AmendMarketNonMarket"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+            string reportId = "mm_bond_trades_amended"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
             string monthpawal = null;
             string yearpawal = null;
             string monthpakhir = null;
@@ -337,27 +337,19 @@ namespace BDA.Controllers
                                select new
                                {
                                    amended_firm_id = bs.Field<string>("amended_firm_id").ToString(),
-                                   amended_info_type = bs.Field<string>("amended_info_type").ToString(),
-                                   total = Convert.ToInt64(bs.Field<Int64>("total").ToString()),
-                               }).OrderByDescending(bs => bs.total).ToList();
+                                   Market = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("Market").ToString()) ? bs.Field<Int32>("Market").ToString() : "0"),
+                                   Non_Market = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("Non_Market").ToString()) ? bs.Field<Int32>("Non_Market").ToString() : "0"),
+                               }).OrderByDescending(bs => bs.Non_Market).ToList().Take(10);
             }
             else
             {
-                //varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
-                //              select new
-                //              {
-                //                  amended_firm_id = bs.Field<string>("amended_firm_id").ToString(),
-                //                  amended_info_type = bs.Field<string>("amended_info_type").ToString(),
-                //                  total = Convert.ToInt32(bs.Field<Int32>("total").ToString()),
-                //              }).OrderByDescending(bs => bs.total).ToList().Take(20);
-
                 varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
-                              select new
-                              {
-                                  amended_firm_id = bs.Field<string>("amended_firm_id").ToString(),
-                                  Market = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("Market").ToString()) ? bs.Field<Int32>("Market").ToString() : "0"),
-                                  Non_Market = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("Non Market").ToString()) ? bs.Field<Int32>("Non Market").ToString() : "0"),
-                              }).OrderByDescending(bs => bs.Non_Market).ToList().Take(10);
+                               select new
+                               {
+                                   amended_firm_id = bs.Field<string>("amended_firm_id").ToString(),
+                                   Market = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("Market").ToString()) ? bs.Field<Int32>("Market").ToString() : "0"),
+                                   Non_Market = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("Non_Market").ToString()) ? bs.Field<Int32>("Non_Market").ToString() : "0"),
+                               }).OrderByDescending(bs => bs.Non_Market).ToList().Take(10);
             }
             return JsonConvert.SerializeObject(varDataList);
         }
