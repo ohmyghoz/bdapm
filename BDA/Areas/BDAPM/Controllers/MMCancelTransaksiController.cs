@@ -89,5 +89,84 @@ namespace BDA.Controllers
             public string value { get; set; }
             public string text { get; set; }
         }
+        public object GetBarChartNumberCancellation(DataSourceLoadOptions loadOptions, string periodeAwal, string periodeAkhir, string bondissuertypecode)
+        {
+            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+            TempData.Clear(); //membersihkan data filtering
+            string[] Statusbondissuertypecode = JsonConvert.DeserializeObject<string[]>(bondissuertypecode);
+
+            string stringPeriodeAwal = null;
+            string stringPeriodeAkhir = null;
+            string stringbondissuertypecode = null;
+            string reportId = "mm_bond_trades_cancel"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+            string monthpawal = null;
+            string yearpawal = null;
+            string monthpakhir = null;
+            string yearpakhir = null;
+
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+
+            if (periodeAwal != null)
+            {
+                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
+                monthpawal = Convert.ToDateTime(periodeAwal).ToString("MMM");
+                yearpawal = Convert.ToDateTime(periodeAwal).ToString("yyyy");
+                ViewBag.monthyearawal = monthpawal + " " + yearpawal;
+                TempData["StringPeriodeAwal"] = stringPeriodeAwal;
+            }
+            if (periodeAkhir != null)
+            {
+                stringPeriodeAkhir = Convert.ToDateTime(periodeAkhir).ToString("yyyy-MM-dd");
+                monthpakhir = Convert.ToDateTime(periodeAkhir).ToString("MMM");
+                yearpakhir = Convert.ToDateTime(periodeAkhir).ToString("yyyy");
+                ViewBag.monthyearakhir = monthpakhir + " " + yearpakhir;
+                TempData["StringPeriodeAkhir"] = stringPeriodeAkhir;
+            }
+
+            if (Statusbondissuertypecode.Length > 0)
+            {
+                stringbondissuertypecode = string.Join(", ", Statusbondissuertypecode);
+                TempData["stringbondissuertypecode"] = stringbondissuertypecode;
+            }
+
+            db.Database.CommandTimeout = 420;
+            var result = Helper.WSQueryStore.GetBDAPMMM09NumberCancellation(db, loadOptions, reportId, stringPeriodeAwal, stringPeriodeAkhir, stringbondissuertypecode, cekHive);
+            var varDataList = (dynamic)null;
+
+            if (cekHive == true)
+            {
+                varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                               select new
+                               {
+                                   amended_info = bs.Field<string>("amended_info").ToString(),
+                                   total = Convert.ToInt64(bs.Field<Int64>("total").ToString()),
+                               }).OrderByDescending(bs => bs.total).ToList();
+            }
+            else
+            {
+                varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                               select new
+                               {
+                                   //nobulan = bs.Field<string>("nobulan").ToString(),
+                                   //bulan = bs.Field<string>("bulan").ToString(),
+                                   //total = Convert.ToInt32(bs.Field<Int32>("total").ToString()),
+
+                                   nobulan = bs.Field<string>("nobulan").ToString(),
+                                   JAN = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("JAN").ToString()) ? bs.Field<Int32>("JAN").ToString() : "0"),
+                                   FEB = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("FEB").ToString()) ? bs.Field<Int32>("FEB").ToString() : "0"),
+                                   MAR = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("MAR").ToString()) ? bs.Field<Int32>("MAR").ToString() : "0"),
+                                   APR = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("APR").ToString()) ? bs.Field<Int32>("APR").ToString() : "0"),
+                                   MAY = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("MAY").ToString()) ? bs.Field<Int32>("MAY").ToString() : "0"),
+                                   JUN = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("JUN").ToString()) ? bs.Field<Int32>("JUN").ToString() : "0"),
+                                   JUL = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("JUL").ToString()) ? bs.Field<Int32>("JUL").ToString() : "0"),
+                                   AUG = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("AUG").ToString()) ? bs.Field<Int32>("AUG").ToString() : "0"),
+                                   SEP = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("SEP").ToString()) ? bs.Field<Int32>("SEP").ToString() : "0"),
+                                   OCT = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("OCT").ToString()) ? bs.Field<Int32>("OCT").ToString() : "0"),
+                                   NOV = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("NOV").ToString()) ? bs.Field<Int32>("NOV").ToString() : "0"),
+                                   DEC = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("DEC").ToString()) ? bs.Field<Int32>("DEC").ToString() : "0"),
+                               }).OrderBy(bs => bs.nobulan).ToList();
+            }
+            return JsonConvert.SerializeObject(varDataList);
+        }
     }
 }

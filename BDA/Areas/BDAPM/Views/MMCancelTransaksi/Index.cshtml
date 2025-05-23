@@ -92,6 +92,64 @@
                     </tr>
                 </table>
 
+                <div class="row">
+                    <div class="col-lg-12">
+                        @(Html.DevExtreme().Chart()
+                            .ID("bar-chartnumbercancellation")
+                            .Palette(VizPalette.Bright)
+                            .CommonSeriesSettings(s => s
+                            .ArgumentField("bulan")
+                            .Type(SeriesType.StackedBar))
+                            .Series(s =>
+                            {
+                                s.Add().ValueField("JAN").Name("JAN");
+                                s.Add().ValueField("FEB").Name("FEB");
+                                s.Add().ValueField("MAR").Name("MAR");
+                                s.Add().ValueField("APR").Name("APR");
+                                s.Add().ValueField("MAY").Name("MAY");
+                                s.Add().ValueField("JUN").Name("JUN");
+                                s.Add().ValueField("JUL").Name("JUL");
+                                s.Add().ValueField("AUG").Name("AUG");
+                                s.Add().ValueField("SEP").Name("SEP");
+                                s.Add().ValueField("OCT").Name("OCT");
+                                s.Add().ValueField("NOV").Name("NOV");
+                                s.Add().ValueField("DEC").Name("DEC");
+
+                            })
+                            .Legend(l => l
+                            .VerticalAlignment(VerticalEdge.Bottom)
+                            .HorizontalAlignment(HorizontalAlignment.Center)
+                            .ItemTextPosition(Position.Top)
+                            )
+                            .ValueAxis(a => a
+                            .Add()
+                            .Position(Position.Left)
+                            )
+                            .Title("Number Of Cancellation")
+                            .Export(e => e.Enabled(true))
+                            .Tooltip(t => t
+                            .Enabled(true)
+                            .Location(ChartTooltipLocation.Edge)
+                            .CustomizeTooltip(@<text>
+                        function(arg) {
+                        return {
+                        text: arg.seriesName + " " + arg.valueText
+                        };
+                        }
+                    </text>)
+                            )
+                            .DataSource(d => d.Mvc()
+                            .Controller("MMCancelTransaksi")
+                            .LoadAction("GetBarChartNumberCancellation")
+                            .OnBeforeSend("onGridBeforeSend"))
+                            )
+
+                    </div>
+                </div>
+                <br />
+                <br />
+
+
             </div>
         </div>
     </div>
@@ -138,7 +196,7 @@
     function onButtonFilterClicked(e) {
         let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
         let tempPeriodeAkhir = $("#PeriodeAkhir").dxDateBox("instance").option("value");
-        let amandedtypeinfo = $("#Amandedid").dxTagBox("instance").option("value");
+        let bondissuertypecode = $("#BondTypeid").dxTagBox("instance").option("value");
 
 
         let periodeAwal = null;
@@ -153,9 +211,39 @@
 
         //$("#grid1").dxDataGrid("instance").refresh();
 
+         $.ajax({
+            url: '@Url.Action("GetBarChartNumberCancellation", "MMCancelTransaksi")',
+            data: { periodeAwal: periodeAwal, periodeAkhir: periodeAkhir, bondissuertypecode: JSON.stringify(bondissuertypecode) },
+            dataType: "json",
+            type: "POST",
+            success: function (response) {
+            $("#bar-chartnumbercancellation").dxPieChart("instance").refresh();
+            }
+        });
     }
 
     function onButtonFilterClickedCancel(e) {
         location.reload(); // Reloads the page, possibly from cache
+    }
+
+    function onGridBeforeSend(method, ajaxOptions) {
+        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
+        let tempPeriodeAkhir = $("#PeriodeAkhir").dxDateBox("instance").option("value");
+        let bondissuertypecode = $("#BondTypeid").dxTagBox("instance").option("value");
+
+
+        let periodeAwal = null;
+        if (tempPeriodeAwal != null) {
+            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
+        }
+
+        let periodeAkhir = null;
+        if (tempPeriodeAkhir != null) {
+            periodeAkhir = tempPeriodeAkhir.getFullYear() + '-' + String(tempPeriodeAkhir.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAkhir.getDate()).padStart(2, '0');
+        }
+
+        ajaxOptions.data.periodeAwal = periodeAwal;
+        ajaxOptions.data.periodeAkhir = periodeAkhir;
+        ajaxOptions.data.amandedtypeinfo = JSON.stringify(bondissuertypecode);
     }
 </script>
