@@ -147,23 +147,24 @@ namespace BDA.Controllers
                 varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
                                select new
                                {
-                                   //nobulan = bs.Field<string>("nobulan").ToString(),
-                                   //bulan = bs.Field<string>("bulan").ToString(),
-                                   //total = Convert.ToInt32(bs.Field<Int32>("total").ToString()),
+                                   nobulan = Convert.ToInt32(bs.Field<Int32>("nobulan").ToString()),
+                                   bulan = bs.Field<string>("bulan").ToString(),
+                                   total = Convert.ToInt32(bs.Field<Int32>("total").ToString()),
 
-                                   nobulan = bs.Field<string>("nobulan").ToString(),
-                                   JAN = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("JAN").ToString()) ? bs.Field<Int32>("JAN").ToString() : "0"),
-                                   FEB = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("FEB").ToString()) ? bs.Field<Int32>("FEB").ToString() : "0"),
-                                   MAR = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("MAR").ToString()) ? bs.Field<Int32>("MAR").ToString() : "0"),
-                                   APR = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("APR").ToString()) ? bs.Field<Int32>("APR").ToString() : "0"),
-                                   MAY = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("MAY").ToString()) ? bs.Field<Int32>("MAY").ToString() : "0"),
-                                   JUN = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("JUN").ToString()) ? bs.Field<Int32>("JUN").ToString() : "0"),
-                                   JUL = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("JUL").ToString()) ? bs.Field<Int32>("JUL").ToString() : "0"),
-                                   AUG = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("AUG").ToString()) ? bs.Field<Int32>("AUG").ToString() : "0"),
-                                   SEP = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("SEP").ToString()) ? bs.Field<Int32>("SEP").ToString() : "0"),
-                                   OCT = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("OCT").ToString()) ? bs.Field<Int32>("OCT").ToString() : "0"),
-                                   NOV = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("NOV").ToString()) ? bs.Field<Int32>("NOV").ToString() : "0"),
-                                   DEC = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("DEC").ToString()) ? bs.Field<Int32>("DEC").ToString() : "0"),
+                                   //nobulan = Convert.ToInt32(bs.Field<Int32>("nobulan").ToString()),
+                                   //bulan = bs.Field<string>("bulan").ToString(),
+                                   //JAN = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("JAN").ToString()) ? bs.Field<Int32>("JAN").ToString() : "0"),
+                                   //FEB = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("FEB").ToString()) ? bs.Field<Int32>("FEB").ToString() : "0"),
+                                   //MAR = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("MAR").ToString()) ? bs.Field<Int32>("MAR").ToString() : "0"),
+                                   //APR = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("APR").ToString()) ? bs.Field<Int32>("APR").ToString() : "0"),
+                                   //MAY = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("MAY").ToString()) ? bs.Field<Int32>("MAY").ToString() : "0"),
+                                   //JUN = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("JUN").ToString()) ? bs.Field<Int32>("JUN").ToString() : "0"),
+                                   //JUL = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("JUL").ToString()) ? bs.Field<Int32>("JUL").ToString() : "0"),
+                                   //AUG = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("AUG").ToString()) ? bs.Field<Int32>("AUG").ToString() : "0"),
+                                   //SEP = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("SEP").ToString()) ? bs.Field<Int32>("SEP").ToString() : "0"),
+                                   //OCT = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("OCT").ToString()) ? bs.Field<Int32>("OCT").ToString() : "0"),
+                                   //NOV = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("NOV").ToString()) ? bs.Field<Int32>("NOV").ToString() : "0"),
+                                   //DEC = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("DEC").ToString()) ? bs.Field<Int32>("DEC").ToString() : "0"),
                                }).OrderBy(bs => bs.nobulan).ToList();
             }
             return JsonConvert.SerializeObject(varDataList);

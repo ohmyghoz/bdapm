@@ -96,53 +96,26 @@
                     <div class="col-lg-12">
                         @(Html.DevExtreme().Chart()
                             .ID("bar-chartnumbercancellation")
-                            .Palette(VizPalette.Bright)
-                            .CommonSeriesSettings(s => s
-                            .ArgumentField("bulan")
-                            .Type(SeriesType.StackedBar))
-                            .Series(s =>
-                            {
-                                s.Add().ValueField("JAN").Name("JAN");
-                                s.Add().ValueField("FEB").Name("FEB");
-                                s.Add().ValueField("MAR").Name("MAR");
-                                s.Add().ValueField("APR").Name("APR");
-                                s.Add().ValueField("MAY").Name("MAY");
-                                s.Add().ValueField("JUN").Name("JUN");
-                                s.Add().ValueField("JUL").Name("JUL");
-                                s.Add().ValueField("AUG").Name("AUG");
-                                s.Add().ValueField("SEP").Name("SEP");
-                                s.Add().ValueField("OCT").Name("OCT");
-                                s.Add().ValueField("NOV").Name("NOV");
-                                s.Add().ValueField("DEC").Name("DEC");
-
-                            })
-                            .Legend(l => l
-                            .VerticalAlignment(VerticalEdge.Bottom)
-                            .HorizontalAlignment(HorizontalAlignment.Center)
-                            .ItemTextPosition(Position.Top)
-                            )
-                            .ValueAxis(a => a
-                            .Add()
-                            .Position(Position.Left)
-                            )
                             .Title("Number Of Cancellation")
+                            .ArgumentAxis(o => o.Color("#767676").Label(l => l.Font(f => f.Color("#767676")).OverlappingBehavior(OverlappingBehavior.Rotate).RotationAngle(-45).WordWrap(VizWordWrap.None)))
+                            .Rotated(false)
                             .Export(e => e.Enabled(true))
-                            .Tooltip(t => t
-                            .Enabled(true)
-                            .Location(ChartTooltipLocation.Edge)
-                            .CustomizeTooltip(@<text>
-                        function(arg) {
-                        return {
-                        text: arg.seriesName + " " + arg.valueText
-                        };
-                        }
-                    </text>)
-                            )
+                            .Series(s => s
+                            .Add()
+                            .ArgumentField("bulan")
+                            .ValueField("total")
+                            .Name("Amend")
+                            .Type(SeriesType.Bar)
+                            .Color("#64a0fb")
+                            .Label(l => l
+                            .Visible(true)
+                            .Format(f => f
+                            .Type(Format.FixedPoint)
+                            .Precision(0))))
                             .DataSource(d => d.Mvc()
                             .Controller("MMCancelTransaksi")
                             .LoadAction("GetBarChartNumberCancellation")
-                            .OnBeforeSend("onGridBeforeSend"))
-                            )
+                            .OnBeforeSend("onGridBeforeSend")))
 
                     </div>
                 </div>
@@ -217,7 +190,7 @@
             dataType: "json",
             type: "POST",
             success: function (response) {
-            $("#bar-chartnumbercancellation").dxPieChart("instance").refresh();
+            $("#bar-chartnumbercancellation").dxChart("instance").refresh();
             }
         });
     }
@@ -244,6 +217,6 @@
 
         ajaxOptions.data.periodeAwal = periodeAwal;
         ajaxOptions.data.periodeAkhir = periodeAkhir;
-        ajaxOptions.data.amandedtypeinfo = JSON.stringify(bondissuertypecode);
+        ajaxOptions.data.bondissuertypecode = JSON.stringify(bondissuertypecode);
     }
 </script>
