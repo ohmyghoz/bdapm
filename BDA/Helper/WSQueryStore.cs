@@ -6567,7 +6567,6 @@ namespace BDA.Helper
             {
                 stringbondissuertypecode = "'" + stringbondissuertypecode.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
                 whereQuery = whereQuery += " AND bondissuertypecode in (" + stringbondissuertypecode + ")";
-
             }
 
 
@@ -6577,9 +6576,9 @@ namespace BDA.Helper
                 if (tableName == "mm_bond_trades_cancel")
                 {
                     props.Query = @"
-                    SELECT amended_info,COUNT(amended_info) total
+                    SELECT MONTH(entrydate) AS nobulan,SUBSTRING('JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC ', (MONTH(entrydate) * 4) - 3, 3) AS bulan,COUNT(bondcode) AS total 
                         From pasarmodal." + tableName + @"
-                    WHERE " + whereQuery + @" group by amended_info";
+                    WHERE " + whereQuery + @" GROUP by MONTH(entrydate),SUBSTRING('JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC ', (MONTH(entrydate) * 4) - 3, 3)";
                 }
             }
             else
@@ -6590,37 +6589,65 @@ namespace BDA.Helper
                     SELECT MONTH(entrydate) AS nobulan,SUBSTRING('JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC ', (MONTH(entrydate) * 4) - 3, 3) AS bulan,COUNT(bondcode) AS total 
                         From pasarmodal." + tableName + @"
                     WHERE " + whereQuery + @" GROUP by MONTH(entrydate),SUBSTRING('JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC ', (MONTH(entrydate) * 4) - 3, 3)";
-
-
-
-                    // props.Query = @"
-                    //SELECT nobulan,bulan,
-                    //     SUM(CASE WHEN bulan = 'JAN'  THEN total ELSE 0 END) AS JAN,
-                    //     SUM(CASE WHEN bulan = 'FEB' THEN total ELSE 0 END) AS FEB,
-                    //  SUM(CASE WHEN bulan = 'MAR' THEN total ELSE 0 END) AS MAR,
-                    //  SUM(CASE WHEN bulan = 'APR' THEN total ELSE 0 END) AS APR,
-                    //  SUM(CASE WHEN bulan = 'MAY' THEN total ELSE 0 END) AS MAY,
-                    //  SUM(CASE WHEN bulan = 'JUN' THEN total ELSE 0 END) AS JUN,
-                    //  SUM(CASE WHEN bulan = 'JUL' THEN total ELSE 0 END) AS JUL,
-                    //  SUM(CASE WHEN bulan = 'AUG' THEN total ELSE 0 END) AS AUG,
-                    //  SUM(CASE WHEN bulan = 'SEP' THEN total ELSE 0 END) AS SEP,
-                    //  SUM(CASE WHEN bulan = 'OCT' THEN total ELSE 0 END) AS OCT,
-                    //  SUM(CASE WHEN bulan = 'NOV' THEN total ELSE 0 END) AS NOV,
-                    //  SUM(CASE WHEN bulan = 'DEC' THEN total ELSE 0 END) AS DEC
-                    //     FROM
-                    //         (
-                    //            SELECT MONTH(entrydate) AS nobulan,SUBSTRING('JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC ', (MONTH(entrydate) * 4) - 3, 3) AS bulan,COUNT(bondcode) AS total 
-                    //        From pasarmodal." + tableName + @"
-                    //             WHERE " + whereQuery + @" 
-                    //             GROUP by MONTH(entrydate),SUBSTRING('JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC ', (MONTH(entrydate) * 4) - 3, 3)
-                    //         ) AS t
-                    // GROUP BY nobulan,bulan";
                 }
             }
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
         }
+        public static WSQueryReturns GetBDAPMMM09BondType(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string stringPeriodeAwal, string stringPeriodeAkhir, string stringbondissuertypecode, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            //isHive = true;
 
+            if (stringPeriodeAwal != null && stringPeriodeAkhir != null)
+            {
+                if (isHive == true)
+                {
+                    stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    whereQuery = whereQuery += " AND  date_format(date_sub(entrydate,14),'yyyy-MM-dd') BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
+                }
+                else
+                {
+                    stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    whereQuery = whereQuery += " AND CONVERT(char(10), entrydate,126) BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
+                }
+
+            }
+
+            if (stringbondissuertypecode != null)
+            {
+                stringbondissuertypecode = "'" + stringbondissuertypecode.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND bondissuertypecode in (" + stringbondissuertypecode + ")";
+            }
+
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "mm_bond_trades_cancel")
+                {
+                    props.Query = @"
+                    SELECT bondissuertypecode,COUNT(bondissuertypecode) total
+                        From pasarmodal." + tableName + @"
+                    WHERE " + whereQuery + @" group by bondissuertypecode";
+                }
+            }
+            else
+            {
+                if (tableName == "mm_bond_trades_cancel")
+                {
+                    props.Query = @"
+                    SELECT bondissuertypecode,COUNT(bondissuertypecode) total
+                        From pasarmodal." + tableName + @"
+                    WHERE " + whereQuery + @" group by bondissuertypecode";
+                }
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
 
         #endregion
 

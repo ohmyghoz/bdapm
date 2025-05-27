@@ -104,7 +104,7 @@
                             .Add()
                             .ArgumentField("bulan")
                             .ValueField("total")
-                            .Name("Amend")
+                            .Name("").Visible(true)
                             .Type(SeriesType.Bar)
                             .Color("#64a0fb")
                             .Label(l => l
@@ -121,7 +121,75 @@
                 </div>
                 <br />
                 <br />
+                <div class="row">
+                    <div class="col-lg-6">
+                        @(Html.DevExtreme().PieChart()
+                            .ID("pie-chartcancellationstatus")
+                            .Title("Cancellation Status")
+                            .Legend(l => l
+                            .HorizontalAlignment(HorizontalAlignment.Right)
+                            .VerticalAlignment(VerticalEdge.Top)
+                            .Margin(0))
+                            .Export(e => e.Enabled(true))
+                            .Series(s => s
+                            .Add()
+                            .ArgumentField("bondissuertypecode")
+                            .ValueField("total")
+                            .Label(l => l
+                            .Visible(true)
+                            .Font(f => f.Size(16))
+                            .Connector(c => c
+                            .Visible(true)
+                            .Width(0.5)
+                            )
+                            .Position(PieChartLabelPosition.Columns)
+                            .CustomizeText(@<text>
+                        function(arg) {
+                        return arg.valueText + " (" + arg.percentText + ")";
+                        }
+                    </text>)
+                            )
+                            )
+                            .DataSource(d => d.Mvc()
+                            .Controller("MMCancelTransaksi")
+                            .LoadAction("GetPieChartCancellationStatus")
+                            .OnBeforeSend("onGridBeforeSend")))
+                    </div>
 
+                    <div class="col-lg-6">
+                        @(Html.DevExtreme().PieChart()
+                            .ID("pie-chartbondtype")
+                            .Title("Bond Type")
+                            .Legend(l => l
+                            .HorizontalAlignment(HorizontalAlignment.Right)
+                            .VerticalAlignment(VerticalEdge.Top)
+                            .Margin(0))
+                            .Export(e => e.Enabled(true))
+                            .Series(s => s
+                            .Add()
+                            .ArgumentField("bondissuertypecode")
+                            .ValueField("total")
+                            .Label(l => l
+                            .Visible(true)
+                            .Font(f => f.Size(16))
+                            .Connector(c => c
+                            .Visible(true)
+                            .Width(0.5)
+                            )
+                            .Position(PieChartLabelPosition.Columns)
+                            .CustomizeText(@<text>
+                        function(arg) {
+                        return arg.valueText + " (" + arg.percentText + ")";
+                        }
+                    </text>)
+                            )
+                            )
+                            .DataSource(d => d.Mvc()
+                            .Controller("MMCancelTransaksi")
+                            .LoadAction("GetChartBondType")
+                            .OnBeforeSend("onGridBeforeSend")))
+                    </div>
+                </div>
 
             </div>
         </div>
@@ -191,6 +259,16 @@
             type: "POST",
             success: function (response) {
             $("#bar-chartnumbercancellation").dxChart("instance").refresh();
+            }
+        });
+
+         $.ajax({
+            url: '@Url.Action("GetChartBondType", "MMCancelTransaksi")',
+            data: { periodeAwal: periodeAwal, periodeAkhir: periodeAkhir, bondissuertypecode: JSON.stringify(bondissuertypecode) },
+            dataType: "json",
+            type: "POST",
+            success: function (response) {
+            $("#pie-chartbondtype").dxPieChart("instance").refresh();
             }
         });
     }
