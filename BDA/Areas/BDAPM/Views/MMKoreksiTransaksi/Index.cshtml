@@ -10,7 +10,7 @@
     @Html.AntiForgeryToken()
 
     <div class="card card-default">
-        @*filter*@
+        
         <div class="row filter-panel" style="padding-top:0px;">
             <div class="card-body">
 
@@ -46,8 +46,7 @@
                             .SearchEnabled(true)
                             .OnSelectionChanged("onSelectionChanged")
                             .Width("100%")
-                            .Placeholder("(ALL)")
-                            )
+                            .Placeholder("(ALL)"))
                     </div>
 
                 </div>
@@ -75,8 +74,6 @@
                         </td>
                     </tr>
                 </table>
-
-                
 
                 <div class="row">
                     <div class="col-lg-6">
@@ -413,6 +410,7 @@
 
             </div>
         </div>
+
     </div>
 }
 

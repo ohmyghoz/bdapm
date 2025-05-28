@@ -8,8 +8,9 @@
 @using (Html.BeginForm())
 {
     @Html.AntiForgeryToken()
+
     <div class="card card-default">
-        @*filter*@
+        
         <div class="row filter-panel" style="padding-top:0px;">
             <div class="card-body">
 
@@ -62,8 +63,7 @@
                             .SearchEnabled(true)
                             .OnSelectionChanged("onSelectionChanged")
                             .Width("100%")
-                            .Placeholder("(ALL)")
-                            )
+                            .Placeholder("(ALL)"))
                     </div>
 
                 </div>
@@ -92,105 +92,127 @@
                     </tr>
                 </table>
 
-                <div class="row">
-                    <div class="col-lg-12">
-                        @(Html.DevExtreme().Chart()
-                            .ID("bar-chartnumbercancellation")
-                            .Title("Number Of Cancellation")
-                            .ArgumentAxis(o => o.Color("#767676").Label(l => l.Font(f => f.Color("#767676")).OverlappingBehavior(OverlappingBehavior.Rotate).RotationAngle(-45).WordWrap(VizWordWrap.None)))
-                            .Rotated(false)
-                            .Export(e => e.Enabled(true))
-                            .Series(s => s
-                            .Add()
-                            .ArgumentField("bulan")
-                            .ValueField("total")
-                            .Name("").Visible(true)
-                            .Type(SeriesType.Bar)
-                            .Color("#64a0fb")
-                            .Label(l => l
-                            .Visible(true)
-                            .Format(f => f
-                            .Type(Format.FixedPoint)
-                            .Precision(0))))
-                            .DataSource(d => d.Mvc()
-                            .Controller("MMCancelTransaksi")
-                            .LoadAction("GetBarChartNumberCancellation")
-                            .OnBeforeSend("onGridBeforeSend")))
+            </div>
+        </div>
+        <div class="row filter-panel" style="padding-top:0px;">
+            <div class="card-body">
+        <div class="row">
+            <div class="col-lg-12">
+                @(Html.DevExtreme().Chart()
+                    .ID("bar-chartnumbercancellation")
+                    .Title("Number Of Cancellation")
+                    .ArgumentAxis(o => o.Color("#767676").Label(l => l.Font(f => f.Color("#767676")).OverlappingBehavior(OverlappingBehavior.Rotate).RotationAngle(-45).WordWrap(VizWordWrap.None)))
+                    .Rotated(false)
+                    .Export(e => e.Enabled(true))
+                    .Series(s => s
+                    .Add()
+                    .ArgumentField("bulan")
+                    .ValueField("total")
+                    .Name("").Visible(true)
+                    .Type(SeriesType.Bar)
+                    .Color("#64a0fb")
+                    .Label(l => l
+                    .Visible(true)
+                    .Format(f => f
+                    .Type(Format.FixedPoint)
+                    .Precision(0))))
+                    .DataSource(d => d.Mvc()
+                    .Controller("MMCancelTransaksi")
+                    .LoadAction("GetBarChartNumberCancellation")
+                    .OnBeforeSend("onGridBeforeSend")))
+            </div>
+        </div>
+        <br />
+        <br />
+        <div class="row">
+            <div class="col-lg-6">
+                @(Html.DevExtreme().PieChart()
+                    .ID("pie")
+                    .Size(s => s.Width(500))
+                    .Palette(VizPalette.Bright)
+                    .Series(s => s
+                    .Add()
+                    .ArgumentField("Country")
+                    .ValueField("Area")
+                    .Label(l => l
+                    .Visible(true)
+                    .Connector(c => c
+                    .Visible(true)
+                    .Width(1)
+                    )
+                    )
+                    )
+                    .Title("Area of Countries")
+                    .Export(e => e.Enabled(true))
+                    .OnPointClick(@<text>
+                function (e) {
+                var point = e.target;
+                toggleVisibility(point);
+                }
+            </text>)
+                    .OnLegendClick(@<text>
+                function (e) {
+                var arg = e.target;
+                toggleVisibility(this.getAllSeries()[0].getPointsByArg(arg)[0]);
+                }
+            </text>)
+                    .DataSource(new[] {
+            new { Country = "Russia", Area = 12 },
+            new { Country = "Canada", Area = 7 },
+            new { Country = "USA", Area = 7 },
+            new { Country = "China", Area = 7 },
+            new { Country = "Brazil", Area = 6 },
+            new { Country = "Australia", Area = 5 },
+            new { Country = "India", Area = 2 },
+            new { Country = "Others", Area = 55 }
+            })
+                    )
 
-                    </div>
-                </div>
-                <br />
-                <br />
-                <div class="row">
-                    <div class="col-lg-6">
-                        @(Html.DevExtreme().PieChart()
-                            .ID("pie-chartcancellationstatus")
-                            .Title("Cancellation Status")
-                            .Legend(l => l
-                            .HorizontalAlignment(HorizontalAlignment.Right)
-                            .VerticalAlignment(VerticalEdge.Top)
-                            .Margin(0))
-                            .Export(e => e.Enabled(true))
-                            .Series(s => s
-                            .Add()
-                            .ArgumentField("bondissuertypecode")
-                            .ValueField("total")
-                            .Label(l => l
-                            .Visible(true)
-                            .Font(f => f.Size(16))
-                            .Connector(c => c
-                            .Visible(true)
-                            .Width(0.5)
-                            )
-                            .Position(PieChartLabelPosition.Columns)
-                            .CustomizeText(@<text>
-                        function(arg) {
-                        return arg.valueText + " (" + arg.percentText + ")";
+                <script>
+                    function toggleVisibility(item) {
+                        if(item.isVisible()) {
+                            item.hide();
+                        } else {
+                            item.show();
                         }
-                    </text>)
-                            )
-                            )
-                            .DataSource(d => d.Mvc()
-                            .Controller("MMCancelTransaksi")
-                            .LoadAction("GetPieChartCancellationStatus")
-                            .OnBeforeSend("onGridBeforeSend")))
-                    </div>
+                    }
+                </script>
+            </div>
 
-                    <div class="col-lg-6">
-                        @(Html.DevExtreme().PieChart()
-                            .ID("pie-chartbondtype")
-                            .Title("Bond Type")
-                            .Legend(l => l
-                            .HorizontalAlignment(HorizontalAlignment.Right)
-                            .VerticalAlignment(VerticalEdge.Top)
-                            .Margin(0))
-                            .Export(e => e.Enabled(true))
-                            .Series(s => s
-                            .Add()
-                            .ArgumentField("bondissuertypecode")
-                            .ValueField("total")
-                            .Label(l => l
-                            .Visible(true)
-                            .Font(f => f.Size(16))
-                            .Connector(c => c
-                            .Visible(true)
-                            .Width(0.5)
-                            )
-                            .Position(PieChartLabelPosition.Columns)
-                            .CustomizeText(@<text>
-                        function(arg) {
-                        return arg.valueText + " (" + arg.percentText + ")";
-                        }
-                    </text>)
-                            )
-                            )
-                            .DataSource(d => d.Mvc()
-                            .Controller("MMCancelTransaksi")
-                            .LoadAction("GetChartBondType")
-                            .OnBeforeSend("onGridBeforeSend")))
-                    </div>
-                </div>
-
+            <div class="col-lg-6">
+                @(Html.DevExtreme().PieChart()
+                    .ID("pie-chartbondtype")
+                    .Title("Bond Type")
+                    .Legend(l => l
+                    .HorizontalAlignment(HorizontalAlignment.Right)
+                    .VerticalAlignment(VerticalEdge.Top)
+                    .Margin(0))
+                    .Export(e => e.Enabled(true))
+                    .Series(s => s
+                    .Add()
+                    .ArgumentField("bondissuertypecode")
+                    .ValueField("total")
+                    .Label(l => l
+                    .Visible(true)
+                    .Font(f => f.Size(16))
+                    .Connector(c => c
+                    .Visible(true)
+                    .Width(0.5)
+                    )
+                    .Position(PieChartLabelPosition.Columns)
+                    .CustomizeText(@<text>
+                function(arg) {
+                return arg.valueText + " (" + arg.percentText + ")";
+                }
+            </text>)
+                    )
+                    )
+                    .DataSource(d => d.Mvc()
+                    .Controller("MMCancelTransaksi")
+                    .LoadAction("GetChartBondType")
+                    .OnBeforeSend("onGridBeforeSend")))
+            </div>
+        </div>
             </div>
         </div>
     </div>
@@ -200,11 +222,13 @@
     window.jsPDF = window.jspdf.jsPDF;
     applyPlugin(window.jsPDF);
 </script>
+
 <style type="text/css">
     .mandatory {
         color: red;
     }
 </style>
+
 <script>
     $(function () {
            const startDate = $("#PeriodeAwal").dxDateBox({
