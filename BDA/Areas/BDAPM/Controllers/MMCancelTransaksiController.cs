@@ -28,6 +28,7 @@ using DevExpress.Xpo.DB;
 using DevExpress.Charts.Native;
 using static DevExpress.Data.ODataLinq.Helpers.ODataLinqHelpers;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Globalization;
 
 namespace BDA.Controllers
 {
@@ -154,6 +155,40 @@ namespace BDA.Controllers
             }
             return JsonConvert.SerializeObject(varDataList);
         }
+        public object GetChartCancellationStatus(DataSourceLoadOptions loadOptions, string periodeAwal, string periodeAkhir, string bondissuertypecode)
+        {
+            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+            TempData.Clear(); //membersihkan data filtering
+            string[] Statusbondissuertypecode = JsonConvert.DeserializeObject<string[]>(bondissuertypecode);
+
+            string stringPeriodeAwal = null;
+            string stringPeriodeAkhir = null;
+            string stringbondissuertypecode = null;
+            string reportId = "mm_bond_trades_cancel"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+
+            if (periodeAwal != null)
+            {
+                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
+                TempData["StringPeriodeAwal"] = stringPeriodeAwal;
+            }
+            if (periodeAkhir != null)
+            {
+                stringPeriodeAkhir = Convert.ToDateTime(periodeAkhir).ToString("yyyy-MM-dd");
+                TempData["StringPeriodeAkhir"] = stringPeriodeAkhir;
+            }
+
+            if (Statusbondissuertypecode.Length > 0)
+            {
+                stringbondissuertypecode = string.Join(", ", Statusbondissuertypecode);
+                TempData["stringbondissuertypecode"] = stringbondissuertypecode;
+            }
+
+            db.Database.CommandTimeout = 420;
+            var result = Helper.WSQueryStore.GetBDAPMMM09BondType(db, loadOptions, reportId, stringPeriodeAwal, stringPeriodeAkhir, stringbondissuertypecode, cekHive);
+            return JsonConvert.SerializeObject(result);
+        }
         public object GetChartBondType(DataSourceLoadOptions loadOptions, string periodeAwal, string periodeAkhir, string bondissuertypecode)
         {
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
@@ -187,6 +222,262 @@ namespace BDA.Controllers
             db.Database.CommandTimeout = 420;
             var result = Helper.WSQueryStore.GetBDAPMMM09BondType(db, loadOptions, reportId, stringPeriodeAwal, stringPeriodeAkhir, stringbondissuertypecode, cekHive);
             return JsonConvert.SerializeObject(result);
+        }
+        public object GetBarChartTop10CancelMarket(DataSourceLoadOptions loadOptions, string periodeAwal, string periodeAkhir, string bondissuertypecode)
+        {
+            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+            TempData.Clear(); //membersihkan data filtering
+            string[] Statusbondissuertypecode = JsonConvert.DeserializeObject<string[]>(bondissuertypecode);
+
+            string stringPeriodeAwal = null;
+            string stringPeriodeAkhir = null;
+            string stringbondissuertypecode = null;
+            string reportId = "mm_bond_trades_cancel"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+
+            if (periodeAwal != null)
+            {
+                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
+                TempData["StringPeriodeAwal"] = stringPeriodeAwal;
+            }
+            if (periodeAkhir != null)
+            {
+                stringPeriodeAkhir = Convert.ToDateTime(periodeAkhir).ToString("yyyy-MM-dd");
+                TempData["StringPeriodeAkhir"] = stringPeriodeAkhir;
+            }
+
+            if (Statusbondissuertypecode.Length > 0)
+            {
+                stringbondissuertypecode = string.Join(", ", Statusbondissuertypecode);
+                TempData["stringbondissuertypecode"] = stringbondissuertypecode;
+            }
+
+            db.Database.CommandTimeout = 420;
+            var result = Helper.WSQueryStore.GetBDAPMMM08Top10CancelMarket(db, loadOptions, reportId, stringPeriodeAwal, stringPeriodeAkhir, stringbondissuertypecode, cekHive);
+            var varDataList = (dynamic)null;
+
+            if (cekHive == true)
+            {
+                varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                               select new
+                               {
+                                   amended_firm_id = bs.Field<string>("amended_firm_id").ToString(),
+                                   Market = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("Market").ToString()) ? bs.Field<Int32>("Market").ToString() : "0"),
+                                   Non_Market = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("Non_Market").ToString()) ? bs.Field<Int32>("Non_Market").ToString() : "0"),
+                               }).OrderByDescending(bs => bs.Non_Market).ToList().Take(10);
+            }
+            else
+            {
+                varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                               select new
+                               {
+                                   buyerfirmcode = bs.Field<string>("buyerfirmcode").ToString(),
+                                   OTHERS = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("OTHERS").ToString()) ? bs.Field<Int32>("OTHERS").ToString() : "0"),
+                                   TRADE_CANCEL = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("TRADE_CANCEL").ToString()) ? bs.Field<Int32>("TRADE_CANCEL").ToString() : "0"),
+                                   WRONG_INPUT = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("WRONG_INPUT").ToString()) ? bs.Field<Int32>("WRONG_INPUT").ToString() : "0"),
+                                   DOUBLE_REPORT = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("DOUBLE_REPORT").ToString()) ? bs.Field<Int32>("DOUBLE_REPORT").ToString() : "0"),
+                                   NETWORK_CONNECTION = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("NETWORK_CONNECTION").ToString()) ? bs.Field<Int32>("NETWORK_CONNECTION").ToString() : "0"),
+                                   entrydate = Convert.ToDateTime(bs.Field<string>("entrydate")).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                               }).OrderByDescending(bs => bs.entrydate).ToList().Take(10);
+            }
+            return JsonConvert.SerializeObject(varDataList);
+        }
+        public object GetBarChartCanceledBonds(DataSourceLoadOptions loadOptions, string periodeAwal, string periodeAkhir, string bondissuertypecode)
+        {
+            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+            TempData.Clear(); //membersihkan data filtering
+            string[] Statusbondissuertypecode = JsonConvert.DeserializeObject<string[]>(bondissuertypecode);
+
+            string stringPeriodeAwal = null;
+            string stringPeriodeAkhir = null;
+            string stringbondissuertypecode = null;
+            string reportId = "mm_bond_trades_cancel"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+            string monthpawal = null;
+            string yearpawal = null;
+            string monthpakhir = null;
+            string yearpakhir = null;
+
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+
+            if (periodeAwal != null)
+            {
+                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
+                monthpawal = Convert.ToDateTime(periodeAwal).ToString("MMM");
+                yearpawal = Convert.ToDateTime(periodeAwal).ToString("yyyy");
+                ViewBag.monthyearawal = monthpawal + " " + yearpawal;
+                TempData["StringPeriodeAwal"] = stringPeriodeAwal;
+            }
+            if (periodeAkhir != null)
+            {
+                stringPeriodeAkhir = Convert.ToDateTime(periodeAkhir).ToString("yyyy-MM-dd");
+                monthpakhir = Convert.ToDateTime(periodeAkhir).ToString("MMM");
+                yearpakhir = Convert.ToDateTime(periodeAkhir).ToString("yyyy");
+                ViewBag.monthyearakhir = monthpakhir + " " + yearpakhir;
+                TempData["StringPeriodeAkhir"] = stringPeriodeAkhir;
+            }
+
+            if (Statusbondissuertypecode.Length > 0)
+            {
+                stringbondissuertypecode = string.Join(", ", Statusbondissuertypecode);
+                TempData["stringbondissuertypecode"] = stringbondissuertypecode;
+            }
+
+            db.Database.CommandTimeout = 420;
+            var result = Helper.WSQueryStore.GetBDAPMMM09CanceledBonds(db, loadOptions, reportId, stringPeriodeAwal, stringPeriodeAkhir, stringbondissuertypecode, cekHive);
+            var varDataList = (dynamic)null;
+
+            if (cekHive == true)
+            {
+                varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                               select new
+                               {
+                                   bondcode = bs.Field<string>("bondcode").ToString(),
+                                   total = Convert.ToInt64(bs.Field<Int64>("total").ToString()),
+                               }).OrderByDescending(bs => bs.total).ToList().Take(15);
+            }
+            else
+            {
+                varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                               select new
+                               {
+                                   bondcode = bs.Field<string>("bondcode").ToString(),
+                                   total = Convert.ToInt32(bs.Field<Int32>("total").ToString()),
+            }).OrderByDescending(bs => bs.total).ToList().Take(15);
+            }
+            return JsonConvert.SerializeObject(varDataList);
+        }
+        public object GetBarChartReasonCanceledBonds(DataSourceLoadOptions loadOptions, string periodeAwal, string periodeAkhir, string bondissuertypecode)
+        {
+            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+            TempData.Clear(); //membersihkan data filtering
+            string[] Statusbondissuertypecode = JsonConvert.DeserializeObject<string[]>(bondissuertypecode);
+
+            string stringPeriodeAwal = null;
+            string stringPeriodeAkhir = null;
+            string stringbondissuertypecode = null;
+            string reportId = "mm_bond_trades_cancel"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+            string monthpawal = null;
+            string yearpawal = null;
+            string monthpakhir = null;
+            string yearpakhir = null;
+
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+
+            if (periodeAwal != null)
+            {
+                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
+                monthpawal = Convert.ToDateTime(periodeAwal).ToString("MMM");
+                yearpawal = Convert.ToDateTime(periodeAwal).ToString("yyyy");
+                ViewBag.monthyearawal = monthpawal + " " + yearpawal;
+                TempData["StringPeriodeAwal"] = stringPeriodeAwal;
+            }
+            if (periodeAkhir != null)
+            {
+                stringPeriodeAkhir = Convert.ToDateTime(periodeAkhir).ToString("yyyy-MM-dd");
+                monthpakhir = Convert.ToDateTime(periodeAkhir).ToString("MMM");
+                yearpakhir = Convert.ToDateTime(periodeAkhir).ToString("yyyy");
+                ViewBag.monthyearakhir = monthpakhir + " " + yearpakhir;
+                TempData["StringPeriodeAkhir"] = stringPeriodeAkhir;
+            }
+
+            if (Statusbondissuertypecode.Length > 0)
+            {
+                stringbondissuertypecode = string.Join(", ", Statusbondissuertypecode);
+                TempData["stringbondissuertypecode"] = stringbondissuertypecode;
+            }
+
+            db.Database.CommandTimeout = 420;
+            var result = Helper.WSQueryStore.GetBDAPMMM09ReasonCanceledBonds(db, loadOptions, reportId, stringPeriodeAwal, stringPeriodeAkhir, stringbondissuertypecode, cekHive);
+            var varDataList = (dynamic)null;
+
+            if (cekHive == true)
+            {
+                varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                               select new
+                               {
+                                   tradereason = bs.Field<string>("tradereason").ToString(),
+                                   total = Convert.ToInt64(bs.Field<Int64>("total").ToString()),
+                               }).OrderByDescending(bs => bs.total).ToList();
+            }
+            else
+            {
+                varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                               select new
+                               {
+                                   tradereason = bs.Field<string>("tradereason").ToString(),
+                                   total = Convert.ToInt32(bs.Field<Int32>("total").ToString()),
+                               }).OrderByDescending(bs => bs.total).ToList().Take(15);
+            }
+            return JsonConvert.SerializeObject(varDataList);
+        }
+        public object GetBarChartDateCanceledBonds(DataSourceLoadOptions loadOptions, string periodeAwal, string periodeAkhir, string bondissuertypecode)
+        {
+            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+            TempData.Clear(); //membersihkan data filtering
+            string[] Statusbondissuertypecode = JsonConvert.DeserializeObject<string[]>(bondissuertypecode);
+
+            string stringPeriodeAwal = null;
+            string stringPeriodeAkhir = null;
+            string stringbondissuertypecode = null;
+            string reportId = "mm_bond_trades_cancel"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+            string monthpawal = null;
+            string yearpawal = null;
+            string monthpakhir = null;
+            string yearpakhir = null;
+
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+
+            if (periodeAwal != null)
+            {
+                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
+                monthpawal = Convert.ToDateTime(periodeAwal).ToString("MMM");
+                yearpawal = Convert.ToDateTime(periodeAwal).ToString("yyyy");
+                ViewBag.monthyearawal = monthpawal + " " + yearpawal;
+                TempData["StringPeriodeAwal"] = stringPeriodeAwal;
+            }
+            if (periodeAkhir != null)
+            {
+                stringPeriodeAkhir = Convert.ToDateTime(periodeAkhir).ToString("yyyy-MM-dd");
+                monthpakhir = Convert.ToDateTime(periodeAkhir).ToString("MMM");
+                yearpakhir = Convert.ToDateTime(periodeAkhir).ToString("yyyy");
+                ViewBag.monthyearakhir = monthpakhir + " " + yearpakhir;
+                TempData["StringPeriodeAkhir"] = stringPeriodeAkhir;
+            }
+
+            if (Statusbondissuertypecode.Length > 0)
+            {
+                stringbondissuertypecode = string.Join(", ", Statusbondissuertypecode);
+                TempData["stringbondissuertypecode"] = stringbondissuertypecode;
+            }
+
+            db.Database.CommandTimeout = 420;
+            var result = Helper.WSQueryStore.GetBDAPMMM09DateCanceledBonds(db, loadOptions, reportId, stringPeriodeAwal, stringPeriodeAkhir, stringbondissuertypecode, cekHive);
+            var varDataList = (dynamic)null;
+
+            if (cekHive == true)
+            {
+                varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                               select new
+                               {
+                                   tgl = Convert.ToInt32(bs.Field<string>("tgl").ToString()),
+                                   nobulan = Convert.ToInt64(bs.Field<Int64>("nobulan").ToString()),
+                                   entrydate = Convert.ToDateTime(bs.Field<DateTime>("entrydate")).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                                   total = Convert.ToInt64(bs.Field<Int64>("total").ToString()),
+                               }).OrderBy(bs => bs.tgl).OrderBy(bs => bs.nobulan).ToList();
+            }
+            else
+            {
+                varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                               select new
+                               {
+                                   tgl = Convert.ToInt32(bs.Field<string>("tgl").ToString()),
+                                   nobulan = Convert.ToInt32(bs.Field<Int32>("nobulan").ToString()),
+                                   entrydate = bs.Field<string>("entrydate").ToString(),
+                                   total = Convert.ToInt32(bs.Field<Int32>("total").ToString()),
+                               }).OrderBy(bs => bs.tgl).OrderBy(bs => bs.nobulan).ToList();
+            }
+            return JsonConvert.SerializeObject(varDataList);
         }
     }
 }
