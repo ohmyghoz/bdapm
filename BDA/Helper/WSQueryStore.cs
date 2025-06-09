@@ -6461,18 +6461,21 @@ namespace BDA.Helper
                 if (tableName == "mm_bond_trades_amended")
                 {
                     props.Query = @"
+                    SELECT top 10 * FROM (
+                    SELECT amended_firm_id,Market,Non_Market,SUM(Market+Non_Market) AS Total FROM (
                     SELECT amended_firm_id,
                         SUM(CASE WHEN amended_info_type = 'Market'  THEN total ELSE 0 END) AS Market,
                         SUM(CASE WHEN amended_info_type = 'Non Market' THEN total ELSE 0 END) AS Non_Market
                         FROM
                             (
-                                SELECT	amended_firm_id,amended_info_type,CONVERT(char(10), amend_date,126) as amend_date,COUNT(amended_firm_id) AS total 
-									FROM  pasarmodal.mm_bond_trades_amended 
-                                " + whereMarketNonMarket + @"
-		                        GROUP by amended_firm_id,amended_info_type,amend_date
+                               SELECT	amended_firm_id,amended_info_type,CONVERT(char(10), amend_date,126) as amend_date,COUNT(amended_firm_id) AS total
+							                    FROM  pasarmodal." + tableName + @"
+                                                " + whereMarketNonMarket + @"
+                                GROUP by amended_firm_id,amended_info_type,amend_date
                             ) AS t
                     WHERE " + whereQuery + @" 
-                    GROUP BY amended_firm_id ";
+                    GROUP BY amended_firm_id) AS C
+                    group by amended_firm_id,Market,Non_Market) as x";
                 }
             }
             else
@@ -6480,18 +6483,21 @@ namespace BDA.Helper
                 if (tableName == "mm_bond_trades_amended")
                 {
                     props.Query = @"
+                    SELECT top 10 * FROM (
+                    SELECT amended_firm_id,Market,Non_Market,SUM(Market+Non_Market) AS Total FROM (
                     SELECT amended_firm_id,
                         SUM(CASE WHEN amended_info_type = 'Market'  THEN total ELSE 0 END) AS Market,
                         SUM(CASE WHEN amended_info_type = 'Non Market' THEN total ELSE 0 END) AS Non_Market
                         FROM
                             (
-                               SELECT	amended_firm_id,amended_info_type,CONVERT(char(10), amend_date,126) as amend_date,COUNT(amended_firm_id) AS total 
-									FROM  pasarmodal.mm_bond_trades_amended 
-                                " + whereMarketNonMarket + @"
-		                        GROUP by amended_firm_id,amended_info_type,amend_date
+                               SELECT	amended_firm_id,amended_info_type,CONVERT(char(10), amend_date,126) as amend_date,COUNT(amended_firm_id) AS total
+							                    FROM  pasarmodal." + tableName + @"
+                                                " + whereMarketNonMarket + @"
+                                GROUP by amended_firm_id,amended_info_type,amend_date
                             ) AS t
                     WHERE " + whereQuery + @" 
-                    GROUP BY amended_firm_id ";
+                    GROUP BY amended_firm_id) AS C
+                    group by amended_firm_id,Market,Non_Market) as x";
                 }
             }
 
@@ -6684,41 +6690,63 @@ namespace BDA.Helper
                 if (tableName == "mm_bond_trades_cancel")
                 {
                     props.Query = @"
-                      SELECT buyerfirmcode,
-                        SUM(CASE WHEN tradereason = 'OTHERS'  THEN total ELSE 0 END) AS OTHERS,
-                        SUM(CASE WHEN tradereason = 'TRADE CANCEL' THEN total ELSE 0 END) AS TRADE_CANCEL,
-	                    SUM(CASE WHEN tradereason = 'WRONG INPUT' THEN total ELSE 0 END) AS WRONG_INPUT,
-	                    SUM(CASE WHEN tradereason = 'DOUBLE REPORT' THEN total ELSE 0 END) AS DOUBLE_REPORT,
-	                    SUM(CASE WHEN tradereason = 'NETWORK CONNECTION' THEN total ELSE 0 END) AS NETWORK_CONNECTION,entrydate
-                        FROM
-                            (
-                               SELECT	buyerfirmcode,tradereason,CONVERT(char(10), entrydate,126) as entrydate,COUNT(buyerfirmcode) AS total 
-							                    FROM  pasarmodal." + tableName + @"
-                                GROUP by buyerfirmcode,tradereason,entrydate
-                            ) AS t
-                    WHERE " + whereQuery + @" 
-                    GROUP BY buyerfirmcode,entrydate";
+                        SELECT TOP 10 * FROM (
+                        SELECT buyerfirmcode,OTHERS,TRADE_CANCEL,WRONG_INPUT,DOUBLE_REPORT,NETWORK_CONNECTION,entrydate,SUM(OTHERS+TRADE_CANCEL+WRONG_INPUT+DOUBLE_REPORT+NETWORK_CONNECTION) AS Total FROM (
+                        SELECT buyerfirmcode,
+                            SUM(CASE WHEN tradereason = 'OTHERS'  THEN total ELSE 0 END) AS OTHERS,
+                            SUM(CASE WHEN tradereason = 'TRADE CANCEL' THEN total ELSE 0 END) AS TRADE_CANCEL,
+                            SUM(CASE WHEN tradereason = 'WRONG INPUT' THEN total ELSE 0 END) AS WRONG_INPUT,
+                            SUM(CASE WHEN tradereason = 'DOUBLE REPORT' THEN total ELSE 0 END) AS DOUBLE_REPORT,
+                            SUM(CASE WHEN tradereason = 'NETWORK CONNECTION' THEN total ELSE 0 END) AS NETWORK_CONNECTION,entrydate
+                            FROM
+                                (
+                                   SELECT	buyerfirmcode,tradereason,CONVERT(char(10), entrydate,126) as entrydate,COUNT(buyerfirmcode) AS total 
+					                                            FROM  pasarmodal." + tableName + @"
+                                    GROUP by buyerfirmcode,tradereason,entrydate
+                                ) AS t
+						WHERE " + whereQuery + @" 
+                        GROUP BY buyerfirmcode,entrydate) AS C
+                        GROUP BY buyerfirmcode,OTHERS,TRADE_CANCEL,WRONG_INPUT,DOUBLE_REPORT,NETWORK_CONNECTION,entrydate) AS x";
                 }
             }
             else
             {
                 if (tableName == "mm_bond_trades_cancel")
                 {
+                    //props.Query = @"
+                    //  SELECT buyerfirmcode,
+                    //    SUM(CASE WHEN tradereason = 'OTHERS'  THEN total ELSE 0 END) AS OTHERS,
+                    //    SUM(CASE WHEN tradereason = 'TRADE CANCEL' THEN total ELSE 0 END) AS TRADE_CANCEL,
+                    // SUM(CASE WHEN tradereason = 'WRONG INPUT' THEN total ELSE 0 END) AS WRONG_INPUT,
+                    // SUM(CASE WHEN tradereason = 'DOUBLE REPORT' THEN total ELSE 0 END) AS DOUBLE_REPORT,
+                    // SUM(CASE WHEN tradereason = 'NETWORK CONNECTION' THEN total ELSE 0 END) AS NETWORK_CONNECTION,entrydate
+                    //    FROM
+                    //        (
+                    //           SELECT	buyerfirmcode,tradereason,CONVERT(char(10), entrydate,126) as entrydate,COUNT(buyerfirmcode) AS total 
+                    //       FROM  pasarmodal." + tableName + @"
+                    //            GROUP by buyerfirmcode,tradereason,entrydate
+                    //        ) AS t
+                    //WHERE " + whereQuery + @" 
+                    //GROUP BY buyerfirmcode,entrydate";
+
                     props.Query = @"
-                      SELECT buyerfirmcode,
-                        SUM(CASE WHEN tradereason = 'OTHERS'  THEN total ELSE 0 END) AS OTHERS,
-                        SUM(CASE WHEN tradereason = 'TRADE CANCEL' THEN total ELSE 0 END) AS TRADE_CANCEL,
-	                    SUM(CASE WHEN tradereason = 'WRONG INPUT' THEN total ELSE 0 END) AS WRONG_INPUT,
-	                    SUM(CASE WHEN tradereason = 'DOUBLE REPORT' THEN total ELSE 0 END) AS DOUBLE_REPORT,
-	                    SUM(CASE WHEN tradereason = 'NETWORK CONNECTION' THEN total ELSE 0 END) AS NETWORK_CONNECTION,entrydate
-                        FROM
-                            (
-                               SELECT	buyerfirmcode,tradereason,CONVERT(char(10), entrydate,126) as entrydate,COUNT(buyerfirmcode) AS total 
-							                    FROM  pasarmodal." + tableName + @"
-                                GROUP by buyerfirmcode,tradereason,entrydate
-                            ) AS t
-                    WHERE " + whereQuery + @" 
-                    GROUP BY buyerfirmcode,entrydate";
+                        SELECT TOP 10 * FROM (
+                        SELECT buyerfirmcode,OTHERS,TRADE_CANCEL,WRONG_INPUT,DOUBLE_REPORT,NETWORK_CONNECTION,entrydate,SUM(OTHERS+TRADE_CANCEL+WRONG_INPUT+DOUBLE_REPORT+NETWORK_CONNECTION) AS Total FROM (
+                        SELECT buyerfirmcode,
+                            SUM(CASE WHEN tradereason = 'OTHERS'  THEN total ELSE 0 END) AS OTHERS,
+                            SUM(CASE WHEN tradereason = 'TRADE CANCEL' THEN total ELSE 0 END) AS TRADE_CANCEL,
+                            SUM(CASE WHEN tradereason = 'WRONG INPUT' THEN total ELSE 0 END) AS WRONG_INPUT,
+                            SUM(CASE WHEN tradereason = 'DOUBLE REPORT' THEN total ELSE 0 END) AS DOUBLE_REPORT,
+                            SUM(CASE WHEN tradereason = 'NETWORK CONNECTION' THEN total ELSE 0 END) AS NETWORK_CONNECTION,entrydate
+                            FROM
+                                (
+                                   SELECT	buyerfirmcode,tradereason,CONVERT(char(10), entrydate,126) as entrydate,COUNT(buyerfirmcode) AS total 
+					                                            FROM  pasarmodal." + tableName + @"
+                                    GROUP by buyerfirmcode,tradereason,entrydate
+                                ) AS t
+						WHERE " + whereQuery + @" 
+                        GROUP BY buyerfirmcode,entrydate) AS C
+                        GROUP BY buyerfirmcode,OTHERS,TRADE_CANCEL,WRONG_INPUT,DOUBLE_REPORT,NETWORK_CONNECTION,entrydate) AS x";
                 }
             }
 

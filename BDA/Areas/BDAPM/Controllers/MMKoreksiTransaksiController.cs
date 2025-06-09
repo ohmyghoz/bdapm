@@ -337,9 +337,10 @@ namespace BDA.Controllers
                                select new
                                {
                                    amended_firm_id = bs.Field<string>("amended_firm_id").ToString(),
-                                   Market = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("Market").ToString()) ? bs.Field<Int32>("Market").ToString() : "0"),
-                                   Non_Market = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("Non_Market").ToString()) ? bs.Field<Int32>("Non_Market").ToString() : "0"),
-                               }).OrderByDescending(bs => bs.Non_Market).ToList().Take(10);
+                                   Market = Convert.ToInt64(!string.IsNullOrEmpty(bs.Field<Int64>("Market").ToString()) ? bs.Field<Int64>("Market").ToString() : "0"),
+                                   Non_Market = Convert.ToInt64(!string.IsNullOrEmpty(bs.Field<Int64>("Non_Market").ToString()) ? bs.Field<Int64>("Non_Market").ToString() : "0"),
+                                   Total = Convert.ToInt64(!string.IsNullOrEmpty(bs.Field<Int64>("Total").ToString()) ? bs.Field<Int64>("Total").ToString() : "0"),
+                               }).OrderBy(bs => bs.Total).ToList();
             }
             else
             {
@@ -349,7 +350,8 @@ namespace BDA.Controllers
                                    amended_firm_id = bs.Field<string>("amended_firm_id").ToString(),
                                    Market = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("Market").ToString()) ? bs.Field<Int32>("Market").ToString() : "0"),
                                    Non_Market = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("Non_Market").ToString()) ? bs.Field<Int32>("Non_Market").ToString() : "0"),
-                               }).OrderByDescending(bs => bs.Non_Market).ToList().Take(10);
+                                   Total = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("Total").ToString()) ? bs.Field<Int32>("Total").ToString() : "0"),
+                               }).OrderBy(bs => bs.Total).ToList();
             }
             return JsonConvert.SerializeObject(varDataList);
         }

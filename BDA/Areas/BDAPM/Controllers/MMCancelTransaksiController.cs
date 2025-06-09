@@ -262,10 +262,15 @@ namespace BDA.Controllers
                 varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
                                select new
                                {
-                                   amended_firm_id = bs.Field<string>("amended_firm_id").ToString(),
-                                   Market = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("Market").ToString()) ? bs.Field<Int32>("Market").ToString() : "0"),
-                                   Non_Market = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("Non_Market").ToString()) ? bs.Field<Int32>("Non_Market").ToString() : "0"),
-                               }).OrderByDescending(bs => bs.Non_Market).ToList().Take(10);
+                                   buyerfirmcode = bs.Field<string>("buyerfirmcode").ToString(),
+                                   OTHERS = Convert.ToInt64(!string.IsNullOrEmpty(bs.Field<Int64>("OTHERS").ToString()) ? bs.Field<Int64>("OTHERS").ToString() : "0"),
+                                   TRADE_CANCEL = Convert.ToInt64(!string.IsNullOrEmpty(bs.Field<Int64>("TRADE_CANCEL").ToString()) ? bs.Field<Int64>("TRADE_CANCEL").ToString() : "0"),
+                                   WRONG_INPUT = Convert.ToInt64(!string.IsNullOrEmpty(bs.Field<Int64>("WRONG_INPUT").ToString()) ? bs.Field<Int64>("WRONG_INPUT").ToString() : "0"),
+                                   DOUBLE_REPORT = Convert.ToInt64(!string.IsNullOrEmpty(bs.Field<Int64>("DOUBLE_REPORT").ToString()) ? bs.Field<Int64>("DOUBLE_REPORT").ToString() : "0"),
+                                   NETWORK_CONNECTION = Convert.ToInt64(!string.IsNullOrEmpty(bs.Field<Int64>("NETWORK_CONNECTION").ToString()) ? bs.Field<Int64>("NETWORK_CONNECTION").ToString() : "0"),
+                                   entrydate = Convert.ToDateTime(bs.Field<string>("entrydate")).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                                   Total = Convert.ToInt64(!string.IsNullOrEmpty(bs.Field<Int64>("Total").ToString()) ? bs.Field<Int64>("Total").ToString() : "0"),
+                               }).OrderBy(bs => bs.Total).ToList();
             }
             else
             {
@@ -279,7 +284,8 @@ namespace BDA.Controllers
                                    DOUBLE_REPORT = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("DOUBLE_REPORT").ToString()) ? bs.Field<Int32>("DOUBLE_REPORT").ToString() : "0"),
                                    NETWORK_CONNECTION = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("NETWORK_CONNECTION").ToString()) ? bs.Field<Int32>("NETWORK_CONNECTION").ToString() : "0"),
                                    entrydate = Convert.ToDateTime(bs.Field<string>("entrydate")).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
-                               }).OrderByDescending(bs => bs.entrydate).ToList().Take(10);
+                                   Total = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("Total").ToString()) ? bs.Field<Int32>("Total").ToString() : "0"),
+                               }).OrderBy(bs => bs.Total).ToList();
             }
             return JsonConvert.SerializeObject(varDataList);
         }
