@@ -1,6 +1,10 @@
 ﻿@using DevExtreme.AspNet.Mvc
 @{
     Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+    var monthyearawal = (dynamic)null;
+    var monthyearakhir = (dynamic)null;
+    monthyearawal = ViewBag.monthyearawal;
+    monthyearakhir = ViewBag.monthyearakhir;
 }
 
 @inject BDA.DataModel.DataEntities db
@@ -192,6 +196,9 @@
                 <br />
                 <div class="row">
                     <div class="col-lg-12">
+                        <h2 style="text-align:center">
+                            <font color="black">Top 10 Partisipan Yang Melakukan Cancel Berdasarkan Frekuensi Periode @monthyearawal - @monthyearakhir </font>
+                        </h2>
                         @(Html.DevExtreme().Chart()
                             .ID("bar-chartJumlahTop10Market")
                             .Palette(VizPalette.Bright)
@@ -215,7 +222,6 @@
                             .Add()
                             .Position(Position.Left)
                             )
-                            .Title("Top 10 Partisipan Yang Melakukan Cancel Berdasarkan Frekuensi Periode Januari - Juli 2025")
                             .Export(e => e.Enabled(true))
                             .Tooltip(t => t
                             .Enabled(true)

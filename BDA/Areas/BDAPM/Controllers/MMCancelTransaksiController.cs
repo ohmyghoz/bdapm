@@ -44,11 +44,32 @@ namespace BDA.Controllers
         }
         public IActionResult Index()
         {
+            string monthpawal = null;
+            string yearpawal = null;
+            string monthpakhir = null;
+            string yearpakhir = null;
+
+
+
             var userId = HttpContext.User.Identity.Name;
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
             var currentNode = mdl.GetCurrentNode();
             string pageTitle = currentNode != null ? currentNode.Title : ""; //menampilkan data menu
-            ViewBag.monthyearawal = "Mei 2025";
+
+            DateTime periodeAwal = DateTime.Now;
+            monthpawal = Convert.ToDateTime(periodeAwal).ToString("MMM");
+            yearpawal = Convert.ToDateTime(periodeAwal).ToString("yyyy");
+            ViewData["monthyearawal"] = monthpawal + " " + yearpawal;
+            ViewBag.monthyearawal = monthpawal + " " + yearpawal;
+            TempData["monthyearawal"] = monthpawal + " " + yearpawal;
+
+            DateTime periodeAkhir = DateTime.Now;
+            monthpakhir = Convert.ToDateTime(periodeAkhir).ToString("MMM");
+            yearpakhir = Convert.ToDateTime(periodeAkhir).ToString("yyyy");
+            ViewData["monthyearakhir"] = monthpakhir + " " + yearpakhir;
+            ViewBag.monthyearakhir = monthpakhir + " " + yearpakhir;
+            TempData["monthyearakhir"] = monthpakhir + " " + yearpakhir;
+
             db.CheckPermission("Pola Cancel Per Transaksi / Pola Transaksi View", DataEntities.PermissionMessageType.ThrowInvalidOperationException); //check permission nya view/lihat nya
             ViewBag.Export = db.CheckPermission("Pola Cancel Per Transaksi / Pola Transaksi Export", DataEntities.PermissionMessageType.NoMessage); //check permission export
             db.InsertAuditTrail("Pola_Cancel_Transaksi_Akses_Page", "Akses Page Pola Cancel Per Transaksi / Pola Transaksi", pageTitle); //simpan kedalam audit trail
@@ -233,18 +254,31 @@ namespace BDA.Controllers
             string stringPeriodeAkhir = null;
             string stringbondissuertypecode = null;
             string reportId = "mm_bond_trades_cancel"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+            string monthpawal = null;
+            string yearpawal = null;
+            string monthpakhir = null;
+            string yearpakhir = null;
 
             var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
-
+            ViewData["monthyearawal"] = null;
+            ViewData["monthyearakhir"] = null;
             if (periodeAwal != null)
             {
                 stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
-                TempData["StringPeriodeAwal"] = stringPeriodeAwal;
+                monthpawal = Convert.ToDateTime(periodeAwal).ToString("MMM");
+                yearpawal = Convert.ToDateTime(periodeAwal).ToString("yyyy");
+                ViewData["monthyearawal"] = monthpawal + " " + yearpawal;
+                ViewBag.monthyearawal = monthpawal + " " + yearpawal;
+                TempData["monthyearawal"] = monthpawal + " " + yearpawal; 
             }
             if (periodeAkhir != null)
             {
                 stringPeriodeAkhir = Convert.ToDateTime(periodeAkhir).ToString("yyyy-MM-dd");
-                TempData["StringPeriodeAkhir"] = stringPeriodeAkhir;
+                monthpakhir = Convert.ToDateTime(periodeAkhir).ToString("MMM");
+                yearpakhir = Convert.ToDateTime(periodeAkhir).ToString("yyyy");
+                ViewData["monthyearakhir"] = monthpakhir + " " + yearpakhir;
+                ViewBag.monthyearakhir = monthpakhir + " " + yearpakhir;
+                TempData["monthyearakhir"] = monthpakhir + " " + yearpakhir;
             }
 
             if (Statusbondissuertypecode.Length > 0)
@@ -270,7 +304,7 @@ namespace BDA.Controllers
                                    NETWORK_CONNECTION = Convert.ToInt64(!string.IsNullOrEmpty(bs.Field<Int64>("NETWORK_CONNECTION").ToString()) ? bs.Field<Int64>("NETWORK_CONNECTION").ToString() : "0"),
                                    entrydate = Convert.ToDateTime(bs.Field<string>("entrydate")).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
                                    Total = Convert.ToInt64(!string.IsNullOrEmpty(bs.Field<Int64>("Total").ToString()) ? bs.Field<Int64>("Total").ToString() : "0"),
-                               }).OrderBy(bs => bs.Total).ToList();
+                               }).OrderByDescending(bs => bs.Total).ToList();
             }
             else
             {
@@ -283,9 +317,8 @@ namespace BDA.Controllers
                                    WRONG_INPUT = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("WRONG_INPUT").ToString()) ? bs.Field<Int32>("WRONG_INPUT").ToString() : "0"),
                                    DOUBLE_REPORT = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("DOUBLE_REPORT").ToString()) ? bs.Field<Int32>("DOUBLE_REPORT").ToString() : "0"),
                                    NETWORK_CONNECTION = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("NETWORK_CONNECTION").ToString()) ? bs.Field<Int32>("NETWORK_CONNECTION").ToString() : "0"),
-                                   entrydate = Convert.ToDateTime(bs.Field<string>("entrydate")).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
                                    Total = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("Total").ToString()) ? bs.Field<Int32>("Total").ToString() : "0"),
-                               }).OrderBy(bs => bs.Total).ToList();
+                               }).ToList();
             }
             return JsonConvert.SerializeObject(varDataList);
         }
@@ -340,7 +373,7 @@ namespace BDA.Controllers
                                {
                                    bondcode = bs.Field<string>("bondcode").ToString(),
                                    total = Convert.ToInt64(bs.Field<Int64>("total").ToString()),
-                               }).OrderByDescending(bs => bs.total).ToList().Take(15);
+                               }).ToList();
             }
             else
             {
@@ -349,7 +382,7 @@ namespace BDA.Controllers
                                {
                                    bondcode = bs.Field<string>("bondcode").ToString(),
                                    total = Convert.ToInt32(bs.Field<Int32>("total").ToString()),
-            }).OrderByDescending(bs => bs.total).ToList().Take(15);
+            }).ToList();
             }
             return JsonConvert.SerializeObject(varDataList);
         }
