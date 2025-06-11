@@ -6882,24 +6882,19 @@ namespace BDA.Helper
                 if (tableName == "mm_bond_trades_cancel")
                 {
                     props.Query = @"
-                    SELECT entrydate,COUNT(entrydate) total
+                    SELECT tgl,nobulan,entrydate,total from (
+					SELECT date_format(date_sub(entrydate,14),'dd') as tgl,MONTH(entrydate) as nobulan,date_format(date_sub(entrydate,14),'dd-MMM-yy') as entrydate,COUNT(entrydate) total
                         From pasarmodal." + tableName + @"
-                    WHERE " + whereQuery + @" Group by entrydate";
+                    WHERE " + whereQuery + @" Group by entrydate) as t";
                 }
             }
             else
             {
                 if (tableName == "mm_bond_trades_cancel")
                 {
-                    //props.Query = @"
-                    //SELECT nobulan,entrydate,total from (
-                    //SELECT MONTH(entrydate) AS nobulan,FORMAT (entrydate, 'dd-MMM-yy') as entrydate,COUNT(entrydate) total
-                    //    From pasarmodal." + tableName + @"
-                    //WHERE " + whereQuery + @" Group by entrydate) as t";
-
                     props.Query = @"
                     SELECT tgl,nobulan,entrydate,total from (
-					SELECT FORMAT (entrydate, 'dd')AS tgl,MONTH(entrydate) AS nobulan,FORMAT (entrydate, 'dd-MMM-yy') as entrydate,COUNT(entrydate) total
+					SELECT FORMAT (entrydate, 'dd') as tgl,MONTH(entrydate) as nobulan,FORMAT (entrydate, 'dd-MMM-yy') as entrydate,COUNT(entrydate) total
                         From pasarmodal." + tableName + @"
                     WHERE " + whereQuery + @" Group by entrydate) as t";
                 }

@@ -373,7 +373,7 @@ namespace BDA.Controllers
                                {
                                    bondcode = bs.Field<string>("bondcode").ToString(),
                                    total = Convert.ToInt64(bs.Field<Int64>("total").ToString()),
-                               }).ToList();
+                               }).OrderByDescending(bs => bs.total).ToList();
             }
             else
             {
@@ -382,7 +382,7 @@ namespace BDA.Controllers
                                {
                                    bondcode = bs.Field<string>("bondcode").ToString(),
                                    total = Convert.ToInt32(bs.Field<Int32>("total").ToString()),
-            }).ToList();
+                               }).OrderByDescending(bs => bs.total).ToList();
             }
             return JsonConvert.SerializeObject(varDataList);
         }
@@ -446,7 +446,7 @@ namespace BDA.Controllers
                                {
                                    tradereason = bs.Field<string>("tradereason").ToString(),
                                    total = Convert.ToInt32(bs.Field<Int32>("total").ToString()),
-                               }).OrderByDescending(bs => bs.total).ToList().Take(15);
+                               }).OrderByDescending(bs => bs.total).ToList();
             }
             return JsonConvert.SerializeObject(varDataList);
         }
