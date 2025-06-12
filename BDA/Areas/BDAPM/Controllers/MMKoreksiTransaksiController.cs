@@ -43,15 +43,35 @@ namespace BDA.Controllers
         }
         public IActionResult Index()
         {
+            string monthpawal = null;
+            string yearpawal = null;
+            string monthpakhir = null;
+            string yearpakhir = null;
+
             var userId = HttpContext.User.Identity.Name;
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
             var currentNode = mdl.GetCurrentNode();
             string pageTitle = currentNode != null ? currentNode.Title : ""; //menampilkan data menu
-            ViewBag.monthyearawal = "Mei 2025";
-            db.CheckPermission("Pola Koreksi Per Transaksi / Pola Transaksi View", DataEntities.PermissionMessageType.ThrowInvalidOperationException); //check permission nya view/lihat nya
-            ViewBag.Export = db.CheckPermission("Pola Koreksi Per Transaksi / Pola Transaksi Export", DataEntities.PermissionMessageType.NoMessage); //check permission export
-            db.InsertAuditTrail("Pola_Koreksi_Transaksi_Akses_Page", "Akses Page Pola Koreksi Per Transaksi / Pola Transaksi", pageTitle); //simpan kedalam audit trail
-            db.InsertAuditTrail("Pola_Koreksi_Transaksi_Akses_Page", "user " + userId + " mengakases halaman Pola Koreksi Per Transaksi / Pola Transaksi", pageTitle);
+
+            DateTime periodeAwal = DateTime.Now;
+            monthpawal = Convert.ToDateTime(periodeAwal).ToString("MMM");
+            yearpawal = Convert.ToDateTime(periodeAwal).ToString("yyyy");
+            ViewData["monthyearawal"] = monthpawal + " " + yearpawal;
+            ViewBag.monthyearawal = monthpawal + " " + yearpawal;
+            TempData["monthyearawal"] = monthpawal + " " + yearpawal;
+
+            DateTime periodeAkhir = DateTime.Now;
+            monthpakhir = Convert.ToDateTime(periodeAkhir).ToString("MMM");
+            yearpakhir = Convert.ToDateTime(periodeAkhir).ToString("yyyy");
+            ViewData["monthyearakhir"] = monthpakhir + " " + yearpakhir;
+            ViewBag.monthyearakhir = monthpakhir + " " + yearpakhir;
+            TempData["monthyearakhir"] = monthpakhir + " " + yearpakhir;
+
+
+            db.CheckPermission("Pola 8 View", DataEntities.PermissionMessageType.ThrowInvalidOperationException); //check permission nya view/lihat nya
+            ViewBag.Export = db.CheckPermission("Pola 8 Export", DataEntities.PermissionMessageType.NoMessage); //check permission export
+            db.InsertAuditTrail("Pola_8_Akses_Page", "Akses Page Pola 8", pageTitle); //simpan kedalam audit trail
+            db.InsertAuditTrail("Pola_8_Akses_Page", "user " + userId + " mengakases halaman Pola 8", pageTitle);
 
             return View();
         }

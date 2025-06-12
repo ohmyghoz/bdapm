@@ -49,8 +49,6 @@ namespace BDA.Controllers
             string monthpakhir = null;
             string yearpakhir = null;
 
-
-
             var userId = HttpContext.User.Identity.Name;
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
             var currentNode = mdl.GetCurrentNode();
@@ -70,10 +68,10 @@ namespace BDA.Controllers
             ViewBag.monthyearakhir = monthpakhir + " " + yearpakhir;
             TempData["monthyearakhir"] = monthpakhir + " " + yearpakhir;
 
-            db.CheckPermission("Pola Cancel Per Transaksi / Pola Transaksi View", DataEntities.PermissionMessageType.ThrowInvalidOperationException); //check permission nya view/lihat nya
-            ViewBag.Export = db.CheckPermission("Pola Cancel Per Transaksi / Pola Transaksi Export", DataEntities.PermissionMessageType.NoMessage); //check permission export
-            db.InsertAuditTrail("Pola_Cancel_Transaksi_Akses_Page", "Akses Page Pola Cancel Per Transaksi / Pola Transaksi", pageTitle); //simpan kedalam audit trail
-            db.InsertAuditTrail("Pola_Cancel_Transaksi_Akses_Page", "user " + userId + " mengakases halaman Pola Cancel Per Transaksi / Pola Transaksi", pageTitle);
+            db.CheckPermission("Pola 9 View", DataEntities.PermissionMessageType.ThrowInvalidOperationException); //check permission nya view/lihat nya
+            ViewBag.Export = db.CheckPermission("Pola 9 Export", DataEntities.PermissionMessageType.NoMessage); //check permission export
+            db.InsertAuditTrail("Pola_9_Akses_Page", "Akses Page Pola 9", pageTitle); //simpan kedalam audit trail
+            db.InsertAuditTrail("Pola_9_Akses_Page", "user " + userId + " mengakases halaman Pola 9", pageTitle);
 
             return View();
         }

@@ -1,0 +1,188 @@
+﻿@using DevExtreme.AspNet.Mvc
+@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+    var monthyearawal = (dynamic)null;
+    var monthyearakhir = (dynamic)null;
+    monthyearawal = ViewBag.monthyearawal;
+    monthyearakhir = ViewBag.monthyearakhir;
+}
+@inject BDA.DataModel.DataEntities db
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="card card-default">
+
+        <div class="row filter-panel" style="padding-top:0px;">
+            <div class="card-body">
+                <div class="row">
+
+                    <div class="col-lg-2 form-group">
+                        <label>Periode Awal<span class="mandatory">*</span></label>
+                        @(Html.DevExtreme().DateBox()
+                            .ID("PeriodeAwal")
+                            .DisplayFormat("dd MMM yyyy")
+                            .Value(DateTime.Now)
+                            .Max(DateTime.Now)
+                            .Width("100%"))
+                    </div>
+
+                     <div class="col-lg-2 form-group">
+                        <label>Periode Akhir<span class="mandatory">*</span></label>
+                        @(Html.DevExtreme().DateBox()
+                            .ID("PeriodeAkhir")
+                            .DisplayFormat("dd MMM yyyy")
+                            .Value(DateTime.Now)
+                            .Min(DateTime.Now)
+                            .Width("100%"))
+                    </div>
+
+                     <div class="col-lg-2 form-group">
+                        <label>Case ID</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("Amandedid")
+                            .DataSource(new[] { "P1", "P2", "P3", "P4", "P5", "P6", "P7" })
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .Width("100%")
+                            .Placeholder("(ALL)"))
+                    </div>
+
+                     <div class="col-lg-2 form-group">
+                        <label>Trade ID</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("Amandedid")
+                            .DataSource(new[] { "P1", "P2", "P3", "P4", "P5", "P6", "P7" })
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .Width("100%")
+                            .Placeholder("(ALL)"))
+                    </div>
+
+                     <div class="col-lg-2 form-group">
+                        <label>
+                            Bond Issuer Type Code
+                        </label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("Amandedid")
+                            .DataSource(new[] { "P1", "P2", "P3", "P4", "P5", "P6", "P7" })
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .Width("100%")
+                            .Placeholder("(ALL)"))
+                    </div>
+                </div>
+
+                <div class="row">
+
+
+                    <div class="col-lg-2 form-group">
+                        <label>
+                            Source Name
+                        </label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("Amandedid")
+                            .DataSource(new[] { "P1", "P2", "P3", "P4", "P5", "P6", "P7" })
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .Width("100%")
+                            .Placeholder("(ALL)"))
+                    </div>
+
+                    <div class="col-lg-2 form-group">
+                        <label>Target Name</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("Amandedid")
+                            .DataSource(new[] { "P1", "P2", "P3", "P4", "P5", "P6", "P7" })
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .Width("100%")
+                            .Placeholder("(ALL)"))
+                    </div>
+
+                    <div class="col-lg-2 form-group">
+                        <label>Report Type</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("Amandedid")
+                            .DataSource(new[] { "P1", "P2", "P3", "P4", "P5", "P6", "P7" })
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .Width("100%")
+                            .Placeholder("(ALL)"))
+                    </div>
+
+                    <div class="col-lg-2 form-group">
+                        <label>
+                            Bond Issuer Type Code
+                        </label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("Amandedid")
+                            .DataSource(new[] { "P1", "P2", "P3", "P4", "P5", "P6", "P7" })
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .Width("100%")
+                            .Placeholder("(ALL)"))
+                    </div>
+
+                    <div class="col-lg-2 form-group">
+                        <label>
+                            Bond Late Completeness Status Code
+                        </label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("Amandedid")
+                            .DataSource(new[] { "P1", "P2", "P3", "P4", "P5", "P6", "P7" })
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .Width("100%")
+                            .Placeholder("(ALL)"))
+                    </div>
+
+                    <div class="col-lg-2 form-group">
+                        <label>
+                            Bond Report Status
+                        </label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("Amandedid")
+                            .DataSource(new[] { "P1", "P2", "P3", "P4", "P5", "P6", "P7" })
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .Width("100%")
+                            .Placeholder("(ALL)"))
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+}
+
+<script>
+    window.jsPDF = window.jspdf.jsPDF;
+    applyPlugin(window.jsPDF);
+</script>
+
+<style type="text/css">
+    .mandatory {
+        color: red;
+    }
+</style>
