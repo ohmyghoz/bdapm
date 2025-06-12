@@ -131,17 +131,11 @@ namespace BDA.Controllers
             if (periodeAwal != null)
             {
                 stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
-                monthpawal = Convert.ToDateTime(periodeAwal).ToString("MMM");
-                yearpawal = Convert.ToDateTime(periodeAwal).ToString("yyyy");
-                ViewBag.monthyearawal = monthpawal + " " + yearpawal;
                 TempData["StringPeriodeAwal"] = stringPeriodeAwal;
             }
             if (periodeAkhir != null)
             {
                 stringPeriodeAkhir = Convert.ToDateTime(periodeAkhir).ToString("yyyy-MM-dd");
-                monthpakhir = Convert.ToDateTime(periodeAkhir).ToString("MMM");
-                yearpakhir = Convert.ToDateTime(periodeAkhir).ToString("yyyy");
-                ViewBag.monthyearakhir = monthpakhir + " " + yearpakhir;
                 TempData["StringPeriodeAkhir"] = stringPeriodeAkhir;
             }
 
@@ -342,17 +336,11 @@ namespace BDA.Controllers
             if (periodeAwal != null)
             {
                 stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
-                monthpawal = Convert.ToDateTime(periodeAwal).ToString("MMM");
-                yearpawal = Convert.ToDateTime(periodeAwal).ToString("yyyy");
-                ViewBag.monthyearawal = monthpawal + " " + yearpawal;
                 TempData["StringPeriodeAwal"] = stringPeriodeAwal;
             }
             if (periodeAkhir != null)
             {
                 stringPeriodeAkhir = Convert.ToDateTime(periodeAkhir).ToString("yyyy-MM-dd");
-                monthpakhir = Convert.ToDateTime(periodeAkhir).ToString("MMM");
-                yearpakhir = Convert.ToDateTime(periodeAkhir).ToString("yyyy");
-                ViewBag.monthyearakhir = monthpakhir + " " + yearpakhir;
                 TempData["StringPeriodeAkhir"] = stringPeriodeAkhir;
             }
 
@@ -406,17 +394,11 @@ namespace BDA.Controllers
             if (periodeAwal != null)
             {
                 stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
-                monthpawal = Convert.ToDateTime(periodeAwal).ToString("MMM");
-                yearpawal = Convert.ToDateTime(periodeAwal).ToString("yyyy");
-                ViewBag.monthyearawal = monthpawal + " " + yearpawal;
                 TempData["StringPeriodeAwal"] = stringPeriodeAwal;
             }
             if (periodeAkhir != null)
             {
                 stringPeriodeAkhir = Convert.ToDateTime(periodeAkhir).ToString("yyyy-MM-dd");
-                monthpakhir = Convert.ToDateTime(periodeAkhir).ToString("MMM");
-                yearpakhir = Convert.ToDateTime(periodeAkhir).ToString("yyyy");
-                ViewBag.monthyearakhir = monthpakhir + " " + yearpakhir;
                 TempData["StringPeriodeAkhir"] = stringPeriodeAkhir;
             }
 
@@ -470,17 +452,11 @@ namespace BDA.Controllers
             if (periodeAwal != null)
             {
                 stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
-                monthpawal = Convert.ToDateTime(periodeAwal).ToString("MMM");
-                yearpawal = Convert.ToDateTime(periodeAwal).ToString("yyyy");
-                ViewBag.monthyearawal = monthpawal + " " + yearpawal;
                 TempData["StringPeriodeAwal"] = stringPeriodeAwal;
             }
             if (periodeAkhir != null)
             {
                 stringPeriodeAkhir = Convert.ToDateTime(periodeAkhir).ToString("yyyy-MM-dd");
-                monthpakhir = Convert.ToDateTime(periodeAkhir).ToString("MMM");
-                yearpakhir = Convert.ToDateTime(periodeAkhir).ToString("yyyy");
-                ViewBag.monthyearakhir = monthpakhir + " " + yearpakhir;
                 TempData["StringPeriodeAkhir"] = stringPeriodeAkhir;
             }
 
