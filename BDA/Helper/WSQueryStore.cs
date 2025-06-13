@@ -6150,6 +6150,366 @@ namespace BDA.Helper
         }
         #endregion
 
+        #region MM01
+        public static WSQueryReturns GetBDAPMFilterTradeId(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, bool isHive = false)
+        {
+            var filter = (dynamic)null;
+            filter = loadOptions.Filter;
+            if (loadOptions.Filter != null)
+            {
+                filter = filter[0][2];
+                filter = "AND sourcetradeid LIKE '%" + filter + "%'";
+            }
+            else
+            {
+                filter = "";
+            }
+            bool isC = false;
+            var whereQuery = "1=1";
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "mrkt_mnpltn_prtn_rcgntn")
+                {
+                    props.Query = @"
+                        SELECT sourcetradeid from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @" 
+                        group by sourcetradeid";
+                }
+            }
+            else
+            {
+                if (tableName == "mrkt_mnpltn_prtn_rcgntn")
+                {
+                    props.Query = @"
+                        SELECT sourcetradeid from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @"
+                        group by sourcetradeid";
+                }
+            }
+
+            return WSQueryHelper.DoQueryNL(db, props, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMFilterBondTypeCode(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, bool isHive = false)
+        {
+            var filter = (dynamic)null;
+            filter = loadOptions.Filter;
+            if (loadOptions.Filter != null)
+            {
+                filter = filter[0][2];
+                filter = "AND bondissuertypecode LIKE '%" + filter + "%'";
+            }
+            else
+            {
+                filter = "";
+            }
+            bool isC = false;
+            var whereQuery = "1=1";
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "mrkt_mnpltn_prtn_rcgntn")
+                {
+                    props.Query = @"
+                        SELECT bondissuertypecode from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @" 
+                        group by bondissuertypecode";
+                }
+            }
+            else
+            {
+                if (tableName == "mrkt_mnpltn_prtn_rcgntn")
+                {
+                    props.Query = @"
+                        SELECT bondissuertypecode from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @"
+                        group by bondissuertypecode";
+                }
+            }
+
+            return WSQueryHelper.DoQueryNL(db, props, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMFilterSourceName(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, bool isHive = false)
+        {
+            var filter = (dynamic)null;
+            filter = loadOptions.Filter;
+            if (loadOptions.Filter != null)
+            {
+                filter = filter[0][2];
+                filter = "AND sourcename LIKE '%" + filter + "%'";
+            }
+            else
+            {
+                filter = "";
+            }
+            bool isC = false;
+            var whereQuery = "1=1";
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "mrkt_mnpltn_prtn_rcgntn")
+                {
+                    props.Query = @"
+                        SELECT sourcename from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @" 
+                        group by sourcename";
+                }
+            }
+            else
+            {
+                if (tableName == "mrkt_mnpltn_prtn_rcgntn")
+                {
+                    props.Query = @"
+                        SELECT sourcename from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @"
+                        group by sourcename";
+                }
+            }
+
+            return WSQueryHelper.DoQueryNL(db, props, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMFilterTargetName(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, bool isHive = false)
+        {
+            var filter = (dynamic)null;
+            filter = loadOptions.Filter;
+            if (loadOptions.Filter != null)
+            {
+                filter = filter[0][2];
+                filter = "AND targetname LIKE '%" + filter + "%'";
+            }
+            else
+            {
+                filter = "";
+            }
+            bool isC = false;
+            var whereQuery = "1=1";
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "mrkt_mnpltn_prtn_rcgntn")
+                {
+                    props.Query = @"
+                        SELECT targetname from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @" 
+                        group by targetname";
+                }
+            }
+            else
+            {
+                if (tableName == "mrkt_mnpltn_prtn_rcgntn")
+                {
+                    props.Query = @"
+                        SELECT targetname from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @"
+                        group by targetname";
+                }
+            }
+
+            return WSQueryHelper.DoQueryNL(db, props, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMFilterReportType(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, bool isHive = false)
+        {
+            var filter = (dynamic)null;
+            filter = loadOptions.Filter;
+            if (loadOptions.Filter != null)
+            {
+                filter = filter[0][2];
+                filter = "AND reporttypecode LIKE '%" + filter + "%'";
+            }
+            else
+            {
+                filter = "";
+            }
+            bool isC = false;
+            var whereQuery = "1=1";
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "mrkt_mnpltn_prtn_rcgntn")
+                {
+                    props.Query = @"
+                        SELECT reporttypecode from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @" 
+                        group by reporttypecode";
+                }
+            }
+            else
+            {
+                if (tableName == "mrkt_mnpltn_prtn_rcgntn")
+                {
+                    props.Query = @"
+                        SELECT reporttypecode from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @"
+                        group by reporttypecode";
+                }
+            }
+
+            return WSQueryHelper.DoQueryNL(db, props, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMFilterBondLate(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, bool isHive = false)
+        {
+            var filter = (dynamic)null;
+            filter = loadOptions.Filter;
+            if (loadOptions.Filter != null)
+            {
+                filter = filter[0][2];
+                filter = "AND bondreportstatuscode LIKE '%" + filter + "%'";
+            }
+            else
+            {
+                filter = "";
+            }
+            bool isC = false;
+            var whereQuery = "1=1";
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "mrkt_mnpltn_prtn_rcgntn")
+                {
+                    props.Query = @"
+                        SELECT bondreportstatuscode from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @" 
+                        group by bondreportstatuscode";
+                }
+            }
+            else
+            {
+                if (tableName == "mrkt_mnpltn_prtn_rcgntn")
+                {
+                    props.Query = @"
+                        SELECT bondreportstatuscode from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @"
+                        group by bondreportstatuscode";
+                }
+            }
+
+            return WSQueryHelper.DoQueryNL(db, props, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMFilterReportStatus(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, bool isHive = false)
+        {
+            var filter = (dynamic)null;
+            filter = loadOptions.Filter;
+            if (loadOptions.Filter != null)
+            {
+                filter = filter[0][2];
+                filter = "AND bondreportstatuscode LIKE '%" + filter + "%'";
+            }
+            else
+            {
+                filter = "";
+            }
+            bool isC = false;
+            var whereQuery = "1=1";
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "mrkt_mnpltn_prtn_rcgntn")
+                {
+                    props.Query = @"
+                        SELECT bondreportstatuscode from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @" 
+                        group by bondreportstatuscode";
+                }
+            }
+            else
+            {
+                if (tableName == "mrkt_mnpltn_prtn_rcgntn")
+                {
+                    props.Query = @"
+                        SELECT bondreportstatuscode from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @"
+                        group by bondreportstatuscode";
+                }
+            }
+
+            return WSQueryHelper.DoQueryNL(db, props, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMMMTransaksiSPVQuery(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string stringPeriodeAwal, string stringPeriodeAkhir, string caseid, string tradeid, string bondtypecode, string sourcenameid, string targetnameid, string reporttypeid, string bondlateid, string bondreportid, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            //isHive = true;
+
+            if (stringPeriodeAwal != null && stringPeriodeAkhir != null)
+            {
+                if (isHive == true)
+                {
+                    stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    whereQuery = whereQuery += " AND  date_format(date_sub(amend_date,14),'yyyy-MM-dd') BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
+                }
+                else
+                {
+                    stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    whereQuery = whereQuery += " AND  CONVERT(char(10), amend_date,126) BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
+                }
+
+            }
+
+            //if (stringStatus != null)
+            //{
+            //    stringStatus = "'" + stringStatus.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+            //    whereQuery = whereQuery += " AND status in (" + stringStatus + ")";
+            //}
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "pe_segmentation_sum_cluster_mkbd")
+                {
+                    props.Query = @"
+                        SELECT row_number() over(order by securitycompanycode) as no,* from (
+                            SELECT calendardate,securitycompanycode,securitycompanyname,
+                                CAST(simpanangiro as BIGINT) as simpanangiro,
+                                CAST(depositolt3bulan as BIGINT) as depositolt3bulan,
+                                CAST(depositogt3bulandijaminlps as BIGINT) as depositogt3bulandijaminlps,
+                                CAST(uangjaminanlkp as BIGINT) as uangjaminanlkp,
+                                CAST(kasdansetarakas as BIGINT) as kasdansetarakas,
+                                CAST(mkbd as BIGINT) as mkbd,
+                                CAST(mkbdminimum as BIGINT) as mkbdminimum,
+                                CAST(mkbd as BIGINT)/CAST(mkbdminimum as BIGINT) * 100 as mkbdpermkbdminimum,
+                                CASE 
+                                    when CAST(kasdansetarakas as BIGINT) < CAST(mkbdminimum as BIGINT) then 'Alert'
+                                    when CAST(kasdansetarakas as BIGINT) >= CAST(mkbdminimum as BIGINT) then 'Normal'
+                                END AS status,periode,cluster
+                            From pasarmodal." + tableName + @") as x
+                    WHERE " + whereQuery + @"";
+                }
+            }
+            else
+            {
+                if (tableName == "pe_segmentation_sum_cluster_mkbd")
+                {
+                    props.Query = @"
+                        SELECT row_number() over(order by securitycompanycode) as no,* from (
+                            SELECT calendardate,securitycompanycode,securitycompanyname,
+                                CAST(simpanangiro as BIGINT) as simpanangiro,
+                                CAST(depositolt3bulan as BIGINT) as depositolt3bulan,
+                                CAST(depositogt3bulandijaminlps as BIGINT) as depositogt3bulandijaminlps,
+                                CAST(uangjaminanlkp as BIGINT) as uangjaminanlkp,
+                                CAST(kasdansetarakas as BIGINT) as kasdansetarakas,
+                                CAST(mkbd as BIGINT) as mkbd,
+                                CAST(mkbdminimum as BIGINT) as mkbdminimum,
+                                CAST(mkbd as BIGINT)/CAST(mkbdminimum as BIGINT) * 100 as mkbdpermkbdminimum,
+                                CASE 
+                                    when CAST(kasdansetarakas as BIGINT) < CAST(mkbdminimum as BIGINT) then 'Alert'
+                                    when CAST(kasdansetarakas as BIGINT) >= CAST(mkbdminimum as BIGINT) then 'Normal'
+                                END AS status,periode,cluster
+                            From pasarmodal." + tableName + @") as x
+                    WHERE " + whereQuery + @"";
+                }
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+        #endregion
 
         #region MM08
         public static WSQueryReturns GetBDAPMFilterAmandedTypeInfo(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, bool isHive = false)

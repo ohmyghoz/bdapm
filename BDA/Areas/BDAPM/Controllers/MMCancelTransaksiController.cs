@@ -119,10 +119,6 @@ namespace BDA.Controllers
             string stringPeriodeAkhir = null;
             string stringbondissuertypecode = null;
             string reportId = "mm_bond_trades_cancel"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
-            string monthpawal = null;
-            string yearpawal = null;
-            string monthpakhir = null;
-            string yearpakhir = null;
 
             var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
 
