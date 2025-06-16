@@ -6431,7 +6431,9 @@ namespace BDA.Helper
 
             return WSQueryHelper.DoQueryNL(db, props, isC, isHive);
         }
-        public static WSQueryReturns GetBDAPMMMTransaksiSPVQuery(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string stringPeriodeAwal, string stringPeriodeAkhir, string caseid, string tradeid, string bondtypecode, string sourcenameid, string targetnameid, string reporttypeid, string bondlateid, string bondreportid, bool isHive = false)
+        public static WSQueryReturns GetBDAPMMMTransaksiSPVQuery(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string stringPeriodeAwal, string stringPeriodeAkhir, 
+            string stringcaseid, string stringtradeid, string stringbondtypecode, string stringsourcenameid, string stringtargetnameid, 
+            string stringreporttypeid, string stringbondlateid, string stringbondreportid, bool isHive = false)
         {
             bool isC = false;
             var whereQuery = "1=1";
@@ -6443,66 +6445,132 @@ namespace BDA.Helper
                 {
                     stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
                     stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                    whereQuery = whereQuery += " AND  date_format(date_sub(amend_date,14),'yyyy-MM-dd') BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
+                    whereQuery = whereQuery += " AND  tradedatesk BETWEEN " + stringPeriodeAwal.Replace("-", "") + " AND " + stringPeriodeAkhir.Replace("-", "") + "";
+
                 }
                 else
                 {
                     stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
                     stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                    whereQuery = whereQuery += " AND  CONVERT(char(10), amend_date,126) BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
+                    whereQuery = whereQuery += " AND  tradedatesk BETWEEN " + stringPeriodeAwal.Replace("-", "") + " AND " + stringPeriodeAkhir.Replace("-", "") + "";
                 }
 
             }
 
-            //if (stringStatus != null)
-            //{
-            //    stringStatus = "'" + stringStatus.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-            //    whereQuery = whereQuery += " AND status in (" + stringStatus + ")";
-            //}
+            if (stringcaseid != null)
+            {
+                stringcaseid = "'" + stringcaseid.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND SUBSTRING(caseid, 1, 2) in (" + stringcaseid + ")";
+            }
+
+            if (stringtradeid != null)
+            {
+                stringtradeid = "'" + stringtradeid.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND sourcetradeid in (" + stringtradeid + ")";
+            }
+
+            if (stringbondtypecode != null)
+            {
+                stringbondtypecode = "'" + stringbondtypecode.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND bondissuertypecode in (" + stringbondtypecode + ")";
+            }
+
+            if (stringsourcenameid != null)
+            {
+                stringsourcenameid = "'" + stringsourcenameid.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND sourcename in (" + stringsourcenameid + ")";
+            }
+
+            if (stringtargetnameid != null)
+            {
+                stringtargetnameid = "'" + stringtargetnameid.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND targetname in (" + stringtargetnameid + ")";
+            }
+
+            if (stringreporttypeid != null)
+            {
+                stringreporttypeid = "'" + stringreporttypeid.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND reporttypecode in (" + stringreporttypeid + ")";
+            }
+
+            if (stringbondlateid != null)
+            {
+                stringbondlateid = "'" + stringbondlateid.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND reporttypecode in (" + stringbondlateid + ")";
+            }
+
+            if (stringbondreportid != null)
+            {
+                stringbondreportid = "'" + stringbondreportid.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND bondreportstatuscode in (" + stringbondreportid + ")";
+            }
+
             var props = new WSQueryProperties();
             if (isHive == true)
             {
-                if (tableName == "pe_segmentation_sum_cluster_mkbd")
+                if (tableName == "mrkt_mnpltn_prtn_rcgntn")
                 {
                     props.Query = @"
-                        SELECT row_number() over(order by securitycompanycode) as no,* from (
-                            SELECT calendardate,securitycompanycode,securitycompanyname,
-                                CAST(simpanangiro as BIGINT) as simpanangiro,
-                                CAST(depositolt3bulan as BIGINT) as depositolt3bulan,
-                                CAST(depositogt3bulandijaminlps as BIGINT) as depositogt3bulandijaminlps,
-                                CAST(uangjaminanlkp as BIGINT) as uangjaminanlkp,
-                                CAST(kasdansetarakas as BIGINT) as kasdansetarakas,
-                                CAST(mkbd as BIGINT) as mkbd,
-                                CAST(mkbdminimum as BIGINT) as mkbdminimum,
-                                CAST(mkbd as BIGINT)/CAST(mkbdminimum as BIGINT) * 100 as mkbdpermkbdminimum,
-                                CASE 
-                                    when CAST(kasdansetarakas as BIGINT) < CAST(mkbdminimum as BIGINT) then 'Alert'
-                                    when CAST(kasdansetarakas as BIGINT) >= CAST(mkbdminimum as BIGINT) then 'Normal'
-                                END AS status,periode,cluster
-                            From pasarmodal." + tableName + @") as x
+                        SELECT bondcode
+                              ,caseid
+                              ,tradeno
+                              ,tradedatesk
+                              ,tradedatetime
+                              ,price
+                              ,plteparticipantcode
+                              ,singletradeno
+                              ,cpplteparticipantcode
+                              ,bondissuertypecode
+                              ,sourcename
+                              ,targetname
+                              ,sourcetradeid
+                              ,targettradeid
+                              ,sellerfirmcode
+                              ,buyerfirmcode
+                              ,reporttypecode
+                              ,rtype
+                              ,CAST(totalvolume as BIGINT) as totalvolume
+                              ,CAST(totalvalue as BIGINT) as totalvalue
+                              ,lowerboncfairprice
+                              ,bondfairprice
+                              ,upperbondfairprice
+                              ,beyondfairmarketprice
+                              ,bondreportstatuscode
+                          FROM pasarmodal." + tableName + @"
                     WHERE " + whereQuery + @"";
                 }
             }
             else
             {
-                if (tableName == "pe_segmentation_sum_cluster_mkbd")
+                if (tableName == "mrkt_mnpltn_prtn_rcgntn")
                 {
                     props.Query = @"
-                        SELECT row_number() over(order by securitycompanycode) as no,* from (
-                            SELECT calendardate,securitycompanycode,securitycompanyname,
-                                CAST(simpanangiro as BIGINT) as simpanangiro,
-                                CAST(depositolt3bulan as BIGINT) as depositolt3bulan,
-                                CAST(depositogt3bulandijaminlps as BIGINT) as depositogt3bulandijaminlps,
-                                CAST(uangjaminanlkp as BIGINT) as uangjaminanlkp,
-                                CAST(kasdansetarakas as BIGINT) as kasdansetarakas,
-                                CAST(mkbd as BIGINT) as mkbd,
-                                CAST(mkbdminimum as BIGINT) as mkbdminimum,
-                                CAST(mkbd as BIGINT)/CAST(mkbdminimum as BIGINT) * 100 as mkbdpermkbdminimum,
-                                CASE 
-                                    when CAST(kasdansetarakas as BIGINT) < CAST(mkbdminimum as BIGINT) then 'Alert'
-                                    when CAST(kasdansetarakas as BIGINT) >= CAST(mkbdminimum as BIGINT) then 'Normal'
-                                END AS status,periode,cluster
-                            From pasarmodal." + tableName + @") as x
+                        SELECT bondcode
+                              ,caseid
+                              ,tradeno
+                              ,tradedatesk
+                              ,tradedatetime
+                              ,price
+                              ,plteparticipantcode
+                              ,singletradeno
+                              ,cpplteparticipantcode
+                              ,bondissuertypecode
+                              ,sourcename
+                              ,targetname
+                              ,sourcetradeid
+                              ,targettradeid
+                              ,sellerfirmcode
+                              ,buyerfirmcode
+                              ,reporttypecode
+                              ,rtype
+                              ,CAST(totalvolume as BIGINT) as totalvolume
+                              ,CAST(totalvalue as BIGINT) as totalvalue
+                              ,lowerboncfairprice
+                              ,bondfairprice
+                              ,upperbondfairprice
+                              ,beyondfairmarketprice
+                              ,bondreportstatuscode
+                          FROM pasarmodal." + tableName + @"
                     WHERE " + whereQuery + @"";
                 }
             }

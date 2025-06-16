@@ -13,7 +13,7 @@
     @Html.AntiForgeryToken()
     <div class="card card-default">
 
-        <div class="row filter-panel" style="padding-top:0px;">
+        <div style="padding-top:0px;">
             <div class="card-body">
                 <div class="row">
 
@@ -219,14 +219,14 @@
                         </div>
                     </div>
                 </div>
-                <div class="gridview-div">
+                <div class="row filter-panel gridview-div">
                     @(Html.DevExtreme().DataGrid()
                         .ID("grid1")
                         .ShowBorders(true).Width("100%").ShowColumnLines(true).ShowRowLines(true)
                         .DataSource(d => d.Mvc()
-                        .Controller("SegmentationSummaryClusterMKBD")
+                        .Controller("MMTransaksiSPV")
                         .LoadAction("GetGridData")
-                        .Key("securitycompanycode")
+                        .Key("caseid")
                         .OnBeforeSend("onGridBeforeSend"))
                         .RemoteOperations(true)
                         .Width("100%")
@@ -235,27 +235,35 @@
                         .WordWrapEnabled(true)
                         .Columns(columns =>
                         {
-                            columns.Add().DataField("no").Caption("No.").Alignment(HorizontalAlignment.Center);
-                            columns.Add().DataField("securitycompanycode").Caption("Kode PE").Alignment(HorizontalAlignment.Center);
-                            columns.Add().DataField("securitycompanyname").Caption("Nama PE").Width(300);
-                            columns.Add().DataField("simpanangiro").Caption("Simpanan Giro").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
-                            columns.Add().DataField("depositolt3bulan").Caption("Deposito < 3 Bulan").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
-                            columns.Add().DataField("depositogt3bulandijaminlps").Caption("Deposito > 3 Bulan Dijamin LPS").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
-                            columns.Add().DataField("uangjaminanlkp").Caption("Uang Jaminan LKP").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
-                            columns.Add().DataField("kasdansetarakas").Caption("Kas dan Setara Kas (Simpanan Giro + Deposito < 3 Bulan + Uang Jaminan LKP)").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
-                            columns.Add().DataField("mkbd").Caption("MKBD").Format("#,##0").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
-                            columns.Add().DataField("mkbdminimum").Caption("MKBD Minimum").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
-                            columns.Add().DataField("mkbdpermkbdminimum").Caption("MKBD Terhadap MKBD Minimum %").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
-                            columns.Add().DataField("cluster").Caption("Cluster").Alignment(HorizontalAlignment.Center);
-                            columns.Add().DataField("status").Caption("Status");
-                            @*  columns.Add().DataField("status").Visible(false); *@
-                            columns.Add().Type(GridCommandColumnType.Buttons).Caption("Action").Buttons(b =>
-                            {
-                                b.Add()
-                            .Hint("Detail")
-                            .Icon("detailslayout")
-                            .OnClick("Detail");
-                            });
+                            columns.Add().DataField("bondcode").Caption("Bond Code").Alignment(HorizontalAlignment.Center);
+                            @* columns.Add().DataField("volume").Caption("Volume"); *@
+                            columns.Add().DataField("caseid").Caption("Case Id");
+                            columns.Add().DataField("tradeno").Caption("Trade No");
+                            columns.Add().DataField("tradedatesk").Caption("Trade Date Sk");
+                            columns.Add().DataField("tradedatetime").Caption("Trade Time");
+                            columns.Add().DataField("price").Caption("Price").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+                            columns.Add().DataField("plteparticipantcode").Caption("Plte Participant Code");
+                            columns.Add().DataField("singletradeno").Caption("Single Trade No");
+                            columns.Add().DataField("cpplteparticipantcode").Caption("Cp Plte Participant Code");
+                            columns.Add().DataField("bondissuertypecode").Caption("Bond Issuer Type Code").Alignment(HorizontalAlignment.Center);
+                            columns.Add().DataField("sourcename").Caption("Source Name");
+                            columns.Add().DataField("targetname").Caption("Target Name");
+
+                            columns.Add().DataField("sourcetradeid").Caption("Source Trade Id");
+                            columns.Add().DataField("targettradeid").Caption("Target Trade Id");
+                            columns.Add().DataField("sellerfirmcode").Caption("Seller Firm Code");
+                            columns.Add().DataField("buyerfirmcode").Caption("Buyer Firm Code");
+                            columns.Add().DataField("reporttypecode").Caption("Report Type Code");
+
+                            columns.Add().DataField("rtype").Caption("Type");
+                            columns.Add().DataField("totalvolume").Caption("Total Volume");
+                            columns.Add().DataField("totalvalue").Caption("Total Value");
+                            columns.Add().DataField("lowerboncfairprice").Caption("Lower Bonc Fair Price ");
+                            columns.Add().DataField("bondfairprice").Caption("Bond Fair Price");
+                            columns.Add().DataField("upperbondfairprice").Caption("Upper Bond Fair Price");
+                            columns.Add().DataField("beyondfairmarketprice").Caption("Beyond Fair Market Price");
+                           @*  columns.Add().DataField("bondinstrumenttypecode").Caption("Bond Late Completeness Status Code"); *@
+                            columns.Add().DataField("bondreportstatuscode").Caption("Bond Report Status");
                         })
                         .FilterRow(f => f.Visible(true))
                         .ShowBorders(true)
@@ -315,11 +323,17 @@
         }
     }
 
-        function onButtonFilterClicked(e) {
+    function onButtonFilterClicked(e) {
         let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
         let tempPeriodeAkhir = $("#PeriodeAkhir").dxDateBox("instance").option("value");
-        let amandedtypeinfo = $("#Amandedid").dxTagBox("instance").option("value");
-
+        let caseid = $("#caseid").dxTagBox("instance").option("value");
+        let tradeid = $("#tradeid").dxTagBox("instance").option("value");
+        let bondtypecode = $("#bondtypecode").dxTagBox("instance").option("value");
+        let sourcenameid = $("#sourcenameid").dxTagBox("instance").option("value");
+        let targetnameid = $("#targetnameid").dxTagBox("instance").option("value");
+        let reporttypeid = $("#reporttypeid").dxTagBox("instance").option("value");
+        let bondlateid = $("#bondlateid").dxTagBox("instance").option("value");
+        let bondreportid = $("#bondreportid").dxTagBox("instance").option("value");
 
         let periodeAwal = null;
         if (tempPeriodeAwal != null) {
@@ -331,57 +345,7 @@
             periodeAkhir = tempPeriodeAkhir.getFullYear() + '-' + String(tempPeriodeAkhir.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAkhir.getDate()).padStart(2, '0');
         }
 
-        //$("#grid1").dxDataGrid("instance").refresh();
-
-        $.ajax({
-            url: '@Url.Action("GetChartTypeInfo", "MMKoreksiTransaksi")',
-            data: { periodeAwal: periodeAwal, periodeAkhir: periodeAkhir, amandedtypeinfo: JSON.stringify(amandedtypeinfo) },
-            dataType: "json",
-            type: "POST",
-            success: function (response) {
-            $("#pie-chartTypeOfInfo").dxPieChart("instance").refresh();
-            }
-        });
-
-        $.ajax({
-            url: '@Url.Action("GetChartTypeFirmID", "MMKoreksiTransaksi")',
-            data: { periodeAwal: periodeAwal, periodeAkhir: periodeAkhir, amandedtypeinfo: JSON.stringify(amandedtypeinfo) },
-            dataType: "json",
-            type: "POST",
-            success: function (response) {
-            $("#pie-chartTypeOfFirmID").dxPieChart("instance").refresh();
-            }
-        });
-
-        $.ajax({
-            url: '@Url.Action("GetBarChartAmendMarket", "MMKoreksiTransaksi")',
-            data: { periodeAwal: periodeAwal, periodeAkhir: periodeAkhir, amandedtypeinfo: JSON.stringify(amandedtypeinfo) },
-            dataType: "json",
-            type: "POST",
-            success: function (response) {
-            $("#bar-chartJumlahMarket").dxChart("instance").refresh();
-            }
-        });
-
-         $.ajax({
-            url: '@Url.Action("GetBarChartNonAmendMarket", "MMKoreksiTransaksi")',
-            data: { periodeAwal: periodeAwal, periodeAkhir: periodeAkhir, amandedtypeinfo: JSON.stringify(amandedtypeinfo) },
-            dataType: "json",
-            type: "POST",
-            success: function (response) {
-            $("#bar-chartJumlahNonMarket").dxChart("instance").refresh();
-            }
-        });
-
-        $.ajax({
-            url: '@Url.Action("GetBarChartTop10AmendMarket", "MMKoreksiTransaksi")',
-            data: { periodeAwal: periodeAwal, periodeAkhir: periodeAkhir, amandedtypeinfo: JSON.stringify(amandedtypeinfo) },
-            dataType: "json",
-            type: "POST",
-            success: function (response) {
-            $("#bar-chartJumlahTop10Market").dxChart("instance").refresh();
-            }
-        });
+        $("#grid1").dxDataGrid("instance").refresh();
     }
 
     function onButtonFilterClickedCancel(e) {
@@ -391,8 +355,40 @@
     function onGridBeforeSend(method, ajaxOptions) {
         let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
         let tempPeriodeAkhir = $("#PeriodeAkhir").dxDateBox("instance").option("value");
-        let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
-        let status = $("#Statusid").dxTagBox("instance").option("value");
+        let caseid = $("#caseid").dxTagBox("instance").option("value");
+        let tradeid = $("#tradeid").dxTagBox("instance").option("value");
+        let bondtypecode = $("#bondtypecode").dxTagBox("instance").option("value");
+        let sourcenameid = $("#sourcenameid").dxTagBox("instance").option("value");
+        let targetnameid = $("#targetnameid").dxTagBox("instance").option("value");
+        let reporttypeid = $("#reporttypeid").dxTagBox("instance").option("value");
+        let bondlateid = $("#bondlateid").dxTagBox("instance").option("value");
+        let bondreportid = $("#bondreportid").dxTagBox("instance").option("value");
+
+       let periodeAwal = null;
+        if (tempPeriodeAwal != null) {
+            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
+        }
+
+        let periodeAkhir = null;
+        if (tempPeriodeAkhir != null) {
+            periodeAkhir = tempPeriodeAkhir.getFullYear() + '-' + String(tempPeriodeAkhir.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAkhir.getDate()).padStart(2, '0');
+        }
+
+        ajaxOptions.data.periodeAwal = periodeAwal;
+        ajaxOptions.data.periodeAkhir = periodeAkhir;
+        ajaxOptions.data.caseid = JSON.stringify(caseid);
+        ajaxOptions.data.tradeid = JSON.stringify(tradeid);
+        ajaxOptions.data.bondtypecode = JSON.stringify(bondtypecode);
+        ajaxOptions.data.sourcenameid = JSON.stringify(sourcenameid);
+        ajaxOptions.data.targetnameid = JSON.stringify(targetnameid);
+        ajaxOptions.data.reporttypeid = JSON.stringify(reporttypeid);
+        ajaxOptions.data.bondlateid = JSON.stringify(bondlateid);
+        ajaxOptions.data.bondreportid = JSON.stringify(bondreportid);
+    }
+
+    function ExportToExcelIndex() {
+        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
+        let tempPeriodeAkhir = $("#PeriodeAkhir").dxDateBox("instance").option("value");
 
 
        let periodeAwal = null;
@@ -405,9 +401,67 @@
             periodeAkhir = tempPeriodeAkhir.getFullYear() + '-' + String(tempPeriodeAkhir.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAkhir.getDate()).padStart(2, '0');
         }
 
-         ajaxOptions.data.periodeAwal = periodeAwal;
-        ajaxOptions.data.periodeAkhir = periodeAkhir;
-        ajaxOptions.data.namaPE = namaPE;
-        ajaxOptions.data.status = JSON.stringify(status);
+       $.ajax({
+            type: "POST",
+            url: "@Url.Action("LogExportIndex", "MMTransaksiSPV")",
+            success: function (response) {
+                if (response.result == "Success") {
+                    var workbook = new ExcelJS.Workbook();
+                    var worksheet = workbook.addWorksheet('Main sheet');
+
+                    DevExpress.excelExporter.exportDataGrid({
+                        component: $("#grid1").dxDataGrid("instance"),
+                        worksheet: worksheet,
+                        customizeCell: function (options) {
+                            var { gridCell, excelCell } = options;
+
+                             if (gridCell.rowType === 'data') {
+                                if (options.gridCell.column.dataType === 'number') {
+                                    excelCell.numFmt = '#,##0';
+                                }
+                            }
+                        }
+                    }).then(function () {
+                        workbook.xlsx.writeBuffer().then(function (buffer) {
+                            saveAs(new Blob([buffer], { type: "application/octet-stream" }), "Pola_1_" + periodeAwal + " - " + periodeAkhir + ".xlsx");
+                        });
+                    });
+                }
+            }
+        });
+    }
+
+    function ExportToPdfIndex() {
+        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
+        let tempPeriodeAkhir = $("#PeriodeAkhir").dxDateBox("instance").option("value");
+
+
+       let periodeAwal = null;
+        if (tempPeriodeAwal != null) {
+            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
+        }
+
+        let periodeAkhir = null;
+        if (tempPeriodeAkhir != null) {
+            periodeAkhir = tempPeriodeAkhir.getFullYear() + '-' + String(tempPeriodeAkhir.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAkhir.getDate()).padStart(2, '0');
+        }
+
+        var dataGrid = $("#grid1").dxDataGrid("instance");
+        dataGrid.option("onExporting", function (e) { });
+        dataGrid.option("onFileSaving", function (e) {
+            var fd = new FormData();
+            fd.append("file", e.data);
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("LogExportPDFIndex", "MMTransaksiSPV")",
+                data: fd,
+                processData: false,
+                contentType: false
+            }).done(function (data) {
+                window.location = "@Url.Action("FileIndex", "MMTransaksiSPV")"
+            });
+            e.cancel = true;
+        });
+        dataGrid.exportToExcel();
     }
 </script>
