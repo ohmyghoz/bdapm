@@ -150,7 +150,7 @@
                     <div class="col-lg-6">
                         @(Html.DevExtreme().Chart()
                             .ID("bar-chartJumlahMarket")
-                            .Title("Jumlah Amend (Market) Periode 2024")
+                            .Title("Jumlah Amend (Market)")
                             .ArgumentAxis(o => o.Color("#767676").Label(l => l.Font(f => f.Color("#767676")).OverlappingBehavior(OverlappingBehavior.Rotate).RotationAngle(-45).WordWrap(VizWordWrap.None)))
                             .Rotated(false)
                             .Export(e => e.Enabled(true))
@@ -175,7 +175,7 @@
                     <div class="col-lg-6">
                         @(Html.DevExtreme().Chart()
                             .ID("bar-chartJumlahNonMarket")
-                            .Title("Jumlah Amend (Non Market) Periode " + (string)ViewBag.monthyearawal + "")
+                            .Title("Jumlah Amend (Non Market)")
                             .ArgumentAxis(o => o.Color("#767676").Label(l => l.Font(f => f.Color("#767676")).OverlappingBehavior(OverlappingBehavior.Rotate).RotationAngle(-45).WordWrap(VizWordWrap.None)))
                             .Rotated(false)
                             .Export(e => e.Enabled(true))
