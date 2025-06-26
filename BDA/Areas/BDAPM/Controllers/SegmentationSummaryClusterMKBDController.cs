@@ -28,6 +28,7 @@ using DevExpress.Xpo.DB;
 using DevExpress.Charts.Native;
 using static DevExpress.Data.ODataLinq.Helpers.ODataLinqHelpers;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Components.Web;
 
 
 namespace BDA.Controllers
@@ -71,6 +72,11 @@ namespace BDA.Controllers
         }
         public object GetGridData(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE, string status)
         {
+            var userId = HttpContext.User.Identity.Name;
+            var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+            var currentNode = mdl.GetCurrentNode();
+            string pageTitle = currentNode != null ? currentNode.Title : ""; //menampilkan data menu
+
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
             TempData.Clear(); //membersihkan data filtering
             string[] StatusPE = JsonConvert.DeserializeObject<string[]>(status);
@@ -110,6 +116,7 @@ namespace BDA.Controllers
             {
                 loadOptions = new DataSourceLoadOptions();
             }
+            db.InsertAuditTrail("SegmentationSummaryClusterMKBD_Akses_Page", "user " + userId + " menampilkan dashboard Segmentation Summary Cluster MKBD dengan filter tanggal = " + stringPeriodeAwal + ", nama PE = " + stringNamaPE + ", status = " + stringStatus + " ", pageTitle);
             return DataSourceLoader.Load(new List<string>(), loadOptions);
         }
         public object GetChartClusterSearch(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE, string status)
@@ -224,6 +231,11 @@ namespace BDA.Controllers
         }
         public object GetGridDataDetail(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE)
         {
+            var userId = HttpContext.User.Identity.Name;
+            var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+            var currentNode = mdl.GetCurrentNode();
+            string pageTitle = currentNode != null ? currentNode.Title : ""; //menampilkan data menu
+
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
             TempData.Clear(); //membersihkan data filtering
 
@@ -253,11 +265,13 @@ namespace BDA.Controllers
             if (stringPeriodeAwal != null) //jika ada parameter nya
             {
                 var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryDetail(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, cekHive);
+                db.InsertAuditTrail("SegmentationSummaryClusterMKBD_Akses_Page", "user " + userId + " menampilkan dashboard Detail Cluster MKBD dengan filter tanggal = " + stringPeriodeAwal + ", nama PE = " + stringNamaPE + "", pageTitle);
                 return JsonConvert.SerializeObject(result);
             }
             else
             {
                 var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryDetail(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, cekHive);
+                db.InsertAuditTrail("SegmentationSummaryClusterMKBD_Akses_Page", "user " + userId + " menampilkan dashboard Detail Cluster MKBD dengan filter tanggal = " + stringPeriodeAwal + ", nama PE = " + stringNamaPE + "", pageTitle);
                 return JsonConvert.SerializeObject(result);
             }
         }
@@ -303,6 +317,11 @@ namespace BDA.Controllers
         }
         public object GetGridDataRincianPortofolio(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE)
         {
+            var userId = HttpContext.User.Identity.Name;
+            var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+            var currentNode = mdl.GetCurrentNode();
+            string pageTitle = currentNode != null ? currentNode.Title : ""; //menampilkan data menu
+
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
             TempData.Clear(); //membersihkan data filtering
 
@@ -333,11 +352,13 @@ namespace BDA.Controllers
             if (periodeAwal != null) //jika ada parameter nya
             {
                 var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryRincianPortofolio(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, cekHive);
+                db.InsertAuditTrail("SegmentationSummaryClusterMKBD_Akses_Page", "user " + userId + " menampilkan dashboard Rincian Portofolio dengan filter tanggal = " + stringPeriodeAwal + ", nama PE = " + stringNamaPE + "", pageTitle);
                 return JsonConvert.SerializeObject(result);
             }
             else
             {
                 var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryRincianPortofolio(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, cekHive);
+                db.InsertAuditTrail("SegmentationSummaryClusterMKBD_Akses_Page", "user " + userId + " menampilkan dashboard Rincian Portofolio dengan filter tanggal = " + stringPeriodeAwal + ", nama PE = " + stringNamaPE + "", pageTitle);
                 return JsonConvert.SerializeObject(result);
             }
         }
@@ -383,6 +404,11 @@ namespace BDA.Controllers
         }
         public object GetGridDataReksadana(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE)
         {
+            var userId = HttpContext.User.Identity.Name;
+            var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+            var currentNode = mdl.GetCurrentNode();
+            string pageTitle = currentNode != null ? currentNode.Title : ""; //menampilkan data menu
+
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
             TempData.Clear(); //membersihkan data filtering
 
@@ -413,11 +439,13 @@ namespace BDA.Controllers
             if (periodeAwal != null) //jika ada parameter nya
             {
                 var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryReksadana(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, cekHive);
+                db.InsertAuditTrail("SegmentationSummaryClusterMKBD_Akses_Page", "user " + userId + " menampilkan dashboard Reksadana dengan filter tanggal = " + stringPeriodeAwal + ", nama PE = " + stringNamaPE + "", pageTitle);
                 return JsonConvert.SerializeObject(result);
             }
             else
             {
                 var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryReksadana(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, cekHive);
+                db.InsertAuditTrail("SegmentationSummaryClusterMKBD_Akses_Page", "user " + userId + " menampilkan dashboard Reksadana dengan filter tanggal = " + stringPeriodeAwal + ", nama PE = " + stringNamaPE + "", pageTitle);
                 return JsonConvert.SerializeObject(result);
             }
         }
@@ -463,6 +491,11 @@ namespace BDA.Controllers
         }
         public object GetGridDataJaminanMargin(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE)
         {
+            var userId = HttpContext.User.Identity.Name;
+            var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+            var currentNode = mdl.GetCurrentNode();
+            string pageTitle = currentNode != null ? currentNode.Title : ""; //menampilkan data menu
+
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
             TempData.Clear(); //membersihkan data filtering
 
@@ -493,11 +526,13 @@ namespace BDA.Controllers
             if (periodeAwal != null) //jika ada parameter nya
             {
                 var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryJaminanMargin(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, cekHive);
+                db.InsertAuditTrail("SegmentationSummaryClusterMKBD_Akses_Page", "user " + userId + " menampilkan dashboard Jaminan Margin dengan filter tanggal = " + stringPeriodeAwal + ", nama PE = " + stringNamaPE + "", pageTitle);
                 return JsonConvert.SerializeObject(result);
             }
             else
             {
                 var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryJaminanMargin(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, cekHive);
+                db.InsertAuditTrail("SegmentationSummaryClusterMKBD_Akses_Page", "user " + userId + " menampilkan dashboard Jaminan Margin dengan filter tanggal = " + stringPeriodeAwal + ", nama PE = " + stringNamaPE + "", pageTitle);
                 return JsonConvert.SerializeObject(result);
             }
         }
@@ -543,6 +578,11 @@ namespace BDA.Controllers
         }
         public object GetGridDataReverseRepo(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE)
         {
+            var userId = HttpContext.User.Identity.Name;
+            var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+            var currentNode = mdl.GetCurrentNode();
+            string pageTitle = currentNode != null ? currentNode.Title : ""; //menampilkan data menu
+
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
             TempData.Clear(); //membersihkan data filtering
 
@@ -573,11 +613,13 @@ namespace BDA.Controllers
             if (periodeAwal != null) //jika ada parameter nya
             {
                 var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryReverseRepo(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, cekHive);
+                db.InsertAuditTrail("SegmentationSummaryClusterMKBD_Akses_Page", "user " + userId + " menampilkan dashboard Reverse Repo dengan filter tanggal = " + stringPeriodeAwal + ", nama PE = " + stringNamaPE + "", pageTitle);
                 return JsonConvert.SerializeObject(result);
             }
             else
             {
                 var result = Helper.WSQueryStore.GetBDAPMSegmentationSummaryClusterMKBDQueryReverseRepo(db, loadOptions, reportId, stringPeriodeAwal, stringNamaPE, cekHive);
+                db.InsertAuditTrail("SegmentationSummaryClusterMKBD_Akses_Page", "user " + userId + " menampilkan dashboard Reverse Repo dengan filter tanggal = " + stringPeriodeAwal + ", nama PE = " + stringNamaPE + "", pageTitle);
                 return JsonConvert.SerializeObject(result);
             }
         }
