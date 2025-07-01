@@ -3,6 +3,7 @@ using BDA.Helper.FW;
 using DevExpress.Data.Extensions;
 using DevExpress.Xpo.DB.Helpers;
 using DevExpress.XtraRichEdit;
+using DevExtreme.AspNet.Data;
 using DevExtreme.AspNet.Mvc;
 using Org.BouncyCastle.Asn1.Mozilla;
 using System;
@@ -881,7 +882,57 @@ namespace BDA.Helper
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
         }
+        public static object GetMarketDrivenData(DataEntities db, DataSourceLoadOptions loadOptions, string selectedDate)
+        {
+            // If no date is selected, return an empty result.
+            if (string.IsNullOrEmpty(selectedDate))
+            {
+                return new { data = new object[0], totalCount = 0 };
+            }
 
+            string dateForQuery = selectedDate.Replace("-", "");
+
+            string sqlQuery = $@"
+        SELECT 
+           CONVERT(VARCHAR(10), CONVERT(DATE, CAST(tradedatesk AS VARCHAR(8))), 105) AS TransactionDates,
+            sid_ori, cpinvestorcode, securitycode, investorcode, quantity, value
+        FROM pasarmodal.market_driven_validasi_data_tra
+        WHERE tradedatesk = @tradedate";
+
+            DataTable dt = new DataTable();
+            string connString = db.appSettings.DataConnString;
+
+            using (SqlConnection conn = new SqlConnection(connString))
+            {
+                using (SqlCommand cmd = new SqlCommand(sqlQuery, conn))
+                {
+                    cmd.CommandTimeout = 300;
+                    int dateAsInt = Int32.Parse(dateForQuery);
+                    cmd.Parameters.AddWithValue("@tradedate", dateAsInt);
+
+                    SqlDataAdapter adapter = new SqlDataAdapter(cmd);
+                    adapter.Fill(dt);
+                }
+            }
+
+            // --- THIS IS THE NEW PART ---
+
+            // Manually convert the DataTable to a List of Dictionaries
+            var list = new List<Dictionary<string, object>>();
+            foreach (DataRow row in dt.Rows)
+            {
+                var dict = new Dictionary<string, object>();
+                foreach (DataColumn col in dt.Columns)
+                {
+                    dict[col.ColumnName] = row[col];
+                }
+                list.Add(dict);
+            }
+
+            // Return the raw data in a structure DevExtreme understands.
+            // We are deliberately IGNORING the 'loadOptions' for this test.
+            return new { data = list, totalCount = list.Count };
+        }
         public static WSQueryReturns GetBDAPMSegmentasiTransaksiGrid(DataEntities db, DataSourceLoadOptions loadOptions, string periodes, string stringPE, string jenisTransaksi)
         {
             bool isC = false;

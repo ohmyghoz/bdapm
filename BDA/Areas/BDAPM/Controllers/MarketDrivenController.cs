@@ -19,6 +19,8 @@ using Newtonsoft.Json;
 using System.Data.SqlClient;
 using static System.Net.Mime.MediaTypeNames;
 using System.Configuration;
+using BDA.Helper;
+using DevExpress.Xpo.DB;
 
 namespace BDA.Controllers
 {
@@ -135,6 +137,29 @@ namespace BDA.Controllers
 
             return View();
 
+        }
+
+        public IActionResult MDTest()
+        {
+            var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+            var currentNode = mdl.GetCurrentNode();
+            string pageTitle = currentNode != null ? currentNode.Title : ""; //menampilkan data menu
+
+            db.CheckPermission("Market Driven View", DataEntities.PermissionMessageType.ThrowInvalidOperationException); //check permission nya view/lihat nya
+            ViewBag.Export = db.CheckPermission("Market Driven Export", DataEntities.PermissionMessageType.NoMessage); //check permission export
+            db.InsertAuditTrail("MDTest", "Akses Page MDP Test", pageTitle); //simpan kedalam audit trail
+
+            return View();
+
+        }
+
+        [HttpGet]
+        public object GetMarketData(DataSourceLoadOptions loadOptions, string selectedDate) // Changed from DateTime?
+        {
+            // Pass the date STRING down to the data helper
+            var result = WSQueryPS.GetMarketDrivenData(db, loadOptions, selectedDate);
+
+            return Json(result);
         }
 
         public ActionResult SimpanPenggunaanData(string id)
