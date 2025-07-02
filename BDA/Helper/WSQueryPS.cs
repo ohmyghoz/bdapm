@@ -29,7 +29,7 @@ namespace BDA.Helper
         {
             DataTable dt = wqr.data;
 
-            foreach(DataRow dr in dt.Rows)
+            foreach (DataRow dr in dt.Rows)
             {
                 dr["sid"] = DecryptSID(dr["sid"].ToString());
                 dr["nama_sid"] = DecryptName(dr["nama_sid"].ToString());
@@ -52,7 +52,7 @@ namespace BDA.Helper
                 dr["sid"] = DecryptSID(dr["sid"].ToString());
                 dr["nama_sid"] = DecryptName(dr["nama_sid"].ToString());
             }
-            
+
             wqr.data = dt;
 
             return wqr;
@@ -62,14 +62,14 @@ namespace BDA.Helper
         {
             if (s.Length < 3) return s;
             int val = 0;
-            return (Int32.TryParse(s.Substring(0, 2), out val) ? keySID[(val-11)] : s.Substring(0, 2)) + s.Substring(2);
+            return (Int32.TryParse(s.Substring(0, 2), out val) ? keySID[(val - 11)] : s.Substring(0, 2)) + s.Substring(2);
         }
 
-        private static string DecryptName(string s) 
+        private static string DecryptName(string s)
         {
             if (s.Length == 0) return s;
-            int val = 0;            
-            return ((Int32.TryParse(s.Substring(0, 1), out val) ? keyName[val] : s.Substring(0, 1)) 
+            int val = 0;
+            return ((Int32.TryParse(s.Substring(0, 1), out val) ? keyName[val] : s.Substring(0, 1))
                 + s.Substring(1)).Replace("IOII", "O").Replace("IOOI", "A").Replace("IIOO", "U").Replace("IOIO", "E");
         }
 
@@ -78,7 +78,7 @@ namespace BDA.Helper
             if (s.Length < 2) return s;
             int val = 0;
             string right = s.Substring(s.Length - 2, 2);
-            return (Int32.TryParse(right.Substring(0,1), out val) ? keyOne[val] : right[0]) + (Int32.TryParse(right.Substring(1, 1), out val) ? keyTwo[val] : right[1])
+            return (Int32.TryParse(right.Substring(0, 1), out val) ? keyOne[val] : right[0]) + (Int32.TryParse(right.Substring(1, 1), out val) ? keyTwo[val] : right[1])
                 + s.Substring(0, s.Length - 2);
         }
 
@@ -86,7 +86,7 @@ namespace BDA.Helper
         {
             if (s.Length < 3) return s;
             int idx = Array.IndexOf(keySID, s.Substring(0, 3));
-            if (idx >= 0) return (idx+11).ToString() + s.Substring(3);
+            if (idx >= 0) return (idx + 11).ToString() + s.Substring(3);
             return s;
         }
 
@@ -94,7 +94,7 @@ namespace BDA.Helper
         {
             if (s.Length < 2) return s;
             int idx = Array.IndexOf(keyName, s.Substring(0, 1));
-            return ((idx >= 0 ? idx.ToString(): s.Substring(0, 1)) + s.Substring(1)).Replace("O", "IOII").Replace("A", "IOOI").Replace("U", "IIOO").Replace("E", "IOIO");            
+            return ((idx >= 0 ? idx.ToString() : s.Substring(0, 1)) + s.Substring(1)).Replace("O", "IOII").Replace("A", "IOOI").Replace("U", "IIOO").Replace("E", "IOIO");
         }
         #endregion
 
@@ -167,7 +167,7 @@ namespace BDA.Helper
         {
             bool isC = false;
             var whereQuery = "1=1";
-            
+
             if (periodes != null)
             {
                 periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
@@ -649,26 +649,27 @@ namespace BDA.Helper
                             + whereQuery + " group by country, investor_type order by sum(current_value) " + order + " limit 16";
                 }
             }
-            else {
+            else
+            {
                 props.Query = @"
                     select country as lokasi, investor_type investortype, cast(sum(current_value) as bigint) value From pasarmodal.pe_segmentation_geo where "
                             + whereQuery + " group by country, investor_type order by sum(current_value) " + order + " limit 16";
             }
 
 
-             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
         }
 
         public static WSQueryReturns GetBDAPGeospasialInvestorCG(DataEntities db, DataSourceLoadOptions loadOptions, string periodeawal, string periodeakhir, string stringPE, string growthtype, string dimension, string investorOrigin, string province)
         {
             bool isC = false;
             var whereQuery = "1=1";
-            
+
             if (periodeawal != null)
             {
                 periodeawal = "'" + periodeawal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
                 periodeakhir = "'" + periodeakhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND pperiode between " + periodeawal.Replace("-", "") + " and "+ periodeakhir.Replace("-", "");
+                whereQuery = whereQuery += " AND pperiode between " + periodeawal.Replace("-", "") + " and " + periodeakhir.Replace("-", "");
             }
 
             if (stringPE != null)

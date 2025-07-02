@@ -124,16 +124,16 @@
                         @(Html.DevExtreme().TagBox()
                             .ID("CountryInvestorid")
                             .DataSource(new[] {
-                                    "Indonesia",
-                                    "Philippines",
-                                    "Singapore",
-                                    "Japan",
-                                    "Other",
-                                    "Hong Kong",
-                                    "British Virgin Islands",
-                                    "Malaysia",
-                                    "Australia"
-                                })
+                    "Indonesia",
+                    "Philippines",
+                    "Singapore",
+                    "Japan",
+                    "Other",
+                    "Hong Kong",
+                    "British Virgin Islands",
+                    "Malaysia",
+                    "Australia"
+                    })
                             .ShowSelectionControls(true)
                             .MaxDisplayedTags(3)
                             .SearchEnabled(true)
@@ -152,20 +152,20 @@
                             .OnSelectionChanged("onSelectionChanged")
                             .Width("100%"))
                     </div>
-                  
+
                     <div class="col-lg-3 form-group">
                         <label>AB Code@*<span class="mandatory">*</span>*@</label>
                         @(Html.DevExtreme().TagBox()
                             .ID("ABcodeid")
                             .DataSource(new[] {
-                                    "NI", "MK", "IU", "DR", "PD", "MI", "SS", "MU", "IF", "AI", "OK", "II",
-                                    "EP", "BQ", "PS", "KI", "YU", "SQ", "RS", "BF", "LG", "GA", "LS", "IN",
-                                    "BZ", "IH", "FS", "XA", "GR", "EL", "AT", "CC", "PC", "AR", "PK", "FZ",
-                                    "RB", "BS", "OD", "DH", "YP", "ID", "TP", "TX", "YB", "HP", "AO", "RO",
-                                    "ES", "RG", "IP", "XC", "CP", "ZR", "SH", "HD", "PO", "CD", "AN", "YJ",
-                                    "DP", "MG", "IT", "SA", "AG", "AD", "DX", "KS", "TF", "PG", "KK", "ZP",
-                                    "LH", "AP", "AZ", "RF"
-                                })
+                    "NI", "MK", "IU", "DR", "PD", "MI", "SS", "MU", "IF", "AI", "OK", "II",
+                    "EP", "BQ", "PS", "KI", "YU", "SQ", "RS", "BF", "LG", "GA", "LS", "IN",
+                    "BZ", "IH", "FS", "XA", "GR", "EL", "AT", "CC", "PC", "AR", "PK", "FZ",
+                    "RB", "BS", "OD", "DH", "YP", "ID", "TP", "TX", "YB", "HP", "AO", "RO",
+                    "ES", "RG", "IP", "XC", "CP", "ZR", "SH", "HD", "PO", "CD", "AN", "YJ",
+                    "DP", "MG", "IT", "SA", "AG", "AD", "DX", "KS", "TF", "PG", "KK", "ZP",
+                    "LH", "AP", "AZ", "RF"
+                    })
                             .ShowSelectionControls(true)
                             .MaxDisplayedTags(3)
                             .SearchEnabled(true)
@@ -205,67 +205,67 @@
                         .ValidationGroup("Filter"))
                 </div>
 
-       
+
             </div>
         </div>
     </div>
     <div class="row">
-     @*<div class="card-body">
-            @(Html.DevExtreme().DataGrid()
-                .ID("gridValidasiData")
-                .DataSource(d => d.Mvc()
-                .Controller("MarketDriven") // Targets the correct controller
-                .LoadAction("GetMarketData") // Calls the new data action
-                .Area("BDAPM")
-                .LoadParams(new { selectedDate = new JS("getFilterDate") })
-                )
-                .RemoteOperations(false) // Set to false as data is loaded into a list first
-                .Paging(p => p.PageSize(20))
-                .Pager(p =>
-                {
-                    p.ShowPageSizeSelector(true);
-                    p.AllowedPageSizes(new[] { 10, 20, 50 });
-                    p.ShowInfo(true);
-                })
-                .FilterRow(f => f.Visible(true))
-                .HeaderFilter(h => h.Visible(true))
-                .ColumnAutoWidth(true)
-                .AllowColumnResizing(true)
-                .ShowBorders(true)
-                .Scrolling(s => s.Mode(GridScrollingMode.Standard))
-                .Columns(columns =>
-                {
-                    columns.Add()
-                    .DataField("TransactionDates")
-                    .Caption("Transaction Date");
+        @*<div class="card-body">
+    @(Html.DevExtreme().DataGrid()
+    .ID("gridValidasiData")
+    .DataSource(d => d.Mvc()
+    .Controller("MarketDriven") // Targets the correct controller
+    .LoadAction("GetMarketData") // Calls the new data action
+    .Area("BDAPM")
+    .LoadParams(new { selectedDate = new JS("getFilterDate") })
+    )
+    .RemoteOperations(false) // Set to false as data is loaded into a list first
+    .Paging(p => p.PageSize(20))
+    .Pager(p =>
+    {
+    p.ShowPageSizeSelector(true);
+    p.AllowedPageSizes(new[] { 10, 20, 50 });
+    p.ShowInfo(true);
+    })
+    .FilterRow(f => f.Visible(true))
+    .HeaderFilter(h => h.Visible(true))
+    .ColumnAutoWidth(true)
+    .AllowColumnResizing(true)
+    .ShowBorders(true)
+    .Scrolling(s => s.Mode(GridScrollingMode.Standard))
+    .Columns(columns =>
+    {
+    columns.Add()
+    .DataField("TransactionDates")
+    .Caption("Transaction Date");
 
-                    columns.Add()
-                    .DataField("sid_ori")
-                    .Caption("SID");
+    columns.Add()
+    .DataField("sid_ori")
+    .Caption("SID");
 
-                    columns.Add()
-                    .DataField("cpinvestorcode")
-                    .Caption("SID Name");
+    columns.Add()
+    .DataField("cpinvestorcode")
+    .Caption("SID Name");
 
-                    columns.Add()
-                    .DataField("investorcode")
-                    .Caption("Investor Code");
+    columns.Add()
+    .DataField("investorcode")
+    .Caption("Investor Code");
 
-                    columns.Add()
-                    .DataField("securitycode")
-                    .Caption("Security Code");
+    columns.Add()
+    .DataField("securitycode")
+    .Caption("Security Code");
 
-                    columns.Add()
-                    .DataField("value")
-                    .Caption("Value");
+    columns.Add()
+    .DataField("value")
+    .Caption("Value");
 
-                    columns.Add()
-                    .DataField("quantity")
-                    .Caption("Quantity");
-                })
-                )
+    columns.Add()
+    .DataField("quantity")
+    .Caption("Quantity");
+    })
+    )
     </div>*@
-    </div> 
+    </div>
     <div class="card-body">
         @(Html.DevExtreme().PivotGrid()
             .ID("pivotgrid")
@@ -278,62 +278,65 @@
             .Height(800)
             .ShowBorders(true)
             .FieldPanel(p => p
-                .ShowRowFields(true)
-                .Visible(true)
-                )
+            .ShowRowFields(true)
+            .ShowFilterFields(false)
+            .AllowFieldDragging(false)
+            .Visible(true)
+            )
             .DataSource(d => d
-             .Store(s => s.Mvc() // Create a Store and use .Mvc() on the Store builder
-             .Controller("MarketDriven")
-             .LoadAction("GetMarketData")
-             .Area("BDAPM")
-            // 2. Define fields that match your data source
+            .Store(s => s.Mvc() // Create a Store and use .Mvc() on the Store builder
+            .Controller("MarketDriven")
+            .LoadAction("GetMarketData")
+            .Area("BDAPM")
+            .LoadParams(new { selectedDate = new JS("getFilterDate") })
+            )
             .Fields(f =>
             {
                 f.Add()
                 .Caption("Transaction Date")
-                .DataField("tradedatesk") // Corrected field name
+                .DataField("TransactionDates")
                 .Expanded(true)
                 .Width(200)
                 .Area(PivotGridArea.Row);
 
                 f.Add()
                 .Caption("SID")
-                .DataField("sid_ori") // Corrected field name
+                .DataField("sid_ori")
                 .Expanded(true)
                 .Width(200)
                 .Area(PivotGridArea.Row);
 
                 f.Add()
                 .Caption("SID Name")
-                .DataField("cpinvestorcode") // Corrected field name
+                .DataField("cpinvestorcode")
                 .Width(200)
                 .Expanded(true)
                 .Area(PivotGridArea.Row);
 
                 f.Add()
                 .Caption("Investor Code")
-                .DataField("investorcode") // Corrected field name
+                .DataField("investorcode")
                 .Width(200)
                 .Expanded(true)
                 .Area(PivotGridArea.Row);
 
                 f.Add()
                 .Caption("Security Code")
-                .DataField("securitycode") // Corrected field name
+                .DataField("securitycode")
                 .Width(200)
                 .Expanded(true)
                 .Area(PivotGridArea.Row);
 
                 f.Add()
                 .Caption("Quantity")
-                .DataField("quantity") // This field name was correct
+                .DataField("quantity")
                 .Width(50)
                 .SummaryType(SummaryType.Sum).Format("#,##0")
                 .Area(PivotGridArea.Data);
 
                 f.Add()
                 .Caption("Value")
-                .DataField("value") // This field name was correct
+                .DataField("value")
                 .Width(50)
                 .SummaryType(SummaryType.Sum).Format("#,##0")
                 .Area(PivotGridArea.Data);
@@ -342,7 +345,7 @@
             )
     </div>
 
-   
+
     <!-- The Modal  Detail-->
     <div class="modal fade" id="ModalSimpanPenggunaanData" tabindex="-1" role="document" aria-hidden="true" data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog modal-lg">
@@ -515,22 +518,22 @@
                 success: function (data) {
                     if (data.success == true) {
                         //alert(data.message);
-                         @* waitingDialog.hide(); *@
+    @* waitingDialog.hide(); *@
                             $('#ModalSimpanPenggunaanData').modal('hide');
                         return "Saving Success !";
                     }
                     else if (data.success == false) {
-            @*  waitingDialog.hide(); *@
-            alert(data.message);
-                $('#ModalSimpanPenggunaanData').modal('hide');
-            return "Saving Failed !";
-        }
-    }
+    @*  waitingDialog.hide(); *@
+                            alert(data.message);
+                        $('#ModalSimpanPenggunaanData').modal('hide');
+                        return "Saving Failed !";
+                    }
+                }
             });
         }
     });
 
-   
+
 
     function onSelectionChanged(e) {
         if (e.addedItems.length > 0) {
@@ -538,96 +541,49 @@
         }
     }
 
-   
-        function onButtonFilterClicked() {
-            $("#gridValidasiData").dxDataGrid("instance").refresh();
-            $("#pivotgrid").dxPivotGrid("instance").getDataSource().reload();
-        }
 
-        function getFilterDate() {
-            var dateBox = $("#DatepickdID").dxDateBox("instance");
-            var dateValue = dateBox.option("value");
 
-            console.log("Original DateBox Value:", dateValue);
-
-            if (!dateValue) {
-                return null;
-            }
-
-            // Format the date directly to 'yyyymmdd'
-            var year = dateValue.getFullYear();
-            var month = ('0' + (dateValue.getMonth() + 1)).slice(-2);
-            var day = ('0' + dateValue.getDate()).slice(-2);
-
-            // This now creates the yyyymmdd string directly
-            var formattedString = year + month + day;
-
-            console.log("Formatted String Sent to Server:", formattedString);
-
-            return formattedString;
-        }
-  
-
-    function onGridBeforeSend(method, ajaxOptions) {
-        let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
-        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
-        let status = $("#Statusid").dxTagBox("instance").option("value");
-
-        let periodeAwal = null;
-        if (tempPeriodeAwal != null) {
-            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + (tempPeriodeAwal.getMonth() + 1) + '-' + tempPeriodeAwal.getDate();
-        }
-        ajaxOptions.data.namaPE = JSON.stringify(namaPE);
-        ajaxOptions.data.periodeAwal = periodeAwal;
-        ajaxOptions.data.status = JSON.stringify(status);
-    }
-
-    function onLJKOpened(e) {
-        e.component.content().find('.dx-list-select-all').hide();
-    }
-
-   
     var waitingDialog = (function ($) {
 
         // Creating modal dialog's DOM
         var $dialog = $(
-    '<div class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">' +
-    '<div class="modal-dialog modal-m">' +
-    '<div class="modal-content">' +
-    '<div class="modal-header"><h3 style="margin:0;"></h3></div>' +
-    '<div class="modal-body">' +
-    '<div class="progress progress-striped active" style="margin-bottom:0;"><div class="progress-bar" style="width: 100%"></div></div>' +
-    '</div>' +
-    '</div></div></div>');
+            '<div class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">' +
+            '<div class="modal-dialog modal-m">' +
+            '<div class="modal-content">' +
+            '<div class="modal-header"><h3 style="margin:0;"></h3></div>' +
+            '<div class="modal-body">' +
+            '<div class="progress progress-striped active" style="margin-bottom:0;"><div class="progress-bar" style="width: 100%"></div></div>' +
+            '</div>' +
+            '</div></div></div>');
 
         return {
             show: function (message, options) {
                 // Assigning defaults
                 var settings = $.extend({
                     dialogSize: 'm',
-            progressType: ''
-        }, options);
+                    progressType: ''
+                }, options);
                 if (typeof message === 'undefined') {
-    message = 'Loading';
+                    message = 'Loading';
                 }
                 if (typeof options === 'undefined') {
-    options = {};
+                    options = {};
                 }
-        // Configuring dialog
-        $dialog.find('.modal-dialog').attr('class', 'modal-dialog').addClass('modal-' + settings.dialogSize);
-        $dialog.find('.progress-bar').attr('class', 'progress-bar');
+                // Configuring dialog
+                $dialog.find('.modal-dialog').attr('class', 'modal-dialog').addClass('modal-' + settings.dialogSize);
+                $dialog.find('.progress-bar').attr('class', 'progress-bar');
                 if (settings.progressType) {
-            $dialog.find('.progress-bar').addClass('progress-bar-' + settings.progressType);
+                    $dialog.find('.progress-bar').addClass('progress-bar-' + settings.progressType);
                 }
-        $dialog.find('h3').text(message);
-        // Opening dialog
-        $dialog.modal();
+                $dialog.find('h3').text(message);
+                // Opening dialog
+                $dialog.modal();
             },
-    /**
-        * Closes dialog
-        */
-    hide: function () {
-        $dialog.modal('hide');
+            /**
+                * Closes dialog
+                */
+            hide: function () {
+                $dialog.modal('hide');
             }
         }
     })(jQuery);
