@@ -278,65 +278,62 @@
             .Height(800)
             .ShowBorders(true)
             .FieldPanel(p => p
-            .ShowRowFields(true)
-            .ShowFilterFields(false)
-            .AllowFieldDragging(false)
-            .Visible(true)
-            )
+                .ShowRowFields(true)
+                .Visible(true)
+                )
             .DataSource(d => d
-            .Store(s => s.Mvc() // Create a Store and use .Mvc() on the Store builder
-            .Controller("MarketDriven")
-            .LoadAction("GetMarketData")
-            .Area("BDAPM")
-            .LoadParams(new { selectedDate = new JS("getFilterDate") })
-            )
+             .Store(s => s.Mvc() // Create a Store and use .Mvc() on the Store builder
+             .Controller("MarketDriven")
+             .LoadAction("GetMarketData")
+             .Area("BDAPM")
+            // 2. Define fields that match your data source
             .Fields(f =>
             {
                 f.Add()
                 .Caption("Transaction Date")
-                .DataField("TransactionDates")
+                .DataField("tradedatesk") // Corrected field name
                 .Expanded(true)
                 .Width(200)
                 .Area(PivotGridArea.Row);
 
                 f.Add()
                 .Caption("SID")
-                .DataField("sid_ori")
+                .DataField("sid_ori") // Corrected field name
                 .Expanded(true)
                 .Width(200)
                 .Area(PivotGridArea.Row);
 
                 f.Add()
                 .Caption("SID Name")
-                .DataField("cpinvestorcode")
+                .DataField("cpinvestorcode") // Corrected field name
                 .Width(200)
                 .Expanded(true)
                 .Area(PivotGridArea.Row);
 
                 f.Add()
                 .Caption("Investor Code")
-                .DataField("investorcode")
+                .DataField("investorcode") // Corrected field name
                 .Width(200)
                 .Expanded(true)
                 .Area(PivotGridArea.Row);
 
                 f.Add()
                 .Caption("Security Code")
-                .DataField("securitycode")
+                .DataField("securitycode") // Corrected field name
                 .Width(200)
                 .Expanded(true)
                 .Area(PivotGridArea.Row);
 
                 f.Add()
                 .Caption("Quantity")
-                .DataField("quantity")
+                .DataField("quantity") // This field name was correct
                 .Width(50)
                 .SummaryType(SummaryType.Sum).Format("#,##0")
                 .Area(PivotGridArea.Data);
 
                 f.Add()
                 .Caption("Value")
-                .DataField("value")
+                .DataField("value") // This field name was correct
                 .Width(50)
                 .SummaryType(SummaryType.Sum).Format("#,##0")
                 .Area(PivotGridArea.Data);
@@ -541,6 +538,53 @@
         }
     }
 
+   
+        function onButtonFilterClicked() {
+            $("#gridValidasiData").dxDataGrid("instance").refresh();
+            $("#pivotgrid").dxPivotGrid("instance").getDataSource().reload();
+        }
+
+        function getFilterDate() {
+            var dateBox = $("#DatepickdID").dxDateBox("instance");
+            var dateValue = dateBox.option("value");
+
+            console.log("Original DateBox Value:", dateValue);
+
+            if (!dateValue) {
+                return null;
+            }
+
+            // Format the date directly to 'yyyymmdd'
+            var year = dateValue.getFullYear();
+            var month = ('0' + (dateValue.getMonth() + 1)).slice(-2);
+            var day = ('0' + dateValue.getDate()).slice(-2);
+
+            // This now creates the yyyymmdd string directly
+            var formattedString = year + month + day;
+
+            console.log("Formatted String Sent to Server:", formattedString);
+
+            return formattedString;
+        }
+  
+
+    function onGridBeforeSend(method, ajaxOptions) {
+        let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
+        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
+        let status = $("#Statusid").dxTagBox("instance").option("value");
+
+        let periodeAwal = null;
+        if (tempPeriodeAwal != null) {
+            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + (tempPeriodeAwal.getMonth() + 1) + '-' + tempPeriodeAwal.getDate();
+        }
+        ajaxOptions.data.namaPE = JSON.stringify(namaPE);
+        ajaxOptions.data.periodeAwal = periodeAwal;
+        ajaxOptions.data.status = JSON.stringify(status);
+    }
+
+    function onLJKOpened(e) {
+        e.component.content().find('.dx-list-select-all').hide();
+    }
 
    
     var waitingDialog = (function ($) {

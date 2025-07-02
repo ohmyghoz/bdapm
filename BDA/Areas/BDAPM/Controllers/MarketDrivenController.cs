@@ -111,7 +111,53 @@ namespace BDA.Controllers
             return View();
 
         }
+        public object GetMarketData(DataSourceLoadOptions loadOptions, string selectedDate)
+        {
+            // If no date is selected (initial load), return an empty result.
+            if (string.IsNullOrEmpty(selectedDate))
+            {
+                return new { data = new object[0], totalCount = 0 };
+            }
 
+            // Convert the incoming "yyyy-MM-dd" string to "yyyymmdd" for the query
+            string dateForQuery = selectedDate.Replace("-", "");
+
+            // The SQL query with a parameter for the date
+            string sqlQuery = $@"
+        SELECT 
+            CONVERT(DATE, CAST(tradedatesk AS VARCHAR(8))) AS TransactionDate,
+            sid_ori,
+            cpinvestorcode,
+            securitycode,
+            investorcode,
+            CAST(quantity AS BIGINT) AS quantity,
+            CAST(value AS BIGINT) AS value
+        FROM pasarmodal.market_driven_validasi_data_tra
+        WHERE tradedatesk = @tradedate";
+
+            DataTable dt = new DataTable();
+            string connString = db.appSettings.DataConnString;
+
+            using (SqlConnection conn = new SqlConnection(connString))
+            {
+                using (SqlCommand cmd = new SqlCommand(sqlQuery, conn))
+                {
+                    cmd.CommandTimeout = 300;
+
+                    // Add the date as a parameter to prevent SQL injection
+                    cmd.Parameters.AddWithValue("@tradedate", dateForQuery);
+
+                    SqlDataAdapter adapter = new SqlDataAdapter(cmd);
+                    adapter.Fill(dt);
+                }
+            }
+
+            // Use DataSourceLoader to apply grid options (like paging, sorting, etc.)
+            var loadResult = DataSourceLoader.Load(dt.AsEnumerable(), loadOptions);
+
+            // Return the processed data as a JsonResult
+            return Json(loadResult);
+        }
         public IActionResult AssessmentPasarEquity()
         {
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
