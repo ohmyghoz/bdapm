@@ -1,5 +1,6 @@
 ﻿using BDA.DataModel;
 using BDA.Helper.FW;
+using BDA.Models;
 using DevExpress.Data.Extensions;
 using DevExpress.Xpo.DB.Helpers;
 using DevExpress.XtraRichEdit;
@@ -933,6 +934,65 @@ namespace BDA.Helper
             // Return the raw data in a structure DevExtreme understands.
             // We are deliberately IGNORING the 'loadOptions' for this test.
             return new { data = list, totalCount = list.Count };
+        }
+
+        public static List<GainerLoserViewModel> GetGainersOrLosers(DataEntities db, bool isGainer, string selectedDate, int topN)
+        {
+            var list = new List<GainerLoserViewModel>();
+
+            // Determine the sorting order based on the isGainer flag
+            string orderByClause = isGainer ? "ORDER BY changeprice DESC" : "ORDER BY changeprice ASC";
+
+            // Build the query
+            string sqlQuery = $@"
+        SET ARITHABORT ON;
+        SELECT TOP (@TopN) * FROM pasarmodal.market_driven_ape_growth
+        WHERE history_type = 'daily' AND periode = @Periode
+        {orderByClause}";
+
+            string connString = db.appSettings.DataConnString;
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connString))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlQuery, conn))
+                    {
+                        cmd.CommandTimeout = 300;
+                        cmd.Parameters.AddWithValue("@Periode", selectedDate);
+                        cmd.Parameters.AddWithValue("@TopN", topN);
+
+                        conn.Open();
+                        DataTable dt = new DataTable();
+                        new SqlDataAdapter(cmd).Fill(dt);
+
+                        // Map the results to the ViewModel list
+                        foreach (DataRow row in dt.Rows)
+                        {
+                            list.Add(new GainerLoserViewModel
+                            {
+                                SecurityCode = row["security_code"] as string,
+                                SecurityName = row["security_name"] as string,
+                                Volume = row["volume"] != DBNull.Value ? Convert.ToInt64(row["volume"]) : 0,
+                                Turnover = row["turnover"] != DBNull.Value ? Convert.ToDecimal(row["turnover"]) : 0,
+                                Freq = row["freq"] != DBNull.Value ? Convert.ToInt32(row["freq"]) : 0,
+                                NetValue = row["net_value"] != DBNull.Value ? Convert.ToDecimal(row["net_value"]) : 0,
+                                NetVolume = row["net_volume"] != DBNull.Value ? Convert.ToDecimal(row["net_volume"]) : 0,
+                                Point = row["point"] != DBNull.Value ? Convert.ToDecimal(row["point"]) : 0,
+                                Price = row["price"] != DBNull.Value ? Convert.ToDecimal(row["price"]) : 0,
+                                ChangePercentage = row["changeprice"] != DBNull.Value ? Convert.ToDecimal(row["changeprice"]) : 0,
+                                MaxPrice = row["highvalue"] != DBNull.Value ? Convert.ToDecimal(row["highvalue"]) : 0,
+                                MinPrice = row["lowvalue"] != DBNull.Value ? Convert.ToDecimal(row["lowvalue"]) : 0
+                            });
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle or log the error
+                System.Diagnostics.Debug.WriteLine("DATABASE ERROR: " + ex.Message);
+            }
+            return list;
         }
         public static WSQueryReturns GetBDAPMSegmentasiTransaksiGrid(DataEntities db, DataSourceLoadOptions loadOptions, string periodes, string stringPE, string jenisTransaksi)
         {

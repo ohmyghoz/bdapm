@@ -119,146 +119,8 @@
         <div class="row">
         </div>
         <br />
-        @*grid*@
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header" style="background-color: #28a745;">
-                        <h1 class="card-title" style="color:white; font-weight:bold">Gainers</h1>
-                    </div>
-                    <div class="card-body" style="padding: 0;">
-                        @{
-                            sequenceCounter = 1;
-                        }
 
-                        @* 2. Loop over the Gainers list *@
-                        @foreach (BDA.Models.GainerLoserViewModel item in Model.Gainers)
-                        {
-                            <div class="gainer-item">
-                                <div class="gainer-header">
-                                    <div class="gainer-seq">@(sequenceCounter++)</div>
-                                    <div class="gainer-code">@item.SecurityCode</div>
-                                    <div class="gainer-name">@item.SecurityName</div> 
-                                <div class="gainer-details">
-                                    <table>
-                                        <tr>
-                                            <td>Volume</td>
-                                            <td>@Html.DisplayFor(modelItem => item.Volume)</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Turnover</td>
-                                            <td>@Html.DisplayFor(modelItem => item.Turnover)</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Freq</td>
-                                            <td>@Html.DisplayFor(modelItem => item.Freq)</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Net Value</td>
-                                            <td>@Html.DisplayFor(modelItem => item.NetValue)</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Net Volume</td>
-                                            <td>@Html.DisplayFor(modelItem => item.NetVolume)</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Point</td>
-                                            <td class="negative-value">@Html.DisplayFor(modelItem => item.Point)</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Price</td>
-                                            <td>@Html.DisplayFor(modelItem => item.Price)</td>
-                                        </tr>
-                                        <tr>
-                                            <td>% Change Price</td>
-                                            <td class="negative-value">@Html.DisplayFor(modelItem => item.ChangePercentage)</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Max</td>
-                                            <td>@Html.DisplayFor(modelItem => item.MaxPrice)</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Min</td>
-                                            <td>@Html.DisplayFor(modelItem => item.MinPrice)</td>
-                                        </tr>
-                                    </table>
-                                </div>
-                                </div>
-                            </div>
-                        }
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                
-                <div class="card">
-                    <div class="card-header" style="background-color: #dc3545;">
-                        <h1 class="card-title" style="color:white; font-weight:bold">Losers</h1>
-                    </div>
-                    <div class="card-body" style="padding: 0;">
-                        @{
-                            sequenceCounter = 1;
-                        }
-
-                        @* 2. Loop over the Gainers list *@
-                        @foreach (BDA.Models.GainerLoserViewModel item in Model.Losers)
-                        {
-                            <div class="gainer-item">
-                                <div class="gainer-header">
-                                    <div class="gainer-seq">@(sequenceCounter++)</div>
-                                    <div class="gainer-code">@item.SecurityCode</div>
-                                    <div class="gainer-name">@item.SecurityName</div>
-                                <div class="loser-details">
-                                    <table>
-                                        <tr>
-                                            <td>Volume</td>
-                                            <td>@Html.DisplayFor(modelItem => item.Volume)</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Turnover</td>
-                                            <td>@Html.DisplayFor(modelItem => item.Turnover)</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Freq</td>
-                                            <td>@Html.DisplayFor(modelItem => item.Freq)</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Net Value</td>
-                                            <td>@Html.DisplayFor(modelItem => item.NetValue)</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Net Volume</td>
-                                            <td>@Html.DisplayFor(modelItem => item.NetVolume)</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Point</td>
-                                            <td class="negative-value">@Html.DisplayFor(modelItem => item.Point)</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Price</td>
-                                            <td>@Html.DisplayFor(modelItem => item.Price)</td>
-                                        </tr>
-                                        <tr>
-                                            <td>% Change Price</td>
-                                            <td class="negative-value">@Html.DisplayFor(modelItem => item.ChangePercentage)</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Max</td>
-                                            <td>@Html.DisplayFor(modelItem => item.MaxPrice)</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Min</td>
-                                            <td>@Html.DisplayFor(modelItem => item.MinPrice)</td>
-                                        </tr>
-                                    </table>
-                                </div>
-                                </div>
-                            </div>
-                        }
-                    </div>
-                </div>
-            </div>
-        </div>
+        <div id="gainerLoserContent"></div>
         
     </div>
 
@@ -307,6 +169,54 @@
     window.jsPDF = window.jspdf.jsPDF;
     applyPlugin(window.jsPDF);
 </script>
+
+
+    <script>
+        function onButtonFilterClicked() {
+            var selectedDate = getFormattedDate();
+            var topN = $("#ItemsPerPageSelectBox").dxSelectBox("instance").option("value");
+
+            if (!selectedDate) {
+                alert("Please select a period.");
+                return;
+            }
+
+            $('#gainerLoserContent').html('<p>Loading data, please wait...</p>');
+
+            $.ajax({
+                url: '@Url.Action("_GetGainersAndLosersData", "MarketDriven")',
+                type: 'POST',
+                data: {
+                    selectedDate: selectedDate,
+                    topN: topN
+                },
+                success: function (responseHtml) {
+                    // 'responseHtml' is now the complete HTML from your partial view.
+                    // Just place it directly into your placeholder div.
+                    $('#gainerLoserContent').html(responseHtml);
+                },
+                error: function () {
+                    $('#gainerLoserContent').html('<p class="text-danger">An error occurred while loading data.</p>');
+                }
+            });
+        }
+
+        // Helper function to get the date in yyyymmdd format
+        function getFormattedDate() {
+            var dateBox = $("#DatepickdID").dxDateBox("instance");
+            var dateValue = dateBox.option("value");
+            if (!dateValue) return null;
+
+            var year = dateValue.getFullYear();
+            var month = ('0' + (dateValue.getMonth() + 1)).slice(-2);
+            var day = ('0' + dateValue.getDate()).slice(-2);
+            return year + month + day;
+        }
+
+        // You can now DELETE the old 'buildListHtml' JavaScript function,
+        // as the server is building the HTML now.
+    </script>
+
 
 <script>
     function onPeriodChanged(e) {
@@ -471,26 +381,7 @@
         }
     }
 
-    function onButtonFilterClicked(e) {
-        const res = e.validationGroup.validate();
-        if (res.status === "valid") {
-            $("#grid1").dxDataGrid("instance").refresh();
-        }
-    }
-
-    function onGridBeforeSend(method, ajaxOptions) {
-        let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
-        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
-        let status = $("#Statusid").dxTagBox("instance").option("value");
-
-        let periodeAwal = null;
-        if (tempPeriodeAwal != null) {
-            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + (tempPeriodeAwal.getMonth() + 1) + '-' + tempPeriodeAwal.getDate();
-        }
-        ajaxOptions.data.namaPE = JSON.stringify(namaPE);
-        ajaxOptions.data.periodeAwal = periodeAwal;
-        ajaxOptions.data.status = JSON.stringify(status);
-    }
+  
 
     function onLJKOpened(e) {
         e.component.content().find('.dx-list-select-all').hide();
