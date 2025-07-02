@@ -6192,6 +6192,31 @@ namespace BDA.Helper
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
         }
 
+        public static WSQueryReturns GetPS07PieChartInv(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string invType, string invOrigin, string inRange, string market, int type, bool isHive = true)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            isHive = true;
+
+            whereQuery += PS07Filters(periode, pe, invType, invOrigin, inRange, market);
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (type == 1)
+                {
+                    props.Query = @"SELECT COUNT(tradeid) AS result FROM pasarmodal.basis_investor_pe WHERE " + whereQuery + @"";
+                }
+                else
+                {
+                    props.Query = @"SELECT SUM(investortotalvalue) AS result FROM pasarmodal.basis_investor_pe WHERE " + whereQuery + @"";
+                }
+
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+
 
         #endregion
 
