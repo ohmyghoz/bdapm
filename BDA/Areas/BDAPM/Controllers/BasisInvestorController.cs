@@ -449,6 +449,170 @@ namespace BDA.Controllers
             return JsonConvert.SerializeObject(result);
         }
 
+        public object GetPieChartsRFM(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE, string invType, string invOrigin, string inRange, string market, int type, string r, string f, string m)
+        {
+            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+            TempData.Clear(); //membersihkan data filtering
+
+            string stringPeriodeAwal = null;
+            string stringNamaPE = null;
+            string stringInvType = null;
+            string stringInvOrigin = null;
+            string stringInRange = null;
+            string stringMarket = null;
+            int intType = 1;
+            string stringR = null;
+            string stringF = null;
+            string stringM = null;
+            string reportId = "ps_basis_inv_pe"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+
+            stringPeriodeAwal = Convert.ToDateTime(DateTime.Now).ToString("yyyy-MM-dd");
+            TempData["pawal"] = stringPeriodeAwal;
+
+            if (periodeAwal != null)
+            {
+                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
+                TempData["pawal"] = stringPeriodeAwal;
+            }
+
+            if (namaPE != null)
+            {
+                stringNamaPE = namaPE;
+                //string result = stringNamaPE.Replace("\",\"", "");
+                TempData["pe"] = stringNamaPE;
+            }
+
+            if (invType != null)
+            {
+                stringInvType = invType;
+                TempData["invType"] = stringInvType;
+            }
+
+            if (invOrigin != null)
+            {
+                stringInvOrigin = invOrigin;
+                TempData["invOrigin"] = stringInvOrigin;
+            }
+
+            if (inRange != null)
+            {
+                stringInRange = inRange;
+                TempData["inRange"] = stringInRange;
+            }
+
+            if (market != null)
+            {
+                stringMarket = market;
+                TempData["market"] = stringMarket;
+
+            }
+
+            if (type != 1)
+            {
+                intType = type;
+                TempData["type"] = intType;
+
+            }
+
+            if (r != null)
+            {
+                stringR = r;
+                TempData["r"] = stringR;
+
+            }
+
+            if (f != null)
+            {
+                stringF = f;
+                TempData["f"] = stringF;
+
+            }
+
+            if (m != null)
+            {
+                stringM = m;
+                TempData["m"] = stringM;
+
+            }
+
+            db.Database.CommandTimeout = 420;
+            var result = Helper.WSQueryStore.GetPS07PieChartsRFM(db, loadOptions, stringPeriodeAwal, stringNamaPE, stringInvType, stringInvOrigin, stringInRange, stringMarket, intType, stringR, stringF, stringM, cekHive);
+
+            return JsonConvert.SerializeObject(result);
+        }
+
+        public object GetPieChartInv(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE, string invType, string invOrigin, string inRange, string market, int type)
+        {
+            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+            TempData.Clear(); //membersihkan data filtering
+
+            string stringPeriodeAwal = null;
+            string stringNamaPE = null;
+            string stringInvType = null;
+            string stringInvOrigin = null;
+            string stringInRange = null;
+            string stringMarket = null;
+            int intType = 1;
+            string reportId = "ps_basis_inv_pe"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+
+            stringPeriodeAwal = Convert.ToDateTime(DateTime.Now).ToString("yyyy-MM-dd");
+            TempData["pawal"] = stringPeriodeAwal;
+
+            if (periodeAwal != null)
+            {
+                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
+                TempData["pawal"] = stringPeriodeAwal;
+            }
+
+            if (namaPE != null)
+            {
+                stringNamaPE = namaPE;
+                //string result = stringNamaPE.Replace("\",\"", "");
+                TempData["pe"] = stringNamaPE;
+            }
+
+            if (invType != null)
+            {
+                stringInvType = invType;
+                TempData["invType"] = stringInvType;
+            }
+
+            if (invOrigin != null)
+            {
+                stringInvOrigin = invOrigin;
+                TempData["invOrigin"] = stringInvOrigin;
+            }
+
+            if (inRange != null)
+            {
+                stringInRange = inRange;
+                TempData["inRange"] = stringInRange;
+            }
+
+            if (market != null)
+            {
+                stringMarket = market;
+                TempData["market"] = stringMarket;
+
+            }
+
+            if (type != 1)
+            {
+                intType = type;
+                TempData["type"] = intType;
+
+            }
+
+            db.Database.CommandTimeout = 420;
+            var result = Helper.WSQueryStore.GetPS07PieChartInv(db, loadOptions, stringPeriodeAwal, stringNamaPE, stringInvType, stringInvOrigin, stringInRange, stringMarket, intType, cekHive);
+
+            return JsonConvert.SerializeObject(result);
+        }
+
 
         [HttpPost]
         public ActionResult SimpanPenggunaanData(string id)

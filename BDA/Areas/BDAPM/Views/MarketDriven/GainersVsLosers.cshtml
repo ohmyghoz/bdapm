@@ -1,8 +1,11 @@
 ﻿@using DevExtreme.AspNet.Mvc
 @{
     Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+    string reportId = "GainersVSLosers";
+    var p = (string[])ViewBag.period;
+    var maxItems = db.GetSetting("LimitFilterLJK");
+    int sequenceCounter = 1;
 }
-
 @inject BDA.DataModel.DataEntities db
 
 @using (Html.BeginForm())
@@ -117,53 +120,146 @@
         </div>
         <br />
         @*grid*@
-        <div class="gridview-div">
-            @(Html.DevExtreme().DataGrid()
-                .ID("grid1")
-                .DataSource(d => d.Mvc()
-                .Controller("SegmentationSummaryClusterMKBD")
-                .LoadAction("GetGridData")
-                .Key("rowid")
-                .OnBeforeSend("onGridBeforeSend"))
-                .RemoteOperations(true)
-                .Width("100%")
-                .AllowColumnResizing(true)
-                .ColumnAutoWidth(true)
-                .Columns(columns =>
-                {
-                    columns.Add().DataField("rowid").Visible(false);
-                    columns.Add().DataField("securitycompanycode").Caption("Kode PE");
-                    columns.Add().DataField("securitycompanyname").Caption("Nama PE");
-                    columns.Add().DataField("simpanangiro").Caption("Simpanan Giro");
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header" style="background-color: #28a745;">
+                        <h1 class="card-title" style="color:white; font-weight:bold">Gainers</h1>
+                    </div>
+                    <div class="card-body" style="padding: 0;">
+                        @{
+                            sequenceCounter = 1;
+                        }
 
-                    columns.Add().DataField("cluster").Caption("Deposito < 3 Bulan");
-                    columns.Add().DataField("depositolt3bulan").Caption("Deposito > 3 Bulan");
-                    columns.Add().DataField("depositogt3bulandijaminlps").Caption("Deposito > 3 Bulan Dijamin LPS");
-                    columns.Add().DataField("uangjaminanlkp").Caption("Uang Jaminan LKP").Format("#,##0");
-                    columns.Add().DataField("kasdansetarakas").Caption("Kas dan Setara Kas(Simpanan Giro + Deposito < 3 Bulan + Uang Jaminan LKP)").Format("#,##0");
-                    columns.Add().DataField("mkbd").Caption("MKBD").Format("#,##0");
-                    columns.Add().DataField("mkbdminimum").Caption("MKBD Minimum").Format("#,##0");
-                    columns.Add().DataField("mkbdpermkbdminimum").Caption("MKBD Terhadap MKBD Minimum");
-                    columns.Add().Type(GridCommandColumnType.Buttons).Caption("Action").Buttons(b =>
-                    {
-                        b.Add()
-                    .Hint("Detail")
-                    .Icon("detailslayout")
-                    .OnClick("Detail");
-                    });
-                })
-                .FilterRow(f => f.Visible(true))
-                .ShowBorders(false)
-                .Paging(p =>
-                {
-                    p.PageSize(20);
-                    p.Enabled(true);
-                })
-                .Pager(p =>
-                {
-                    p.ShowInfo(true);
-                }))
+                        @* 2. Loop over the Gainers list *@
+                        @foreach (BDA.Models.GainerLoserViewModel item in Model.Gainers)
+                        {
+                            <div class="gainer-item">
+                                <div class="gainer-header">
+                                    <div class="gainer-seq">@(sequenceCounter++)</div>
+                                    <div class="gainer-code">@item.SecurityCode</div>
+                                    <div class="gainer-name">@item.SecurityName</div> 
+                                <div class="gainer-details">
+                                    <table>
+                                        <tr>
+                                            <td>Volume</td>
+                                            <td>@Html.DisplayFor(modelItem => item.Volume)</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Turnover</td>
+                                            <td>@Html.DisplayFor(modelItem => item.Turnover)</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Freq</td>
+                                            <td>@Html.DisplayFor(modelItem => item.Freq)</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Net Value</td>
+                                            <td>@Html.DisplayFor(modelItem => item.NetValue)</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Net Volume</td>
+                                            <td>@Html.DisplayFor(modelItem => item.NetVolume)</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Point</td>
+                                            <td class="negative-value">@Html.DisplayFor(modelItem => item.Point)</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Price</td>
+                                            <td>@Html.DisplayFor(modelItem => item.Price)</td>
+                                        </tr>
+                                        <tr>
+                                            <td>% Change Price</td>
+                                            <td class="negative-value">@Html.DisplayFor(modelItem => item.ChangePercentage)</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Max</td>
+                                            <td>@Html.DisplayFor(modelItem => item.MaxPrice)</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Min</td>
+                                            <td>@Html.DisplayFor(modelItem => item.MinPrice)</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                
+                <div class="card">
+                    <div class="card-header" style="background-color: #dc3545;">
+                        <h1 class="card-title" style="color:white; font-weight:bold">Losers</h1>
+                    </div>
+                    <div class="card-body" style="padding: 0;">
+                        @{
+                            sequenceCounter = 1;
+                        }
+
+                        @* 2. Loop over the Gainers list *@
+                        @foreach (BDA.Models.GainerLoserViewModel item in Model.Losers)
+                        {
+                            <div class="gainer-item">
+                                <div class="gainer-header">
+                                    <div class="gainer-seq">@(sequenceCounter++)</div>
+                                    <div class="gainer-code">@item.SecurityCode</div>
+                                    <div class="gainer-name">@item.SecurityName</div>
+                                <div class="loser-details">
+                                    <table>
+                                        <tr>
+                                            <td>Volume</td>
+                                            <td>@Html.DisplayFor(modelItem => item.Volume)</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Turnover</td>
+                                            <td>@Html.DisplayFor(modelItem => item.Turnover)</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Freq</td>
+                                            <td>@Html.DisplayFor(modelItem => item.Freq)</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Net Value</td>
+                                            <td>@Html.DisplayFor(modelItem => item.NetValue)</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Net Volume</td>
+                                            <td>@Html.DisplayFor(modelItem => item.NetVolume)</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Point</td>
+                                            <td class="negative-value">@Html.DisplayFor(modelItem => item.Point)</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Price</td>
+                                            <td>@Html.DisplayFor(modelItem => item.Price)</td>
+                                        </tr>
+                                        <tr>
+                                            <td>% Change Price</td>
+                                            <td class="negative-value">@Html.DisplayFor(modelItem => item.ChangePercentage)</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Max</td>
+                                            <td>@Html.DisplayFor(modelItem => item.MaxPrice)</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Min</td>
+                                            <td>@Html.DisplayFor(modelItem => item.MinPrice)</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
         </div>
+        
     </div>
 
 
@@ -454,6 +550,89 @@
 </script>
 
 <style type="text/css">
+    .gainer-item {
+        border-bottom: 1px solid #dee2e6;
+        padding: 0.75rem 1.25rem;
+    }
+
+    .gainer-header {
+        display: flex;
+        align-items: center;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+
+    .gainer-seq {
+        width: 30px;
+    }
+
+    .gainer-code {
+        width: 70px;
+    }
+
+    .gainer-name {
+        flex-grow: 1; /* Takes up remaining space */
+    }
+
+
+    .gainer-volume-label {
+        color: #6c757d; /* Gray text color */
+        padding-left: 1rem;
+    }
+
+    .gainer-volume-value {
+        width: 150px;
+        text-align: right;
+        color: #28a745; /* Green color */
+    }
+
+    .gainer-details table {
+        width:300px;
+        font-size: 0.9em;
+    }
+
+    .loser-details table {
+        width: 300px;
+        font-size: 0.9em;
+    }
+
+    .gainer-details td {
+        padding: 2px 0;
+        width:200px;
+    }
+
+    .loser-details td {
+        padding: 2px 0;
+        width: 200px;
+    }
+
+        .gainer-details td:first-child {
+            width: 35%%;
+            color: #6c757d;
+            text-align:left;
+        }
+
+        .gainer-details td:last-child {
+            text-align: right;
+            width: 150px;
+            color: #28a745; /* Green color */
+            font-weight: bold;
+        }
+
+        .loser-details td:first-child {
+            width: 35%;
+            color: #6c757d;
+        }
+
+        .loser-details td:last-child {
+            text-align: right;
+            width: 150px;
+            color: #dc3545; /* Red color */
+            font-weight: bold;
+        }
+
+
+   
     .mandatory {
         color: red;
     }

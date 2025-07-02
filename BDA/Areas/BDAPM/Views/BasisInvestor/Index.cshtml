@@ -237,7 +237,7 @@
                                 </div>
 
                                 <div class="row">
-                                    <div class="col-12 text-left text-nowrap mx-auto pt-17 pb-2"><small>% Transaction Freq</small></div>
+                                    <div class="col-12 text-left text-nowrap mx-auto pt-14 pb-2"><small>% Transaction Freq</small></div>
                                     <br /><br />
                                     <div class="col-12 text-left text-nowrap mx-auto pt-2 pb-4"><small><b>Potential Loyalist</b></small></div>
                                     <br /><br />
@@ -246,7 +246,7 @@
                                 </div>
 
                                 <div class="row">
-                                    <div class="col-12 text-left text-nowrap mx-auto pt-13 pb-2"><small>% Transaction Freq</small></div>
+                                    <div class="col-12 text-left text-nowrap mx-auto pt-8 pb-2"><small>% Transaction Freq</small></div>
                                     <br /><br />
                                     <div class="col-12 text-left text-nowrap mx-auto pt-2 pb-2"><small><b>Promising</b></small></div>
                                     <br /><br />
@@ -255,7 +255,7 @@
                                 </div>
 
                                 <div class="row">
-                                    <div class="col-12 text-left text-nowrap mx-auto pt-16 pb-2"><small>% Transaction Freq</small></div>
+                                    <div class="col-12 text-left text-nowrap mx-auto pt-14 pb-2"><small>% Transaction Freq</small></div>
                                     <br /><br />
                                     <div class="col-12 text-left text-nowrap mx-auto pt-2 pb-2"><small><b>Recent Customer</b></small></div>
                                     <br /><br />
@@ -264,7 +264,7 @@
                                 </div>
 
                                 <div class="row">
-                                    <div class="col-12 text-left text-nowrap mx-auto pt-18 pb-2"><small>% Transaction Freq</small></div>
+                                    <div class="col-12 text-left text-nowrap mx-auto pt-15 pb-2"><small>% Transaction Freq</small></div>
                                     <br /><br />
                                     <div class="col-12 text-left text-nowrap mx-auto pt-4 pb-2"><small><b>At Risk</b></small></div>
                                     <br /><br />
@@ -273,7 +273,7 @@
                                 </div>
 
                                 <div class="row">
-                                    <div class="col-12 text-left text-nowrap mx-auto pt-17 pb-2"><small>% Transaction Freq</small></div>
+                                    <div class="col-12 text-left text-nowrap mx-auto pt-14 pb-2"><small>% Transaction Freq</small></div>
                                     <br /><br />
                                     <div class="col-12 text-left text-nowrap mx-auto pt-2 pb-2"><small><b>Churn</b></small></div>
                                     <br /><br />
@@ -339,9 +339,8 @@
                             .DataSource(chrtFilter)
                             .ValueExpr("Value")
                             .DisplayExpr("Text")
-                            .Value("Value")
+                            .Value(1)
                             .OnSelectionChanged("onSelectionChanged")
-                            .OnInitialized("initFilterPie")
                             .Width(150))
 
                     </div>
@@ -463,7 +462,15 @@
 
 <script>
 
-    $(function () {
+    $(document).ready(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+        createBarChart();
+        createDonutChart();
+        createScatterPlot();
+        $('.clickChart').on('click', onClickChart);
+    });
+
+@*     $(function () {
 
         $('[data-toggle="tooltip"]').tooltip()
         createBarChart();
@@ -471,22 +478,10 @@
         createScatterPlot();
         $('.clickChart').on('click', onClickChart);
 
-    });
-
-
-    function initFilterPie(e) {
-        const v = e.component.option("Value");
-        if (v === null) {
-            e.component.option("Value", 1);
-        }
-    }
+    }); *@
 
     function onClickChart() {
         alert("CLICKED!");
-    }
-
-    function formatNumber(value) {
-        return
     }
 
     // DONUT START
@@ -833,7 +828,7 @@
 
 
     // VERT.BAR END
-
+    
     // SCATTER START
 
     function createScatterPlot() {
@@ -1016,8 +1011,14 @@
     });
 
     function onSelectionChanged(e) {
-        if (e.addedItems.length > 0) {
-            e.component.field().val(""); // Clears the search text. However, search filter is only applied to the widget after focus is lost in the input element
+        if (e.addedItems && e.addedItems.length > 0) {
+            // Get the input element of the ComboBox
+            var inputElement = e.component.$element().find("input").first();
+
+            // Clear the search text
+            if (inputElement.length) {
+                inputElement.val(""); // Clears the search text
+            }
         }
     }
 
@@ -1192,9 +1193,6 @@
                         };
 
                         chartDatas.push(data2);
-
-                        console.log(data1);
-                        console.log(data2);
                     }
                 });
             }
@@ -1228,8 +1226,6 @@
 
                         chartDatas.push(data2);
 
-                        console.log(data1);
-                        console.log(data2);
                     }
                 });
             }
@@ -1262,9 +1258,6 @@
                         };
 
                         chartDatas.push(data2);
-
-                        console.log(data1);
-                        console.log(data2);
                     }
                 });
             }
@@ -1297,9 +1290,6 @@
                         };
 
                         chartDatas.push(data2);
-
-                        console.log(data1);
-                        console.log(data2);
                     }
                 });
             }
@@ -1332,9 +1322,6 @@
                         };
 
                         chartDatas.push(data2);
-
-                        console.log(data1);
-                        console.log(data2);
                     }
                 });
             }
@@ -1367,9 +1354,6 @@
                         };
 
                         chartDatas.push(data2);
-
-                        console.log(data1);
-                        console.log(data2);
                     }
                 });
             }
@@ -1378,12 +1362,324 @@
                 $("#chartContainer1").dxChart("option", "dataSource", chartDatas);
             }
 
-            (function () {
-                loadCard1().then(loadCard2).then(loadCard3).then(loadCard4).then(loadCard5).then(loadChart1).then(loadChart2).then(loadChart3).then(loadChart4).then(loadChart5).then(loadChart6).then(loadChartDatas);
-            }());
+            function loadPieChartsRFM() {
 
+
+                let rh = 0, rm = 0, rl = 0, fh = 0, fm = 0, fl = 0, mh = 0, mm = 0, ml = 0;
+
+                function getChartR() {
+                    Promise.all([
+                        $.ajax({
+                            url: '@Url.Action("GetPieChartsRFM", "BasisInvestor")',
+                            data: { periodeAwal: periodeAwal, namaPE: namaPE, invType: invType, invOrigin: invOrigin, inRange: inpRange, market: market, type: parseInt(filterChart), r: "H" },
+                            dataType: "json",
+                            type: "POST",
+                            success: function (response) {
+                                rh = Number(response.data[0].result);
+                            }
+                        }),
+
+                        $.ajax({
+                            url: '@Url.Action("GetPieChartsRFM", "BasisInvestor")',
+                            data: { periodeAwal: periodeAwal, namaPE: namaPE, invType: invType, invOrigin: invOrigin, inRange: inpRange, market: market, type: parseInt(filterChart), r: "M" },
+                            dataType: "json",
+                            type: "POST",
+                            success: function (response) {
+                                rm = Number(response.data[0].result);
+                            }
+                        }),
+
+                        $.ajax({
+                            url: '@Url.Action("GetPieChartsRFM", "BasisInvestor")',
+                            data: { periodeAwal: periodeAwal, namaPE: namaPE, invType: invType, invOrigin: invOrigin, inRange: inpRange, market: market, type: parseInt(filterChart), r: "L" },
+                            dataType: "json",
+                            type: "POST",
+                            success: function (response) {
+                                rl = Number(response.data[0].result);
+                            }
+                        })
+                    ]).then(function () {
+                        var total = rh + rm + rl;
+                        if (total !== 0) {
+                            rh = (rh / total);
+                            rm = (rm / total);
+                            rl = (rl / total);
+                        }
+
+                        var data = [
+                            { category: "High", value: rh },
+                            { category: "Low", value: rl },
+                            { category: "Medium", value: rm }
+                        ];
+
+                        $("#donutChart1").dxPieChart("option", "dataSource", data);
+                    });
+                }
+
+                function getChartF() {
+                    Promise.all([
+                        $.ajax({
+                            url: '@Url.Action("GetPieChartsRFM", "BasisInvestor")',
+                            data: { periodeAwal: periodeAwal, namaPE: namaPE, invType: invType, invOrigin: invOrigin, inRange: inpRange, market: market, type: parseInt(filterChart), f: "H" },
+                            dataType: "json",
+                            type: "POST",
+                            success: function (response) {
+                                fh = Number(response.data[0].result);
+                            }
+                        }),
+
+                        $.ajax({
+                            url: '@Url.Action("GetPieChartsRFM", "BasisInvestor")',
+                            data: { periodeAwal: periodeAwal, namaPE: namaPE, invType: invType, invOrigin: invOrigin, inRange: inpRange, market: market, type: parseInt(filterChart), f: "M" },
+                            dataType: "json",
+                            type: "POST",
+                            success: function (response) {
+                                fm = Number(response.data[0].result);
+                            }
+                        }),
+
+                        $.ajax({
+                            url: '@Url.Action("GetPieChartsRFM", "BasisInvestor")',
+                            data: { periodeAwal: periodeAwal, namaPE: namaPE, invType: invType, invOrigin: invOrigin, inRange: inpRange, market: market, type: parseInt(filterChart), f: "L" },
+                            dataType: "json",
+                            type: "POST",
+                            success: function (response) {
+                                fl = Number(response.data[0].result);
+                            }
+                        })
+                    ]).then(function () {
+                        var total = fh + fm + fl;
+                        if (total !== 0) {
+                            fh = (fh / total);
+                            fm = (fm / total);
+                            fl = (fl / total);
+                        }
+
+                        var data = [
+                            { category: "High", value: fh },
+                            { category: "Low", value: fl },
+                            { category: "Medium", value: fm }
+                        ];
+
+                        $("#donutChart2").dxPieChart("option", "dataSource", data);
+                    });
+                }
+
+                function getChartM() {
+                    Promise.all([
+                        $.ajax({
+                            url: '@Url.Action("GetPieChartsRFM", "BasisInvestor")',
+                            data: { periodeAwal: periodeAwal, namaPE: namaPE, invType: invType, invOrigin: invOrigin, inRange: inpRange, market: market, type: parseInt(filterChart), m: "H" },
+                            dataType: "json",
+                            type: "POST",
+                            success: function (response) {
+                                mh = Number(response.data[0].result);
+                            }
+                        }),
+
+                        $.ajax({
+                            url: '@Url.Action("GetPieChartsRFM", "BasisInvestor")',
+                            data: { periodeAwal: periodeAwal, namaPE: namaPE, invType: invType, invOrigin: invOrigin, inRange: inpRange, market: market, type: parseInt(filterChart), m: "M" },
+                            dataType: "json",
+                            type: "POST",
+                            success: function (response) {
+                                mm = Number(response.data[0].result);
+                            }
+                        }),
+
+                        $.ajax({
+                            url: '@Url.Action("GetPieChartsRFM", "BasisInvestor")',
+                            data: { periodeAwal: periodeAwal, namaPE: namaPE, invType: invType, invOrigin: invOrigin, inRange: inpRange, market: market, type: parseInt(filterChart), m: "L" },
+                            dataType: "json",
+                            type: "POST",
+                            success: function (response) {
+                                ml = Number(response.data[0].result);
+                            }
+                        })
+                    ]).then(function () {
+                        var total = mh + mm + ml;
+                        if (total !== 0) {
+                            mh = (mh / total);
+                            mm = (mm / total);
+                            ml = (ml / total);
+                        }
+
+                        var data = [
+                            { category: "High", value: mh },
+                            { category: "Low", value: ml },
+                            { category: "Medium", value: mm }
+                        ];
+
+                        $("#donutChart3").dxPieChart("option", "dataSource", data);
+                    });
+                }
+
+                getChartR();
+                getChartF();
+                getChartM();
+            }
+
+            function loadPieChartClientVNewClient() { 
+                var data = [
+                    { category: "Client", value: 1 },
+                    { category: "New Client", value: 0 }
+                ];
+
+                $("#donutChart4").dxPieChart("option", "dataSource", data);
+            }
+
+            function loadPieChartInvOrigin() {
+                let lokal = 0, asing = 0;
+
+                switch (invOrigin) {
+                    case "Asing":
+                        asing = 1;
+                        var data = [
+                            { category: "Asing", value: asing },
+                            { category: "Lokal", value: lokal }
+                        ];
+
+                        $("#donutChart5").dxPieChart("option", "dataSource", data);
+                        break;
+
+                    case "Lokal":
+                        lokal = 1;
+                        var data = [
+                            { category: "Asing", value: asing },
+                            { category: "Lokal", value: lokal }
+                        ];
+
+                        $("#donutChart5").dxPieChart("option", "dataSource", data);
+                        break;
+                    default:
+                        Promise.all([
+                            $.ajax({
+                                url: '@Url.Action("GetPieChartInv", "BasisInvestor")',
+                                data: { periodeAwal: periodeAwal, namaPE: namaPE, invType: invType, invOrigin: "Lokal", inRange: inpRange, market: market, type: parseInt(filterChart) },
+                                dataType: "json",
+                                type: "POST",
+                                success: function (response) {
+                                    lokal = Number(response.data[0].result);
+                                }
+                            }),
+
+                            $.ajax({
+                                url: '@Url.Action("GetPieChartInv", "BasisInvestor")',
+                                data: { periodeAwal: periodeAwal, namaPE: namaPE, invType: invType, invOrigin: "Asing", inRange: inpRange, market: market, type: parseInt(filterChart) },
+                                dataType: "json",
+                                type: "POST",
+                                success: function (response) {
+                                    asing = Number(response.data[0].result);
+                                }
+                            })
+                        ]).then(function () {
+                            var total = lokal + asing;
+
+                            if (total !== 0) {
+                                lokal = (lokal / total);
+                                asing = (asing / total);
+                            }
+
+                            var data = [
+                                { category: "Asing", value: asing },
+                                { category: "Lokal", value: lokal }
+                            ];
+
+                            $("#donutChart5").dxPieChart("option", "dataSource", data);
+                        });
+                        break;
+                }
+            }
+
+            function loadPieChartInvType() { 
+                let indv = 0, inst = 0;
+
+                switch (invType) {
+                    case "Individu":
+                        indv = 1;
+                        var data = [
+                            { category: "Individu", value: indv },
+                            { category: "Institusi", value: inst }
+                        ];
+
+                        $("#donutChart6").dxPieChart("option", "dataSource", data);
+                        break;
+
+                    case "Institusi":
+                        inst = 1;
+                        var data = [
+                            { category: "Individu", value: indv },
+                            { category: "Institusi", value: inst }
+                        ];
+
+                        $("#donutChart6").dxPieChart("option", "dataSource", data);
+                        break;
+                    default:
+                        Promise.all([
+                            $.ajax({
+                                url: '@Url.Action("GetPieChartInv", "BasisInvestor")',
+                                data: { periodeAwal: periodeAwal, namaPE: namaPE, invType: "Individu", invOrigin: invOrigin, inRange: inpRange, market: market, type: parseInt(filterChart) },
+                                dataType: "json",
+                                type: "POST",
+                                success: function (response) {
+                                    indv = Number(response.data[0].result);
+                                }
+                            }),
+
+                            $.ajax({
+                                url: '@Url.Action("GetPieChartInv", "BasisInvestor")',
+                                data: { periodeAwal: periodeAwal, namaPE: namaPE, invType: "Institusi", invOrigin: invOrigin, inRange: inpRange, market: market, type: parseInt(filterChart) },
+                                dataType: "json",
+                                type: "POST",
+                                success: function (response) {
+                                    inst = Number(response.data[0].result);
+                                }
+                            })
+                        ]).then(function () {
+                            var total = indv + inst;
+
+                            if (total !== 0) {
+                                indv = (indv / total);
+                                inst = (inst / total);
+                            }
+
+                            var data = [
+                                { category: "Individu", value: indv },
+                                { category: "Institusi", value: inst }
+                            ];
+
+                            $("#donutChart6").dxPieChart("option", "dataSource", data);
+                        });
+                        break;
+                }
+            }
+
+            function loadScatter() {
+                
+            }
+
+            (function () {
+                loadCard1()
+                    //.then(loadCard2)
+                    //.then(loadCard3)
+                    //.then(loadCard4)
+                    //.then(loadCard5)
+                    //.then(loadChart1)
+                    //.then(loadChart2)
+                    //.then(loadChart3)
+                    //.then(loadChart4)
+                    //.then(loadChart5)
+                    //.then(loadChart6)
+                    //.then(loadChartDatas)
+                    //.then(loadPieChartsRFM)
+                    //.then(loadPieChartClientVNewClient)
+                    .then(loadPieChartInvOrigin)
+                    .then(loadPieChartInvType);
+            }());
         }
     }
+
+    
 </script>
 
 <style type="text/css">
