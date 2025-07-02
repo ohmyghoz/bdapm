@@ -79,7 +79,7 @@ namespace BDA.Controllers
             db.InsertAuditTrail("Gainers_vs_Lossers_Page", "Akses Page Gainers vs Lossers", pageTitle); //simpan kedalam audit trail
 
             // 1. Create an instance of the main page model
-            var pageModel = new GainersAndLosersPageViewModel();
+            var pageModel = new Areas.BDAPM.Models.GainersAndLosersPageViewModel();
 
             // 2. Define the base query and WHERE clause to reuse
             string whereClause = "WHERE history_type = 'monthly' AND periode = (SELECT MAX(periode) FROM pasarmodal.market_driven_ape_growth WHERE history_type = 'monthly')";
@@ -97,9 +97,9 @@ namespace BDA.Controllers
         }
 
         // I've created a private helper method to avoid duplicating the database logic
-        private List<GainerLoserViewModel> FetchAndMapData(string sqlQuery)
+        private List<Models.GainerLoserViewModel> FetchAndMapData(string sqlQuery)
         {
-            var list = new List<GainerLoserViewModel>();
+            var list = new List<Models.GainerLoserViewModel>();
             string connString = db.appSettings.DataConnString;
             try
             {
@@ -113,7 +113,7 @@ namespace BDA.Controllers
 
                         foreach (DataRow row in dt.Rows)
                         {
-                            list.Add(new GainerLoserViewModel
+                            list.Add(new Models.GainerLoserViewModel
                             {
                                 SecurityCode = row["security_code"] as string,
                                 SecurityName = row["security_name"] as string,
@@ -215,7 +215,7 @@ namespace BDA.Controllers
         public object GetMarketData(DataSourceLoadOptions loadOptions, string selectedDate) // Changed from DateTime?
         {
             // Pass the date STRING down to the data helper
-            var result = WSQueryPS.GetMarketDrivenData(db, loadOptions, selectedDate);
+            var result = Helper.WSQueryPS.GetMarketDrivenData(db, loadOptions, selectedDate);
 
             return Json(result);
         }
