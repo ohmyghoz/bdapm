@@ -70,6 +70,26 @@ namespace BDA.Controllers
 
         }
 
+        [HttpPost]
+        public PartialViewResult _LeadersAndLaggardsData(string selectedDate, int? topN)
+        {
+            var pageModel = new LeadersAndLaggardsPageViewModel();
+
+            if (string.IsNullOrEmpty(selectedDate))
+            {
+                return PartialView("_LeadersAndLaggardsData", pageModel);
+            }
+
+            int topCount = topN ?? 10;
+
+            // Call the new helper method from WSQueryPS for both lists
+            pageModel.Leaders = WSQueryPS.GetLeadersOrLaggards(db, true, selectedDate, topCount); // true = Gainers
+            pageModel.Laggards = WSQueryPS.GetLeadersOrLaggards(db, false, selectedDate, topCount); // false = Losers
+
+            return PartialView("_LeadersAndLaggardsData", pageModel);
+        }
+
+
         public IActionResult GainersVsLosers()
         {
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
@@ -84,6 +104,7 @@ namespace BDA.Controllers
             // 5. Pass the single page model (containing both lists) to the view
             return View();
         }
+
 
         [HttpPost]
         public PartialViewResult _GetGainersAndLosersData(string selectedDate, int? topN)
