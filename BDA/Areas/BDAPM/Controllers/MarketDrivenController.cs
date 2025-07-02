@@ -19,6 +19,8 @@ using Newtonsoft.Json;
 using System.Data.SqlClient;
 using static System.Net.Mime.MediaTypeNames;
 using System.Configuration;
+using BDA.Models;
+using BDA.Areas.BDAPM.Models;
 
 namespace BDA.Controllers
 {
@@ -78,7 +80,67 @@ namespace BDA.Controllers
             ViewBag.Export = db.CheckPermission("Market Driven Export", DataEntities.PermissionMessageType.NoMessage); //check permission export
             db.InsertAuditTrail("Gainers_vs_Lossers_Page", "Akses Page Gainers vs Lossers", pageTitle); //simpan kedalam audit trail
 
-            return View();
+            // 1. Create an instance of the main page model
+            var pageModel = new GainersAndLosersPageViewModel();
+
+            // 2. Define the base query and WHERE clause to reuse
+            string whereClause = "WHERE history_type = 'monthly' AND periode = (SELECT MAX(periode) FROM pasarmodal.market_driven_ape_growth WHERE history_type = 'monthly')";
+
+            // 3. Create two different queries for Gainers and Losers
+            string gainersQuery = $@"SELECT TOP 10 * FROM pasarmodal.market_driven_ape_growth {whereClause} ORDER BY changeprice DESC";
+            string losersQuery = $@"SELECT TOP 10 * FROM pasarmodal.market_driven_ape_growth {whereClause} ORDER BY changeprice ASC";
+
+            // 4. Fetch the data for both lists using a helper method
+            pageModel.Gainers = FetchAndMapData(gainersQuery);
+            pageModel.Losers = FetchAndMapData(losersQuery);
+
+            // 5. Pass the single page model (containing both lists) to the view
+            return View(pageModel);
+        }
+
+        // I've created a private helper method to avoid duplicating the database logic
+        private List<GainerLoserViewModel> FetchAndMapData(string sqlQuery)
+        {
+            var list = new List<GainerLoserViewModel>();
+            string connString = db.appSettings.DataConnString;
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connString))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlQuery, conn))
+                    {
+                        conn.Open();
+                        DataTable dt = new DataTable();
+                        new SqlDataAdapter(cmd).Fill(dt);
+
+                        foreach (DataRow row in dt.Rows)
+                        {
+                            list.Add(new GainerLoserViewModel
+                            {
+                                SecurityCode = row["security_code"] as string,
+                                SecurityName = row["security_name"] as string,
+                                Volume = row["volume"] != DBNull.Value ? Convert.ToInt64(row["volume"]) : 0,
+                                Turnover = row["turnover"] != DBNull.Value ? Convert.ToDecimal(row["turnover"]) : 0,
+                                Freq = row["freq"] != DBNull.Value ? Convert.ToInt32(row["freq"]) : 0,
+                                NetValue = row["net_value"] != DBNull.Value ? Convert.ToDecimal(row["net_value"]) : 0,
+                                NetVolume = row["net_volume"] != DBNull.Value ? Convert.ToDecimal(row["net_volume"]) : 0,
+                                Point = row["point"] != DBNull.Value ? Convert.ToDecimal(row["point"]) : 0,
+                                Price = row["price"] != DBNull.Value ? Convert.ToDecimal(row["price"]) : 0,
+                                ChangePercentage = row["changeprice"] != DBNull.Value ? Convert.ToDecimal(row["changeprice"]) : 0,
+                                MaxPrice = row["highvalue"] != DBNull.Value ? Convert.ToDecimal(row["highvalue"]) : 0,
+                                MinPrice = row["lowvalue"] != DBNull.Value ? Convert.ToDecimal(row["lowvalue"]) : 0
+                            });
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // In a real app, you should log this error
+                ViewBag.ErrorMessage = "An error occurred: " + ex.Message;
+            }
+            return list;
+
 
         }
 
