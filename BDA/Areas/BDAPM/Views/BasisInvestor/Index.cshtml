@@ -33,6 +33,9 @@
             display: none;
         }
 
+        .dx-chart-legend {
+            z-index: 10;
+        }
     </style>
 
     <div class="card card-default">
@@ -470,16 +473,6 @@
         $('.clickChart').on('click', onClickChart);
     });
 
-@*     $(function () {
-
-        $('[data-toggle="tooltip"]').tooltip()
-        createBarChart();
-        createDonutChart();
-        createScatterPlot();
-        $('.clickChart').on('click', onClickChart);
-
-    }); *@
-
     function onClickChart() {
         alert("CLICKED!");
     }
@@ -520,6 +513,10 @@
                         precision: 2
                     }
                 }
+            },
+            loadingIndicator: {
+                show: true,   
+                text: "Loading data..."
             },
             margin: {
                 top: 0,
@@ -563,6 +560,10 @@
                     }
                 }
             },
+            loadingIndicator: {
+                show: true,
+                text: "Loading data..."
+            },
             margin: {
                 top: 0,
                 bottom: 0,
@@ -604,6 +605,10 @@
                         precision: 2
                     }
                 }
+            },
+            loadingIndicator: {
+                show: true,
+                text: "Loading data..."
             },
             margin: {
                 top: 0,
@@ -655,6 +660,10 @@
                 rowItemSpacing: 4,
                 margin: 1
             },
+            loadingIndicator: {
+                show: true,
+                text: "Loading data..."
+            },
             margin: {
                 top: 0,
                 bottom: 0,
@@ -704,6 +713,10 @@
                 paddingLeftRight: 1,
                 rowItemSpacing: 4,
                 margin: 1
+            },
+            loadingIndicator: {
+                show: true,
+                text: "Loading data..."
             },
             margin: {
                 top: 0,
@@ -755,6 +768,10 @@
                 rowItemSpacing: 4,
                 margin: 1
             },
+            loadingIndicator: {
+                show: true,
+                text: "Loading data..."
+            },
             margin: {
                 top: 0,
                 bottom: 0,
@@ -772,7 +789,7 @@
 
     function createBarChart() {
         $("#chartContainer1").dxChart({
-            dataSource: [{
+            @* dataSource: [{
                 category: "a",
                 value: 0.745,
                 type: "a"
@@ -780,7 +797,7 @@
                 category: "a",
                 value: 0.251,
                 type: "b"
-            }],
+            }], *@
             rotated: true,
             commonSeriesSettings: {
                 argumentField: "category",
@@ -799,6 +816,10 @@
                         precision: 2
                     }
                 }
+            },
+            loadingIndicator: {
+                show: true,
+                text: "Loading data..."
             },
             seriesTemplate: {
                 nameField: 'type'
@@ -821,6 +842,7 @@
                 height: '100%',
                 width: '100%'
             }
+
         });
 
 
@@ -833,45 +855,25 @@
 
     function createScatterPlot() {
         var data = [{
-            total1: 9.5,
-            total2: 168.8,
-            total3: 127.2,
-            day1: 2.4,
-            day2: 8.8,
-            day3: 40.1,
-            sid1: 25.4,
-            sid2: 5.3,
-            sid3: 31.6,
+            total1: 161,
+            total2: 23.8482,
+            total3: 1.27,
+            day1: 1,
+            day2: 3,
+            day3: 4,
+            sid1: 5.643,
+            sid2: 5.893,
+            sid3: 7.232,
         }, {
-            total4: 82.8,
-            total5: 91.7,
-            total6: 90.8,
-            day4: 21.9,
-            day5: 4.6,
-            day6: 8.0,
-            sid4: 26.7,
-            sid4: 5.4,
-            sid4: 8.9,
-        }, {
-            total4: 16.7,
-            total5: 80.7,
-            total6: 21.1,
-            day4: 3.8,
-            day5: 7.0,
-            day6: 2.7,
-            sid4: 22.8,
-            sid5: 8.4,
-            sid6: 12.9,
-        }, {
-            total1: 62.8,
-            total2: 52.4,
-            total3: 96.7,
-            day1: 14.4,
-            day2: 4.0,
-            day3: 5.9,
-            sid1: 23.0,
-            sid2: 7.8,
-            sid3: 6.1,
+            total4: 83.67,
+            total5: 137.89,
+            total6: 214.524,
+            day4: 2,
+            day5: 7,
+            day6: 8,
+            sid4: 5.9041,
+            sid5: 6.3264,
+            sid6: 4.7334,
         }];
 
         $('#scatterPlot1').dxChart({
@@ -880,7 +882,7 @@
                 type: 'bubble',
             },
             argumentAxis: {
-                title: 'Total Value'
+                title: 'Investor Last Transactions in Days'
             },
             valueAxis: {
                 label: {
@@ -889,45 +891,61 @@
                     },
                 },
                 grid: { visible: false },
-                title: 'Investor Last Transactions in Days'
+                title: 'Total Value'
             },
+            background: '#00000000',
             legend: {
                 position: 'inside',
-                horizontalAlignment: 'right',
+                horizontalAlignment: 'right', 
+                background: '#00000000',
                 border: {
-                    visible: false,
+                    visible: true,
+                    color: '#00000000'
                 },
+            },
+            loadingIndicator: {
+                show: true,
+                text: "Loading data..."
+            },
+            tooltip: {
+                enabled: true,
+                customizeTooltip: function (pointInfo) {
+                    return {
+                        text: "<b>" + pointInfo.seriesName + "</b><br>" + 'Investor Last Transaction in Days: ' + "<b>" + pointInfo.argument + "</b><br>" + 'Total Value: ' + "<b>" + pointInfo.value + 'M' + "</b><br>"
+                    };
+                },
+                zIndex: 10
             },
             palette: ["#87594f", "#524f4f", "#bab3a6", "#7d3b3b", "#c05a5a", "#2b1515"],
             series: [{
                 name: 'At Risk',
-                argumentField: 'total1',
-                valueField: 'day1',
+                argumentField: 'day1',
+                valueField: 'total1',
                 sizeField: 'sid1',
             }, {
                 name: 'Champion',
-                argumentField: 'total2',
-                valueField: 'day2',
+                argumentField: 'day2',
+                valueField: 'total2',
                 sizeField: 'sid2',
             }, {
                 name: 'Churn',
-                argumentField: 'total3',
-                valueField: 'day3',
+                argumentField: 'day3',
+                valueField: 'total3',
                 sizeField: 'sid3',
             }, {
                 name: 'Potential Loyalist',
-                argumentField: 'total4',
-                valueField: 'day4',
+                argumentField: 'day4',
+                valueField: 'total4',
                 sizeField: 'sid4',
             }, {
                 name: 'Promising',
-                argumentField: 'total5',
-                valueField: 'day5',
+                argumentField: 'day5',
+                valueField: 'total5',
                 sizeField: 'sid5',
             }, {
                 name: 'Recent Customer',
-                argumentField: 'total6',
-                valueField: 'day6',
+                argumentField: 'day6',
+                valueField: 'total6',
                 sizeField: 'sid6',
             }],
             onSeriesClick(e) {
@@ -1099,6 +1117,27 @@
             var totalClient = null;
             var txInvFreq = null;
             var chartDatas = [];
+
+            const vertchart = $("#chartContainer1").dxChart("instance");
+
+            vertchart.showLoadingIndicator();
+
+            const piechart1 = $("#donutChart1").dxPieChart("instance");
+            const piechart2 = $("#donutChart2").dxPieChart("instance");
+            const piechart3 = $("#donutChart3").dxPieChart("instance");
+            const piechart4 = $("#donutChart4").dxPieChart("instance");
+            const piechart5 = $("#donutChart5").dxPieChart("instance");
+            const piechart6 = $("#donutChart6").dxPieChart("instance");
+
+            piechart1.showLoadingIndicator();
+            piechart2.showLoadingIndicator();
+            piechart3.showLoadingIndicator();
+            piechart4.showLoadingIndicator();
+            piechart5.showLoadingIndicator();
+            piechart6.showLoadingIndicator();
+
+            const scatterplot = $('#scatterPlot1').dxChart("instance");;
+            scatterplot.showLoadingIndicator();
 
             function loadCard1() {
                 return $.ajax({
@@ -1359,12 +1398,11 @@
             }
 
             function loadChartDatas() {
-                $("#chartContainer1").dxChart("option", "dataSource", chartDatas);
+                vertchart.option("dataSource", chartDatas);
+                vertchart.hideLoadingIndicator();
             }
 
             function loadPieChartsRFM() {
-
-
                 let rh = 0, rm = 0, rl = 0, fh = 0, fm = 0, fl = 0, mh = 0, mm = 0, ml = 0;
 
                 function getChartR() {
@@ -1412,7 +1450,8 @@
                             { category: "Medium", value: rm }
                         ];
 
-                        $("#donutChart1").dxPieChart("option", "dataSource", data);
+                        piechart1.option("dataSource", data);
+                        piechart1.hideLoadingIndicator();
                     });
                 }
 
@@ -1461,7 +1500,8 @@
                             { category: "Medium", value: fm }
                         ];
 
-                        $("#donutChart2").dxPieChart("option", "dataSource", data);
+                        piechart2.option("dataSource", data);
+                        piechart2.hideLoadingIndicator();
                     });
                 }
 
@@ -1510,7 +1550,8 @@
                             { category: "Medium", value: mm }
                         ];
 
-                        $("#donutChart3").dxPieChart("option", "dataSource", data);
+                        piechart3.option("dataSource", data);
+                        piechart3.hideLoadingIndicator();
                     });
                 }
 
@@ -1525,7 +1566,8 @@
                     { category: "New Client", value: 0 }
                 ];
 
-                $("#donutChart4").dxPieChart("option", "dataSource", data);
+                piechart4.option("dataSource", data);
+                piechart4.hideLoadingIndicator();
             }
 
             function loadPieChartInvOrigin() {
@@ -1539,7 +1581,8 @@
                             { category: "Lokal", value: lokal }
                         ];
 
-                        $("#donutChart5").dxPieChart("option", "dataSource", data);
+                        piechart5.option("dataSource", data);
+                        piechart5.hideLoadingIndicator();
                         break;
 
                     case "Lokal":
@@ -1549,7 +1592,8 @@
                             { category: "Lokal", value: lokal }
                         ];
 
-                        $("#donutChart5").dxPieChart("option", "dataSource", data);
+                        piechart5.option("dataSource", data);
+                        piechart5.hideLoadingIndicator();
                         break;
                     default:
                         Promise.all([
@@ -1585,7 +1629,8 @@
                                 { category: "Lokal", value: lokal }
                             ];
 
-                            $("#donutChart5").dxPieChart("option", "dataSource", data);
+                            piechart5.option("dataSource", data);
+                            piechart5.hideLoadingIndicator();
                         });
                         break;
                 }
@@ -1602,7 +1647,8 @@
                             { category: "Institusi", value: inst }
                         ];
 
-                        $("#donutChart6").dxPieChart("option", "dataSource", data);
+                        piechart6.option("dataSource", data);
+                        piechart6.hideLoadingIndicator();
                         break;
 
                     case "Institusi":
@@ -1612,7 +1658,8 @@
                             { category: "Institusi", value: inst }
                         ];
 
-                        $("#donutChart6").dxPieChart("option", "dataSource", data);
+                        piechart6.option("dataSource", data);
+                        piechart6.hideLoadingIndicator();
                         break;
                     default:
                         Promise.all([
@@ -1648,33 +1695,65 @@
                                 { category: "Institusi", value: inst }
                             ];
 
-                            $("#donutChart6").dxPieChart("option", "dataSource", data);
+                            piechart6.option("dataSource", data);
+                            piechart6.hideLoadingIndicator();
                         });
                         break;
                 }
             }
 
             function loadScatter() {
-                
+                return $.ajax({
+                    url: '@Url.Action("GetScatter", "BasisInvestor")',
+                    data: { periodeAwal: periodeAwal, namaPE: namaPE, invType: invType, invOrigin: invOrigin, inRange: inpRange, market: market },
+                    dataType: "json",
+                    type: "POST",
+                    success: function (response) {
+                        var data = [{
+                            total1: Number(response.data[0].med_inv_tot_val),
+                            total2: Number(response.data[1].med_inv_tot_val),
+                            total3: Number(response.data[2].med_inv_tot_val),
+                            total4: Number(response.data[3].med_inv_tot_val),
+                            total5: Number(response.data[4].med_inv_tot_val),
+                            total6: Number(response.data[5].med_inv_tot_val),
+                            day1: Number(response.data[0].med_inv_days),
+                            day2: Number(response.data[1].med_inv_days),
+                            day3: Number(response.data[2].med_inv_days),
+                            day4: Number(response.data[3].med_inv_days),
+                            day5: Number(response.data[4].med_inv_days),
+                            day6: Number(response.data[5].med_inv_days),
+                            sid1: Number(response.data[0].log10_sid),
+                            sid2: Number(response.data[1].log10_sid),
+                            sid3: Number(response.data[2].log10_sid),
+                            sid4: Number(response.data[3].log10_sid),
+                            sid5: Number(response.data[4].log10_sid),
+                            sid6: Number(response.data[5].log10_sid)
+                        }];
+
+                        scatterplot.option("dataSource", data);
+                        scatterplot.hideLoadingIndicator();
+                    }
+                });
             }
 
             (function () {
                 loadCard1()
-                    //.then(loadCard2)
-                    //.then(loadCard3)
-                    //.then(loadCard4)
-                    //.then(loadCard5)
-                    //.then(loadChart1)
-                    //.then(loadChart2)
-                    //.then(loadChart3)
-                    //.then(loadChart4)
-                    //.then(loadChart5)
-                    //.then(loadChart6)
-                    //.then(loadChartDatas)
-                    //.then(loadPieChartsRFM)
-                    //.then(loadPieChartClientVNewClient)
+                    .then(loadCard2)
+                    .then(loadCard3)
+                    .then(loadCard4)
+                    .then(loadCard5)
+                    .then(loadChart1)
+                    .then(loadChart2)
+                    .then(loadChart3)
+                    .then(loadChart4)
+                    .then(loadChart5)
+                    .then(loadChart6)
+                    .then(loadChartDatas)
+                    .then(loadPieChartsRFM)
+                    .then(loadPieChartClientVNewClient)
                     .then(loadPieChartInvOrigin)
-                    .then(loadPieChartInvType);
+                    .then(loadPieChartInvType)
+                    .then(loadScatter);
             }());
         }
     }

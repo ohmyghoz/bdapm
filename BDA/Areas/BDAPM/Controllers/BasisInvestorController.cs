@@ -613,6 +613,68 @@ namespace BDA.Controllers
             return JsonConvert.SerializeObject(result);
         }
 
+        public object GetScatter(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE, string invType, string invOrigin, string inRange, string market)
+        {
+            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+            TempData.Clear(); //membersihkan data filtering
+
+            string stringPeriodeAwal = null;
+            string stringNamaPE = null;
+            string stringInvType = null;
+            string stringInvOrigin = null;
+            string stringInRange = null;
+            string stringMarket = null;
+            string reportId = "ps_basis_inv_pe"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+
+            stringPeriodeAwal = Convert.ToDateTime(DateTime.Now).ToString("yyyy-MM-dd");
+            TempData["pawal"] = stringPeriodeAwal;
+
+            if (periodeAwal != null)
+            {
+                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
+                TempData["pawal"] = stringPeriodeAwal;
+            }
+
+            if (namaPE != null)
+            {
+                stringNamaPE = namaPE;
+                //string result = stringNamaPE.Replace("\",\"", "");
+                TempData["pe"] = stringNamaPE;
+            }
+
+            if (invType != null)
+            {
+                stringInvType = invType;
+                TempData["invType"] = stringInvType;
+            }
+
+            if (invOrigin != null)
+            {
+                stringInvOrigin = invOrigin;
+                TempData["invOrigin"] = stringInvOrigin;
+            }
+
+            if (inRange != null)
+            {
+                stringInRange = inRange;
+                TempData["inRange"] = stringInRange;
+            }
+
+            if (market != null)
+            {
+                stringMarket = market;
+                TempData["market"] = stringMarket;
+
+            }
+
+            db.Database.CommandTimeout = 420;
+            var result = Helper.WSQueryStore.GetPS07Scatter(db, loadOptions, stringPeriodeAwal, stringNamaPE, stringInvType, stringInvOrigin, stringInRange, stringMarket, cekHive);
+
+            return JsonConvert.SerializeObject(result);
+        }
+
 
         [HttpPost]
         public ActionResult SimpanPenggunaanData(string id)

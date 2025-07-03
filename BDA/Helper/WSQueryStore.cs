@@ -6217,6 +6217,24 @@ namespace BDA.Helper
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
         }
 
+        public static WSQueryReturns GetPS07Scatter(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string invType, string invOrigin, string inRange, string market, bool isHive = true)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            isHive = true;
+
+            whereQuery += PS07Filters(periode, pe, invType, invOrigin, inRange, market);
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                props.Query = @"SELECT basis_investor_1 AS basis_investor, (LOG(COUNT(sid)) / LOG(10)) AS log10_sid,  PERCENTILE(CAST(investorlasttransactionindays as BIGINT), 0.5) AS med_inv_days,  PERCENTILE(CAST(investortotalvalue as BIGINT), 0.5) / 1000000 AS med_inv_tot_val FROM pasarmodal.basis_investor_pe
+ WHERE " + whereQuery + " GROUP BY basis_investor_1 ORDER BY basis_investor_1 ASC" + @"";
+
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
 
         #endregion
 
