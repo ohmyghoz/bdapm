@@ -1,8 +1,10 @@
 ﻿using BDA.DataModel;
 using BDA.Helper.FW;
+using BDA.Models;
 using DevExpress.Data.Extensions;
 using DevExpress.Xpo.DB.Helpers;
 using DevExpress.XtraRichEdit;
+using DevExtreme.AspNet.Data;
 using DevExtreme.AspNet.Mvc;
 using Org.BouncyCastle.Asn1.Mozilla;
 using System;
@@ -28,7 +30,7 @@ namespace BDA.Helper
         {
             DataTable dt = wqr.data;
 
-            foreach(DataRow dr in dt.Rows)
+            foreach (DataRow dr in dt.Rows)
             {
                 dr["sid"] = DecryptSID(dr["sid"].ToString());
                 dr["nama_sid"] = DecryptName(dr["nama_sid"].ToString());
@@ -51,7 +53,7 @@ namespace BDA.Helper
                 dr["sid"] = DecryptSID(dr["sid"].ToString());
                 dr["nama_sid"] = DecryptName(dr["nama_sid"].ToString());
             }
-            
+
             wqr.data = dt;
 
             return wqr;
@@ -61,14 +63,14 @@ namespace BDA.Helper
         {
             if (s.Length < 3) return s;
             int val = 0;
-            return (Int32.TryParse(s.Substring(0, 2), out val) ? keySID[(val-11)] : s.Substring(0, 2)) + s.Substring(2);
+            return (Int32.TryParse(s.Substring(0, 2), out val) ? keySID[(val - 11)] : s.Substring(0, 2)) + s.Substring(2);
         }
 
-        private static string DecryptName(string s) 
+        private static string DecryptName(string s)
         {
             if (s.Length == 0) return s;
-            int val = 0;            
-            return ((Int32.TryParse(s.Substring(0, 1), out val) ? keyName[val] : s.Substring(0, 1)) 
+            int val = 0;
+            return ((Int32.TryParse(s.Substring(0, 1), out val) ? keyName[val] : s.Substring(0, 1))
                 + s.Substring(1)).Replace("IOII", "O").Replace("IOOI", "A").Replace("IIOO", "U").Replace("IOIO", "E");
         }
 
@@ -77,7 +79,7 @@ namespace BDA.Helper
             if (s.Length < 2) return s;
             int val = 0;
             string right = s.Substring(s.Length - 2, 2);
-            return (Int32.TryParse(right.Substring(0,1), out val) ? keyOne[val] : right[0]) + (Int32.TryParse(right.Substring(1, 1), out val) ? keyTwo[val] : right[1])
+            return (Int32.TryParse(right.Substring(0, 1), out val) ? keyOne[val] : right[0]) + (Int32.TryParse(right.Substring(1, 1), out val) ? keyTwo[val] : right[1])
                 + s.Substring(0, s.Length - 2);
         }
 
@@ -85,7 +87,7 @@ namespace BDA.Helper
         {
             if (s.Length < 3) return s;
             int idx = Array.IndexOf(keySID, s.Substring(0, 3));
-            if (idx >= 0) return (idx+11).ToString() + s.Substring(3);
+            if (idx >= 0) return (idx + 11).ToString() + s.Substring(3);
             return s;
         }
 
@@ -93,7 +95,7 @@ namespace BDA.Helper
         {
             if (s.Length < 2) return s;
             int idx = Array.IndexOf(keyName, s.Substring(0, 1));
-            return ((idx >= 0 ? idx.ToString(): s.Substring(0, 1)) + s.Substring(1)).Replace("O", "IOII").Replace("A", "IOOI").Replace("U", "IIOO").Replace("E", "IOIO");            
+            return ((idx >= 0 ? idx.ToString() : s.Substring(0, 1)) + s.Substring(1)).Replace("O", "IOII").Replace("A", "IOOI").Replace("U", "IIOO").Replace("E", "IOIO");
         }
         #endregion
 
@@ -166,7 +168,7 @@ namespace BDA.Helper
         {
             bool isC = false;
             var whereQuery = "1=1";
-            
+
             if (periodes != null)
             {
                 periodes = "'" + periodes.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
@@ -648,26 +650,27 @@ namespace BDA.Helper
                             + whereQuery + " group by country, investor_type order by sum(current_value) " + order + " limit 16";
                 }
             }
-            else {
+            else
+            {
                 props.Query = @"
                     select country as lokasi, investor_type investortype, cast(sum(current_value) as bigint) value From pasarmodal.pe_segmentation_geo where "
                             + whereQuery + " group by country, investor_type order by sum(current_value) " + order + " limit 16";
             }
 
 
-             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
         }
 
         public static WSQueryReturns GetBDAPGeospasialInvestorCG(DataEntities db, DataSourceLoadOptions loadOptions, string periodeawal, string periodeakhir, string stringPE, string growthtype, string dimension, string investorOrigin, string province)
         {
             bool isC = false;
             var whereQuery = "1=1";
-            
+
             if (periodeawal != null)
             {
                 periodeawal = "'" + periodeawal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
                 periodeakhir = "'" + periodeakhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND pperiode between " + periodeawal.Replace("-", "") + " and "+ periodeakhir.Replace("-", "");
+                whereQuery = whereQuery += " AND pperiode between " + periodeawal.Replace("-", "") + " and " + periodeakhir.Replace("-", "");
             }
 
             if (stringPE != null)
@@ -881,7 +884,175 @@ namespace BDA.Helper
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
         }
+        public static object GetMarketDrivenData(DataEntities db, DataSourceLoadOptions loadOptions, string selectedDate)
+        {
+            // If no date is selected, return an empty result.
+            if (string.IsNullOrEmpty(selectedDate))
+            {
+                return new { data = new object[0], totalCount = 0 };
+            }
 
+            string dateForQuery = selectedDate.Replace("-", "");
+
+            string sqlQuery = $@"
+        SELECT 
+           CONVERT(VARCHAR(10), CONVERT(DATE, CAST(tradedatesk AS VARCHAR(8))), 105) AS TransactionDates,
+            sid_ori, cpinvestorcode, securitycode, investorcode, quantity, value
+        FROM pasarmodal.market_driven_validasi_data_tra
+        WHERE tradedatesk = @tradedate";
+
+            DataTable dt = new DataTable();
+            string connString = db.appSettings.DataConnString;
+
+            using (SqlConnection conn = new SqlConnection(connString))
+            {
+                using (SqlCommand cmd = new SqlCommand(sqlQuery, conn))
+                {
+                    cmd.CommandTimeout = 300;
+                    int dateAsInt = Int32.Parse(dateForQuery);
+                    cmd.Parameters.AddWithValue("@tradedate", dateAsInt);
+
+                    SqlDataAdapter adapter = new SqlDataAdapter(cmd);
+                    adapter.Fill(dt);
+                }
+            }
+
+            // --- THIS IS THE NEW PART ---
+
+            // Manually convert the DataTable to a List of Dictionaries
+            var list = new List<Dictionary<string, object>>();
+            foreach (DataRow row in dt.Rows)
+            {
+                var dict = new Dictionary<string, object>();
+                foreach (DataColumn col in dt.Columns)
+                {
+                    dict[col.ColumnName] = row[col];
+                }
+                list.Add(dict);
+            }
+
+            // Return the raw data in a structure DevExtreme understands.
+            // We are deliberately IGNORING the 'loadOptions' for this test.
+            return new { data = list, totalCount = list.Count };
+        }
+
+        public static List<GainerLoserViewModel> GetGainersOrLosers(DataEntities db, bool isGainer, string selectedDate, int topN)
+        {
+            var list = new List<GainerLoserViewModel>();
+
+            // Determine the sorting order based on the isGainer flag
+            string orderByClause = isGainer ? "ORDER BY changeprice DESC" : "ORDER BY changeprice ASC";
+
+            // Build the query
+            string sqlQuery = $@"
+        SET ARITHABORT ON;
+        SELECT TOP (@TopN) * FROM pasarmodal.market_driven_ape_growth
+        WHERE history_type = 'daily' AND periode = @Periode
+        {orderByClause}";
+
+            string connString = db.appSettings.DataConnString;
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connString))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlQuery, conn))
+                    {
+                        cmd.CommandTimeout = 300;
+                        cmd.Parameters.AddWithValue("@Periode", selectedDate);
+                        cmd.Parameters.AddWithValue("@TopN", topN);
+
+                        conn.Open();
+                        DataTable dt = new DataTable();
+                        new SqlDataAdapter(cmd).Fill(dt);
+
+                        // Map the results to the ViewModel list
+                        foreach (DataRow row in dt.Rows)
+                        {
+                            list.Add(new GainerLoserViewModel
+                            {
+                                SecurityCode = row["security_code"] as string,
+                                SecurityName = row["security_name"] as string,
+                                Volume = row["volume"] != DBNull.Value ? Convert.ToInt64(row["volume"]) : 0,
+                                Turnover = row["turnover"] != DBNull.Value ? Convert.ToDecimal(row["turnover"]) : 0,
+                                Freq = row["freq"] != DBNull.Value ? Convert.ToInt32(row["freq"]) : 0,
+                                NetValue = row["net_value"] != DBNull.Value ? Convert.ToDecimal(row["net_value"]) : 0,
+                                NetVolume = row["net_volume"] != DBNull.Value ? Convert.ToDecimal(row["net_volume"]) : 0,
+                                Point = row["point"] != DBNull.Value ? Convert.ToDecimal(row["point"]) : 0,
+                                Price = row["price"] != DBNull.Value ? Convert.ToDecimal(row["price"]) : 0,
+                                ChangePercentage = row["changeprice"] != DBNull.Value ? Convert.ToDecimal(row["changeprice"]) : 0,
+                                MaxPrice = row["highvalue"] != DBNull.Value ? Convert.ToDecimal(row["highvalue"]) : 0,
+                                MinPrice = row["lowvalue"] != DBNull.Value ? Convert.ToDecimal(row["lowvalue"]) : 0
+                            });
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle or log the error
+                System.Diagnostics.Debug.WriteLine("DATABASE ERROR: " + ex.Message);
+            }
+            return list;
+        }
+
+        public static List<LeaderLaggardViewModel> GetLeadersOrLaggards(DataEntities db, bool isLeader, string selectedDate, int topN)
+        {
+            var list = new List<LeaderLaggardViewModel>();
+
+            // Determine the sorting order based on the isGainer flag
+            string orderByClause = isLeader ? "ORDER BY point DESC" : "ORDER BY point ASC";
+
+            // Build the query
+            string sqlQuery = $@"
+        SET ARITHABORT ON;
+        SELECT TOP (@TopN) * FROM pasarmodal.market_driven_ape_growth
+        WHERE history_type = 'daily' AND periode = @Periode
+        {orderByClause}";
+
+            string connString = db.appSettings.DataConnString;
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connString))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlQuery, conn))
+                    {
+                        cmd.CommandTimeout = 300;
+                        cmd.Parameters.AddWithValue("@Periode", selectedDate);
+                        cmd.Parameters.AddWithValue("@TopN", topN);
+
+                        conn.Open();
+                        DataTable dt = new DataTable();
+                        new SqlDataAdapter(cmd).Fill(dt);
+
+                        // Map the results to the ViewModel list
+                        foreach (DataRow row in dt.Rows)
+                        {
+                            list.Add(new LeaderLaggardViewModel
+                            {
+                                SecurityCode = row["security_code"] as string,
+                                SecurityName = row["security_name"] as string,
+                                Volume = row["volume"] != DBNull.Value ? Convert.ToInt64(row["volume"]) : 0,
+                                Turnover = row["turnover"] != DBNull.Value ? Convert.ToDecimal(row["turnover"]) : 0,
+                                Freq = row["freq"] != DBNull.Value ? Convert.ToInt32(row["freq"]) : 0,
+                                NetValue = row["net_value"] != DBNull.Value ? Convert.ToDecimal(row["net_value"]) : 0,
+                                NetVolume = row["net_volume"] != DBNull.Value ? Convert.ToDecimal(row["net_volume"]) : 0,
+                                Point = row["point"] != DBNull.Value ? Convert.ToDecimal(row["point"]) : 0,
+                                Price = row["price"] != DBNull.Value ? Convert.ToDecimal(row["price"]) : 0,
+                                ChangePercentage = row["changeprice"] != DBNull.Value ? Convert.ToDecimal(row["changeprice"]) : 0,
+                                MaxPrice = row["highvalue"] != DBNull.Value ? Convert.ToDecimal(row["highvalue"]) : 0,
+                                MinPrice = row["lowvalue"] != DBNull.Value ? Convert.ToDecimal(row["lowvalue"]) : 0
+                            });
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle or log the error
+                System.Diagnostics.Debug.WriteLine("DATABASE ERROR: " + ex.Message);
+            }
+            return list;
+        }
         public static WSQueryReturns GetBDAPMSegmentasiTransaksiGrid(DataEntities db, DataSourceLoadOptions loadOptions, string periodes, string stringPE, string jenisTransaksi)
         {
             bool isC = false;

@@ -19,6 +19,8 @@ using Newtonsoft.Json;
 using System.Data.SqlClient;
 using static System.Net.Mime.MediaTypeNames;
 using System.Configuration;
+using BDA.Areas.BDAPM.Models;
+using BDA.Helper;
 
 namespace BDA.Controllers
 {
@@ -68,6 +70,26 @@ namespace BDA.Controllers
 
         }
 
+        [HttpPost]
+        public PartialViewResult _LeadersAndLaggardsData(string selectedDate, int? topN)
+        {
+            var pageModel = new LeadersAndLaggardsPageViewModel();
+
+            if (string.IsNullOrEmpty(selectedDate))
+            {
+                return PartialView("_LeadersAndLaggardsData", pageModel);
+            }
+
+            int topCount = topN ?? 10;
+
+            // Call the new helper method from WSQueryPS for both lists
+            pageModel.Leaders = WSQueryPS.GetLeadersOrLaggards(db, true, selectedDate, topCount); // true = Gainers
+            pageModel.Laggards = WSQueryPS.GetLeadersOrLaggards(db, false, selectedDate, topCount); // false = Losers
+
+            return PartialView("_LeadersAndLaggardsData", pageModel);
+        }
+
+
         public IActionResult GainersVsLosers()
         {
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
@@ -78,9 +100,33 @@ namespace BDA.Controllers
             ViewBag.Export = db.CheckPermission("Market Driven Export", DataEntities.PermissionMessageType.NoMessage); //check permission export
             db.InsertAuditTrail("Gainers_vs_Lossers_Page", "Akses Page Gainers vs Lossers", pageTitle); //simpan kedalam audit trail
 
+            
+            // 5. Pass the single page model (containing both lists) to the view
             return View();
-
         }
+
+
+        [HttpPost]
+        public PartialViewResult _GetGainersAndLosersData(string selectedDate, int? topN)
+        {
+            var pageModel = new GainersAndLosersPageViewModel();
+
+            if (string.IsNullOrEmpty(selectedDate))
+            {
+                return PartialView("_GainersAndLosersData", pageModel);
+            }
+
+            int topCount = topN ?? 10;
+
+            // Call the new helper method from WSQueryPS for both lists
+            pageModel.Gainers = WSQueryPS.GetGainersOrLosers(db, true, selectedDate, topCount); // true = Gainers
+            pageModel.Losers = WSQueryPS.GetGainersOrLosers(db, false, selectedDate, topCount); // false = Losers
+
+            return PartialView("_GainersAndLosersData", pageModel);
+        }
+
+        // I've created a private helper method to avoid duplicating the database logic
+        
 
         public IActionResult PerkembanganTransaksiNG()
         {
@@ -137,6 +183,29 @@ namespace BDA.Controllers
 
         }
 
+        public IActionResult MDTest()
+        {
+            var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+            var currentNode = mdl.GetCurrentNode();
+            string pageTitle = currentNode != null ? currentNode.Title : ""; //menampilkan data menu
+
+            db.CheckPermission("Market Driven View", DataEntities.PermissionMessageType.ThrowInvalidOperationException); //check permission nya view/lihat nya
+            ViewBag.Export = db.CheckPermission("Market Driven Export", DataEntities.PermissionMessageType.NoMessage); //check permission export
+            db.InsertAuditTrail("MDTest", "Akses Page MDP Test", pageTitle); //simpan kedalam audit trail
+
+            return View();
+
+        }
+
+        [HttpGet]
+        public object GetMarketData(DataSourceLoadOptions loadOptions, string selectedDate) // Changed from DateTime?
+        {
+            // Pass the date STRING down to the data helper
+            var result = Helper.WSQueryPS.GetMarketDrivenData(db, loadOptions, selectedDate);
+
+            return Json(result);
+        }
+
         public ActionResult SimpanPenggunaanData(string id)
         {
             string message = "";
@@ -187,7 +256,7 @@ namespace BDA.Controllers
             var currentNode = mdl.GetCurrentNode();
             string pageTitle = currentNode != null ? currentNode.Title : "";
 
-            
+
             db.InsertAuditTrail("ValidasiDataTransaksi_Akses_Page", "user " + userId + " mengakses halaman Validasi Data Transaksi untuk digunakan sebagai " + Penggunaan_Data + "", pageTitle);
 
             try
