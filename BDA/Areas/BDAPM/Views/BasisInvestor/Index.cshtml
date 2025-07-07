@@ -39,19 +39,19 @@
     </style>
 
     <div class="card card-default">
-        @*filter*@
         <div class="row filter-panel" style="padding-top:0px;">
             <div class="card-body">
                 <div class="row">
                     <div class="form-group ml-3">
-                        @* <button type="button" id="btnDetailCluster" class="btn btn-danger">Detail Cluster MKBD</button> *@
                         <input type="button" id="btnBasisInvestor" class="btn btn-danger" value="Basis Investor" onclick="location.href='@Url.Action("/", "BasisInvestor")'" />
                     </div>&nbsp;&nbsp;
                     <div class="form-group">
-                        <input type="button" id="btnDetailBI" class="btn btn-danger" value="Detail Basis Investor" onclick="location.href='@Url.Action("Detail", "BasisInvestor")'" />
+@*                         <input type="button" id="btnDetailBI" class="btn btn-danger" value="Detail Basis Investor" onclick="location.href='@Url.Action("Detail", "BasisInvestor")'" /> *@
+                        <input type="button" id="btnDetailBI" class="btn btn-danger" value="Detail Basis Investor" onclick="redirDetail()" />
                     </div>&nbsp;&nbsp;
                     <div class="form-group">
-                        <input type="button" id="btnSumTxSID" class="btn btn-danger" value="Summary Transaction SID" onclick="location.href='@Url.Action("SumTxSID", "BasisInvestor")'" />
+@*                         <input type="button" id="btnSumTxSID" class="btn btn-danger" value="Summary Transaction SID" onclick="location.href='@Url.Action("SumTxSID", "BasisInvestor")'" /> *@
+                        <input type="button" id="btnSumTxSID" class="btn btn-danger" value="Summary Transaction SID" />
                     </div>&nbsp;&nbsp;
                 </div>
                 <div class="row">
@@ -231,7 +231,7 @@
                         <div class="row">
                             <div class="col-4 pr-0">
                                 <div class="row">
-                                    <div class="col-12 text-left text-nowrap mx-auto pt-14 pb-2"><small>% Transaction Freq</small></div>
+                                    <div class="col-12 text-left text-nowrap mx-auto pt-12 pb-2"><small>% Transaction Freq</small></div>
                                     <br /><br />
                                     <div class="col-12 text-left text-nowrap mx-auto pt-4 pb-2"><small><b>Champion</b></small></div>
                                     <br /><br />
@@ -258,7 +258,7 @@
                                 </div>
 
                                 <div class="row">
-                                    <div class="col-12 text-left text-nowrap mx-auto pt-14 pb-2"><small>% Transaction Freq</small></div>
+                                    <div class="col-12 text-left text-nowrap mx-auto pt-12 pb-2"><small>% Transaction Freq</small></div>
                                     <br /><br />
                                     <div class="col-12 text-left text-nowrap mx-auto pt-2 pb-2"><small><b>Recent Customer</b></small></div>
                                     <br /><br />
@@ -276,7 +276,7 @@
                                 </div>
 
                                 <div class="row">
-                                    <div class="col-12 text-left text-nowrap mx-auto pt-14 pb-2"><small>% Transaction Freq</small></div>
+                                    <div class="col-12 text-left text-nowrap mx-auto pt-11 pb-2"><small>% Transaction Freq</small></div>
                                     <br /><br />
                                     <div class="col-12 text-left text-nowrap mx-auto pt-2 pb-2"><small><b>Churn</b></small></div>
                                     <br /><br />
@@ -473,8 +473,11 @@
         $('.clickChart').on('click', onClickChart);
     });
 
-    function onClickChart() {
-        alert("CLICKED!");
+    function onClickChart(e) {
+        const res = e.validationGroup.validate();
+        if (res.status === "valid") { 
+            alert("CLICKED!");
+        }
     }
 
     // DONUT START
@@ -842,10 +845,7 @@
                 height: '100%',
                 width: '100%'
             }
-
         });
-
-
     }
 
 
@@ -1006,7 +1006,7 @@
             return false;
         } else {
             $.ajax({
-                url: '@Url.Action("SimpanPenggunaanData", "SegmentationSummaryClusterMKBD")',
+                url: '@Url.Action("SimpanPenggunaanData", "BasisInvestor")',
                 data: { id: penggunaandataid },
                 dataType: "json",
                 type: "POST",
@@ -1035,16 +1035,20 @@
 
             // Clear the search text
             if (inputElement.length) {
-                inputElement.val(""); // Clears the search text
+                inputElement.val("");
             }
         }
     }
 
 
-    function Detail(e) {
-        var keys = e.row.key;
-        if (typeof (keys) !== "undefined" && typeof (keys) !== null) {
-            window.open('@Url.Action("Detail", "SegmentationSummaryClusterMKBD")?id=' + keys.toString());
+    function redirDetail(e) {
+        let periodeAwal = $("#Periode").dxDateBox("instance").option("value");
+        let periode = periodeAwal.getFullYear() + '-' + String(periodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(periodeAwal.getDate()).padStart(2, '0');
+        let PE = $("#namaPEid").dxSelectBox("instance").option("value");
+        if (periodeAwal === null || PE === null) {
+            alert("Periode Data dan Nama PE Harus Diisi!");
+        } else {
+            window.open('@Url.Action("Detail", "BasisInvestor")?pe=' + PE + '&periode=' + periode);
         }
     }
 

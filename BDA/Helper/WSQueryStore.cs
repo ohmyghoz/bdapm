@@ -6236,6 +6236,82 @@ namespace BDA.Helper
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
         }
 
+        public static WSQueryReturns GetPS07BGrid(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string negara, string provinsi, string kota, string jenisKelamin, string usia, string pendidikan, string pekerjaan, string penghasilan, bool isHive = true)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            isHive = true;
+
+            if (periode != null)
+            {
+                string periodes = "'" + periode.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND pperiode in (" + periodes.Replace("-", "") + ")";
+            }
+
+            if (pe != null)
+            {
+                string namaPEs = "'" + pe.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND exchangemembercode in (" + namaPEs + ")";
+            }
+
+            if (negara != null)
+            {
+                string ngr = "'" + negara.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND country in (" + ngr + ")";
+            }
+
+            if (provinsi != null)
+            {
+                string prv = "'" + provinsi.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND provinsi in (" + prv + ")";
+            }
+
+            if (kota != null)
+            {
+                string kt = "'" + kota.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND kota in (" + kt + ")";
+            }
+
+            if (jenisKelamin != null)
+            {
+                string jk = "'" + jenisKelamin.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND jenis_kelamin in (" + jk + ")";
+            }
+
+            if (usia != null)
+            {
+                string uia = "'" + usia.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND golonganusia in (" + uia + ")";
+            }
+
+            if (pendidikan != null)
+            {
+                string pddk = "'" + pendidikan.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND pendidikan in (" + pddk + ")";
+            }
+
+            if (pekerjaan != null)
+            {
+                string pkrj = "'" + pekerjaan.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND pekerjaan in (" + pkrj + ")";
+            }
+
+            if (penghasilan != null)
+            {
+                string phsl = "'" + penghasilan.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND pinghasilan_individu in (" + phsl + ")";
+            }
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                props.Query = @"SELECT sid, full_name AS fullname, new_sre AS newsre, investorlasttransactionindays AS invlasttrxindays, investortransactionfreq AS invtrxfreq, investortotalvalue AS invtotalval FROM pasarmodal.basis_investor_pe WHERE " + whereQuery + @"";
+
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+
         #endregion
 
         #region MM01

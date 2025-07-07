@@ -2,7 +2,8 @@
 @{
     Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
     string reportId = "pe_segmentation_bridging_detail";
-    var p = (string[])ViewBag.period;
+    var pe = ViewBag.pe;
+    var periode = ViewBag.periode;
     var maxItems = db.GetSetting("LimitFilterLJK");
 }
 @section RightToolbar {
@@ -22,25 +23,27 @@
             <div class="card-body">
                 <div class="row">
                     <div class="form-group ml-3">
-                        @* <button type="button" id="btnDetailCluster" class="btn btn-danger">Detail Cluster MKBD</button> *@
                         <input type="button" id="btnBasisInvestor" class="btn btn-danger" value="Basis Investor" onclick="location.href='@Url.Action("/", "BasisInvestor")'" />
                     </div>&nbsp;&nbsp;
                     <div class="form-group">
-                        <input type="button" id="btnDetailBI" class="btn btn-danger" value="Detail Basis Investor" onclick="location.href='@Url.Action("Detail", "BasisInvestor")'" />
-                    </div>&nbsp;&nbsp;
+                        <input type="button" id="btnDetailBI" class="btn btn-danger" value="Detail Basis Investor" />
+@*                         <input type="button" id="btnDetailBI" class="btn btn-danger" value="Detail Basis Investor" onclick="location.href='@Url.Action("Detail", "BasisInvestor")'" />
+ *@                    </div>&nbsp;&nbsp;
                     <div class="form-group">
                         <input type="button" id="btnSumTxSID" class="btn btn-danger" value="Summary Transaction SID" onclick="location.href='@Url.Action("SumTxSID", "BasisInvestor")'" />
                     </div>&nbsp;&nbsp;
                 </div>
                 <div class="row">
 
-                    <div class="col-lg-2 form-group">
+               
+
+                    @* <div class="col-lg-2 form-group">
                         <label>Periode<span class="mandatory">*</span></label>
                         @(Html.DevExtreme().DateBox()
                             .ID("Periode")
+                            .Disabled(true)
                             .DisplayFormat("MMM yyyy")
-                            //.Value(periodeAwal1 == null ? DateTime.Now : periodeAwal1)
-                            .Value(DateTime.Now)
+                            .Value(periode)
                             .Max(DateTime.Now)
                             .Width("100%"))
                     </div>
@@ -48,6 +51,7 @@
                     <div class="col-lg-2 form-group">
                         <label>PE<span class="mandatory">*</span></label>
                         @(Html.DevExtreme().SelectBox()
+                            //.Disabled(true)
                             .ID("namaPEid")
                             .DataSource(d => d.Mvc()
                             .Controller("BasisInvestor")
@@ -58,85 +62,106 @@
                             .DisplayExpr("text")
                             .SearchEnabled(true)
                             .Width("100%")
+                            .Value(pe)
                             )
-                    </div>
+                    </div> *@
 
                     <div class="col-lg-2 form-group">
                         <label>Negara@*<span class="mandatory">*</span>*@</label>
-                        @(Html.DevExtreme().TagBox()
+                        @(Html.DevExtreme().SelectBox()
                             .ID("Nation")
-                            .DataSource(new[] { "(All)", "Indonesia", "Luar Negeri" })
+                            //.DataSource(new[] { "(All)", "Indonesia", "Luar Negeri" })
+                            .DataSource(new[] { "" })
                             .SearchEnabled(true)
+                            .Value("")
                             .OnSelectionChanged("onSelectionChanged")
                             .Width("100%"))
                     </div>
 
                     <div class="col-lg-2 form-group">
                         <label>Provinsi@*<span class="mandatory">*</span>*@</label>
-                        @(Html.DevExtreme().TagBox()
+                        @(Html.DevExtreme().SelectBox()
                             .ID("Province")
                             .DataSource(new[] { "(All)", "A", "B", "C" })
                             .SearchEnabled(true)
+                            .Value("")
                             .OnSelectionChanged("onSelectionChanged")
                             .Width("100%"))
                     </div>
 
                     <div class="col-lg-2 form-group">
                         <label>Kota@*<span class="mandatory">*</span>*@</label>
-                        @(Html.DevExtreme().TagBox()
+                        @(Html.DevExtreme().SelectBox()
                             .ID("City")
                             .DataSource(new[] { "(All)", "A", "B", "C" })
                             .SearchEnabled(true)
+                            .Value("")
                             .OnSelectionChanged("onSelectionChanged")
                             .Width("100%"))
                     </div>
 
                     <div class="col-lg-2 form-group">
                         <label>Jenis Kelamin@*<span class="mandatory">*</span>*@</label>
-                        @(Html.DevExtreme().TagBox()
+                        @(Html.DevExtreme().SelectBox()
                             .ID("Sex")
-                            .DataSource(new[] { "(All)", "Laki-laki", "Perempuan" })
+                            .DataSource(new[] {
+                                new { Text = "(All)", Value = "" },
+                                new { Text = "Laki-laki", Value = "Male" },
+                                new { Text = "Perempuan", Value = "Female" }
+                                })
                             .SearchEnabled(true)
+                            .Value("")
                             .OnSelectionChanged("onSelectionChanged")
                             .Width("100%"))
                     </div>
 
                     <div class="col-lg-2 form-group">
                         <label>Usia@*<span class="mandatory">*</span>*@</label>
-                        @(Html.DevExtreme().TagBox()
+                        @(Html.DevExtreme().SelectBox()
                             .ID("Age")
-                            .DataSource(new[] { "(All)", "25 s.d 39", "39 s.d 60" })
+                            .DataSource(new[] {
+                                new { Text = "(All)", Value = "" },
+                                new { Text = "<= 30 Tahun", Value = "<=30" },
+                                new { Text = "31 - 40 Tahun", Value = "31 - 40" },
+                                new { Text = "41 - 50 Tahun", Value = "41 - 50" },
+                                new { Text = "51 - 60 Tahun", Value = "51 - 60" },
+                                new { Text = "> 60 Tahun", Value = "> 60" }
+                                })
                             .SearchEnabled(true)
+                            .Value("")
                             .OnSelectionChanged("onSelectionChanged")
                             .Width("100%"))
                     </div>
 
                     <div class="col-lg-2 form-group">
                         <label>Pendidikan@*<span class="mandatory">*</span>*@</label>
-                        @(Html.DevExtreme().TagBox()
+                        @(Html.DevExtreme().SelectBox()
                             .ID("Education")
                             .DataSource(new[] { "(All)", "SMP", "SMA", "S1", "S2", "S3" })
                             .SearchEnabled(true)
+                            .Value("")
                             .OnSelectionChanged("onSelectionChanged")
                             .Width("100%"))
                     </div>
 
                     <div class="col-lg-2 form-group">
                         <label>Pekerjaan@*<span class="mandatory">*</span>*@</label>
-                        @(Html.DevExtreme().TagBox()
+                        @(Html.DevExtreme().SelectBox()
                             .ID("Job")
                             .DataSource(new[] { "(All)", "A", "B", "C" })
                             .SearchEnabled(true)
+                            .Value("")
                             .OnSelectionChanged("onSelectionChanged")
                             .Width("100%"))
                     </div>
 
                     <div class="col-lg-2 form-group">
                         <label>Penghasilan@*<span class="mandatory">*</span>*@</label>
-                        @(Html.DevExtreme().TagBox()
+                        @(Html.DevExtreme().SelectBox()
                             .ID("Income")
                             .DataSource(new[] { "(All)", "<100jt", ">100jt" })
                             .SearchEnabled(true)
+                            .Value("")
                             .OnSelectionChanged("onSelectionChanged")
                             .Width("100%"))
                     </div>
@@ -157,7 +182,7 @@
         <div>
             <div class="float-right">
                 <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();"><span class="image fa fa-file-excel"></span> Export Excel</a>
-                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
                 <br /> <br />
             </div>
             <br />
@@ -169,7 +194,7 @@
                         //.LoadAction("GetGridDataDetail")
                         //.Key("rowid")
                         //.OnBeforeSend("onGridBeforeSend"))
-                    .RemoteOperations(true)
+                    //.RemoteOperations(true)
                     .Width("100%")
                     .AllowColumnResizing(true)
                     .ColumnAutoWidth(true)
@@ -185,6 +210,8 @@
                     .ColumnResizingMode(ColumnResizingMode.Widget)
                     .FilterRow(f => f.Visible(true))
                     .ShowBorders(false)
+                    .ShowRowLines(true)
+                    .WordWrapEnabled(true)
                     //.RowAlternationEnabled(false)
                     .Paging(p =>
                         {
@@ -246,29 +273,14 @@
 <script>
 
     $(function () {
-        const startDate = $("#PeriodeAwal").dxDateBox({
-            onValueChanged: function (e) {
-                endDate.option("min", e.value);
-            }
-        }).dxDateBox("instance");
-
-        $("#PeriodeAwal").dxValidator({
-            validationGroup: "Filter",
-            validationRules: [{ type: "required", message: "[Tanggal] harus dipilih" }]
-        })
+        let PE = '@ViewBag.pe';
+        let periode = '@ViewBag.periode';
     });
 
     $(function () {
         $("#penggunaandataid").dxValidator({
             validationGroup: "Filter",
             validationRules: [{ type: "required", message: "[Penggunaan Data] harus dipilih" }]
-        })
-    });
-
-    $(function () {
-        $("#namaPEid").dxValidator({
-            validationGroup: "Filter",
-            validationRules: [{ type: "required", message: "[Nama PE] harus dipilih" }]
         })
     });
 
@@ -284,7 +296,7 @@
             return false;
         } else {
             $.ajax({
-                url: '@Url.Action("SimpanPenggunaanData", "SegmentationSummaryClusterMKBD")',
+                url: '@Url.Action("SimpanPenggunaanData", "BasisInvestor")',
                 data: { id: penggunaandataid },
                 dataType: "json",
                 type: "POST",
@@ -307,31 +319,59 @@
     });
 
     function onSelectionChanged(e) {
-        if (e.addedItems.length > 0) {
-            e.component.field().val(""); // Clears the search text. However, search filter is only applied to the widget after focus is lost in the input element
+        if (e.addedItems && e.addedItems.length > 0) {
+            // Get the input element of the ComboBox
+            var inputElement = e.component.$element().find("input").first();
+
+            // Clear the search text
+            if (inputElement.length) {
+                inputElement.val("");
+            }
         }
     }
 
     function onButtonFilterClicked(e) {
         const res = e.validationGroup.validate();
         if (res.status === "valid") {
-            $("#grid1").dxDataGrid("instance").refresh();
+            var pe = '@ViewBag.pe';
+            var periode = '@ViewBag.periode';
+
+            var negara = $("#Nation").dxSelectBox("instance").option("value");
+            var provinsi = $("#Province").dxSelectBox("instance").option("value");
+            var kota = $("#City").dxSelectBox("instance").option("value");
+            var jenisKelamin = $("#Sex").dxSelectBox("instance").option("value");
+            var usia = $("#Age").dxSelectBox("instance").option("value");
+            var pendidikan = $("#Education").dxSelectBox("instance").option("value");
+            var pekerjaan = $("#Job").dxSelectBox("instance").option("value");
+            var penghasilan = $("#Income").dxSelectBox("instance").option("value");
+
+
+            var grid = $("#grid1").dxDataGrid("instance");
+            grid.beginCustomLoading('Loading...');
+
+            var ds = DevExpress.data.AspNet.createStore({
+                loadUrl: '@Url.Action("GetGridDetail", "BasisInvestor")',
+                loadMode: "processed",
+                loadParams: {
+                    periodeAwal: periode,
+                    namaPE: pe,
+                    negara: negara,
+                    provinsi: provinsi,
+                    kota: kota,
+                    jenisKelamin: jenisKelamin,
+                    usia: usia,
+                    pendidikan: pendidikan,
+                    pekerjaan: pekerjaan,
+                    penghasilan: penghasilan
+                }
+            });
+
+            grid.option('dataSource', ds);
+            grid.endCustomLoading();
         }
     }
 
-    function onGridBeforeSend(method, ajaxOptions) {
-        let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
-        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
-        let status = $("#Statusid").dxTagBox("instance").option("value");
-
-        let periodeAwal = null;
-        if (tempPeriodeAwal != null) {
-            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + (tempPeriodeAwal.getMonth() + 1) + '-' + tempPeriodeAwal.getDate();
-        }
-        ajaxOptions.data.namaPE = JSON.stringify(namaPE);
-        ajaxOptions.data.periodeAwal = periodeAwal;
-        ajaxOptions.data.status = JSON.stringify(status);
-    }
+ 
 
     var waitingDialog = (function ($) {
 
@@ -379,3 +419,14 @@
     })(jQuery);
 
 </script>
+
+<style type="text/css">
+    .mandatory {
+        background-color: red !important;
+    }
+
+    .dx-datagrid-headers {
+        background-color: #a01905;
+        color: #ffffff;
+    }
+</style>

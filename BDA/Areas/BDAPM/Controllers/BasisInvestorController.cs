@@ -42,7 +42,7 @@ namespace BDA.Controllers
             return View();
         }
 
-        public IActionResult Detail(long? id)
+        public IActionResult Detail(string pe, string periode)
         {
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
             var currentNode = mdl.GetCurrentNode();
@@ -51,6 +51,9 @@ namespace BDA.Controllers
             db.CheckPermission("Detail Basis Investor View", DataEntities.PermissionMessageType.ThrowInvalidOperationException); //check permission nya view/lihat nya
             ViewBag.Export = db.CheckPermission("Basis Investor Detail Export", DataEntities.PermissionMessageType.NoMessage); //check permission export
             db.InsertAuditTrail("Detail_Basis_Investor_Page", "Akses Page Detail Basis Investor", pageTitle); //simpan kedalam audit trail
+
+            ViewBag.pe = pe;
+            ViewBag.periode = periode;
 
             return View();
         }
@@ -67,6 +70,7 @@ namespace BDA.Controllers
             return View();
         }
 
+        #region PS07
         public object GetCardTotalClients(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE, string invType, string invOrigin, string inRange, string market)
         {
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
@@ -674,7 +678,117 @@ namespace BDA.Controllers
 
             return JsonConvert.SerializeObject(result);
         }
+        #endregion
 
+        #region PS07B
+        public object GetGridDetail(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE, string negara, string provinsi, string kota, string jenisKelamin, string usia, string pendidikan, string pekerjaan, string penghasilan)
+        {
+            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+            TempData.Clear(); //membersihkan data filtering
+
+            string stringPeriodeAwal = null;
+            string stringNamaPE = null;
+            string stringNegara = null;
+            string stringProvinsi = null;
+            string stringKota = null;
+            string stringJenisKelamin = null;
+            string stringUsia = null;
+            string stringPendidikan = null;
+            string stringPekerjaan = null;
+            string stringPenghasilan = null;
+            string reportId = "ps_basis_inv_pe"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+
+            stringPeriodeAwal = Convert.ToDateTime(DateTime.Now).ToString("yyyy-MM-dd");
+            TempData["pawal"] = stringPeriodeAwal;
+
+            if (periodeAwal != null)
+            {
+                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
+                TempData["pawal"] = stringPeriodeAwal;
+            }
+
+            if (namaPE != null)
+            {
+                stringNamaPE = namaPE;
+                TempData["pe"] = stringNamaPE;
+            }
+
+            if (negara != null)
+            {
+                stringNegara = negara;
+                TempData["negara"] = stringNegara;
+            }
+
+            if (provinsi != null)
+            {
+                stringProvinsi = provinsi;
+                TempData["provinsi"] = stringProvinsi;
+            }
+
+            if (kota != null)
+            {
+                stringKota = kota;
+                TempData["kota"] = stringKota;
+            }
+
+            if (jenisKelamin != null)
+            {
+                stringJenisKelamin = jenisKelamin;
+                TempData["jenisKelamin"] = stringJenisKelamin;
+
+            }
+
+            if (usia != null)
+            {
+                stringUsia = usia;
+                TempData["usia"] = stringUsia;
+            }
+
+            if (pendidikan != null)
+            {
+                stringPendidikan = pendidikan;
+                TempData["pendidikan"] = stringPendidikan;
+            }
+
+            if (pekerjaan != null)
+            {
+                stringPekerjaan = pekerjaan;
+                TempData["pekerjaan"] = stringPekerjaan;
+            }
+
+            if (penghasilan != null)
+            {
+                stringPenghasilan = penghasilan;
+                TempData["penghasilan"] = stringPenghasilan;
+            }
+
+
+            db.Database.CommandTimeout = 420;
+            var result = Helper.WSQueryStore.GetPS07BGrid(db, loadOptions, stringPeriodeAwal, stringNamaPE, stringNegara, stringProvinsi, stringKota, stringJenisKelamin, stringUsia, stringPendidikan, stringPekerjaan, stringPenghasilan, cekHive);
+
+            foreach (DataRow row in result.data.Rows)
+            {
+                if (row["newsre"] != DBNull.Value)
+                {
+                    var val = row["newsre"].ToString();
+
+                    if (val == "NO")
+                    {
+                        row["newsre"] = "Client";
+                    }
+                    else
+                    {
+                        row["newsre"] = "New Client";
+                    }
+                }
+            }
+
+            return JsonConvert.SerializeObject(result);
+        }
+
+        #endregion
 
         [HttpPost]
         public ActionResult SimpanPenggunaanData(string id)
