@@ -75,7 +75,8 @@
                             .SearchEnabled(true)
                             .Value("")
                             .OnSelectionChanged("onSelectionChanged")
-                            .Width("100%"))
+                            .Width("100%")
+                            .Placeholder("(ALL)"))
                     </div>
 
                     <div class="col-lg-2 form-group">
@@ -86,7 +87,8 @@
                             .SearchEnabled(true)
                             .Value("")
                             .OnSelectionChanged("onSelectionChanged")
-                            .Width("100%"))
+                            .Width("100%")
+                            .Placeholder("(ALL)"))
                     </div>
 
                     <div class="col-lg-2 form-group">
@@ -97,7 +99,8 @@
                             .SearchEnabled(true)
                             .Value("")
                             .OnSelectionChanged("onSelectionChanged")
-                            .Width("100%"))
+                            .Width("100%")
+                            .Placeholder("(ALL)"))
                     </div>
 
                     <div class="col-lg-2 form-group">
@@ -105,14 +108,16 @@
                         @(Html.DevExtreme().SelectBox()
                             .ID("Sex")
                             .DataSource(new[] {
-                                new { Text = "(All)", Value = "" },
                                 new { Text = "Laki-laki", Value = "Male" },
                                 new { Text = "Perempuan", Value = "Female" }
                                 })
                             .SearchEnabled(true)
                             .Value("")
+                            .ValueExpr("Value")
+                            .DisplayExpr("Text")
                             .OnSelectionChanged("onSelectionChanged")
-                            .Width("100%"))
+                            .Width("100%")
+                            .Placeholder("(ALL)"))
                     </div>
 
                     <div class="col-lg-2 form-group">
@@ -120,7 +125,6 @@
                         @(Html.DevExtreme().SelectBox()
                             .ID("Age")
                             .DataSource(new[] {
-                                new { Text = "(All)", Value = "" },
                                 new { Text = "<= 30 Tahun", Value = "<=30" },
                                 new { Text = "31 - 40 Tahun", Value = "31 - 40" },
                                 new { Text = "41 - 50 Tahun", Value = "41 - 50" },
@@ -129,8 +133,11 @@
                                 })
                             .SearchEnabled(true)
                             .Value("")
+                            .ValueExpr("Value")
+                            .DisplayExpr("Text")
                             .OnSelectionChanged("onSelectionChanged")
-                            .Width("100%"))
+                            .Width("100%")
+                            .Placeholder("(ALL)"))
                     </div>
 
                     <div class="col-lg-2 form-group">
@@ -141,7 +148,8 @@
                             .SearchEnabled(true)
                             .Value("")
                             .OnSelectionChanged("onSelectionChanged")
-                            .Width("100%"))
+                            .Width("100%")
+                            .Placeholder("(ALL)"))
                     </div>
 
                     <div class="col-lg-2 form-group">
@@ -152,7 +160,8 @@
                             .SearchEnabled(true)
                             .Value("")
                             .OnSelectionChanged("onSelectionChanged")
-                            .Width("100%"))
+                            .Width("100%")
+                            .Placeholder("(ALL)"))
                     </div>
 
                     <div class="col-lg-2 form-group">
@@ -163,7 +172,8 @@
                             .SearchEnabled(true)
                             .Value("")
                             .OnSelectionChanged("onSelectionChanged")
-                            .Width("100%"))
+                            .Width("100%")
+                            .Placeholder("(ALL)"))
                     </div>
 
                 </div>
@@ -369,6 +379,64 @@
             grid.option('dataSource', ds);
             grid.endCustomLoading();
         }
+    }
+
+    function ExportToExcel() {
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("LogExportBIDetail", "BasisInvestor")",
+            success: function (response) {
+                if (response.result == "Success") {
+                    var workbook = new ExcelJS.Workbook();
+                    var worksheet = workbook.addWorksheet('Detail Basis Investor');
+
+                    DevExpress.excelExporter.exportDataGrid({
+                        component: $("#grid1").dxDataGrid("instance"),
+                        worksheet: worksheet,
+                        customizeCell: function (options) {
+                            var { gridCell, excelCell } = options;
+
+                            if (gridCell.rowType === 'data') {
+                                if (options.gridCell.column.dataType === 'number') {
+                                    excelCell.numFmt = '#,##0';
+                                }
+                            }
+                        }
+                    }).then(function () {
+                        workbook.xlsx.writeBuffer().then(function (buffer) {
+                            saveAs(new Blob([buffer], { type: "application/octet-stream" }), "BasisInvestorDetail_" + new Date().toISOString().slice(0, 10) + ".xlsx");
+                        });
+                    });
+                }
+            }
+        });
+    }
+
+    function ExportToPdf() {
+        var dataGrid = $("#grid1").dxDataGrid("instance");
+        dataGrid.option("onExporting", function (e) { });
+        dataGrid.option("onFileSaving", function (e) {
+            var fd = new FormData();
+            fd.append("file", e.data);
+            fd.append("name", "Detail");
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("ExportPDF", "BasisInvestor")",
+                data: fd,
+                processData: false,
+                contentType: false
+            }).done(function (data) {
+                window.location = "@Url.Action("FileIndex", "BasisInvestor", new { name = "Detail" })"
+            });
+            e.cancel = true;
+        });
+        dataGrid.exportToExcel();
+    }
+
+    function thousandSeparatorDecimal(e) {
+        e = parseFloat(e);
+        if (e != null)
+            return e.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
     }
 
  
