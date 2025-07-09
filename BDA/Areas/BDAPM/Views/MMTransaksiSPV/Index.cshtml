@@ -1,0 +1,467 @@
+﻿@using DevExtreme.AspNet.Mvc
+@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+    var monthyearawal = (dynamic)null;
+    var monthyearakhir = (dynamic)null;
+    monthyearawal = ViewBag.monthyearawal;
+    monthyearakhir = ViewBag.monthyearakhir;
+}
+@inject BDA.DataModel.DataEntities db
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    <div class="card card-default">
+
+        <div style="padding-top:0px;">
+            <div class="card-body">
+                <div class="row">
+
+                    <div class="col-lg-3 form-group">
+                        <label>Periode Awal<span class="mandatory">*</span></label>
+                        @(Html.DevExtreme().DateBox()
+                            .ID("PeriodeAwal")
+                            .DisplayFormat("dd MMM yyyy")
+                            .Value(DateTime.Now)
+                            .Max(DateTime.Now)
+                            .Width("100%"))
+                    </div>
+
+                     <div class="col-lg-3 form-group">
+                        <label>Periode Akhir<span class="mandatory">*</span></label>
+                        @(Html.DevExtreme().DateBox()
+                            .ID("PeriodeAkhir")
+                            .DisplayFormat("dd MMM yyyy")
+                            .Value(DateTime.Now)
+                            .Min(DateTime.Now)
+                            .Width("100%"))
+                    </div>
+
+                     <div class="col-lg-2 form-group">
+                        <label>Case ID</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("caseid")
+                            .DataSource(new[] { "P1", "P2", "P3", "P4", "P5", "P6", "P7" })
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .OnSelectionChanged("onSelectionChanged")
+                            .Width("100%")
+                            .Placeholder("(ALL)"))
+                    </div>
+
+                     <div class="col-lg-2 form-group">
+                        <label>Trade ID</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("tradeid")
+                            .DataSource(d => d.Mvc()
+                            .Controller("MMTransaksiSPV")
+                            .LoadAction("GetTradeID")
+                            .Key("value"))
+                            .ValueExpr("value")
+                            .DisplayExpr("text")
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .ShowClearButton(true)
+                            .Width("100%"))
+                    </div>
+
+                     <div class="col-lg-2 form-group">
+                        <label>
+                            Bond Issuer Type Code
+                        </label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("bondtypecode")
+                            .DataSource(d => d.Mvc()
+                            .Controller("MMTransaksiSPV")
+                            .LoadAction("GetBondTypeCode")
+                            .Key("value"))
+                            .ValueExpr("value")
+                            .DisplayExpr("text")
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .ShowClearButton(true)
+                            .Width("100%"))
+                    </div>
+                </div>
+
+                <div class="row">
+
+                    <div class="col-lg-2 form-group">
+                        <label>
+                            Source Name
+                        </label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("sourcenameid")
+                            .DataSource(d => d.Mvc()
+                            .Controller("MMTransaksiSPV")
+                            .LoadAction("GetSourceNameID")
+                            .Key("value"))
+                            .ValueExpr("value")
+                            .DisplayExpr("text")
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .ShowClearButton(true)
+                            .Width("100%"))
+                    </div>
+
+                    <div class="col-lg-2 form-group">
+                        <label>Target Name</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("targetnameid")
+                            .DataSource(d => d.Mvc()
+                            .Controller("MMTransaksiSPV")
+                            .LoadAction("GetTargetNameID")
+                            .Key("value"))
+                            .ValueExpr("value")
+                            .DisplayExpr("text")
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .ShowClearButton(true)
+                            .Width("100%"))
+                    </div>
+
+                    <div class="col-lg-2 form-group">
+                        <label>Report Type</label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("reporttypeid")
+                            .DataSource(d => d.Mvc()
+                            .Controller("MMTransaksiSPV")
+                            .LoadAction("GetReportTypeID")
+                            .Key("value"))
+                            .ValueExpr("value")
+                            .DisplayExpr("text")
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .ShowClearButton(true)
+                            .Width("100%"))
+                    </div>
+
+                    <div class="col-lg-4 form-group">
+                        <label>
+                            Bond Late Completeness Status Code
+                        </label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("bondlateid")
+                            .DataSource(d => d.Mvc()
+                            .Controller("MMTransaksiSPV")
+                            .LoadAction("GetBondLateID")
+                            .Key("value"))
+                            .ValueExpr("value")
+                            .DisplayExpr("text")
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .ShowClearButton(true)
+                            .Width("100%"))
+                    </div>
+
+                    <div class="col-lg-2 form-group">
+                        <label>
+                            Bond Report Status
+                        </label>
+                        @(Html.DevExtreme().TagBox()
+                            .ID("bondreportid")
+                            .DataSource(d => d.Mvc()
+                            .Controller("MMTransaksiSPV")
+                            .LoadAction("GetBondReportStatusID")
+                            .Key("value"))
+                            .ValueExpr("value")
+                            .DisplayExpr("text")
+                            .ShowSelectionControls(true)
+                            .MaxDisplayedTags(3)
+                            .SearchEnabled(true)
+                            .ShowClearButton(true)
+                            .Width("100%"))
+                    </div>
+
+                </div>
+
+                <table>
+                    <tr>
+                        <td>
+                            <div class="float-left">
+                                @(Html.DevExtreme().Button()
+                                    .ID("Filter")
+                                    .Type(ButtonType.Default)
+                                    .Text("Tampilkan")
+                                    .OnClick("onButtonFilterClicked")
+                                    .ValidationGroup("Filter"))
+                            </div>
+                        </td>
+                        <td>
+                            <div class="float-left">
+                                @(Html.DevExtreme().Button()
+                                    .ID("Filters")
+                                    .Type(ButtonType.Success)
+                                    .Text("Cancel")
+                                    .OnClick("onButtonFilterClickedCancel"))
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+                <br />
+                <br />
+                @*grid*@
+                <div class="row filter-panel" style="padding-top:0px;">
+                    <div class="card-body">
+                        <div class="float-right">
+                            @if (ViewBag.Export)
+                            {
+                                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcelIndex();"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdfIndex();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="row filter-panel gridview-div">
+                    @(Html.DevExtreme().DataGrid()
+                        .ID("grid1")
+                        .ShowBorders(true).Width("100%").ShowColumnLines(true).ShowRowLines(true)
+                        .DataSource(d => d.Mvc()
+                        .Controller("MMTransaksiSPV")
+                        .LoadAction("GetGridData")
+                        .Key("caseid")
+                        .OnBeforeSend("onGridBeforeSend"))
+                        .RemoteOperations(true)
+                        .Width("100%")
+                        .AllowColumnResizing(true)
+                        .ColumnAutoWidth(true)
+                        .WordWrapEnabled(true)
+                        .Columns(columns =>
+                        {
+                            columns.Add().DataField("bondcode").Caption("Bond Code").Alignment(HorizontalAlignment.Center);
+                            @* columns.Add().DataField("volume").Caption("Volume"); *@
+                            columns.Add().DataField("caseid").Caption("Case Id");
+                            columns.Add().DataField("tradeno").Caption("Trade No");
+                            columns.Add().DataField("tradedatesk").Caption("Trade Date Sk");
+                            columns.Add().DataField("tradedatetime").Caption("Trade Time");
+                            columns.Add().DataField("price").Caption("Price").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
+                            columns.Add().DataField("plteparticipantcode").Caption("Plte Participant Code");
+                            columns.Add().DataField("singletradeno").Caption("Single Trade No");
+                            columns.Add().DataField("cpplteparticipantcode").Caption("Cp Plte Participant Code");
+                            columns.Add().DataField("bondissuertypecode").Caption("Bond Issuer Type Code").Alignment(HorizontalAlignment.Center);
+                            columns.Add().DataField("sourcename").Caption("Source Name");
+                            columns.Add().DataField("targetname").Caption("Target Name");
+
+                            columns.Add().DataField("sourcetradeid").Caption("Source Trade Id");
+                            columns.Add().DataField("targettradeid").Caption("Target Trade Id");
+                            columns.Add().DataField("sellerfirmcode").Caption("Seller Firm Code");
+                            columns.Add().DataField("buyerfirmcode").Caption("Buyer Firm Code");
+                            columns.Add().DataField("reporttypecode").Caption("Report Type Code");
+
+                            columns.Add().DataField("rtype").Caption("Type");
+                            columns.Add().DataField("totalvolume").Caption("Total Volume");
+                            columns.Add().DataField("totalvalue").Caption("Total Value");
+                            columns.Add().DataField("lowerboncfairprice").Caption("Lower Bonc Fair Price ");
+                            columns.Add().DataField("bondfairprice").Caption("Bond Fair Price");
+                            columns.Add().DataField("upperbondfairprice").Caption("Upper Bond Fair Price");
+                            columns.Add().DataField("beyondfairmarketprice").Caption("Beyond Fair Market Price");
+                           @*  columns.Add().DataField("bondinstrumenttypecode").Caption("Bond Late Completeness Status Code"); *@
+                            columns.Add().DataField("bondreportstatuscode").Caption("Bond Report Status");
+                        })
+                        .FilterRow(f => f.Visible(true))
+                        .ShowBorders(true)
+                        .Paging(p =>
+                        {
+                            p.PageSize(20);
+                            p.Enabled(true);
+                        })
+                        .Pager(p =>
+                        {
+                            p.ShowInfo(true);
+                        }))
+                </div>
+            </div>
+        </div>
+
+    </div>
+}
+
+<script>
+    window.jsPDF = window.jspdf.jsPDF;
+    applyPlugin(window.jsPDF);
+</script>
+
+<style type="text/css">
+    .mandatory {
+        color: red;
+    }
+</style>
+<script>
+
+    $(function () {
+           const startDate = $("#PeriodeAwal").dxDateBox({
+               onValueChanged: function (e) {
+                   endDate.option("min", e.value);
+               }
+           }).dxDateBox("instance");
+           const endDate = $("#PeriodeAkhir").dxDateBox({
+               onValueChanged: function (e) {
+                   startDate.option("max", e.value);
+               }
+           }).dxDateBox("instance");
+
+           $("#PeriodeAwal").dxValidator({
+               validationGroup: "Filter",
+               validationRules: [{ type: "required", message: "[Periode Awal] harus dipilih" }]
+           })
+           $("#PeriodeAkhir").dxValidator({
+               validationGroup: "Filter",
+               validationRules: [{ type: "required", message: "[Periode Akhir] harus dipilih" }]
+           })
+    });
+
+    function onSelectionChanged(e) {
+        if (e.addedItems.length > 0) {
+            e.component.field().val(""); // Clears the search text. However, search filter is only applied to the widget after focus is lost in the input element
+        }
+    }
+
+    function onButtonFilterClicked(e) {
+        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
+        let tempPeriodeAkhir = $("#PeriodeAkhir").dxDateBox("instance").option("value");
+        let caseid = $("#caseid").dxTagBox("instance").option("value");
+        let tradeid = $("#tradeid").dxTagBox("instance").option("value");
+        let bondtypecode = $("#bondtypecode").dxTagBox("instance").option("value");
+        let sourcenameid = $("#sourcenameid").dxTagBox("instance").option("value");
+        let targetnameid = $("#targetnameid").dxTagBox("instance").option("value");
+        let reporttypeid = $("#reporttypeid").dxTagBox("instance").option("value");
+        let bondlateid = $("#bondlateid").dxTagBox("instance").option("value");
+        let bondreportid = $("#bondreportid").dxTagBox("instance").option("value");
+
+        let periodeAwal = null;
+        if (tempPeriodeAwal != null) {
+            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
+        }
+
+        let periodeAkhir = null;
+        if (tempPeriodeAkhir != null) {
+            periodeAkhir = tempPeriodeAkhir.getFullYear() + '-' + String(tempPeriodeAkhir.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAkhir.getDate()).padStart(2, '0');
+        }
+
+        $("#grid1").dxDataGrid("instance").refresh();
+    }
+
+    function onButtonFilterClickedCancel(e) {
+        location.reload(); // Reloads the page, possibly from cache
+    }
+
+    function onGridBeforeSend(method, ajaxOptions) {
+        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
+        let tempPeriodeAkhir = $("#PeriodeAkhir").dxDateBox("instance").option("value");
+        let caseid = $("#caseid").dxTagBox("instance").option("value");
+        let tradeid = $("#tradeid").dxTagBox("instance").option("value");
+        let bondtypecode = $("#bondtypecode").dxTagBox("instance").option("value");
+        let sourcenameid = $("#sourcenameid").dxTagBox("instance").option("value");
+        let targetnameid = $("#targetnameid").dxTagBox("instance").option("value");
+        let reporttypeid = $("#reporttypeid").dxTagBox("instance").option("value");
+        let bondlateid = $("#bondlateid").dxTagBox("instance").option("value");
+        let bondreportid = $("#bondreportid").dxTagBox("instance").option("value");
+
+       let periodeAwal = null;
+        if (tempPeriodeAwal != null) {
+            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
+        }
+
+        let periodeAkhir = null;
+        if (tempPeriodeAkhir != null) {
+            periodeAkhir = tempPeriodeAkhir.getFullYear() + '-' + String(tempPeriodeAkhir.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAkhir.getDate()).padStart(2, '0');
+        }
+
+        ajaxOptions.data.periodeAwal = periodeAwal;
+        ajaxOptions.data.periodeAkhir = periodeAkhir;
+        ajaxOptions.data.caseid = JSON.stringify(caseid);
+        ajaxOptions.data.tradeid = JSON.stringify(tradeid);
+        ajaxOptions.data.bondtypecode = JSON.stringify(bondtypecode);
+        ajaxOptions.data.sourcenameid = JSON.stringify(sourcenameid);
+        ajaxOptions.data.targetnameid = JSON.stringify(targetnameid);
+        ajaxOptions.data.reporttypeid = JSON.stringify(reporttypeid);
+        ajaxOptions.data.bondlateid = JSON.stringify(bondlateid);
+        ajaxOptions.data.bondreportid = JSON.stringify(bondreportid);
+    }
+
+    function ExportToExcelIndex() {
+        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
+        let tempPeriodeAkhir = $("#PeriodeAkhir").dxDateBox("instance").option("value");
+
+
+       let periodeAwal = null;
+        if (tempPeriodeAwal != null) {
+            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
+        }
+
+        let periodeAkhir = null;
+        if (tempPeriodeAkhir != null) {
+            periodeAkhir = tempPeriodeAkhir.getFullYear() + '-' + String(tempPeriodeAkhir.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAkhir.getDate()).padStart(2, '0');
+        }
+
+       $.ajax({
+            type: "POST",
+            url: "@Url.Action("LogExportIndex", "MMTransaksiSPV")",
+            success: function (response) {
+                if (response.result == "Success") {
+                    var workbook = new ExcelJS.Workbook();
+                    var worksheet = workbook.addWorksheet('Main sheet');
+
+                    DevExpress.excelExporter.exportDataGrid({
+                        component: $("#grid1").dxDataGrid("instance"),
+                        worksheet: worksheet,
+                        customizeCell: function (options) {
+                            var { gridCell, excelCell } = options;
+
+                             if (gridCell.rowType === 'data') {
+                                if (options.gridCell.column.dataType === 'number') {
+                                    excelCell.numFmt = '#,##0';
+                                }
+                            }
+                        }
+                    }).then(function () {
+                        workbook.xlsx.writeBuffer().then(function (buffer) {
+                            saveAs(new Blob([buffer], { type: "application/octet-stream" }), "Pola_1_" + periodeAwal + " - " + periodeAkhir + ".xlsx");
+                        });
+                    });
+                }
+            }
+        });
+    }
+
+    function ExportToPdfIndex() {
+        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
+        let tempPeriodeAkhir = $("#PeriodeAkhir").dxDateBox("instance").option("value");
+
+
+       let periodeAwal = null;
+        if (tempPeriodeAwal != null) {
+            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + String(tempPeriodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAwal.getDate()).padStart(2, '0');
+        }
+
+        let periodeAkhir = null;
+        if (tempPeriodeAkhir != null) {
+            periodeAkhir = tempPeriodeAkhir.getFullYear() + '-' + String(tempPeriodeAkhir.getMonth() + 1).padStart(2, '0') + '-' + String(tempPeriodeAkhir.getDate()).padStart(2, '0');
+        }
+
+        var dataGrid = $("#grid1").dxDataGrid("instance");
+        dataGrid.option("onExporting", function (e) { });
+        dataGrid.option("onFileSaving", function (e) {
+            var fd = new FormData();
+            fd.append("file", e.data);
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("LogExportPDFIndex", "MMTransaksiSPV")",
+                data: fd,
+                processData: false,
+                contentType: false
+            }).done(function (data) {
+                window.location = "@Url.Action("FileIndex", "MMTransaksiSPV")"
+            });
+            e.cancel = true;
+        });
+        dataGrid.exportToExcel();
+    }
+</script>

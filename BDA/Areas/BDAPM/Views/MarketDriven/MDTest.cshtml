@@ -1,0 +1,20 @@
+﻿@using DevExtreme.AspNet.Mvc
+@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+    string reportId = "MDTest";
+    var p = (string[])ViewBag.period;
+    bool isHive = ViewBag.Hive;
+    var maxItems = db.GetSetting("LimitFilterLJK");
+    string lbl1 = " ";
+}
+
+@inject BDA.DataModel.DataEntities db
+<div class="card card-default">
+    <div class="card-header">
+        <h3 class="card-title">
+            Market Driven Validation Data
+        </h3>
+    </div>
+    
+</div>
+

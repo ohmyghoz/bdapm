@@ -6219,9 +6219,601 @@ namespace BDA.Helper
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
         }
 
+        public static WSQueryReturns GetPS07PieChartsRFM(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string invType, string invOrigin, string inRange, string market, int type, string r, string f, string m, bool isHive = true)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            isHive = true;
 
+            whereQuery += PS07Filters(periode, pe, invType, invOrigin, inRange, market);
 
+            if (r != null)
+            {
+                string rr = "'" + r.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND r in (" + rr + ")";
+            }
 
+            if (f != null)
+            {
+                string ff = "'" + f.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND f in (" + ff + ")";
+            }
+
+            if (m != null)
+            {
+                string mm = "'" + m.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND m in (" + mm + ")";
+            }
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (type == 1)
+                {
+                    props.Query = @"SELECT COUNT(tradeid) AS result FROM pasarmodal.basis_investor_pe WHERE " + whereQuery + @"";
+                }
+                else
+                {
+                    props.Query = @"SELECT SUM(investortotalvalue) AS result FROM pasarmodal.basis_investor_pe WHERE " + whereQuery + @"";
+                }
+                
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+
+        public static WSQueryReturns GetPS07PieChartInv(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string invType, string invOrigin, string inRange, string market, int type, bool isHive = true)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            isHive = true;
+
+            whereQuery += PS07Filters(periode, pe, invType, invOrigin, inRange, market);
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (type == 1)
+                {
+                    props.Query = @"SELECT COUNT(tradeid) AS result FROM pasarmodal.basis_investor_pe WHERE " + whereQuery + @"";
+                }
+                else
+                {
+                    props.Query = @"SELECT SUM(investortotalvalue) AS result FROM pasarmodal.basis_investor_pe WHERE " + whereQuery + @"";
+                }
+
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+
+        public static WSQueryReturns GetPS07Scatter(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string invType, string invOrigin, string inRange, string market, bool isHive = true)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            isHive = true;
+
+            whereQuery += PS07Filters(periode, pe, invType, invOrigin, inRange, market);
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                props.Query = @"SELECT basis_investor_1 AS basis_investor, (LOG(COUNT(sid)) / LOG(10)) AS log10_sid,  PERCENTILE(CAST(investorlasttransactionindays as BIGINT), 0.5) AS med_inv_days,  PERCENTILE(CAST(investortotalvalue as BIGINT), 0.5) / 1000000 AS med_inv_tot_val FROM pasarmodal.basis_investor_pe
+ WHERE " + whereQuery + " GROUP BY basis_investor_1 ORDER BY basis_investor_1 ASC" + @"";
+
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+
+        public static WSQueryReturns GetPS07BGrid(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string negara, string provinsi, string kota, string jenisKelamin, string usia, string pendidikan, string pekerjaan, string penghasilan, bool isHive = true)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            isHive = true;
+
+            if (periode != null)
+            {
+                string periodes = "'" + periode.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND pperiode in (" + periodes.Replace("-", "") + ")";
+            }
+
+            if (pe != null)
+            {
+                string namaPEs = "'" + pe.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND exchangemembercode in (" + namaPEs + ")";
+            }
+
+            if (negara != null)
+            {
+                string ngr = "'" + negara.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND country in (" + ngr + ")";
+            }
+
+            if (provinsi != null)
+            {
+                string prv = "'" + provinsi.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND provinsi in (" + prv + ")";
+            }
+
+            if (kota != null)
+            {
+                string kt = "'" + kota.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND kota in (" + kt + ")";
+            }
+
+            if (jenisKelamin != null)
+            {
+                string jk = "'" + jenisKelamin.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND jenis_kelamin in (" + jk + ")";
+            }
+
+            if (usia != null)
+            {
+                string uia = "'" + usia.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND golonganusia in (" + uia + ")";
+            }
+
+            if (pendidikan != null)
+            {
+                string pddk = "'" + pendidikan.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND pendidikan in (" + pddk + ")";
+            }
+
+            if (pekerjaan != null)
+            {
+                string pkrj = "'" + pekerjaan.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND pekerjaan in (" + pkrj + ")";
+            }
+
+            if (penghasilan != null)
+            {
+                string phsl = "'" + penghasilan.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND pinghasilan_individu in (" + phsl + ")";
+            }
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                props.Query = @"SELECT sid, full_name AS fullname, new_sre AS newsre, investorlasttransactionindays AS invlasttrxindays, investortransactionfreq AS invtrxfreq, investortotalvalue AS invtotalval FROM pasarmodal.basis_investor_pe WHERE " + whereQuery + @"";
+
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+
+        #endregion
+
+        #region MM01
+        public static WSQueryReturns GetBDAPMFilterTradeId(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, bool isHive = false)
+        {
+            var filter = (dynamic)null;
+            filter = loadOptions.Filter;
+            if (loadOptions.Filter != null)
+            {
+                filter = filter[0][2];
+                filter = "AND sourcetradeid LIKE '%" + filter + "%'";
+            }
+            else
+            {
+                filter = "";
+            }
+            bool isC = false;
+            var whereQuery = "1=1";
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "mrkt_mnpltn_prtn_rcgntn")
+                {
+                    props.Query = @"
+                        SELECT sourcetradeid from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @" 
+                        group by sourcetradeid";
+                }
+            }
+            else
+            {
+                if (tableName == "mrkt_mnpltn_prtn_rcgntn")
+                {
+                    props.Query = @"
+                        SELECT sourcetradeid from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @"
+                        group by sourcetradeid";
+                }
+            }
+
+            return WSQueryHelper.DoQueryNL(db, props, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMFilterBondTypeCode(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, bool isHive = false)
+        {
+            var filter = (dynamic)null;
+            filter = loadOptions.Filter;
+            if (loadOptions.Filter != null)
+            {
+                filter = filter[0][2];
+                filter = "AND bondissuertypecode LIKE '%" + filter + "%'";
+            }
+            else
+            {
+                filter = "";
+            }
+            bool isC = false;
+            var whereQuery = "1=1";
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "mrkt_mnpltn_prtn_rcgntn")
+                {
+                    props.Query = @"
+                        SELECT bondissuertypecode from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @" 
+                        group by bondissuertypecode";
+                }
+            }
+            else
+            {
+                if (tableName == "mrkt_mnpltn_prtn_rcgntn")
+                {
+                    props.Query = @"
+                        SELECT bondissuertypecode from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @"
+                        group by bondissuertypecode";
+                }
+            }
+
+            return WSQueryHelper.DoQueryNL(db, props, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMFilterSourceName(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, bool isHive = false)
+        {
+            var filter = (dynamic)null;
+            filter = loadOptions.Filter;
+            if (loadOptions.Filter != null)
+            {
+                filter = filter[0][2];
+                filter = "AND sourcename LIKE '%" + filter + "%'";
+            }
+            else
+            {
+                filter = "";
+            }
+            bool isC = false;
+            var whereQuery = "1=1";
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "mrkt_mnpltn_prtn_rcgntn")
+                {
+                    props.Query = @"
+                        SELECT sourcename from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @" 
+                        group by sourcename";
+                }
+            }
+            else
+            {
+                if (tableName == "mrkt_mnpltn_prtn_rcgntn")
+                {
+                    props.Query = @"
+                        SELECT sourcename from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @"
+                        group by sourcename";
+                }
+            }
+
+            return WSQueryHelper.DoQueryNL(db, props, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMFilterTargetName(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, bool isHive = false)
+        {
+            var filter = (dynamic)null;
+            filter = loadOptions.Filter;
+            if (loadOptions.Filter != null)
+            {
+                filter = filter[0][2];
+                filter = "AND targetname LIKE '%" + filter + "%'";
+            }
+            else
+            {
+                filter = "";
+            }
+            bool isC = false;
+            var whereQuery = "1=1";
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "mrkt_mnpltn_prtn_rcgntn")
+                {
+                    props.Query = @"
+                        SELECT targetname from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @" 
+                        group by targetname";
+                }
+            }
+            else
+            {
+                if (tableName == "mrkt_mnpltn_prtn_rcgntn")
+                {
+                    props.Query = @"
+                        SELECT targetname from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @"
+                        group by targetname";
+                }
+            }
+
+            return WSQueryHelper.DoQueryNL(db, props, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMFilterReportType(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, bool isHive = false)
+        {
+            var filter = (dynamic)null;
+            filter = loadOptions.Filter;
+            if (loadOptions.Filter != null)
+            {
+                filter = filter[0][2];
+                filter = "AND reporttypecode LIKE '%" + filter + "%'";
+            }
+            else
+            {
+                filter = "";
+            }
+            bool isC = false;
+            var whereQuery = "1=1";
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "mrkt_mnpltn_prtn_rcgntn")
+                {
+                    props.Query = @"
+                        SELECT reporttypecode from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @" 
+                        group by reporttypecode";
+                }
+            }
+            else
+            {
+                if (tableName == "mrkt_mnpltn_prtn_rcgntn")
+                {
+                    props.Query = @"
+                        SELECT reporttypecode from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @"
+                        group by reporttypecode";
+                }
+            }
+
+            return WSQueryHelper.DoQueryNL(db, props, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMFilterBondLate(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, bool isHive = false)
+        {
+            var filter = (dynamic)null;
+            filter = loadOptions.Filter;
+            if (loadOptions.Filter != null)
+            {
+                filter = filter[0][2];
+                filter = "AND bondreportstatuscode LIKE '%" + filter + "%'";
+            }
+            else
+            {
+                filter = "";
+            }
+            bool isC = false;
+            var whereQuery = "1=1";
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "mrkt_mnpltn_prtn_rcgntn")
+                {
+                    props.Query = @"
+                        SELECT bondreportstatuscode from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @" 
+                        group by bondreportstatuscode";
+                }
+            }
+            else
+            {
+                if (tableName == "mrkt_mnpltn_prtn_rcgntn")
+                {
+                    props.Query = @"
+                        SELECT bondreportstatuscode from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @"
+                        group by bondreportstatuscode";
+                }
+            }
+
+            return WSQueryHelper.DoQueryNL(db, props, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMFilterReportStatus(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, bool isHive = false)
+        {
+            var filter = (dynamic)null;
+            filter = loadOptions.Filter;
+            if (loadOptions.Filter != null)
+            {
+                filter = filter[0][2];
+                filter = "AND bondreportstatuscode LIKE '%" + filter + "%'";
+            }
+            else
+            {
+                filter = "";
+            }
+            bool isC = false;
+            var whereQuery = "1=1";
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "mrkt_mnpltn_prtn_rcgntn")
+                {
+                    props.Query = @"
+                        SELECT bondreportstatuscode from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @" 
+                        group by bondreportstatuscode";
+                }
+            }
+            else
+            {
+                if (tableName == "mrkt_mnpltn_prtn_rcgntn")
+                {
+                    props.Query = @"
+                        SELECT bondreportstatuscode from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @"
+                        group by bondreportstatuscode";
+                }
+            }
+
+            return WSQueryHelper.DoQueryNL(db, props, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMMMTransaksiSPVQuery(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string stringPeriodeAwal, string stringPeriodeAkhir, 
+            string stringcaseid, string stringtradeid, string stringbondtypecode, string stringsourcenameid, string stringtargetnameid, 
+            string stringreporttypeid, string stringbondlateid, string stringbondreportid, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            //isHive = true;
+
+            if (stringPeriodeAwal != null && stringPeriodeAkhir != null)
+            {
+                if (isHive == true)
+                {
+                    stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    whereQuery = whereQuery += " AND  tradedatesk BETWEEN " + stringPeriodeAwal.Replace("-", "") + " AND " + stringPeriodeAkhir.Replace("-", "") + "";
+
+                }
+                else
+                {
+                    stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    whereQuery = whereQuery += " AND  tradedatesk BETWEEN " + stringPeriodeAwal.Replace("-", "") + " AND " + stringPeriodeAkhir.Replace("-", "") + "";
+                }
+
+            }
+
+            if (stringcaseid != null)
+            {
+                stringcaseid = "'" + stringcaseid.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND SUBSTRING(caseid, 1, 2) in (" + stringcaseid + ")";
+            }
+
+            if (stringtradeid != null)
+            {
+                stringtradeid = "'" + stringtradeid.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND sourcetradeid in (" + stringtradeid + ")";
+            }
+
+            if (stringbondtypecode != null)
+            {
+                stringbondtypecode = "'" + stringbondtypecode.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND bondissuertypecode in (" + stringbondtypecode + ")";
+            }
+
+            if (stringsourcenameid != null)
+            {
+                stringsourcenameid = "'" + stringsourcenameid.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND sourcename in (" + stringsourcenameid + ")";
+            }
+
+            if (stringtargetnameid != null)
+            {
+                stringtargetnameid = "'" + stringtargetnameid.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND targetname in (" + stringtargetnameid + ")";
+            }
+
+            if (stringreporttypeid != null)
+            {
+                stringreporttypeid = "'" + stringreporttypeid.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND reporttypecode in (" + stringreporttypeid + ")";
+            }
+
+            if (stringbondlateid != null)
+            {
+                stringbondlateid = "'" + stringbondlateid.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND reporttypecode in (" + stringbondlateid + ")";
+            }
+
+            if (stringbondreportid != null)
+            {
+                stringbondreportid = "'" + stringbondreportid.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND bondreportstatuscode in (" + stringbondreportid + ")";
+            }
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "mrkt_mnpltn_prtn_rcgntn")
+                {
+                    props.Query = @"
+                        SELECT bondcode
+                              ,caseid
+                              ,tradeno
+                              ,tradedatesk
+                              ,tradedatetime
+                              ,price
+                              ,plteparticipantcode
+                              ,singletradeno
+                              ,cpplteparticipantcode
+                              ,bondissuertypecode
+                              ,sourcename
+                              ,targetname
+                              ,sourcetradeid
+                              ,targettradeid
+                              ,sellerfirmcode
+                              ,buyerfirmcode
+                              ,reporttypecode
+                              ,rtype
+                              ,CAST(totalvolume as BIGINT) as totalvolume
+                              ,CAST(totalvalue as BIGINT) as totalvalue
+                              ,lowerboncfairprice
+                              ,bondfairprice
+                              ,upperbondfairprice
+                              ,beyondfairmarketprice
+                              ,bondreportstatuscode
+                          FROM pasarmodal." + tableName + @"
+                    WHERE " + whereQuery + @"";
+                }
+            }
+            else
+            {
+                if (tableName == "mrkt_mnpltn_prtn_rcgntn")
+                {
+                    props.Query = @"
+                        SELECT bondcode
+                              ,caseid
+                              ,tradeno
+                              ,tradedatesk
+                              ,tradedatetime
+                              ,price
+                              ,plteparticipantcode
+                              ,singletradeno
+                              ,cpplteparticipantcode
+                              ,bondissuertypecode
+                              ,sourcename
+                              ,targetname
+                              ,sourcetradeid
+                              ,targettradeid
+                              ,sellerfirmcode
+                              ,buyerfirmcode
+                              ,reporttypecode
+                              ,rtype
+                              ,CAST(totalvolume as BIGINT) as totalvolume
+                              ,CAST(totalvalue as BIGINT) as totalvalue
+                              ,lowerboncfairprice
+                              ,bondfairprice
+                              ,upperbondfairprice
+                              ,beyondfairmarketprice
+                              ,bondreportstatuscode
+                          FROM pasarmodal." + tableName + @"
+                    WHERE " + whereQuery + @"";
+                }
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+        #endregion
+
+        #region MM08
         public static WSQueryReturns GetBDAPMFilterAmandedTypeInfo(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, bool isHive = false)
         {
             var filter = (dynamic)null;
@@ -6314,6 +6906,665 @@ namespace BDA.Helper
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
         }
+        public static WSQueryReturns GetBDAPMMM08TypeFirmID(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string stringPeriodeAwal, string stringPeriodeAkhir, string stringAmandedtypeinfo, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            //isHive = true;
+
+            if (stringPeriodeAwal != null && stringPeriodeAkhir != null)
+            {
+                if (isHive == true)
+                {
+                    stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    whereQuery = whereQuery += " AND  date_format(date_sub(amend_date,14),'yyyy-MM-dd') BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
+                }
+                else
+                {
+                    stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    whereQuery = whereQuery += " AND  CONVERT(char(10), amend_date,126) BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
+                }
+
+            }
+
+            if (stringAmandedtypeinfo != null)
+            {
+                stringAmandedtypeinfo = "'" + stringAmandedtypeinfo.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND amended_info_type in (" + stringAmandedtypeinfo + ")";
+            }
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "mm_bond_trades_amended")
+                {
+                    props.Query = @"
+                    SELECT type_firm_id,COUNT(type_firm_id) total
+                        From pasarmodal." + tableName + @"
+                    WHERE " + whereQuery + @" group by type_firm_id";
+                }
+            }
+            else
+            {
+                if (tableName == "mm_bond_trades_amended")
+                {
+                    props.Query = @"
+                    SELECT type_firm_id,COUNT(type_firm_id) total
+                        From pasarmodal." + tableName + @"
+                    WHERE " + whereQuery + @" group by type_firm_id";
+                }
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMMM08AmendMarket(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string stringPeriodeAwal, string stringPeriodeAkhir, string stringAmandedtypeinfo, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            //isHive = true;
+
+            if (stringPeriodeAwal != null && stringPeriodeAkhir != null)
+            {
+                if (isHive == true)
+                {
+                    stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    whereQuery = whereQuery += " AND  date_format(date_sub(amend_date,14),'yyyy-MM-dd') BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
+                }
+                else
+                {
+                    stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    whereQuery = whereQuery += " AND  CONVERT(char(10), amend_date,126) BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
+                }
+
+            }
+
+            if (stringAmandedtypeinfo != null)
+            {
+                stringAmandedtypeinfo = "'" + stringAmandedtypeinfo.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                //whereQuery = whereQuery += " AND amended_info_type in (" + stringAmandedtypeinfo + ")";
+                whereQuery = whereQuery += " AND amended_info_type in ('Market')";
+            }
+            else
+            {
+                //stringAmandedtypeinfo = "'" + stringAmandedtypeinfo.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                //whereQuery = whereQuery += " AND amended_info_type in (" + stringAmandedtypeinfo + ")";
+                whereQuery = whereQuery += " AND amended_info_type in ('Market')";
+            }
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "mm_bond_trades_amended")
+                {
+                    props.Query = @"
+                    SELECT amended_info,COUNT(amended_info) total
+                        From pasarmodal." + tableName + @"
+                    WHERE " + whereQuery + @" group by amended_info";
+                }
+            }
+            else
+            {
+                if (tableName == "mm_bond_trades_amended")
+                {
+                    props.Query = @"
+                    SELECT amended_info,COUNT(amended_info) total
+                        From pasarmodal." + tableName + @"
+                    WHERE " + whereQuery + @" group by amended_info";
+                }
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMMM08AmendNonMarket(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string stringPeriodeAwal, string stringPeriodeAkhir, string stringAmandedtypeinfo, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            //isHive = true;
+
+            if (stringPeriodeAwal != null && stringPeriodeAkhir != null)
+            {
+                if (isHive == true)
+                {
+                    stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    whereQuery = whereQuery += " AND  date_format(date_sub(amend_date,14),'yyyy-MM-dd') BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
+                }
+                else
+                {
+                    stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    whereQuery = whereQuery += " AND  CONVERT(char(10), amend_date,126) BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
+                }
+
+            }
+
+            if (stringAmandedtypeinfo != null)
+            {
+                stringAmandedtypeinfo = "'" + stringAmandedtypeinfo.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                //whereQuery = whereQuery += " AND amended_info_type in (" + stringAmandedtypeinfo + ")";
+                whereQuery = whereQuery += " AND amended_info_type in ('Non Market')";
+            }
+            else
+            {
+                //stringAmandedtypeinfo = "'" + stringAmandedtypeinfo.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                //whereQuery = whereQuery += " AND amended_info_type in (" + stringAmandedtypeinfo + ")";
+                whereQuery = whereQuery += " AND amended_info_type in ('Non Market')";
+            }
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "mm_bond_trades_amended")
+                {
+                    props.Query = @"
+                    SELECT amended_info,COUNT(amended_info) total
+                        From pasarmodal." + tableName + @"
+                    WHERE " + whereQuery + @" group by amended_info";
+                }
+            }
+            else
+            {
+                if (tableName == "mm_bond_trades_amended")
+                {
+                    props.Query = @"
+                    SELECT amended_info,COUNT(amended_info) total
+                        From pasarmodal." + tableName + @"
+                    WHERE " + whereQuery + @" group by amended_info";
+                }
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMMM08Top10AmendMarket(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string stringPeriodeAwal, string stringPeriodeAkhir, string stringAmandedtypeinfo, bool isHive = false)
+        {
+            bool isC = false;
+            var whereMarketNonMarket = "";
+            var whereQuery = "1=1";
+            //isHive = true;
+
+            if (stringPeriodeAwal != null && stringPeriodeAkhir != null)
+            {
+                if (isHive == true)
+                {
+                    stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    whereQuery = whereQuery += " AND  date_format(date_sub(amend_date,14),'yyyy-MM-dd') BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
+                }
+                else
+                {
+                    stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    whereQuery = whereQuery += " AND  CONVERT(char(10), amend_date,126) BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
+                }
+
+            }
+
+            if (stringAmandedtypeinfo != null)
+            {
+                if(stringAmandedtypeinfo == "Market")
+                {
+                    stringAmandedtypeinfo = "'" + stringAmandedtypeinfo.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    whereMarketNonMarket += " WHERE amended_info_type in (" + stringAmandedtypeinfo + ")";
+                }
+                else
+                {
+                    stringAmandedtypeinfo = "'" + stringAmandedtypeinfo.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    whereMarketNonMarket += " WHERE amended_info_type in (" + stringAmandedtypeinfo + ")";
+                }
+            }
+
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "mm_bond_trades_amended")
+                {
+                    props.Query = @"
+                    SELECT top 10 * FROM (
+                    SELECT amended_firm_id,Market,Non_Market,SUM(Market+Non_Market) AS Total FROM (
+                    SELECT amended_firm_id,
+                        SUM(CASE WHEN amended_info_type = 'Market'  THEN total ELSE 0 END) AS Market,
+                        SUM(CASE WHEN amended_info_type = 'Non Market' THEN total ELSE 0 END) AS Non_Market
+                        FROM
+                            (
+                               SELECT	amended_firm_id,amended_info_type,CONVERT(char(10), amend_date,126) as amend_date,COUNT(amended_firm_id) AS total
+							                    FROM  pasarmodal." + tableName + @"
+                                                " + whereMarketNonMarket + @"
+                                GROUP by amended_firm_id,amended_info_type,amend_date
+                            ) AS t
+                    WHERE " + whereQuery + @" 
+                    GROUP BY amended_firm_id) AS C
+                    group by amended_firm_id,Market,Non_Market) as x order by Total desc";
+                }
+            }
+            else
+            {
+                if (tableName == "mm_bond_trades_amended")
+                {
+                    props.Query = @"
+                    SELECT top 10 * FROM (
+                    SELECT amended_firm_id,Market,Non_Market,SUM(Market+Non_Market) AS Total FROM (
+                    SELECT amended_firm_id,
+                        SUM(CASE WHEN amended_info_type = 'Market'  THEN total ELSE 0 END) AS Market,
+                        SUM(CASE WHEN amended_info_type = 'Non Market' THEN total ELSE 0 END) AS Non_Market
+                        FROM
+                            (
+                               SELECT	amended_firm_id,amended_info_type,CONVERT(char(10), amend_date,126) as amend_date,COUNT(amended_firm_id) AS total
+							                    FROM  pasarmodal." + tableName + @"
+                                                " + whereMarketNonMarket + @"
+                                GROUP by amended_firm_id,amended_info_type,amend_date
+                            ) AS t
+                    WHERE " + whereQuery + @" 
+                    GROUP BY amended_firm_id) AS C
+                    group by amended_firm_id,Market,Non_Market) as x order by Total desc";
+                }
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
         #endregion
+
+        #region MM09
+        public static WSQueryReturns GetBDAPMFilterBondTypeInfo(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, bool isHive = false)
+        {
+            var filter = (dynamic)null;
+            filter = loadOptions.Filter;
+            if (loadOptions.Filter != null)
+            {
+                filter = filter[0][2];
+                filter = "AND bondissuertypecode LIKE '%" + filter + "%'";
+            }
+            else
+            {
+                filter = "";
+            }
+            bool isC = false;
+            var whereQuery = "1=1";
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "mm_bond_trades_cancel")
+                {
+                    props.Query = @"
+                        SELECT bondissuertypecode from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @" 
+                        group by bondissuertypecode";
+                }
+            }
+            else
+            {
+                if (tableName == "mm_bond_trades_cancel")
+                {
+                    props.Query = @"
+                        SELECT bondissuertypecode from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @"
+                        group by bondissuertypecode";
+                }
+            }
+
+            return WSQueryHelper.DoQueryNL(db, props, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMMM09NumberCancellation(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string stringPeriodeAwal, string stringPeriodeAkhir, string stringbondissuertypecode, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            //isHive = true;
+
+            if (stringPeriodeAwal != null && stringPeriodeAkhir != null)
+            {
+                if (isHive == true)
+                {
+                    stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    whereQuery = whereQuery += " AND  date_format(date_sub(entrydate,14),'yyyy-MM-dd') BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
+                }
+                else
+                {
+                    stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    whereQuery = whereQuery += " AND CONVERT(char(10), entrydate,126) BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
+                }
+
+            }
+
+            if (stringbondissuertypecode != null)
+            {
+                stringbondissuertypecode = "'" + stringbondissuertypecode.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND bondissuertypecode in (" + stringbondissuertypecode + ")";
+            }
+
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "mm_bond_trades_cancel")
+                {
+                    props.Query = @"
+                    SELECT MONTH(entrydate) AS nobulan,SUBSTRING('JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC ', (MONTH(entrydate) * 4) - 3, 3) AS bulan,COUNT(bondcode) AS total 
+                        From pasarmodal." + tableName + @"
+                    WHERE " + whereQuery + @" GROUP by MONTH(entrydate),SUBSTRING('JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC ', (MONTH(entrydate) * 4) - 3, 3)";
+                }
+            }
+            else
+            {
+                if (tableName == "mm_bond_trades_cancel")
+                {
+                    props.Query = @"
+                    SELECT MONTH(entrydate) AS nobulan,SUBSTRING('JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC ', (MONTH(entrydate) * 4) - 3, 3) AS bulan,COUNT(bondcode) AS total 
+                        From pasarmodal." + tableName + @"
+                    WHERE " + whereQuery + @" GROUP by MONTH(entrydate),SUBSTRING('JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC ', (MONTH(entrydate) * 4) - 3, 3)";
+                }
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMMM09BondType(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string stringPeriodeAwal, string stringPeriodeAkhir, string stringbondissuertypecode, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            //isHive = true;
+
+            if (stringPeriodeAwal != null && stringPeriodeAkhir != null)
+            {
+                if (isHive == true)
+                {
+                    stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    whereQuery = whereQuery += " AND  date_format(date_sub(entrydate,14),'yyyy-MM-dd') BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
+                }
+                else
+                {
+                    stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    whereQuery = whereQuery += " AND CONVERT(char(10), entrydate,126) BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
+                }
+
+            }
+
+            if (stringbondissuertypecode != null)
+            {
+                stringbondissuertypecode = "'" + stringbondissuertypecode.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND bondissuertypecode in (" + stringbondissuertypecode + ")";
+            }
+
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "mm_bond_trades_cancel")
+                {
+                    props.Query = @"
+                    SELECT bondissuertypecode,COUNT(bondissuertypecode) total
+                        From pasarmodal." + tableName + @"
+                    WHERE " + whereQuery + @" group by bondissuertypecode";
+                }
+            }
+            else
+            {
+                if (tableName == "mm_bond_trades_cancel")
+                {
+                    props.Query = @"
+                    SELECT bondissuertypecode,COUNT(bondissuertypecode) total
+                        From pasarmodal." + tableName + @"
+                    WHERE " + whereQuery + @" group by bondissuertypecode";
+                }
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMMM08Top10CancelMarket(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string stringPeriodeAwal, string stringPeriodeAkhir, string stringbondissuertypecode, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            //isHive = true;
+
+            if (stringPeriodeAwal != null && stringPeriodeAkhir != null)
+            {
+                if (isHive == true)
+                {
+                    stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    whereQuery = whereQuery += " AND  date_format(date_sub(entrydate,14),'yyyy-MM-dd') BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
+                }
+                else
+                {
+                    stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    whereQuery = whereQuery += " AND CONVERT(char(10), entrydate,126) BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
+                }
+
+            }
+
+            if (stringbondissuertypecode != null)
+            {
+                stringbondissuertypecode = "'" + stringbondissuertypecode.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND bondissuertypecode in (" + stringbondissuertypecode + ")";
+            }
+
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "mm_bond_trades_cancel")
+                {
+                    props.Query = @"
+                                      SELECT TOP 10 * FROM (
+                                      SELECT buyerfirmcode,OTHERS,TRADE_CANCEL,WRONG_INPUT,DOUBLE_REPORT,NETWORK_CONNECTION,SUM(OTHERS+TRADE_CANCEL+WRONG_INPUT+DOUBLE_REPORT+NETWORK_CONNECTION) AS Total FROM (
+                                      SELECT buyerfirmcode,
+                                          SUM(CASE WHEN tradereason = 'OTHERS'  THEN total ELSE 0 END) AS OTHERS,
+                                          SUM(CASE WHEN tradereason = 'TRADE CANCEL' THEN total ELSE 0 END) AS TRADE_CANCEL,
+                                          SUM(CASE WHEN tradereason = 'WRONG INPUT' THEN total ELSE 0 END) AS WRONG_INPUT,
+                                          SUM(CASE WHEN tradereason = 'DOUBLE REPORT' THEN total ELSE 0 END) AS DOUBLE_REPORT,
+                                          SUM(CASE WHEN tradereason = 'NETWORK CONNECTION' THEN total ELSE 0 END) AS NETWORK_CONNECTION
+                                          FROM
+                                              (
+                                                 SELECT	buyerfirmcode,tradereason,CONVERT(char(10), entrydate,126) as entrydate,COUNT(buyerfirmcode) AS total 
+                                  FROM  pasarmodal." + tableName + @"
+                                                 GROUP by buyerfirmcode,tradereason,entrydate
+                                              ) AS t
+                    WHERE " + whereQuery + @" 
+                                      GROUP BY buyerfirmcode) AS C
+                                      GROUP BY buyerfirmcode,OTHERS,TRADE_CANCEL,WRONG_INPUT,DOUBLE_REPORT,NETWORK_CONNECTION) AS x order by Total desc";
+                }
+            }
+            else
+            {
+                if (tableName == "mm_bond_trades_cancel")
+                {
+                    props.Query = @"
+                                      SELECT TOP 10 * FROM (
+                                      SELECT buyerfirmcode,OTHERS,TRADE_CANCEL,WRONG_INPUT,DOUBLE_REPORT,NETWORK_CONNECTION,SUM(OTHERS+TRADE_CANCEL+WRONG_INPUT+DOUBLE_REPORT+NETWORK_CONNECTION) AS Total FROM (
+                                      SELECT buyerfirmcode,
+                                          SUM(CASE WHEN tradereason = 'OTHERS'  THEN total ELSE 0 END) AS OTHERS,
+                                          SUM(CASE WHEN tradereason = 'TRADE CANCEL' THEN total ELSE 0 END) AS TRADE_CANCEL,
+                                          SUM(CASE WHEN tradereason = 'WRONG INPUT' THEN total ELSE 0 END) AS WRONG_INPUT,
+                                          SUM(CASE WHEN tradereason = 'DOUBLE REPORT' THEN total ELSE 0 END) AS DOUBLE_REPORT,
+                                          SUM(CASE WHEN tradereason = 'NETWORK CONNECTION' THEN total ELSE 0 END) AS NETWORK_CONNECTION
+                                          FROM
+                                              (
+                                                 SELECT	buyerfirmcode,tradereason,CONVERT(char(10), entrydate,126) as entrydate,COUNT(buyerfirmcode) AS total 
+                                  FROM  pasarmodal." + tableName + @"
+                                                 GROUP by buyerfirmcode,tradereason,entrydate
+                                              ) AS t
+                    WHERE " + whereQuery + @" 
+                                      GROUP BY buyerfirmcode) AS C
+                                      GROUP BY buyerfirmcode,OTHERS,TRADE_CANCEL,WRONG_INPUT,DOUBLE_REPORT,NETWORK_CONNECTION) AS x order by Total desc";
+                }
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMMM09CanceledBonds(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string stringPeriodeAwal, string stringPeriodeAkhir, string stringbondissuertypecode, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            //isHive = true;
+
+            if (stringPeriodeAwal != null && stringPeriodeAkhir != null)
+            {
+                if (isHive == true)
+                {
+                    stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    whereQuery = whereQuery += " AND  date_format(date_sub(entrydate,14),'yyyy-MM-dd') BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
+                }
+                else
+                {
+                    stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    whereQuery = whereQuery += " AND CONVERT(char(10), entrydate,126) BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
+                }
+
+            }
+
+            if (stringbondissuertypecode != null)
+            {
+                stringbondissuertypecode = "'" + stringbondissuertypecode.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND bondissuertypecode in (" + stringbondissuertypecode + ")";
+            }
+
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "mm_bond_trades_cancel")
+                {
+                    props.Query = @"
+                    SELECT top 15 * from (
+                    SELECT bondcode,COUNT(bondcode) total
+                        From pasarmodal." + tableName + @"
+                    WHERE " + whereQuery + @" Group by bondcode) AS t order by total desc";
+                }
+            }
+            else
+            {
+                if (tableName == "mm_bond_trades_cancel")
+                {
+                    props.Query = @"
+                    SELECT top 15 * from (
+                    SELECT bondcode,COUNT(bondcode) total
+                        From pasarmodal." + tableName + @"
+                    WHERE " + whereQuery + @" Group by bondcode) AS t order by total desc";
+                }
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMMM09ReasonCanceledBonds(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string stringPeriodeAwal, string stringPeriodeAkhir, string stringbondissuertypecode, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            //isHive = true;
+
+            if (stringPeriodeAwal != null && stringPeriodeAkhir != null)
+            {
+                if (isHive == true)
+                {
+                    stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    whereQuery = whereQuery += " AND  date_format(date_sub(entrydate,14),'yyyy-MM-dd') BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
+                }
+                else
+                {
+                    stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    whereQuery = whereQuery += " AND CONVERT(char(10), entrydate,126) BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
+                }
+
+            }
+
+            if (stringbondissuertypecode != null)
+            {
+                stringbondissuertypecode = "'" + stringbondissuertypecode.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND bondissuertypecode in (" + stringbondissuertypecode + ")";
+            }
+
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "mm_bond_trades_cancel")
+                {
+                    props.Query = @"
+                    SELECT tradereason,COUNT(tradereason) total
+                        From pasarmodal." + tableName + @"
+                    WHERE " + whereQuery + @" Group by tradereason";
+                }
+            }
+            else
+            {
+                if (tableName == "mm_bond_trades_cancel")
+                {
+                    props.Query = @"
+                    SELECT tradereason,COUNT(tradereason) total
+                        From pasarmodal." + tableName + @"
+                    WHERE " + whereQuery + @" Group by tradereason";
+                }
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+        public static WSQueryReturns GetBDAPMMM09DateCanceledBonds(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string stringPeriodeAwal, string stringPeriodeAkhir, string stringbondissuertypecode, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            //isHive = true;
+
+            if (stringPeriodeAwal != null && stringPeriodeAkhir != null)
+            {
+                if (isHive == true)
+                {
+                    stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    whereQuery = whereQuery += " AND  date_format(date_sub(entrydate,14),'yyyy-MM-dd') BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
+                }
+                else
+                {
+                    stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                    whereQuery = whereQuery += " AND CONVERT(char(10), entrydate,126) BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
+                }
+
+            }
+
+            if (stringbondissuertypecode != null)
+            {
+                stringbondissuertypecode = "'" + stringbondissuertypecode.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery = whereQuery += " AND bondissuertypecode in (" + stringbondissuertypecode + ")";
+            }
+
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "mm_bond_trades_cancel")
+                {
+                    props.Query = @"
+                    SELECT tgl,nobulan,entrydate,total from (
+					SELECT date_format(date_sub(entrydate,14),'dd') as tgl,MONTH(entrydate) as nobulan,date_format(date_sub(entrydate,14),'dd-MMM-yy') as entrydate,COUNT(entrydate) total
+                        From pasarmodal." + tableName + @"
+                    WHERE " + whereQuery + @" Group by entrydate) as t";
+                }
+            }
+            else
+            {
+                if (tableName == "mm_bond_trades_cancel")
+                {
+                    props.Query = @"
+                    SELECT tgl,nobulan,entrydate,total from (
+					SELECT FORMAT (entrydate, 'dd') as tgl,MONTH(entrydate) as nobulan,FORMAT (entrydate, 'dd-MMM-yy') as entrydate,COUNT(entrydate) total
+                        From pasarmodal." + tableName + @"
+                    WHERE " + whereQuery + @" Group by entrydate) as t";
+                }
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+        #endregion
+
     }
 }

@@ -43,15 +43,35 @@ namespace BDA.Controllers
         }
         public IActionResult Index()
         {
+            string monthpawal = null;
+            string yearpawal = null;
+            string monthpakhir = null;
+            string yearpakhir = null;
+
             var userId = HttpContext.User.Identity.Name;
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
             var currentNode = mdl.GetCurrentNode();
             string pageTitle = currentNode != null ? currentNode.Title : ""; //menampilkan data menu
 
-            db.CheckPermission("Pola Koreksi Per Transaksi / Pola Transaksi View", DataEntities.PermissionMessageType.ThrowInvalidOperationException); //check permission nya view/lihat nya
-            ViewBag.Export = db.CheckPermission("Pola Koreksi Per Transaksi / Pola Transaksi Export", DataEntities.PermissionMessageType.NoMessage); //check permission export
-            db.InsertAuditTrail("Pola_Koreksi_Pola_Transaksi_Akses_Page", "Akses Page Pola Koreksi Per Transaksi / Pola Transaksi", pageTitle); //simpan kedalam audit trail
-            db.InsertAuditTrail("Pola_Koreksi_Pola_Transaksi_Akses_Page", "user " + userId + " mengakases halaman Pola Koreksi Per Transaksi / Pola Transaksi", pageTitle);
+            DateTime periodeAwal = DateTime.Now;
+            monthpawal = Convert.ToDateTime(periodeAwal).ToString("MMM");
+            yearpawal = Convert.ToDateTime(periodeAwal).ToString("yyyy");
+            ViewData["monthyearawal"] = monthpawal + " " + yearpawal;
+            ViewBag.monthyearawal = monthpawal + " " + yearpawal;
+            TempData["monthyearawal"] = monthpawal + " " + yearpawal;
+
+            DateTime periodeAkhir = DateTime.Now;
+            monthpakhir = Convert.ToDateTime(periodeAkhir).ToString("MMM");
+            yearpakhir = Convert.ToDateTime(periodeAkhir).ToString("yyyy");
+            ViewData["monthyearakhir"] = monthpakhir + " " + yearpakhir;
+            ViewBag.monthyearakhir = monthpakhir + " " + yearpakhir;
+            TempData["monthyearakhir"] = monthpakhir + " " + yearpakhir;
+
+
+            db.CheckPermission("Pola 8 View", DataEntities.PermissionMessageType.ThrowInvalidOperationException); //check permission nya view/lihat nya
+            ViewBag.Export = db.CheckPermission("Pola 8 Export", DataEntities.PermissionMessageType.NoMessage); //check permission export
+            db.InsertAuditTrail("Pola_8_Akses_Page", "Akses Page Pola 8", pageTitle); //simpan kedalam audit trail
+            db.InsertAuditTrail("Pola_8_Akses_Page", "user " + userId + " mengakases halaman Pola 8", pageTitle);
 
             return View();
         }
@@ -122,6 +142,238 @@ namespace BDA.Controllers
             db.Database.CommandTimeout = 420;
             var result = Helper.WSQueryStore.GetBDAPMMM08TypeInfo(db, loadOptions, reportId, stringPeriodeAwal, stringPeriodeAkhir, stringAmandedtypeinfo, cekHive);
             return JsonConvert.SerializeObject(result);
+        }
+        public object GetChartTypeFirmID(DataSourceLoadOptions loadOptions, string periodeAwal, string periodeAkhir, string amandedtypeinfo)
+        {
+            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+            TempData.Clear(); //membersihkan data filtering
+            string[] StatusAmandedTypeInfo = JsonConvert.DeserializeObject<string[]>(amandedtypeinfo);
+
+            string stringPeriodeAwal = null;
+            string stringPeriodeAkhir = null;
+            string stringAmandedtypeinfo = null;
+            string reportId = "mm_bond_trades_amended"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+
+            if (periodeAwal != null)
+            {
+                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
+                TempData["StringPeriodeAwal"] = stringPeriodeAwal;
+            }
+            if (periodeAkhir != null)
+            {
+                stringPeriodeAkhir = Convert.ToDateTime(periodeAkhir).ToString("yyyy-MM-dd");
+                TempData["StringPeriodeAkhir"] = stringPeriodeAkhir;
+            }
+
+            if (StatusAmandedTypeInfo.Length > 0)
+            {
+                stringAmandedtypeinfo = string.Join(", ", StatusAmandedTypeInfo);
+                TempData["StringAmandedTypeInfo"] = stringAmandedtypeinfo;
+            }
+
+            db.Database.CommandTimeout = 420;
+            var result = Helper.WSQueryStore.GetBDAPMMM08TypeFirmID(db, loadOptions, reportId, stringPeriodeAwal, stringPeriodeAkhir, stringAmandedtypeinfo, cekHive);
+            return JsonConvert.SerializeObject(result);
+        }
+        public object GetBarChartAmendMarket(DataSourceLoadOptions loadOptions, string periodeAwal, string periodeAkhir, string amandedtypeinfo)
+        {
+            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+            TempData.Clear(); //membersihkan data filtering
+            string[] StatusAmandedTypeInfo = JsonConvert.DeserializeObject<string[]>(amandedtypeinfo);
+
+            string stringPeriodeAwal = null;
+            string stringPeriodeAkhir = null;
+            string stringAmandedtypeinfo = null;
+            string reportId = "mm_bond_trades_amended"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+            string monthpawal = null;
+            string yearpawal = null;
+            string monthpakhir = null;
+            string yearpakhir = null;
+
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+
+            if (periodeAwal != null)
+            {
+                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
+                monthpawal = Convert.ToDateTime(periodeAwal).ToString("MMM");
+                yearpawal = Convert.ToDateTime(periodeAwal).ToString("yyyy");
+                ViewBag.monthyearawal = monthpawal + " " + yearpawal;
+                TempData["StringPeriodeAwal"] = stringPeriodeAwal;
+            }
+            if (periodeAkhir != null)
+            {
+                stringPeriodeAkhir = Convert.ToDateTime(periodeAkhir).ToString("yyyy-MM-dd");
+                monthpakhir = Convert.ToDateTime(periodeAkhir).ToString("MMM");
+                yearpakhir = Convert.ToDateTime(periodeAkhir).ToString("yyyy");
+                ViewBag.monthyearakhir = monthpakhir + " " + yearpakhir;
+                TempData["StringPeriodeAkhir"] = stringPeriodeAkhir;
+            }
+
+            if (StatusAmandedTypeInfo.Length > 0)
+            {
+                stringAmandedtypeinfo = string.Join(", ", StatusAmandedTypeInfo);
+                TempData["StringAmandedTypeInfo"] = stringAmandedtypeinfo;
+            }
+
+            db.Database.CommandTimeout = 420;
+            var result = Helper.WSQueryStore.GetBDAPMMM08AmendMarket(db, loadOptions, reportId, stringPeriodeAwal, stringPeriodeAkhir, stringAmandedtypeinfo, cekHive);
+            var varDataList = (dynamic)null;
+
+            if (cekHive == true)
+            {
+                varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                               select new
+                               {
+                                   amended_info = bs.Field<string>("amended_info").ToString(),
+                                   total = Convert.ToInt64(bs.Field<Int64>("total").ToString()),
+                               }).OrderByDescending(bs => bs.total).ToList();
+            }
+            else
+            {
+                varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                               select new
+                               {
+                                   amended_info = bs.Field<string>("amended_info").ToString(),
+                                   total = Convert.ToInt32(bs.Field<Int32>("total").ToString()),
+                               }).OrderByDescending(bs => bs.total).ToList();
+            }
+            return JsonConvert.SerializeObject(varDataList);
+        }
+        public object GetBarChartNonAmendMarket(DataSourceLoadOptions loadOptions, string periodeAwal, string periodeAkhir, string amandedtypeinfo)
+        {
+            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+            TempData.Clear(); //membersihkan data filtering
+            string[] StatusAmandedTypeInfo = JsonConvert.DeserializeObject<string[]>(amandedtypeinfo);
+
+            string stringPeriodeAwal = null;
+            string stringPeriodeAkhir = null;
+            string stringAmandedtypeinfo = null;
+            string reportId = "mm_bond_trades_amended"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+            string monthpawal = null;
+            string yearpawal = null;
+            string monthpakhir = null;
+            string yearpakhir = null;
+
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+
+            if (periodeAwal != null)
+            {
+                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
+                monthpawal = Convert.ToDateTime(periodeAwal).ToString("MMMM");
+                yearpawal = Convert.ToDateTime(periodeAwal).ToString("yyyy");
+                ViewBag.monthyearawal = monthpawal + " " + yearpawal;
+                TempData["monthyearawal"] = monthpawal + " " + yearpawal;
+                TempData["StringPeriodeAwal"] = stringPeriodeAwal;
+            }
+            if (periodeAkhir != null)
+            {
+                stringPeriodeAkhir = Convert.ToDateTime(periodeAkhir).ToString("yyyy-MM-dd");
+                monthpakhir = Convert.ToDateTime(periodeAkhir).ToString("MMMM");
+                yearpakhir = Convert.ToDateTime(periodeAkhir).ToString("yyyy");
+                ViewBag.monthyearakhir = monthpakhir + " " + yearpakhir;
+                TempData["StringPeriodeAkhir"] = stringPeriodeAkhir;
+            }
+
+            if (StatusAmandedTypeInfo.Length > 0)
+            {
+                stringAmandedtypeinfo = string.Join(", ", StatusAmandedTypeInfo);
+                TempData["StringAmandedTypeInfo"] = stringAmandedtypeinfo;
+            }
+
+            db.Database.CommandTimeout = 420;
+            var result = Helper.WSQueryStore.GetBDAPMMM08AmendNonMarket(db, loadOptions, reportId, stringPeriodeAwal, stringPeriodeAkhir, stringAmandedtypeinfo, cekHive);
+            var varDataList = (dynamic)null;
+
+            if (cekHive == true)
+            {
+                varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                               select new
+                               {
+                                   amended_info = bs.Field<string>("amended_info").ToString(),
+                                   total = Convert.ToInt64(bs.Field<Int64>("total").ToString()),
+                               }).OrderByDescending(bs => bs.total).ToList();
+            }
+            else
+            {
+                varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                               select new
+                               {
+                                   amended_info = bs.Field<string>("amended_info").ToString(),
+                                   total = Convert.ToInt32(bs.Field<Int32>("total").ToString()),
+                               }).OrderByDescending(bs => bs.total).ToList();
+            }
+            return JsonConvert.SerializeObject(varDataList);
+        }
+        public object GetBarChartTop10AmendMarket(DataSourceLoadOptions loadOptions, string periodeAwal, string periodeAkhir, string amandedtypeinfo)
+        {
+            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+            TempData.Clear(); //membersihkan data filtering
+            string[] StatusAmandedTypeInfo = JsonConvert.DeserializeObject<string[]>(amandedtypeinfo);
+
+            string stringPeriodeAwal = null;
+            string stringPeriodeAkhir = null;
+            string stringAmandedtypeinfo = null;
+            string reportId = "mm_bond_trades_amended"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+            string monthpawal = null;
+            string yearpawal = null;
+            string monthpakhir = null;
+            string yearpakhir = null;
+
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+
+            if (periodeAwal != null)
+            {
+                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
+                monthpawal = Convert.ToDateTime(periodeAwal).ToString("MMMM");
+                yearpawal = Convert.ToDateTime(periodeAwal).ToString("yyyy");
+                ViewBag.monthyearawal = monthpawal + " " + yearpawal;
+                TempData["monthyearawal"] = monthpawal + " " + yearpawal;
+                TempData["StringPeriodeAwal"] = stringPeriodeAwal;
+            }
+            if (periodeAkhir != null)
+            {
+                stringPeriodeAkhir = Convert.ToDateTime(periodeAkhir).ToString("yyyy-MM-dd");
+                monthpakhir = Convert.ToDateTime(periodeAkhir).ToString("MMMM");
+                yearpakhir = Convert.ToDateTime(periodeAkhir).ToString("yyyy");
+                ViewBag.monthyearakhir = monthpakhir + " " + yearpakhir;
+                TempData["StringPeriodeAkhir"] = stringPeriodeAkhir;
+            }
+
+            if (StatusAmandedTypeInfo.Length > 0)
+            {
+                stringAmandedtypeinfo = string.Join(", ", StatusAmandedTypeInfo);
+                TempData["StringAmandedTypeInfo"] = stringAmandedtypeinfo;
+            }
+
+            db.Database.CommandTimeout = 420;
+            var result = Helper.WSQueryStore.GetBDAPMMM08Top10AmendMarket(db, loadOptions, reportId, stringPeriodeAwal, stringPeriodeAkhir, stringAmandedtypeinfo, cekHive);
+            var varDataList = (dynamic)null;
+
+            if (cekHive == true)
+            {
+                varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                               select new
+                               {
+                                   amended_firm_id = bs.Field<string>("amended_firm_id").ToString(),
+                                   Market = Convert.ToInt64(!string.IsNullOrEmpty(bs.Field<Int64>("Market").ToString()) ? bs.Field<Int64>("Market").ToString() : "0"),
+                                   Non_Market = Convert.ToInt64(!string.IsNullOrEmpty(bs.Field<Int64>("Non_Market").ToString()) ? bs.Field<Int64>("Non_Market").ToString() : "0"),
+                                   Total = Convert.ToInt64(!string.IsNullOrEmpty(bs.Field<Int64>("Total").ToString()) ? bs.Field<Int64>("Total").ToString() : "0"),
+                               }).ToList();
+            }
+            else
+            {
+                varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                               select new
+                               {
+                                   amended_firm_id = bs.Field<string>("amended_firm_id").ToString(),
+                                   Market = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("Market").ToString()) ? bs.Field<Int32>("Market").ToString() : "0"),
+                                   Non_Market = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("Non_Market").ToString()) ? bs.Field<Int32>("Non_Market").ToString() : "0"),
+                                   Total = Convert.ToInt32(!string.IsNullOrEmpty(bs.Field<Int32>("Total").ToString()) ? bs.Field<Int32>("Total").ToString() : "0"),
+                               }).ToList();
+            }
+            return JsonConvert.SerializeObject(varDataList);
         }
     }
 }
