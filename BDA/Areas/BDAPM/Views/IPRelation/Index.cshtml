@@ -643,15 +643,14 @@
             let ssid = "";
             let stradeId = "";
             let sexchId = "";
-            let nomorKTP = "";@*//$("#tbKTP").dxTextBox("instance").option("value");*@
+            let nomorKTP = ""; @*//$("#tbKTP").dxTextBox("instance").option("value");*@
             let nomorNPWP = ""; @*$("#tbNPWP").dxTextBox("instance").option("value");*@
             let passport = ""; @* $("#tbPassport").dxTextBox("instance").option("value");*@
             let namaLike = "";
             let namaSID = "";
             let valid = false;
-
-            if(mdl == "ip_rel_sid")
-            {
+        
+            if(mdl == "ip_rel_sid") {
                 sid = $("#tbSID").dxTextBox("instance").option("value");
                 tradeId = $("#tbTradeId").dxTextBox("instance").option("value");
                 if('@(ViewBag.FullFilter)' == 'True'){
@@ -660,16 +659,22 @@
                 }
                 if (sid != "" || tradeId != "" || (namaSID != "" && namaSID != null) || namaLike != "") valid = true;
             }
-            else if (mdl == "ip_rel_transaction")
-            {
+            else if (mdl == "ip_rel_transaction") {
                 sid = $("#tbSID").dxTextBox("instance").option("value");
                 tradeId = $("#tbTradeId").dxTextBox("instance").option("value");
                 ssid = $("#tbSSID").dxTextBox("instance").option("value");
                 stradeId = $("#tbSTradeId").dxTextBox("instance").option("value");
                 if (sid != "" || tradeId != "" || ssid != "" || stradeId != "") valid = true;
-            }        
-            
-            
+            } 
+            else if (mdl == "ip_rel_ownership") {
+                sid = $("#tbSID").dxTextBox("instance").option("value");
+                tradeId = $("#tbTradeId").dxTextBox("instance").option("value");
+                ssid = $("#tbSSID").dxTextBox("instance").option("value");
+                stradeId = $("#tbSTradeId").dxTextBox("instance").option("value");
+                if (sid != "" || tradeId != "" || (namaSID != "" && namaSID != null) || namaLike != "" || nomorKTP != "" || nomorNPWP != "") valid = true;
+            }
+
+
             if (valid == true) {
 
                 if ('@(ViewBag.IsExternal)' == 'True') {
@@ -711,10 +716,9 @@
         ajaxOptions.data.endPeriode = endperiode;
 
         if (mdl == "ip_rel_transaction") {
-            ajaxOptions.data.bSID = sid;
-            ajaxOptions.data.bTradeId = tradeId;
-
             let exchangeCode = $("#ExchangeId").dxSelectBox("instance").option("value");
+            ajaxOptions.data.bSID = sid;
+            ajaxOptions.data.bTradeId = tradeId;            
             ajaxOptions.data.bExchangeCode = exchangeCode;
 
             let sSid = $("#tbSSID").dxTextBox("instance").option("value");
@@ -753,10 +757,9 @@
         if (mdl == "ip_rel_ownership") { 
             let nomorKTP = $("#tbKTP").dxTextBox("instance").option("value");
             let nomorNPWP = $("#tbNPWP").dxTextBox("instance").option("value");
-            ajaxOptions.data.nomorKTP = nomorKTP;
-            ajaxOptions.data.nomorNPWP = nomorNPWP;
-
             let exchangeCode = $("#ExchangeId").dxSelectBox("instance").option("value");
+            ajaxOptions.data.nomorKTP = nomorKTP;
+            ajaxOptions.data.nomorNPWP = nomorNPWP;            
             ajaxOptions.data.exchangeCode = exchangeCode;
 
             let invType = $("#InvType").dxSelectBox("instance").option("value");

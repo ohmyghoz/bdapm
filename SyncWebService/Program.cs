@@ -8,6 +8,7 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Linq;
+using System.Threading;
 namespace SyncWebService
 {
     internal class Program
@@ -51,12 +52,29 @@ namespace SyncWebService
                 Console.WriteLine(response.Content);
             }
 
+            //test running notebook non-sync, no issue
+            /*
+            {
+                Console.WriteLine($"Running Notebook");
+                var request = new RestRequest("notebook/job/2KYJNFF4Y", Method.POST);
+                var response = client.Post(request);
+                Console.WriteLine(response.StatusCode);
+                Console.WriteLine(response.Content);
 
+                Thread.Sleep(new TimeSpan(0, 0, 10));
+            }
+            */
+
+            
             if (mode == "Master")
             {
-                var lastPeriode = "19900101";
+                int lastCnt = 0;
+
                 using (var db = new DataEntities())
                 {
+                    ///============= test
+                    Console.WriteLine($"Test Last Periode");
+                    var lastPeriode = "19900101";
                     var lastQuery = from q in db.HiveSync
                                     where q.pprocess == "Master" && q.sync_status == "OK"
                                     orderby q.pperiode descending
@@ -67,11 +85,33 @@ namespace SyncWebService
                         lastPeriode = lastQuery.First();
                     }
 
-
-
                     Console.WriteLine($"Last Periode : {lastPeriode}");
+                    Thread.Sleep(new TimeSpan(0, 0, 10));
+
+                    //==================
 
 
+
+                    /*
+                    DateTime now = System.DateTime.Now.AddDays(-1);
+                    var period = now.Year.ToString() + now.Month.ToString();
+
+                    var lastQuery = from q in db.Log_ETL
+                                    where q.log_tipe == "INSERT pm_master_sid" && q.log_periode == period
+                                    orderby q.log_id descending
+                                    select q.log_insert_cnt;
+
+                    if (lastQuery.Any())
+                    {
+                        lastCnt = Int32.Parse(lastQuery.First().ToString());
+                    }
+
+
+                    Console.WriteLine($"SID Periode {period} Last Count : {lastCnt}");
+
+                    
+                    //if for testing may temporary be disabled
+                    
                     var conn = new OdbcConnection
                     {
                         ConnectionString = @"DRIVER={Hortonworks Hive ODBC Driver};                                        
@@ -79,7 +119,7 @@ namespace SyncWebService
                                         Port=10000;
                                         Schema=pasarmodal;
                                         HiveServerType=2;
-                                        KrbHostFQDN={bgrdco-bddvedg1.ojk.go.id};
+                                        KrbHostFQDN={bgrdco-bddvmst1.ojk.go.id};
                                         KrbServiceName={hive};
                                         AuthMech=1;"
                     };
@@ -87,8 +127,8 @@ namespace SyncWebService
                     {
 
                         conn.Open();
-
-                        var q = "select pperiode, pprocess from ojk.monitoring_status_table where pprocess = 'master_user_ideb' or pprocess='pengawas_ljk' order by pperiode desc limit 1";
+                        
+                        var q = "select count (*) as new_cnt from pasarmodal.src_sid_new where valid_from >= '" + period + "01'";
                         OdbcCommand myCommand = new OdbcCommand(q, conn);
                         myCommand.CommandTimeout = 300; // 5 menit
 
@@ -99,22 +139,22 @@ namespace SyncWebService
                         var dt = ds.Tables[0];
 
 
-                        var hiveLastPeriod = "19900101";
+                        int hiveNewCnt = 0;
                         if (dt.Rows.Count > 0)
                         {
-                            hiveLastPeriod = dt.Rows[0][0].ToString();
+                            hiveNewCnt = Int32.Parse(dt.Rows[0][0].ToString());
                         }
 
-                        Console.WriteLine($"Hive Last Periode : {hiveLastPeriod}");
+                        Console.WriteLine($"Hive SID Periode {period} New Count: {hiveNewCnt}");
 
 
 
-                        if (String.Compare(hiveLastPeriod, lastPeriode, true) > 0)
+                        if (hiveNewCnt > lastCnt)
                         {
-                            Console.WriteLine("Periode Hive lebih besar dari periode SQL");
+                            Console.WriteLine("Jumlah data di Hive lebih besar dari jumlah data di SQL");
                             //run sync master
                             Console.WriteLine("Sync Master");
-                            var request = new RestRequest("notebook/job/2K9MNAAUG", Method.POST);
+                            var request = new RestRequest("notebook/job/2KYYBKUKN", Method.POST);
                             var response = client.Post(request);
                             Console.WriteLine(response.StatusCode);
                             Console.WriteLine(response.Content);
@@ -122,7 +162,7 @@ namespace SyncWebService
 
                             //insert hivesync
                             var newsync = new HiveSync();
-                            newsync.pperiode = hiveLastPeriod;
+                            newsync.pperiode = period;
                             newsync.pprocess = "Master";
                             if(response.StatusCode == HttpStatusCode.OK)
                             {
@@ -151,221 +191,13 @@ namespace SyncWebService
                     {
                         conn.Close();
                     }
-
+                    //end temporary disabled
+*/
 
                 }
                
             }
-            /*
-            else if (mode == "EWS")
-            {
-                var lastPeriode = "19900101";
-                using (var db = new DataEntities())
-                {
-                    var lastQuery = from q in db.HiveSync
-                                    where q.pprocess == "EWS" && q.sync_status == "OK"
-                                    orderby q.pperiode descending
-                                    select q.pperiode;
-
-                    if (lastQuery.Any())
-                    {
-                        lastPeriode = lastQuery.First();
-                    }
-
-
-
-                    Console.WriteLine($"Last Periode : {lastPeriode}");
-
-
-                    var conn = new OdbcConnection
-                    {
-                        ConnectionString = @"DRIVER={Hortonworks Hive ODBC Driver};                                        
-                                        Host=10.225.90.61;
-                                        Port=10500;
-                                        Schema=ojk;
-                                        HiveServerType=2;
-                                        KrbHostFQDN={bgrdco-rckbig8.ojk.go.id};
-                                        KrbServiceName={hive};
-                                        AuthMech=1;"
-                    };
-                    try
-                    {
-
-                        conn.Open();
-
-                        var q = "select pperiode, pprocess from ojk.monitoring_status_table where pprocess like '%dmt_alert%' order by pperiode desc limit 1";
-                        OdbcCommand myCommand = new OdbcCommand(q, conn);
-                        myCommand.CommandTimeout = 300; // 5 menit
-
-                        DataTable table = new DataTable();
-                        table.Load(myCommand.ExecuteReader());
-                        var ds = new DataSet();
-                        ds.Tables.Add(table);
-                        var dt = ds.Tables[0];
-
-
-                        var hiveLastPeriod = "19900101";
-                        if (dt.Rows.Count > 0)
-                        {
-                            hiveLastPeriod = dt.Rows[0][0].ToString();
-                        }
-
-                        Console.WriteLine($"Hive Last Periode : {hiveLastPeriod}");
-
-
-
-                        if (String.Compare(hiveLastPeriod, lastPeriode, true) > 0)
-                        {
-                            Console.WriteLine("Periode Hive lebih besar dari periode SQL");
-                            //run sync master
-                            Console.WriteLine("Sync EWS");
-                            var request = new RestRequest("notebook/job/2H331V7DE", Method.POST);
-                            var response = client.Post(request);
-                            Console.WriteLine(response.StatusCode);
-                            Console.WriteLine(response.Content);
-
-
-                            //insert hivesync
-                            var newsync = new HiveSync();
-                            newsync.pperiode = hiveLastPeriod;
-                            newsync.pprocess = "EWS";
-                            if (response.StatusCode == HttpStatusCode.OK)
-                            {
-                                newsync.sync_status = "OK";
-                            }
-                            else
-                            {
-                                newsync.sync_status = response.StatusCode.ToString();
-                            }
-
-                            db.HiveSync.Add(newsync);
-                            db.SaveChanges();
-                            Console.WriteLine("Sync EWS");
-                        }
-                        else
-                        {
-                            Console.WriteLine("Periode Hive <= dari periode SQL");
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.ToString());
-                        return;
-                    }
-                    finally
-                    {
-                        conn.Close();
-                    }
-
-
-                }
-
-            }
-            else if (mode == "BDA")
-            {
-                var lastPeriode = "19900101";
-                using (var db = new DataEntities())
-                {
-                    var lastQuery = from q in db.HiveSync
-                                    where q.pprocess == "BDA" && q.sync_status == "OK"
-                                    orderby q.pperiode descending
-                                    select q.pperiode;
-
-                    if (lastQuery.Any())
-                    {
-                        lastPeriode = lastQuery.First();
-                    }
-
-
-
-                    Console.WriteLine($"Last Periode : {lastPeriode}");
-
-
-                    var conn = new OdbcConnection
-                    {
-                        ConnectionString = @"DRIVER={Hortonworks Hive ODBC Driver};                                        
-                                        Host=10.225.90.61;
-                                        Port=10500;
-                                        Schema=ojk;
-                                        HiveServerType=2;
-                                        KrbHostFQDN={bgrdco-rckbig8.ojk.go.id};
-                                        KrbServiceName={hive};
-                                        AuthMech=1;"
-                    };
-                    try
-                    {
-
-                        conn.Open();
-
-                        var q = "select pperiode, pprocess from ojk.monitoring_status_table where pprocess like '%analisa_nasional%' order by pperiode desc limit 1";
-                        OdbcCommand myCommand = new OdbcCommand(q, conn);
-                        myCommand.CommandTimeout = 300; // 5 menit
-
-                        DataTable table = new DataTable();
-                        table.Load(myCommand.ExecuteReader());
-                        var ds = new DataSet();
-                        ds.Tables.Add(table);
-                        var dt = ds.Tables[0];
-
-
-                        var hiveLastPeriod = "19900101";
-                        if (dt.Rows.Count > 0)
-                        {
-                            hiveLastPeriod = dt.Rows[0][0].ToString();
-                        }
-
-                        Console.WriteLine($"Hive Last Periode : {hiveLastPeriod}");
-
-
-
-                        if (String.Compare(hiveLastPeriod, lastPeriode, true) > 0)
-                        {
-                            Console.WriteLine("Periode Hive lebih besar dari periode SQL");
-                            //run sync master
-                            Console.WriteLine("Sync BDA");
-                            var request = new RestRequest("notebook/job/2H331V78E", Method.POST);
-                            var response = client.Post(request);
-                            Console.WriteLine(response.StatusCode);
-                            Console.WriteLine(response.Content);
-
-
-                            //insert hivesync
-                            var newsync = new HiveSync();
-                            newsync.pperiode = hiveLastPeriod;
-                            newsync.pprocess = "BDA";
-                            if (response.StatusCode == HttpStatusCode.OK)
-                            {
-                                newsync.sync_status = "OK";
-                            }
-                            else
-                            {
-                                newsync.sync_status = response.StatusCode.ToString();
-                            }
-
-                            db.HiveSync.Add(newsync);
-                            db.SaveChanges();
-                            Console.WriteLine("Sync BDA");
-                        }
-                        else
-                        {
-                            Console.WriteLine("Periode Hive <= dari periode SQL");
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.ToString());
-                        return;
-                    }
-                    finally
-                    {
-                        conn.Close();
-                    }
-
-
-                }
-
-            }
-            */
+            
         }
 
         public static string EncryptString(string text, string keyString)

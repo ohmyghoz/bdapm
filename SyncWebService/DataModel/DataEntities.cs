@@ -20,6 +20,7 @@ namespace SyncWebService.DataModel
         }
 
         public virtual DbSet<HiveSync> HiveSync { get; set; }
+        public virtual DbSet<Log_ETL> Log_ETL { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -51,6 +52,8 @@ namespace SyncWebService.DataModel
                     .HasMaxLength(20)
                     .IsUnicode(false);
             });
+
+            
 
             OnModelCreatingPartial(modelBuilder);
         }
