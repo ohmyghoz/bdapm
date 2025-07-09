@@ -5996,6 +5996,8 @@ namespace BDA.Helper
             }
             else if (tableName == "ip_rel_ownership")
             {
+                if (SID != null) whereQuery = whereQuery += " AND investorid = '" + SID + "' ";
+                if (tradeId != null) whereQuery = whereQuery += " AND SUBSTRING(investorid, 8, 6) = '" + tradeId + "' ";
                 if (nomorKTP != null) whereQuery = whereQuery += " AND ktp = '" + nomorKTP + "' ";
                 if (nomorNPWP != null) whereQuery = whereQuery += " AND npwp = '" + nomorNPWP + "' ";
                 if (secCode != null) whereQuery = whereQuery += " AND securitycode= '" + secCode.ToUpper() + "' ";

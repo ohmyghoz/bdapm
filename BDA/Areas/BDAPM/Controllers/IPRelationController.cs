@@ -152,6 +152,64 @@ namespace BDA.Controllers
         }
 
         [HttpPost]
+        public IActionResult Antrian(string reportId)
+        {
+            try
+            {
+                var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+                var currentNode = mdl.GetCurrentNode();
+
+                string pageTitle = currentNode != null ? currentNode.Title : "";
+                pageTitle = TempData.Peek("pageTitle").ToString();
+                var newq = new RptGrid_Queue();
+                newq.rgq_tablename = reportId;
+                var isHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId);
+                string stringMemberTypes = null;
+                string stringMembers = null;
+                string stringPeriodes = null;
+                string stringKantorCabangs = null;
+                var obj = db.osida_master.Find(reportId);
+                newq.rgq_nama = obj.menu_nama + " Export CSV";
+                if (TempData.Peek("mt") != null)
+                {
+                    stringMemberTypes = TempData.Peek("mt").ToString();
+                }
+                if (TempData.Peek("m") != null)
+                {
+                    stringMembers = TempData.Peek("m").ToString();
+                }
+                if (TempData.Peek("p") != null)
+                {
+                    stringPeriodes = TempData.Peek("p").ToString();
+                }
+                if (TempData.Peek("kc") != null)
+                {
+                    stringKantorCabangs = TempData.Peek("kc").ToString();
+                }
+                //DateTime p = Convert.ToDateTime( TempData.Peek("p").ToString());
+                newq.rgq_query = Helper.WSQueryExport.GetOsida2023Query(db, reportId, stringMemberTypes, stringMembers, stringKantorCabangs, stringPeriodes);
+
+                db.CheckPermission(obj.menu_nama + " Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+                newq.rgq_date = DateTime.Now;
+                newq.rgq_priority = 1;
+                newq.rgq_requestor = User.Identity.Name;
+                newq.rgq_urut = 0;
+                newq.rgq_status = "Pending";
+                db.SetStsrcFields(newq);
+                db.RptGrid_Queue.Add(newq);
+                db.SaveChanges();
+
+                db.InsertAuditTrail("ExportIndex_OSIDA_" + reportId, "Export Data", pageTitle);
+                var resp = "Sukses mengantrikan";
+                return Json(resp);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { result = db.ProcessExceptionMessage(ex) });
+            }
+        }
+
+        [HttpPost]
         public IActionResult LogExportIndex(string reportId)
         {
             try
@@ -301,14 +359,14 @@ namespace BDA.Controllers
             return Json(se1);
         }
 
-        public IActionResult GetSistem(DataSourceLoadOptions loadOptions, string reportId, string tipe)
+        public IActionResult GetSistem(DataSourceLoadOptions loadOptions, string reportId, string tipe, string partString = "")
         {
             //var q = db.macro_penetrasi_lending_ljk.Select(x => new { text = x.dm_jenis_debitur, kode = x.dm_jenis_debitur }).Distinct();
             var list = new List<RefDto>();
             string query;
             if (tipe == "security")
             {
-                query = @"Select securitycode as ItemValue, CONCAT(status, ' - ', securitycode, ' - ', securityname) as ItemText from dbo.pm_master_securities";
+                query = @"Select top 30 securitycode as ItemValue, CONCAT(status, ' - ', securitycode, ' - ', securityname) as ItemText from dbo.pm_master_securities where status = 'A' and (securityname like '%" + partString + "%' or securitycode like '%" + partString + "%')";
             }
             else if (tipe == "ExchangeMember")
             {

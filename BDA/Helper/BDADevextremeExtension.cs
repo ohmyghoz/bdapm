@@ -2940,7 +2940,7 @@ namespace BDA.Helper
                         else if (row.ColumnName == "cpattributevalue") caption = "Nilai Keterkaitan Lawan SID";                            
                         else if (row.ColumnName == "matchedtype") caption = "Jenis Kesamaan";                            
                         else if (row.ColumnName == "keytype") caption = "Jenis Kemiripan";
-                        else if (row.ColumnName == "similarityvalue") caption = "Nilai Similarity";
+                        else if (row.ColumnName == "similarityvalue") {caption = "Nilai Similarity"; allowFilter = false; }
                         else if (row.ColumnName == "psystem") caption = "Sistem";
 
                         if ((new string[] { "yearmonth", "pmonth", "side" }.Any(s => row.ColumnName == s))) visible = false;
@@ -2976,19 +2976,19 @@ namespace BDA.Helper
                         else if (row.ColumnName == "issuercode") caption = "Issuer Code";
                         else if (row.ColumnName == "listingboardcode") caption = "Listing Board Code";
                         else if (row.ColumnName == "transactionboardcode") caption = "Transaction Board Code";
-                        else if (row.ColumnName == "minsettlementdate") caption = "Min Settlement Date";
-                        else if (row.ColumnName == "maxsettlementdate") caption = "Max Settlement Date";
-                        else if (row.ColumnName == "ntrx") caption = "Jumlah Transaksi";
-                        else if (row.ColumnName == "nbuyorder") caption = "Jumlah Buy Order";
-                        else if (row.ColumnName == "nsellorder") caption = "Jumlah Sell Order";
+                        else if (row.ColumnName == "minsettlementdate") {caption = "Min Settlement Date"; allowFilter = false; }
+                        else if (row.ColumnName == "maxsettlementdate") {caption = "Max Settlement Date"; allowFilter = false; }
+                        else if (row.ColumnName == "ntrx") {caption = "Jumlah Transaksi"; allowFilter = false; }
+                        else if (row.ColumnName == "nbuyorder") {caption = "Jumlah Buy Order"; allowFilter = false; }
+                        else if (row.ColumnName == "nsellorder") {caption = "Jumlah Sell Order"; allowFilter = false; }
                         else if (row.ColumnName == "nsession") caption = "Jumlah Session";
                         else if (row.ColumnName == "sessionlist") caption = "Session List";
-                        else if (row.ColumnName == "minprice") caption = "Min Price";
-                        else if (row.ColumnName == "avgprice") caption = "Avg Price";
-                        else if (row.ColumnName == "maxprice") caption = "Max Price";
-                        else if (row.ColumnName == "nprice") caption = "Jumlah Price";
-                        else if (row.ColumnName == "sumvolume") caption = "Jumlah Volume";
-                        else if (row.ColumnName == "sumvalue") caption = "Jumlah Value";
+                        else if (row.ColumnName == "minprice") {caption = "Min Price"; allowFilter = false; }
+                        else if (row.ColumnName == "avgprice") {caption = "Avg Price"; allowFilter = false; }
+                        else if (row.ColumnName == "maxprice") {caption = "Max Price"; allowFilter = false; }
+                        else if (row.ColumnName == "nprice") {caption = "Jumlah Price"; allowFilter = false; }
+                        else if (row.ColumnName == "sumvolume") {caption = "Jumlah Volume"; allowFilter = false; }
+                        else if (row.ColumnName == "sumvalue") {caption = "Jumlah Value"; allowFilter = false; }
                         else if (row.ColumnName == "buyer_sid") caption = "Buyer SID";
                         else if (row.ColumnName == "buyer_business_registration_number") caption = "Buyer Business Reg. Number";
                         else if (row.ColumnName == "seller_sid") caption = "Seller SID";
@@ -3009,9 +3009,9 @@ namespace BDA.Helper
                         else if (row.ColumnName == "tradeid") caption = "Trading ID";
                         else if (row.ColumnName == "emcode") caption = "Exchange Member Code";
                         else if (row.ColumnName == "securitycode") caption = "Security Code";
-                        else if (row.ColumnName == "count_sre") caption = "NSRE (Jumlah SRE)";
+                        else if (row.ColumnName == "count_sre") {caption = "NSRE (Jumlah SRE)"; allowFilter = false; }
                         else if (row.ColumnName == "sre_list") caption = "SRE";
-                        else if (row.ColumnName == "sum_qty") caption = "Volume";
+                        else if (row.ColumnName == "sum_qty") {caption = "Volume"; allowFilter = false; }
                         else if (row.ColumnName == "totalshares") caption = "Listed Shares";
                         else if (row.ColumnName == "listingdate") caption = "Listing Date";
                         else if (row.ColumnName == "issue_date") caption = "Issue Date";
@@ -3024,7 +3024,7 @@ namespace BDA.Helper
                         else if (row.ColumnName == "issuer_code") caption = "Issuer Code";
                         else if (row.ColumnName == "issuer_name")
                         {
-                            caption = "Issuer Name"; 
+                            caption = "Issuer Name";
                             width = 300;
                             allowFilter = false;
                         }
@@ -3032,9 +3032,9 @@ namespace BDA.Helper
                         else if (row.ColumnName == "asset_class_type") caption = "Aset Tipe";
                         else if (row.ColumnName == "sector") caption = "Sektor";
                         else if (row.ColumnName == "sub_sector") caption = "Sub Sektor";
-                        else if (row.ColumnName == "prevprice") caption = "Prev Price";
-                        else if (row.ColumnName == "price") caption = "Price";
-                        else if (row.ColumnName == "price_index") caption = "Index";
+                        else if (row.ColumnName == "prevprice") {caption = "Prev Price"; allowFilter = false; }
+                        else if (row.ColumnName == "price") {caption = "Price"; allowFilter = false; }
+                        else if (row.ColumnName == "price_index") { caption = "Index"; width = 300; allowFilter = false; }
                         else if (row.ColumnName == "listingboardcode") caption = "Listing Board Code";
                         else if (row.ColumnName == "nama_sid")
                         {
