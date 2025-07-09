@@ -3,21 +3,21 @@
   <Profiles />
   <Settings>
     <Setting Name="APIUrl" Type="System.String" Scope="User">
-      <Value Profile="(Default)">http://10.225.60.14:9995/api/</Value>
+      <Value Profile="(Default)">http://10.225.82.8:9995/api/</Value>
     </Setting>
     <Setting Name="APIUserId" Type="System.String" Scope="User">
-      <Value Profile="(Default)">hdp-ojk</Value>
+      <Value Profile="(Default)">hdp-user</Value>
     </Setting>
     <Setting Name="APIEncPassword" Type="System.String" Scope="User">
-      <Value Profile="(Default)">qw1APhEYEZ0W1pD0GysqtpBrN7pUSW2PX8ZST1jgA/M=</Value>
+      <Value Profile="(Default)">VN9G9NFnYu1AzvZ+VEao7ukR4+ILwAWAkJYZSg45fSI=</Value>
     </Setting>
     <Setting Name="ConnStringSQL" Type="(Connection string)" Scope="Application">
       <DesignTimeValue Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
 &lt;SerializableConnectionString xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"&gt;
-  &lt;ConnectionString&gt;Data Source=10.225.60.50;Initial Catalog=BDAPM;Persist Security Info=True;User ID=sa;Password=password.1&lt;/ConnectionString&gt;
+  &lt;ConnectionString&gt;Data Source=10.225.60.50;Initial Catalog=BDAPM;Persist Security Info=False;User ID=sa;Password=password.1&lt;/ConnectionString&gt;
   &lt;ProviderName&gt;System.Data.SqlClient&lt;/ProviderName&gt;
 &lt;/SerializableConnectionString&gt;</DesignTimeValue>
-      <Value Profile="(Default)">Data Source=10.225.60.50;Initial Catalog=BDAPM;Persist Security Info=True;User ID=sa;Password=password.1</Value>
+      <Value Profile="(Default)">Data Source=10.225.60.50;Initial Catalog=BDAPM;Persist Security Info=False;User ID=sa;Password=password.1</Value>
     </Setting>
   </Settings>
 </SettingsFile>
