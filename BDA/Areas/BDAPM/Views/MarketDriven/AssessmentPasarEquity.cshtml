@@ -1078,6 +1078,75 @@
         font-size: 14px;
     }
 
+    .gainer-item {
+        border-bottom: 1px solid #dee2e6;
+        padding: 0.75rem 1.25rem;
+    }
+
+    .gainer-header {
+        display: flex;
+        /* CHANGED: Aligns header items to the top */
+        align-items: flex-start;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+
+    .gainer-seq {
+        width: 30px;
+    }
+
+    .gainer-code {
+        width: 70px;
+    }
+
+    .gainer-name {
+        flex-grow: 1;
+    }
+
+    .gainer-volume-label {
+        color: #6c757d;
+        padding-left: 1rem;
+    }
+
+    .gainer-volume-value {
+        width: 150px;
+        text-align: right;
+        color: #28a745;
+    }
+
+    /* NEW: Added border and padding for the details section */
+    .gainer-details {
+        border: 1px solid #e9ecef; /* Light gray border */
+        border-radius: 4px; /* Slightly rounded corners */
+        padding: 10px; /* Space inside the border */
+        margin-top: 10px; /* Space between header and border box */
+    }
+
+        .gainer-details table {
+            width: 100%;
+            font-size: 0.9em;
+        }
+
+        .gainer-details td {
+            padding: 2px 0;
+        }
+
+            .gainer-details td:first-child {
+                width: 35%;
+                padding-left: 100px;
+                color: #6c757d;
+            }
+
+            .gainer-details td:last-child {
+                text-align: right;
+                width: 150px;
+                color: #28a745;
+                font-weight: bold;
+            }
+
+    .negative-value {
+        color: #dc3545 !important;
+    }
 </style>
 
 
