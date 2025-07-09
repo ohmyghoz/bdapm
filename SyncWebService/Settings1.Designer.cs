@@ -25,7 +25,7 @@ namespace SyncWebService {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("http://10.225.60.14:9995/api/")]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://10.225.82.8:9995/api/")]
         public string APIUrl {
             get {
                 return ((string)(this["APIUrl"]));
@@ -37,7 +37,7 @@ namespace SyncWebService {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("hdp-ojk")]
+        [global::System.Configuration.DefaultSettingValueAttribute("hdp-user")]
         public string APIUserId {
             get {
                 return ((string)(this["APIUserId"]));
@@ -49,7 +49,7 @@ namespace SyncWebService {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("qw1APhEYEZ0W1pD0GysqtpBrN7pUSW2PX8ZST1jgA/M=")]
+        [global::System.Configuration.DefaultSettingValueAttribute("VN9G9NFnYu1AzvZ+VEao7ukR4+ILwAWAkJYZSg45fSI=")]
         public string APIEncPassword {
             get {
                 return ((string)(this["APIEncPassword"]));
@@ -62,8 +62,8 @@ namespace SyncWebService {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
-        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=10.225.60.50;Initial Catalog=BDAPM;Persist Security Info=True;User ID" +
-            "=sa;Password=password.1")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=10.225.60.50;Initial Catalog=BDAPM;Persist Security Info=False;User I" +
+            "D=sa;Password=password.1")]
         public string ConnStringSQL {
             get {
                 return ((string)(this["ConnStringSQL"]));

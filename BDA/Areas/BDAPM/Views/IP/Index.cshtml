@@ -443,7 +443,7 @@
     }
 
     function onRowDblClick(e) {
-        var detailSid = "@Url.Action("Index", "IP", new { id = "ip_sid" })?detailsid=" + e.data.lem;
+        var detailSid = "@Url.Action("Index", "IP", new { id = "ip_sid" })?detailsid=" + e.data.lem + e.data.sid;
 
         window.open(detailSid);
 

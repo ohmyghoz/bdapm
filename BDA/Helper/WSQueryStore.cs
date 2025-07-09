@@ -5781,7 +5781,7 @@ namespace BDA.Helper
 
             }
             var props = new WSQueryProperties();
-            props.Query = @"SELECT top 10 nama_sid from pasarmodal.master_sid WHERE " + whereQuery + @" group by nama_sid ORDER BY len(nama_sid) asc";
+            props.Query = @"SELECT top 10 nama_sid from dbo.pm_master_sid WHERE " + whereQuery + @" group by nama_sid ORDER BY len(nama_sid) asc";
             if (isHive) props.Query = @"SELECT nama_sid FROM pasarmodal.src_sid_new x WHERE " + whereQuery + @" group by nama_sid ORDER BY length(nama_sid) asc LIMIT 10";
             //props.Query = @"SELECT top 20 nama_sid, sid, len(nama_sid) len_nama FROM pasarmodal.master_sid x WHERE " + whereQuery + @" ORDER BY len_nama asc";
             //if (isHive) props.Query = @"SELECT nama_sid, sid, length(nama_sid) len_nama FROM pasarmodal.src_sid x WHERE " + whereQuery + @" ORDER BY len_nama asc LIMIT 20";
@@ -5955,6 +5955,76 @@ namespace BDA.Helper
             //propsQuery.Query = sqlGetQuery;
             //DataRow dr = WSQueryHelper.DoQuery(db, propsQuery, loadOptions, false, false).data.Rows[0];
 
+            DataRow dr = ExecuteSimpleSQL(db.appSettings.DataConnString, sqlGetQuery).data.Rows[0];
+            string queryString = dr["queryString"].ToString();
+            queryString = queryString.Replace("@wherefilter", whereQuery).Replace("@whereperiode", periodWhereQuery);
+
+            var props = new WSQueryProperties();
+            props.Query = queryString;
+
+
+            return NonDecryptResults(WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive));
+        }
+
+        public static WSQueryReturns GetPMIPRelQuery(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string startPeriod, string endPeriod, 
+            string SID, string tradeId, string namaSID, string relCol, float relVal,
+            string bSID, string bTradeId, string bExchange, string sSID, string sTradeId, string sExchange, string secCode,
+            string nomorKTP, string nomorNPWP, string exchange, string invType, string invOrigin, string invClass, bool chk100 = false, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            var periodWhereQuery = "";
+            isHive = false;
+
+            if (tableName == "ip_rel_sid")
+            {
+                if (SID != null) whereQuery = whereQuery += " AND keyid = '" + SID + "' ";                
+                if (tradeId != null) whereQuery = whereQuery += " AND SUBSTRING(keyid, 8, 6) = '" + tradeId + "' ";
+                if (namaSID != null) whereQuery = whereQuery += " AND nama_sid = '" + namaSID.ToUpper() + "' ";
+                if (relCol != null) whereQuery = whereQuery += " AND attributetype = '" + relCol + "' ";
+                if (relVal > 0) whereQuery = whereQuery += " AND similarityvalue >= " + relVal + " ";
+            }
+            else if (tableName == "ip_rel_transaction")
+            {
+                if (sSID != null) whereQuery = whereQuery += " AND seller_sid = '" + sSID.ToUpper() + "' ";
+                if (sTradeId != null) whereQuery = whereQuery += " AND SUBSTRING(seller_sid, 8, 6) = '" + sTradeId + "' ";
+                if (sExchange != null) whereQuery = whereQuery += " AND selleremcode = '" + sExchange.ToUpper() + "' ";
+                if (bSID != null) whereQuery = whereQuery += " AND buyer_sid = '" + bSID.ToUpper() + "' ";
+                if (bTradeId != null) whereQuery = whereQuery += " AND SUBSTRING(buyer_sid, 8, 6) = '" + bTradeId + "' ";
+                if (bExchange != null) whereQuery = whereQuery += " AND buyeremcode = '" + bExchange.ToUpper() + "' ";
+                if (secCode != null) whereQuery = whereQuery += " AND securitycode= '" + secCode.ToUpper() + "' ";
+            }
+            else if (tableName == "ip_rel_ownership")
+            {
+                if (nomorKTP != null) whereQuery = whereQuery += " AND ktp = '" + nomorKTP + "' ";
+                if (nomorNPWP != null) whereQuery = whereQuery += " AND npwp = '" + nomorNPWP + "' ";
+                if (secCode != null) whereQuery = whereQuery += " AND securitycode= '" + secCode.ToUpper() + "' ";
+                if (exchange != null) whereQuery = whereQuery += " AND emcode = '" + exchange.ToUpper() + "' ";
+                if (invType != null) whereQuery = whereQuery += " AND investortype '" + invType.ToUpper() + "' ";
+                if (invOrigin != null) whereQuery = whereQuery += " AND investororigin '" + invOrigin.ToUpper() + "' ";
+                if (invClass != null) whereQuery = whereQuery += " AND investorclass '" + invClass.ToUpper() + "' ";
+            }
+
+                
+
+
+            if (endPeriod != null)
+            {
+                string startperiodes = startPeriod.Replace("'", "").Replace(",", "','").Replace("' ", "'"); //cegah sql inject dikit
+                string endperiodes = endPeriod.Replace("'", "").Replace(",", "','").Replace("' ", "'"); //cegah sql inject dikit
+                if (tableName == "ip_rel_sid")
+                {
+                    periodWhereQuery = " AND pmonth between '" + startperiodes.Substring(0, 6) + "' and '" + endperiodes.Substring(0, 6) + "'";
+                }
+                else {
+                    periodWhereQuery = " AND " + ((tableName == "ip_rel_transaction") ? "tradedate" : "calendarsk") + " between '" + startperiodes + "' and '" + endperiodes + "'";
+                }
+                
+            }
+            
+
+            string sqlGetQuery = "select table_" + (isHive ? "hive" : "sql") + @" as queryString from dbo.ref_query where table_id = '" + tableName + "'";
+            
             DataRow dr = ExecuteSimpleSQL(db.appSettings.DataConnString, sqlGetQuery).data.Rows[0];
             string queryString = dr["queryString"].ToString();
             queryString = queryString.Replace("@wherefilter", whereQuery).Replace("@whereperiode", periodWhereQuery);

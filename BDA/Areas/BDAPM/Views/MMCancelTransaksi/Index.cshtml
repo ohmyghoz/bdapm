@@ -20,7 +20,7 @@
 
                 <div class="row">
 
-                    <div class="col-lg-3 form-group">
+                    <div class="col-lg-4 form-group">
                         <label>Periode Awal<span class="mandatory">*</span></label>
                         @(Html.DevExtreme().DateBox()
                             .ID("PeriodeAwal")
@@ -30,7 +30,7 @@
                             .Width("100%"))
                     </div>
 
-                    <div class="col-lg-3 form-group">
+                    <div class="col-lg-4 form-group">
                         <label>Periode Akhir<span class="mandatory">*</span></label>
                         @(Html.DevExtreme().DateBox()
                             .ID("PeriodeAkhir")
@@ -40,7 +40,7 @@
                             .Width("100%"))
                     </div>
 
-                    <div class="col-lg-3 form-group">
+                    <div class="col-lg-4 form-group">
                         <label>Bond Type</label>
                         @(Html.DevExtreme().TagBox()
                             .ID("BondTypeid")
@@ -55,19 +55,6 @@
                             .SearchEnabled(true)
                             .ShowClearButton(true)
                             .Width("100%"))
-                    </div>
-
-                    <div class="col-lg-3 form-group">
-                        <label>Cancelation Status</label>
-                        @(Html.DevExtreme().TagBox()
-                            .ID("Amandedid")
-                            .DataSource(new[] { "Market", "Non Market" })
-                            .ShowSelectionControls(true)
-                            .MaxDisplayedTags(3)
-                            .SearchEnabled(true)
-                            .OnSelectionChanged("onSelectionChanged")
-                            .Width("100%")
-                            .Placeholder("(ALL)"))
                     </div>
 
                 </div>
@@ -124,41 +111,7 @@
                 <br />
                 <br />
                 <div class="row">
-                    <div class="col-lg-6">
-                        @(Html.DevExtreme().PieChart()
-                            .ID("pie-chartcancellation")
-                            .Title("Cancellation Status")
-                            .Legend(l => l
-                            .HorizontalAlignment(HorizontalAlignment.Right)
-                            .VerticalAlignment(VerticalEdge.Top)
-                            .Margin(0))
-                            .Export(e => e.Enabled(true))
-                            .Series(s => s
-                            .Add()
-                            .ArgumentField("bondissuertypecode")
-                            .ValueField("total")
-                            .Label(l => l
-                            .Visible(true)
-                            .Font(f => f.Size(16))
-                            .Connector(c => c
-                            .Visible(true)
-                            .Width(0.5)
-                            )
-                            .Position(PieChartLabelPosition.Columns)
-                            .CustomizeText(@<text>
-                        function(arg) {
-                        return arg.valueText + " (" + arg.percentText + ")";
-                        }
-                    </text>)
-                            )
-                            )
-                            .DataSource(d => d.Mvc()
-                            .Controller("MMCancelTransaksi")
-                            .LoadAction("GetChartCancellationStatus")
-                            .OnBeforeSend("onGridBeforeSend")))
-                    </div>
-
-                    <div class="col-lg-6">
+                    <div class="col-lg-12">
                         @(Html.DevExtreme().PieChart()
                             .ID("pie-chartbondtype")
                             .Title("Bond Type")
