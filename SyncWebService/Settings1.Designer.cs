@@ -12,7 +12,7 @@ namespace SyncWebService {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.10.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.12.0.0")]
     internal sealed partial class Settings1 : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings1 defaultInstance = ((Settings1)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings1())));
@@ -62,8 +62,7 @@ namespace SyncWebService {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
-        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=10.225.60.50;Initial Catalog=BDAPM;Persist Security Info=False;User I" +
-            "D=sa;Password=password.1")]
+        [global::System.Configuration.DefaultSettingValueAttribute("data source=10.225.60.50;user id=sa;password=password.1;initial catalog=BDAPM;persist security info=True;TrustServerCertificate=True;")]
         public string ConnStringSQL {
             get {
                 return ((string)(this["ConnStringSQL"]));
