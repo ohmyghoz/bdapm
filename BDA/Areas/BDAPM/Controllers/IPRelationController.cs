@@ -199,7 +199,7 @@ namespace BDA.Controllers
                 db.RptGrid_Queue.Add(newq);
                 db.SaveChanges();
 
-                db.InsertAuditTrail("ExportIndex_OSIDA_" + reportId, "Export Data", pageTitle);
+                db.InsertAuditTrail("ExportIndex_BDAPM_" + reportId, "Export Data", pageTitle);
                 var resp = "Sukses mengantrikan";
                 return Json(resp);
             }
