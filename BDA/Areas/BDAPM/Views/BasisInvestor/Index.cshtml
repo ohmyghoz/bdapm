@@ -83,7 +83,11 @@
                     </div>
 
                     @{
-                        var invType = new string[] { "Individu", "Institusi" };
+                        var invType = new[] {
+                new { Text = "(All)", Value = "" },
+                new { Text = "Individu", Value = "Individu" },
+                new { Text = "Institusi", Value = "Institusi" }
+                };
                     }
 
                     <div class="col-lg-2 form-group">
@@ -92,13 +96,20 @@
                             .ID("InvstType")
                             .DataSource(invType)
                             .SearchEnabled(true)
+                            .ValueExpr("Value")
+                            .DisplayExpr("Text")
+                            .Value("")
                             .OnSelectionChanged("onSelectionChanged")
                             .Width("100%")
                             .Placeholder("(ALL)"))
                     </div>
 
                     @{
-                        var invOrigin = new[] { "Asing", "Lokal" };
+                        var invOrigin = new[] {
+                new { Text = "(All)", Value = "" },
+                new { Text = "Asing", Value = "Asing" },
+                new { Text = "Lokal", Value = "Lokal" }
+                };
                     }
 
                     <div class="col-lg-2 form-group">
@@ -107,6 +118,9 @@
                             .ID("InvstOrigin")
                             .DataSource(invOrigin)
                             .SearchEnabled(true)
+                            .ValueExpr("Value")
+                            .DisplayExpr("Text")
+                            .Value("")
                             .OnSelectionChanged("onSelectionChanged")
                             .Width("100%")
                             .Placeholder("(ALL)"))
@@ -114,6 +128,7 @@
 
                     @{
                         var inpRange = new[] {
+                new { Text = "(All)", Value = "" },
                 new { Text = "1 Bulan", Value = "1" },
                 new { Text = "6 Bulan", Value = "6" },
                 new { Text = "12 Bulan", Value = "12" }
@@ -131,11 +146,15 @@
                             .OnSelectionChanged("onSelectionChanged")
                             .Width("100%")
                             .Placeholder("(ALL)")
+                            .Value("")
                             )
                     </div>
 
                     @{
-                        var market = new[] { "Bursa" };
+                        var market = new[] { 
+                new { Text = "(All)", Value = "" },
+                new { Text = "Bursa", Value = "Bursa" } 
+                };
                     }
 
                     <div class="col-lg-2 form-group">
@@ -144,6 +163,9 @@
                             .ID("Market")
                             .DataSource(market)
                             .SearchEnabled(true)
+                            .ValueExpr("Value")
+                            .DisplayExpr("Text")
+                            .Value("")
                             .OnSelectionChanged("onSelectionChanged")
                             .Width("100%")
                             .Placeholder("(ALL)"))
@@ -476,7 +498,7 @@
     function onClickChart(e) {
         const res = e.validationGroup.validate();
         if (res.status === "valid") { 
-            alert("CLICKED!");
+            redirDetail();
         }
     }
 

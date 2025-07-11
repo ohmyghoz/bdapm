@@ -148,9 +148,10 @@ namespace BDA.Controllers
                 varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
                                select new
                                {
-                                   amended_info = bs.Field<string>("amended_info").ToString(),
+                                   nobulan = Convert.ToInt32(bs.Field<Int32>("nobulan").ToString()),
+                                   bulan = bs.Field<string>("bulan").ToString(),
                                    total = Convert.ToInt64(bs.Field<Int64>("total").ToString()),
-                               }).OrderByDescending(bs => bs.total).ToList();
+                               }).OrderBy(bs => bs.nobulan).ToList();
             }
             else
             {
@@ -290,7 +291,6 @@ namespace BDA.Controllers
                                    WRONG_INPUT = Convert.ToInt64(!string.IsNullOrEmpty(bs.Field<Int64>("WRONG_INPUT").ToString()) ? bs.Field<Int64>("WRONG_INPUT").ToString() : "0"),
                                    DOUBLE_REPORT = Convert.ToInt64(!string.IsNullOrEmpty(bs.Field<Int64>("DOUBLE_REPORT").ToString()) ? bs.Field<Int64>("DOUBLE_REPORT").ToString() : "0"),
                                    NETWORK_CONNECTION = Convert.ToInt64(!string.IsNullOrEmpty(bs.Field<Int64>("NETWORK_CONNECTION").ToString()) ? bs.Field<Int64>("NETWORK_CONNECTION").ToString() : "0"),
-                                   entrydate = Convert.ToDateTime(bs.Field<string>("entrydate")).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
                                    Total = Convert.ToInt64(!string.IsNullOrEmpty(bs.Field<Int64>("Total").ToString()) ? bs.Field<Int64>("Total").ToString() : "0"),
                                }).OrderByDescending(bs => bs.Total).ToList();
             }
@@ -470,8 +470,8 @@ namespace BDA.Controllers
                                select new
                                {
                                    tgl = Convert.ToInt32(bs.Field<string>("tgl").ToString()),
-                                   nobulan = Convert.ToInt64(bs.Field<Int64>("nobulan").ToString()),
-                                   entrydate = Convert.ToDateTime(bs.Field<DateTime>("entrydate")).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                                   nobulan = Convert.ToInt32(bs.Field<Int32>("nobulan").ToString()),
+                                   entrydate = bs.Field<string>("entrydate").ToString(),
                                    total = Convert.ToInt64(bs.Field<Int64>("total").ToString()),
                                }).OrderBy(bs => bs.tgl).OrderBy(bs => bs.nobulan).ToList();
             }

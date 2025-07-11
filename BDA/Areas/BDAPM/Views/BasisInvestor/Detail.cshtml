@@ -37,12 +37,12 @@
 
                
 
-                    @* <div class="col-lg-2 form-group">
+                    <div class="col-lg-2 form-group">
                         <label>Periode<span class="mandatory">*</span></label>
                         @(Html.DevExtreme().DateBox()
                             .ID("Periode")
                             .Disabled(true)
-                            .DisplayFormat("MMM yyyy")
+                            .DisplayFormat("dd MMM yyyy")
                             .Value(periode)
                             .Max(DateTime.Now)
                             .Width("100%"))
@@ -51,7 +51,7 @@
                     <div class="col-lg-2 form-group">
                         <label>PE<span class="mandatory">*</span></label>
                         @(Html.DevExtreme().SelectBox()
-                            //.Disabled(true)
+                            .Disabled(true)
                             .ID("namaPEid")
                             .DataSource(d => d.Mvc()
                             .Controller("BasisInvestor")
@@ -64,7 +64,7 @@
                             .Width("100%")
                             .Value(pe)
                             )
-                    </div> *@
+                    </div>
 
                     <div class="col-lg-2 form-group">
                         <label>Negara@*<span class="mandatory">*</span>*@</label>
@@ -108,6 +108,7 @@
                         @(Html.DevExtreme().SelectBox()
                             .ID("Sex")
                             .DataSource(new[] {
+                                new { Text = "(ALL)", Value = "" },
                                 new { Text = "Laki-laki", Value = "Male" },
                                 new { Text = "Perempuan", Value = "Female" }
                                 })
@@ -125,6 +126,7 @@
                         @(Html.DevExtreme().SelectBox()
                             .ID("Age")
                             .DataSource(new[] {
+                                new { Text = "(ALL)", Value = "" },
                                 new { Text = "<= 30 Tahun", Value = "<=30" },
                                 new { Text = "31 - 40 Tahun", Value = "31 - 40" },
                                 new { Text = "41 - 50 Tahun", Value = "41 - 50" },
@@ -144,9 +146,20 @@
                         <label>Pendidikan@*<span class="mandatory">*</span>*@</label>
                         @(Html.DevExtreme().SelectBox()
                             .ID("Education")
-                            .DataSource(new[] { "(All)", "SMP", "SMA", "S1", "S2", "S3" })
+                            .DataSource(new[] {
+                                new { Text = "(ALL)", Value = "" },
+                                new { Text = "SMP", Value = "SMP" },
+                                new { Text = "SMA", Value = "SMA" },
+                                new { Text = "D3", Value = "D3" },
+                                new { Text = "S1", Value = "S1" },
+                                new { Text = "S2", Value = "S2" },
+                                new { Text = "S3", Value = "S3" },
+                                new { Text = "Lainnya", Value = "OTH" }
+                                })
                             .SearchEnabled(true)
                             .Value("")
+                            .ValueExpr("Value")
+                            .DisplayExpr("Text")
                             .OnSelectionChanged("onSelectionChanged")
                             .Width("100%")
                             .Placeholder("(ALL)"))
@@ -156,9 +169,22 @@
                         <label>Pekerjaan@*<span class="mandatory">*</span>*@</label>
                         @(Html.DevExtreme().SelectBox()
                             .ID("Job")
-                            .DataSource(new[] { "(All)", "A", "B", "C" })
+                            .DataSource(new[] {
+                                new { Text = "(ALL)", Value = "" },
+                                new { Text = "Wiraswasta", Value = "Enterpreneur" },
+                                new { Text = "Pensiunan", Value = "Retirement" },
+                                new { Text = "Pegawai Swasta", Value = "Private Employee" },
+                                new { Text = "Ibu Rumah Tangga", Value = "Housewife" },
+                                new { Text = "Pegawai Negeri Sipil", Value = "Civil Servant" },
+                                new { Text = "Dosen/Guru", Value = "Lecturer/Teacher" },
+                                new { Text = "TNI/POLRI", Value = "TNI/POLRI" },
+                                new { Text = "Pelajar/Mahasiswa", Value = "Student" },
+                                new { Text = "Lainnya", Value = "Others" }
+                                })
                             .SearchEnabled(true)
                             .Value("")
+                            .ValueExpr("Value")
+                            .DisplayExpr("Text")
                             .OnSelectionChanged("onSelectionChanged")
                             .Width("100%")
                             .Placeholder("(ALL)"))
@@ -168,9 +194,20 @@
                         <label>Penghasilan@*<span class="mandatory">*</span>*@</label>
                         @(Html.DevExtreme().SelectBox()
                             .ID("Income")
-                            .DataSource(new[] { "(All)", "<100jt", ">100jt" })
+                            .DataSource(new[] {
+                                new { Text = "(ALL)", Value = "" },
+                                new { Text = "< 10 Juta/Tahun", Value = "< 10 million/year" },
+                                new { Text = "> 10 - 50 Juta/Tahun", Value = "> 10 - 50 million/year" },
+                                new { Text = "> 50 - 100 Juta/Tahun", Value = "> 50 - 100 million/year" },
+                                new { Text = "> 100 - 500 Juta/Tahun", Value = "> 100 - 500 million/year" },
+                                new { Text = "> 500 Juta - 1 Miliar/Tahun", Value = "> 500 million - 1 billion/year" },
+                                new { Text = "> 1 Miliar/Tahun", Value = "> 1 billion/year" },
+                                new { Text = "Lainnya", Value = "Others" }
+                                })
                             .SearchEnabled(true)
                             .Value("")
+                            .ValueExpr("Value")
+                            .DisplayExpr("Text")
                             .OnSelectionChanged("onSelectionChanged")
                             .Width("100%")
                             .Placeholder("(ALL)"))
