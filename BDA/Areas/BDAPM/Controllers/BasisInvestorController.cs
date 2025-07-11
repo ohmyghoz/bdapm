@@ -810,7 +810,7 @@ namespace BDA.Controllers
         public FileResult FileIndex(string name)
         {
             var directory = _env.WebRootPath;
-            var timeStamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+            var timeStamp = TempData.Peek("timeStamp").ToString();
             var fileName = "BasisInvestor_" + name + timeStamp + ".pdf";
             var filePath = Path.Combine(directory, fileName);
             var fileByte = System.IO.File.ReadAllBytes(filePath);
