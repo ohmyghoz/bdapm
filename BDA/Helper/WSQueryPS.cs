@@ -1053,6 +1053,8 @@ namespace BDA.Helper
             }
             return list;
         }
+        
+
         public static WSQueryReturns GetBDAPMSegmentasiTransaksiGrid(DataEntities db, DataSourceLoadOptions loadOptions, string periodes, string stringPE, string jenisTransaksi)
         {
             bool isC = false;
@@ -1082,6 +1084,11 @@ namespace BDA.Helper
                     WHERE " + whereQuery + " group by exchangemembercode, liquidhc, liquidim, liquidnk";
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
+        }
+
+        internal static object GetTopCompaniesByValue(object loadOptions, string selectedDate)
+        {
+            throw new NotImplementedException();
         }
     }
 }

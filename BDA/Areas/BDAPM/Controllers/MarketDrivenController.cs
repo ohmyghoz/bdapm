@@ -21,6 +21,7 @@ using static System.Net.Mime.MediaTypeNames;
 using System.Configuration;
 using BDA.Areas.BDAPM.Models;
 using BDA.Helper;
+using System.Xml.Linq;
 
 namespace BDA.Controllers
 {
@@ -244,6 +245,70 @@ namespace BDA.Controllers
                 result = false;
             }
             return Json(new { message, success = result }, new Newtonsoft.Json.JsonSerializerSettings());
+        }
+
+        public ActionResult TopCompaniesByValue()
+        {
+            // Your permission checks can go here
+            return View();
+        }
+
+        // This action is called by the DataGrid's MVC data source.
+        // In MarketDrivenController.cs
+
+        [HttpGet]
+        public object _GetTopCompaniesData(DataSourceLoadOptions loadOptions, string selectedDate)
+        {
+            if (string.IsNullOrEmpty(selectedDate))
+            {
+                return DataSourceLoader.Load(new List<object>(), loadOptions);
+            }
+
+            // This query is from your WSQueryPS file
+            string sqlQuery = @"
+        SET ARITHABORT ON;
+        SELECT TOP 10
+            security_code,
+            SUM(value) as total_value,
+            SUM(volume) as total_volume,
+            SUM(freq) as total_freq
+        FROM BDAPM.pasarmodal.market_driven_rg_ng
+        WHERE periode_lvl1 = @Periode
+        GROUP BY security_code
+        ORDER BY total_value DESC;";
+
+            var dataList = new List<object>();
+            string connString = db.appSettings.DataConnString;
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connString))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlQuery, conn))
+                    {
+                        cmd.CommandTimeout = 300;
+                        cmd.Parameters.AddWithValue("@Periode", selectedDate);
+
+                        conn.Open();
+                        DataTable dt = new DataTable();
+                        SqlDataAdapter adapter = new SqlDataAdapter(cmd);
+                        adapter.Fill(dt);
+
+                        dataList = dt.AsEnumerable().Select(row => new {
+                            security_code = row.Field<string>("security_code"),
+                            total_value = Convert.ToDecimal(row["total_value"]),
+                            total_volume = Convert.ToInt64(row["total_volume"]),
+                            total_freq = Convert.ToInt64(row["total_freq"])
+                        }).ToList<object>();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("DATABASE ERROR: " + ex.Message);
+            }
+
+            // This line guarantees the grid gets data in the correct format
+            return DataSourceLoader.Load(dataList, loadOptions);
         }
         public ActionResult SimpanPenggunaanDataVDT(string id)
         {
