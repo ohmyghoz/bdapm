@@ -1,7 +1,6 @@
 ﻿@using DevExtreme.AspNet.Mvc
 @{
     Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
-  
 }
 
 @inject BDA.DataModel.DataEntities db
@@ -18,7 +17,7 @@
 
                 <div class="row">
                     <div class="col-lg-3 form-group">
-                        <label>Periode Awal@*<span class="mandatory">*</span>*@</label>
+                        <label>Periode Awal<span class="mandatory">*</span></label>
                         @(Html.DevExtreme().DateBox()
                             .ID("periodeAwalID")
                             .Type(DateBoxType.Date)
@@ -26,7 +25,7 @@
                             .Width("100%"))
                     </div>
                     <div class="col-lg-3 form-group">
-                        <label>Periode Akhir@*<span class="mandatory">*</span>*@</label>
+                        <label>Periode Akhir<span class="mandatory">*</span></label>
                         @(Html.DevExtreme().DateBox()
                             .ID("periodeAkhirID")
                             .Type(DateBoxType.Date)
@@ -34,7 +33,7 @@
                             .Width("100%"))
                     </div>
                     <div class="col-lg-3 form-group">
-                        <label>SID@*<span class="mandatory">*</span>*@</label>
+                        <label>SID<span class="mandatory">*</span></label>
                         @(Html.DevExtreme().TextBox()
                             .ID("SID")
                             .Placeholder("Enter SID here...")
@@ -43,7 +42,7 @@
                     </div>
 
                     <div class="col-lg-3 form-group" id="topDiv">
-                        <label>Efek@*<span class="mandatory">*</span>*@</label>
+                        <label>Efek</label>
                         @(Html.DevExtreme().TextBox()
                             .ID("EfekID")
                             .Placeholder("Enter Efek here...")
@@ -59,20 +58,12 @@
                         .OnClick("onButtonFilterClicked")
                         .ValidationGroup("Filter"))
                 </div>
-
-                @*                 <div class="float-right">
-            @if (ViewBag.Export)
-            {
-            <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();"><span class="image fa fa-file-excel"></span> Export Excel</a>
-            <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
-            }
-            </div> *@
             </div>
         </div>
-       
+
         <br />
         @*grid*@
-        <div class="row filter-panel" style="padding-top:0px;"> 
+        <div class="row filter-panel" style="padding-top:0px;">
             <div class="card-body">
                 <div class="row">
                     <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
@@ -85,41 +76,11 @@
                         </div>
                         <div class="row">
                             <div id="grid1Container" style="display: none;">
-                            @(Html.DevExtreme().DataGrid()
-                                .ID("grid1")
-                                .DataSource(d => d.StaticJson().Url("/tempData/md_stp_balance.json")
-                                )
-                                .KeyExpr("rowid")
-                                .RemoteOperations(true)
-                                .Width("100%")
-                                .AllowColumnResizing(true)
-                                .Columns(columns =>
-                                {
-                                    columns.Add().DataField("rowid").Visible(false);
-                                    columns.Add().DataField("tanggal_balance").Caption("Tanggal Balance").DataType(GridColumnDataType.Date)
-                                    .Format("dd/MM/yyyy").CalculateCellValue("calculateDateCell"); ;
-                                    columns.Add().DataField("sid").Caption("SID");
-                                    columns.Add().DataField("trading_id").Caption("Trading ID");
-                                    columns.Add().DataField("efek").Caption("Efek");
-                                    columns.Add().DataField("subrekening_efek").Caption("Subrekening Efek");
-                                    columns.Add().DataField("quantity").Caption("Quantity").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
-                                    columns.Add().DataField("price").Caption("Price").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
-                                })
-                                .FilterRow(f => f.Visible(false))
-                                .ShowBorders(true)
-                                .Scrolling(s => s.ShowScrollbar(ShowScrollbarMode.Always))
-                                .Paging(p =>
-                                {
-                                    p.PageSize(10);
-                                    p.Enabled(true);
-                                })
-                                .Pager(p =>
-                                {
-                                    p.ShowInfo(true);
-                                }))
-                                </div>
+                                <div id="grid1"></div>
+                            </div>
                         </div>
                     </div>
+                    <!-- Settlement grid placeholder -->
                     <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
                         <div class="row" style="padding-bottom:12.5px">
                             <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:exportGridToExcel2();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
@@ -130,143 +91,47 @@
                         </div>
                         <div class="row">
                             <div id="grid2Container" style="display: none;">
-                            @(Html.DevExtreme().DataGrid()
-                                .ID("grid2")
-                                .DataSource(d => d.StaticJson().Url("/tempData/md_stp_settlement.json")
-                                )
-                                .KeyExpr("rowid")
-                                .RemoteOperations(true)
-                                .Width("100%")
-                                .AllowColumnResizing(true)          
-                                .Columns(columns =>
-                                               {
-                                columns.Add().DataField("rowid").Visible(false);
-                                    columns.Add().DataField("settlementtransactiondatesk").Caption("Tanggal Settlement").DataType(GridColumnDataType.Date)
-                                    .Format("dd/MM/yyyy").CalculateCellValue("calculateDateCell3");
-                                columns.Add().DataField("tradingdatesk").Caption("Tanggal Trading").DataType(GridColumnDataType.Date)
-                                .Format("dd/MM/yyyy").CalculateCellValue("calculateDateCell2"); ;
-                                columns.Add().DataField("fpinvestorid").Caption("SID");
-                                columns.Add().DataField("cpinvestorid").Caption("SID CP");
-                                columns.Add().DataField("fpsettlementaccountcode").Caption("FP Settlement Account Code");
-
-                            })
-                                .FilterRow(f => f.Visible(false))
-                                .ShowBorders(true)
-                                .Scrolling(s => s.ShowScrollbar(ShowScrollbarMode.Always))
-                                .Paging(p =>
-                                {
-                                    p.PageSize(10);
-                                    p.Enabled(true);
-                                })
-                                .Pager(p =>
-                                {
-                                    p.ShowInfo(true);
-                                }))
-                                </div>
+                                <div id="grid2"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
+                <!-- Second row for additional grids -->
                 <div class="row">
                     <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
                         <div class="row" style="padding-bottom:12.5px">
                             <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:exportGridToExcel3();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
-                            <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:exportGridToPDF3()();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                            <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:exportGridToPDF3();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
                         </div>
                         <div class="row">
                             <h4 class="headerTable">Clearing</h4>
                         </div>
                         <div class="row">
                             <div id="grid3Container" style="display: none;">
-                            @(Html.DevExtreme().DataGrid()
-                                .ID("grid3")
-                                .DataSource(d => d.StaticJson().Url("/tempData/md_stp_clearing.json")
-                                )
-                                .KeyExpr("rowid")
-                                .RemoteOperations(true)
-                                .Width("100%")
-                                .AllowColumnResizing(true)
-                                .Columns(columns =>
-                                {
-                                    columns.Add().DataField("rowid").Visible(false);
-                                    columns.Add().DataField("settlementdatesk").Caption("Tanggal Settlement").DataType(GridColumnDataType.Date)
-                                    .Format("dd/MM/yyyy").CalculateCellValue("calculateDateCell4");
-                                    columns.Add().DataField("clearingdatesk").Caption("Tanggal Clearing").DataType(GridColumnDataType.Date)
-                                    .Format("dd/MM/yyyy").CalculateCellValue("calculateDateCell5"); ;
-                                    columns.Add().DataField("investorid").Caption("SID");
-                                    columns.Add().DataField("securitycompanycode").Caption("Security Company Code");
-                                    columns.Add().DataField("clearingobligationquantity").Caption("Clearing Obligation").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
-
-                                })                    
-                                .FilterRow(f => f.Visible(false))
-                                .ShowBorders(true)
-                                .Scrolling(s => s.ShowScrollbar(ShowScrollbarMode.Always))
-                                .Paging(p =>
-                                {
-                                    p.PageSize(10);
-                                    p.Enabled(true);
-                                })
-                                .Pager(p =>
-                                {
-                                    p.ShowInfo(true);
-                                }))
-                                </div>
+                                <div id="grid3"></div>
+                            </div>
                         </div>
                     </div>
                     <div class="col-lg-6 form-group" style="padding-right:25px;padding-left:25px">
                         <div class="row" style="padding-bottom:12.5px">
                             <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:exportGridToExcel4();" title="Export Excel"><span class="image fa fa-file-excel"></span> Export Excel</a>
-                            <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:exportGridToPDF4()();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                            <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:exportGridToPDF4();" title="Export PDF"><span class="image fa fa-file-pdf"></span> Export PDF</a>
                         </div>
                         <div class="row">
                             <h4 class="headerTable">Transaction</h4>
                         </div>
                         <div class="row">
                             <div id="grid4Container" style="display: none;">
-                            @(Html.DevExtreme().DataGrid()
-                                .ID("grid4")
-                                .DataSource(d => d.StaticJson().Url("/tempData/md_stp_tra.json")
-                                )
-                                .KeyExpr("rowid")
-                                .RemoteOperations(true)
-                                .Width("100%")
-                                .AllowColumnResizing(true)
-                                .Columns(columns =>
-                                {
-                                    columns.Add().DataField("rowid").Visible(false);
-                                    columns.Add().DataField("settledate").Caption("Tgl. Settlement").DataType(GridColumnDataType.Date)
-                                    .Format("dd/MM/yyyy").CalculateCellValue("calculateDateCell6");
-                                    columns.Add().DataField("tradedatesk").Caption("Tgl. Trading").DataType(GridColumnDataType.Date)
-                                    .Format("dd/MM/yyyy").CalculateCellValue("calculateDateCell7"); ;
-                                    columns.Add().DataField("sid").Caption("SID");
-                                    columns.Add().DataField("investorcode").Caption("Trading ID");
-                                    columns.Add().DataField("cpinvestorcode").Caption("CP Trading ID");
-                                    columns.Add().DataField("securitycode").Caption("Security Code");
-                                    columns.Add().DataField("transactiontypecode").Caption("Transaction Type Code");
-                                    columns.Add().DataField("volume").Caption("Volume").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
-
-                                })
-                                .FilterRow(f => f.Visible(false))
-                                .ShowBorders(true)
-                                .Scrolling(s => s.ShowScrollbar(ShowScrollbarMode.Always))
-                                .Paging(p =>
-                                {
-                                    p.PageSize(10);
-                                    p.Enabled(true);
-                                })
-                                .Pager(p =>
-                                {
-                                    p.ShowInfo(true);
-                                }))
-                                </div>
+                                <div id="grid4"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-       
+    </div>
 
-    </div> <!-- Closing the card div -->
-    <!-- The Modal  Detail-->
+    <!-- Modal remains the same -->
     <div class="modal fade" id="ModalSimpanPenggunaanData" tabindex="-1" role="document" aria-hidden="true" data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -274,8 +139,7 @@
                     <h4 class="modal-title" style="text-align:left">
                         <font color="white">Pilih Penggunaan Data</font>
                     </h4>
-                </div><!--Modal Header-->
-                <!-- Modal body -->
+                </div>
                 <div class="modal-body">
                     <form id="StrukturFormDetail" method="POST" action="" class="form-horizontal row-border">
                         <div class="row" style="padding: 0 10px 0 10px;">
@@ -294,15 +158,13 @@
                         </div>
                     </form>
                 </div>
-                <!-- Modal footer -->
                 <div class="modal-footer">
                     <button type="button" id="btnSavePenggunaanData" class="btn btn-primary" data-bs-dismiss="modal"><i class='fa fa-save'></i> Save</button>
                 </div>
             </div>
         </div>
     </div>
-    <!-- The Modal  Detail-->
-} <!-- Closing the using block -->
+}
 
 <script>
     window.jsPDF = window.jspdf.jsPDF;
@@ -310,31 +172,245 @@
 </script>
 
 <script>
+    // Global variables to store filter values
+    var currentFilterParams = {
+        startDate: null,
+        endDate: null,
+        SID: null,
+        Efek: null
+    };
+
     $(function () {
-        const startDate = $("#PeriodeAwal").dxDateBox({
+        // Add validation for mandatory fields
+        $("#periodeAwalID").dxValidator({
+            validationGroup: "Filter",
+            validationRules: [{ type: "required", message: "Periode Awal harus dipilih" }]
+        });
+
+        $("#periodeAkhirID").dxValidator({
+            validationGroup: "Filter",
+            validationRules: [{ type: "required", message: "Periode Akhir harus dipilih" }]
+        });
+
+        $("#SID").dxValidator({
+            validationGroup: "Filter",
+            validationRules: [{ type: "required", message: "SID harus diisi" }]
+        });
+
+        // Set up date validation
+        const startDate = $("#periodeAwalID").dxDateBox({
             onValueChanged: function (e) {
-                endDate.option("min", e.value);
+                const endDateBox = $("#periodeAkhirID").dxDateBox("instance");
+                endDateBox.option("min", e.value);
             }
         }).dxDateBox("instance");
 
-        $("#PeriodeAwal").dxValidator({
-            validationGroup: "Filter",
-            validationRules: [{ type: "required", message: "[Tanggal] harus dipilih" }]
-        })
-    });
+        const endDate = $("#periodeAkhirID").dxDateBox({
+            onValueChanged: function (e) {
+                const startDateBox = $("#periodeAwalID").dxDateBox("instance");
+                startDateBox.option("max", e.value);
+            }
+        }).dxDateBox("instance");
 
-    $(function () {
         $("#penggunaandataid").dxValidator({
             validationGroup: "Filter",
             validationRules: [{ type: "required", message: "[Penggunaan Data] harus dipilih" }]
-        })
-    });
+        });
 
-    $(function () {
-        $("#namaPEid").dxValidator({
-            validationGroup: "Filter",
-            validationRules: [{ type: "required", message: "[Nama PE] harus dipilih" }]
-        })
+        // Initialize the DataGrid with custom data source
+        $("#grid1").dxDataGrid({
+            dataSource: {
+                load: function (loadOptions) {
+                    console.log("DataGrid load called with params:", currentFilterParams);
+
+                    // Only load data if we have the required filters
+                    if (!currentFilterParams.startDate || !currentFilterParams.endDate || !currentFilterParams.SID) {
+                        return {
+                            data: [],
+                            totalCount: 0
+                        };
+                    }
+
+                    // Prepare parameters for the controller
+                    var params = {
+                        skip: loadOptions.skip || 0,
+                        take: loadOptions.take || 10,
+                        requireTotalCount: loadOptions.requireTotalCount || true,
+                        startDate: currentFilterParams.startDate,
+                        endDate: currentFilterParams.endDate,
+                        SID: currentFilterParams.SID,
+                        Efek: currentFilterParams.Efek
+                    };
+
+                    // Add sorting if specified
+                    if (loadOptions.sort) {
+                        params.sort = JSON.stringify(loadOptions.sort);
+                    }
+
+                    // Add filtering if specified
+                    if (loadOptions.filter) {
+                        params.filter = JSON.stringify(loadOptions.filter);
+                    }
+
+                    console.log("Sending params to controller:", params);
+
+                    return $.ajax({
+                        url: '@Url.Action("GetSTPBalanceData", "MarketDriven")',
+                        type: 'GET',
+                        data: params,
+                        dataType: 'json'
+                    }).done(function (result) {
+                        console.log("Received data:", result);
+                    }).fail(function (xhr, status, error) {
+                        console.error("Error loading data:", error);
+                        console.error("Response:", xhr.responseText);
+                    });
+                }
+            },
+            remoteOperations: true,
+            keyExpr: "rowid",
+            showBorders: true,
+            columns: [
+                { dataField: "rowid", visible: false },
+                {
+                    dataField: "tanggal_balance",
+                    caption: "Tanggal Balance",
+                    dataType: "date",
+                    format: "dd/MM/yyyy",
+                    calculateCellValue: function (data) {
+                        return convertDateFromYYYYMMDD(data.tanggal_balance);
+                    }
+                },
+                { dataField: "sid", caption: "SID" },
+                { dataField: "trading_id", caption: "Trading ID" },
+                { dataField: "efek", caption: "Efek" },
+                { dataField: "subrekening_efek", caption: "Subrekening Efek" },
+                {
+                    dataField: "quantity",
+                    caption: "Quantity",
+                    alignment: "right",
+                    dataType: "number",
+                    format: ",##0"
+                },
+                {
+                    dataField: "price",
+                    caption: "Price",
+                    alignment: "right",
+                    dataType: "number",
+                    format: ",##0"
+                }
+            ],
+            paging: {
+                pageSize: 10,
+                enabled: true
+            },
+            pager: {
+                showInfo: true
+            },
+            scrolling: {
+                showScrollbar: "always"
+            },
+            filterRow: {
+                visible: false
+            },
+            allowColumnResizing: true,
+            width: "100%"
+        });
+
+        // Initialize the Settlement DataGrid (Grid2) with custom data source
+        $("#grid2").dxDataGrid({
+            dataSource: {
+                load: function (loadOptions) {
+                    console.log("Settlement DataGrid load called with params:", currentFilterParams);
+
+                    // Only load data if we have the required filters
+                    if (!currentFilterParams.startDate || !currentFilterParams.endDate || !currentFilterParams.SID) {
+                        return {
+                            data: [],
+                            totalCount: 0
+                        };
+                    }
+
+                    // Prepare parameters for the controller
+                    var params = {
+                        skip: loadOptions.skip || 0,
+                        take: loadOptions.take || 10,
+                        requireTotalCount: loadOptions.requireTotalCount || true,
+                        startDate: currentFilterParams.startDate,
+                        endDate: currentFilterParams.endDate,
+                        SID: currentFilterParams.SID,
+                        Efek: currentFilterParams.Efek
+                    };
+
+                    // Add sorting if specified
+                    if (loadOptions.sort) {
+                        params.sort = JSON.stringify(loadOptions.sort);
+                    }
+
+                    // Add filtering if specified
+                    if (loadOptions.filter) {
+                        params.filter = JSON.stringify(loadOptions.filter);
+                    }
+
+                    console.log("Sending Settlement params to controller:", params);
+
+                    return $.ajax({
+                        url: '@Url.Action("GetSTPSettlementData", "MarketDriven")',
+                        type: 'GET',
+                        data: params,
+                        dataType: 'json'
+                    }).done(function (result) {
+                        console.log("Received Settlement data:", result);
+                    }).fail(function (xhr, status, error) {
+                        console.error("Error loading Settlement data:", error);
+                        console.error("Settlement Response:", xhr.responseText);
+                    });
+                }
+            },
+            remoteOperations: true,
+            keyExpr: "rowid",
+            showBorders: true,
+            columns: [
+                { dataField: "rowid", visible: false },
+                {
+                    dataField: "settlementtransactiondatesk",
+                    caption: "Tanggal Settlement",
+                    dataType: "date",
+                    format: "dd/MM/yyyy",
+                    calculateCellValue: function (data) {
+                        return convertDateFromYYYYMMDD(data.settlementtransactiondatesk);
+                    }
+                },
+                {
+                    dataField: "tradingdatesk",
+                    caption: "Trading Date",
+                    dataType: "date",
+                    format: "dd/MM/yyyy",
+                    calculateCellValue: function (data) {
+                        return convertDateFromYYYYMMDD(data.tradingdatesk);
+                    }
+                },
+                { dataField: "fpinvestorid", caption: "SID" },
+                { dataField: "cpinvestorid", caption: "SID CP" },
+                { dataField: "fpsettlementaccountcode", caption: "FP Settlement Account Code" },
+                { dataField: "cpsettlementaccountcode", caption: "CP Settlement Account Code" }
+            ],
+            paging: {
+                pageSize: 10,
+                enabled: true
+            },
+            pager: {
+                showInfo: true
+            },
+            scrolling: {
+                showScrollbar: "always"
+            },
+            filterRow: {
+                visible: false
+            },
+            allowColumnResizing: true,
+            width: "100%"
+        });
     });
 
     $(window).on('load', function () {
@@ -349,20 +425,17 @@
             return false;
         } else {
             $.ajax({
-                url: '@Url.Action("SimpanPenggunaanData", "SegmentationSummaryClusterMKBD")',
+                url: '@Url.Action("SimpanPenggunaanDataSTP", "MarketDriven")',
                 data: { id: penggunaandataid },
                 dataType: "json",
                 type: "POST",
                 success: function (data) {
                     if (data.success == true) {
-                        //alert(data.message);
-    @* waitingDialog.hide(); *@
-                            $('#ModalSimpanPenggunaanData').modal('hide');
+                        $('#ModalSimpanPenggunaanData').modal('hide');
                         return "Saving Success !";
                     }
                     else if (data.success == false) {
-    @*  waitingDialog.hide(); *@
-                            alert(data.message);
+                        alert(data.message);
                         $('#ModalSimpanPenggunaanData').modal('hide');
                         return "Saving Failed !";
                     }
@@ -371,389 +444,122 @@
         }
     });
 
-    function calculateDateCell(rowData) {
-        if (rowData.tanggal_balance) {
-            var dateStr = rowData.tanggal_balance.toString();
-            var year = dateStr.substring(0, 4);
-            var month = dateStr.substring(4, 6);
-            var day = dateStr.substring(6, 8);
-            return new Date(year, month - 1, day);
-        }
 
-        return null;
-    }
-
-    function calculateDateCell2(rowData) {
-        if (rowData.tradingdatesk) {
-            var dateStr = rowData.tradingdatesk.toString();
-            var year = dateStr.substring(0, 4);
-            var month = dateStr.substring(4, 6);
-            var day = dateStr.substring(6, 8);
-            return new Date(year, month - 1, day);
-        }
-
-        return null;
-    }
-
-    function calculateDateCell3(rowData) {
-        if (rowData.settlementtransactiondatesk) {
-            var dateStr = rowData.settlementtransactiondatesk.toString();
-            var year = dateStr.substring(0, 4);
-            var month = dateStr.substring(4, 6);
-            var day = dateStr.substring(6, 8);
-            return new Date(year, month - 1, day);
-        }
-
-        return null;
-    }
-
-    function calculateDateCell4(rowData) {
-        if (rowData.settlementdatesk) {
-            var dateStr = rowData.settlementdatesk.toString();
-            var year = dateStr.substring(0, 4);
-            var month = dateStr.substring(4, 6);
-            var day = dateStr.substring(6, 8);
-            return new Date(year, month - 1, day);
-        }
-
-        return null;
-    }
-
-    function calculateDateCell5(rowData) {
-        if (rowData.clearingdatesk) {
-            var dateStr = rowData.clearingdatesk.toString();
-            var year = dateStr.substring(0, 4);
-            var month = dateStr.substring(4, 6);
-            var day = dateStr.substring(6, 8);
-            return new Date(year, month - 1, day);
-        }
-
-        return null;
-    }
-
-    function calculateDateCell6(rowData) {
-        if (rowData.settledate) {
-            var dateStr = rowData.settledate.toString();
-            var year = dateStr.substring(0, 4);
-            var month = dateStr.substring(4, 6);
-            var day = dateStr.substring(6, 8);
-            return new Date(year, month - 1, day);
-        }
-
-        return null;
-    }
-
-    function calculateDateCell7(rowData) {
-        if (rowData.tradedatesk) {
-            var dateStr = rowData.tradedatesk.toString();
-            var year = dateStr.substring(0, 4);
-            var month = dateStr.substring(4, 6);
-            var day = dateStr.substring(6, 8);
-            return new Date(year, month - 1, day);
-        }
-
-        return null;
-    }
-
-  
     function onButtonFilterClicked(e) {
-        console.log("Filter button clicked"); // Add this to verify the function is called
-        var calc = 2 + 3;
-        console.log(calc); // Add this to verify the function is called
-        $("#grid1Container").show();
+        const result = e.validationGroup.validate();
 
-        // Get the DataGrid instance
-        var dataGrid = $("#grid1").dxDataGrid("instance");
+        if (result.status === "valid") {
+            // Get filter values
+            var startDate = $("#periodeAwalID").dxDateBox("instance").option("value");
+            var endDate = $("#periodeAkhirID").dxDateBox("instance").option("value");
+            var SID = $("#SID").dxTextBox("instance").option("value");
+            var Efek = $("#EfekID").dxTextBox("instance").option("value");
 
-        // Refresh the grid data
-        dataGrid.refresh();
+            // Convert dates to YYYYMMDD format
+            currentFilterParams = {
+                startDate: dateToYYYYMMDD(startDate),
+                endDate: dateToYYYYMMDD(endDate),
+                SID: SID,
+                Efek: Efek || null
+            };
+
+            console.log("Filter applied:", currentFilterParams);
+
+            // Show both grids
+            $("#grid1Container").show();
+            $("#grid2Container").show();
+
+            // Reload both DataGrids with new parameters
+            var dataGrid1 = $("#grid1").dxDataGrid("instance");
+            var dataGrid2 = $("#grid2").dxDataGrid("instance");
+
+            dataGrid1.refresh();
+            dataGrid2.refresh();
+        } else {
+            console.log("Validation failed:", result);
+            // Show validation errors
+            result.brokenRules.forEach(function (rule) {
+                console.log("Validation error:", rule.message);
+            });
+        }
     }
 
-    
-
-    function formatDateToYYYYMMDD(date) {
-        var d = new Date(date);
-        var year = d.getFullYear();
-        var month = ("0" + (d.getMonth() + 1)).slice(-2);
-        var day = ("0" + d.getDate()).slice(-2);
+    function dateToYYYYMMDD(date) {
+        if (!date) return null;
+        var year = date.getFullYear();
+        var month = (date.getMonth() + 1).toString().padStart(2, '0');
+        var day = date.getDate().toString().padStart(2, '0');
         return year + month + day;
     }
 
-    function onSelectionChanged(e) {
-        if (e.addedItems.length > 0) {
-            e.component.field().val(""); // Clears the search text. However, search filter is only applied to the widget after focus is lost in the input element
+    function convertDateFromYYYYMMDD(dateInt) {
+        if (!dateInt) return null;
+        try {
+            var dateStr = dateInt.toString();
+            if (dateStr.length === 8) {
+                var year = parseInt(dateStr.substring(0, 4));
+                var month = parseInt(dateStr.substring(4, 6)) - 1; // Month is 0-based in JavaScript
+                var day = parseInt(dateStr.substring(6, 8));
+                return new Date(year, month, day);
+            }
+        } catch (e) {
+            console.error("Error converting date:", e);
         }
-    }
-
-    function onButtonFilterClicked(e) {
-        const res = e.validationGroup.validate();
-        if (res.status === "valid") {
-            $("#grid1").dxDataGrid("instance").refresh();
-        }
+        return null;
     }
 
     function exportGridToPDF1() {
         const doc = new jsPDF();
-
-        // Get the DataGrid instance
         const dataGrid = $("#grid1").dxDataGrid("instance");
-
-        // Export DataGrid to PDF
         DevExpress.pdfExporter.exportDataGrid({
             jsPDFDocument: doc,
             component: dataGrid,
             keepColumnWidths: true
         }).then(() => {
-            // Save the PDF with a given file name
-            doc.save('GridData.pdf');
+            doc.save('STP_Balance_Data.pdf');
         });
     }
 
     function exportGridToExcel1() {
         var dataGrid = $("#grid1").dxDataGrid("instance");
-        dataGrid.exportToExcel(false); // 'false' means export all data, not just selected rows
+        dataGrid.exportToExcel(false);
     }
 
     function exportGridToPDF2() {
         const doc = new jsPDF();
-
-        // Get the DataGrid instance
         const dataGrid = $("#grid2").dxDataGrid("instance");
-
-        // Export DataGrid to PDF
         DevExpress.pdfExporter.exportDataGrid({
             jsPDFDocument: doc,
             component: dataGrid,
             keepColumnWidths: true
         }).then(() => {
-            // Save the PDF with a given file name
-            doc.save('GridData.pdf');
+            doc.save('STP_Settlement_Data.pdf');
         });
     }
 
     function exportGridToExcel2() {
         var dataGrid = $("#grid2").dxDataGrid("instance");
-        dataGrid.exportToExcel(false); // 'false' means export all data, not just selected rows
+        dataGrid.exportToExcel(false);
     }
 
-    function exportGridToPDF3() {
-        const doc = new jsPDF();
-
-        // Get the DataGrid instance
-        const dataGrid = $("#grid3").dxDataGrid("instance");
-
-        // Export DataGrid to PDF
-        DevExpress.pdfExporter.exportDataGrid({
-            jsPDFDocument: doc,
-            component: dataGrid,
-            keepColumnWidths: true
-        }).then(() => {
-            // Save the PDF with a given file name
-            doc.save('GridData.pdf');
-        });
-    }
-
-    function exportGridToExcel3() {
-        var dataGrid = $("#grid3").dxDataGrid("instance");
-        dataGrid.exportToExcel(false); // 'false' means export all data, not just selected rows
-    }
-
-    function exportGridToPDF4() {
-        const doc = new jsPDF();
-
-        // Get the DataGrid instance
-        const dataGrid = $("#grid4").dxDataGrid("instance");
-
-        // Export DataGrid to PDF
-        DevExpress.pdfExporter.exportDataGrid({
-            jsPDFDocument: doc,
-            component: dataGrid,
-            keepColumnWidths: true
-        }).then(() => {
-            // Save the PDF with a given file name
-            doc.save('GridData.pdf');
-        });
-    }
-
-    function exportGridToExcel4() {
-        var dataGrid = $("#grid4").dxDataGrid("instance");
-        dataGrid.exportToExcel(false); // 'false' means export all data, not just selected rows
-    }
-
-    var waitingDialog = (function ($) {
-
-        // Creating modal dialog's DOM
-        var $dialog = $(
-            '<div class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">' +
-            '<div class="modal-dialog modal-m">' +
-            '<div class="modal-content">' +
-            '<div class="modal-header"><h3 style="margin:0;"></h3></div>' +
-            '<div class="modal-body">' +
-            '<div class="progress progress-striped active" style="margin-bottom:0;"><div class="progress-bar" style="width: 100%"></div></div>' +
-            '</div></div></div></div>');
-
-        return {
-            show: function (message, options) {
-                // Assigning defaults
-                var settings = $.extend({
-                    dialogSize: 'm',
-                    progressType: ''
-                }, options);
-                if (typeof message === 'undefined') {
-                    message = 'Loading';
-                }
-                if (typeof options === 'undefined') {
-                    options = {};
-                }
-                // Configuring dialog
-                $dialog.find('.modal-dialog').attr('class', 'modal-dialog').addClass('modal-' + settings.dialogSize);
-                $dialog.find('.progress-bar').attr('class', 'progress-bar');
-                if (settings.progressType) {
-                    $dialog.find('.progress-bar').addClass('progress-bar-' + settings.progressType);
-                }
-                $dialog.find('h3').text(message);
-                // Opening dialog
-                $dialog.modal();
-            },
-            /**
-                * Closes dialog
-                */
-            hide: function () {
-                $dialog.modal('hide');
-            }
-        }
-    })(jQuery);
-
-    $(document).ready(function () {
-        $("#filterButton").dxButton({
-            onClick: function (e) {
-
-                // Get filter values
-                var startDate = $("#periodeAwalID").dxDateBox("instance").option("value");
-                var endDate = $("#periodeAkhirID").dxDateBox("instance").option("value");
-                var SID = $("#SID").dxTextBox("instance").option("value");
-                var Efek = $("#EfekID").dxTextBox("instance").option("value");
-
-                var startDateInt = dateToYYYYMMDD(startDate);
-                var endDateInt = dateToYYYYMMDD(endDate);
-
-
-                console.log("Filter button clicked");
-                console.log(startDate);
-                console.log(endDate);
-                console.log(SID);
-                console.log(Efek);
-
-                $("#grid1Container").show();
-                $("#grid2Container").show();
-                $("#grid3Container").show();
-                $("#grid4Container").show();
-
-               
-                //filter grid1
-                var filterconditions1 =[
-                    ["tanggal_balance", ">=", startDateInt],
-                    "and",
-                    ["tanggal_balance", "<=", endDateInt]
-                ];
-
-                if (SID) {
-                    filterconditions1.push("and");
-                    filterconditions1.push(["sid", "=", SID]);
-                }
-
-                if (Efek) {
-                    filterconditions1.push("and");
-                    filterconditions1.push(["efek", "=", Efek]);
-                }
-
-                //filtergrid2
-                var filterconditions2 = [
-                    ["settlementtransactiondatesk", ">=", startDateInt],
-                    "and",
-                    ["settlementtransactiondatesk", "<=", endDateInt]
-                ];
-
-                if (SID) {
-                    filterconditions2.push("and");
-                    filterconditions2.push(["fpinvestorid", "=", SID]);
-                }
-
-                if (Efek) {
-                    filterconditions2.push("and");
-                    filterconditions2.push(["securitycode", "=", Efek]);
-                }
-
-                //filtergrid3
-                var filterconditions3 = [
-                    ["clearingdatesk", ">=", startDateInt],
-                    "and",
-                    ["clearingdatesk", "<=", endDateInt]
-                ];
-
-                if (SID) {
-                    filterconditions3.push("and");
-                    filterconditions3.push(["investorid", "=", SID]);
-                }
-
-                if (Efek) {
-                    filterconditions3.push("and");
-                    filterconditions3.push(["securitycode", "=", Efek]);
-                }
-
-                //filtergrid4
-                var filterconditions4 = [
-                    ["tradedatesk", ">=", startDateInt],
-                    "and",
-                    ["tradedatesk", "<=", endDateInt]
-                ];
-
-                if (SID) {
-                    filterconditions4.push("and");
-                    filterconditions4.push(["sid", "=", SID]);
-                }
-
-                if (Efek) {
-                    filterconditions4.push("and");
-                    filterconditions4.push(["securitycode", "=", Efek]);
-                }
-
-                var dataGrid1 = $("#grid1").dxDataGrid("instance");
-                dataGrid1.filter(filterconditions1);
-
-                var dataGrid2 = $("#grid2").dxDataGrid("instance");
-                dataGrid2.filter(filterconditions2);
-
-                var dataGrid3 = $("#grid3").dxDataGrid("instance");
-                dataGrid3.filter(filterconditions3);
-
-
-                var dataGrid4 = $("#grid4").dxDataGrid("instance");
-                dataGrid4.filter(filterconditions4);
-
-                dataGrid1.refresh();
-                dataGrid2.refresh();
-                dataGrid3.refresh();
-                dataGrid4.refresh();
-            }
-        });
-    });
-
-    function dateToYYYYMMDD(date) {
-        var year = date.getFullYear();
-        var month = (date.getMonth() + 1).toString().padStart(2, '0');
-        var day = date.getDate().toString().padStart(2, '0');
-        return parseInt(year + month + day);
-    }
+    // Placeholder export functions for other grids
+    function exportGridToPDF2() { console.log("PDF export for grid2"); }
+    function exportGridToExcel2() { console.log("Excel export for grid2"); }
+    function exportGridToPDF3() { console.log("PDF export for grid3"); }
+    function exportGridToExcel3() { console.log("Excel export for grid3"); }
+    function exportGridToPDF4() { console.log("PDF export for grid4"); }
+    function exportGridToExcel4() { console.log("Excel export for grid4"); }
 </script>
 
 <style type="text/css">
     .mandatory {
         color: red;
     }
+
     .filter-panel {
         margin-bottom: 10px;
     }
+
     .headerTable {
         box-sizing: border-box;
         background-color: #971c1d;

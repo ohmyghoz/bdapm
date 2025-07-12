@@ -207,6 +207,72 @@ namespace BDA.Controllers
             return Json(result);
         }
 
+        [HttpGet]
+        public object GetSTPBalanceData(DataSourceLoadOptions loadOptions,
+    string startDate, string endDate, string SID, string Efek)
+        {
+            try
+            {
+                // Log the received parameters
+                System.Diagnostics.Debug.WriteLine($"Received parameters - Start: {startDate}, End: {endDate}, SID: {SID}, Efek: {Efek}");
+
+                // Call the WSQueryPS helper method directly with the YYYYMMDD formatted dates
+                var result = Helper.WSQueryPS.GetSTPBalanceData(db, loadOptions,
+                    startDate, endDate, SID, Efek);
+
+                System.Diagnostics.Debug.WriteLine($"Query result count: {result?.data?.Rows?.Count ?? 0}");
+
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in GetSTPBalanceData: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
+                return Json(new { error = ex.Message, stackTrace = ex.StackTrace });
+            }
+        }
+
+        public ActionResult SimpanPenggunaanDataSTP(string id)
+        {
+            string message = "";
+            string Penggunaan_Data = "";
+            bool result = true;
+            var userId = HttpContext.User.Identity.Name;
+
+            var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+            var currentNode = mdl.GetCurrentNode();
+            string pageTitle = currentNode != null ? currentNode.Title : "";
+
+            db.InsertAuditTrail("STP_Processing_Akses_Page", "user " + userId + " mengakses halaman STP Processing untuk digunakan sebagai " + Penggunaan_Data + "", pageTitle);
+
+            try
+            {
+                string strSQL = db.appSettings.DataConnString;
+                using (SqlConnection conn = new SqlConnection(strSQL))
+                {
+                    conn.Open();
+                    string strQuery = "Select * from MasterPenggunaanData where id=" + id + " order by id asc ";
+                    SqlDataAdapter da = new SqlDataAdapter(strQuery, conn);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+                    if (dt.Rows.Count > 0)
+                    {
+                        Penggunaan_Data = dt.Rows[0]["Penggunaan_Data"].ToString();
+                    }
+                    conn.Close();
+                    conn.Dispose();
+                }
+                result = true;
+            }
+            catch (Exception ex)
+            {
+                string errMsg = ex.Message;
+                message = "Saving Failed !, " + " " + errMsg;
+                result = false;
+            }
+            return Json(new { message, success = result }, new Newtonsoft.Json.JsonSerializerSettings());
+        }
+
         public ActionResult SimpanPenggunaanData(string id)
         {
             string message = "";
@@ -374,6 +440,46 @@ namespace BDA.Controllers
             }
 
             return dataList;
+        }
+
+        [HttpGet]
+        public object GetSTPSettlementData(DataSourceLoadOptions loadOptions,
+            string startDate, string endDate, string SID, string Efek)
+        {
+            try
+            {
+                // Log the received parameters
+                System.Diagnostics.Debug.WriteLine("=== SETTLEMENT CONTROLLER DEBUG ===");
+                System.Diagnostics.Debug.WriteLine($"Settlement received parameters - Start: {startDate}, End: {endDate}, SID: {SID}, Efek: {Efek}");
+                System.Diagnostics.Debug.WriteLine($"LoadOptions - Skip: {loadOptions.Skip}, Take: {loadOptions.Take}");
+                System.Diagnostics.Debug.WriteLine($"LoadOptions - RequireTotalCount: {loadOptions.RequireTotalCount}");
+
+                // Log before calling WSQueryPS
+                System.Diagnostics.Debug.WriteLine("=== CALLING WSQueryPS SETTLEMENT ===");
+                System.Diagnostics.Debug.WriteLine($"About to call WSQueryPS.GetSTPSettlementData with:");
+                System.Diagnostics.Debug.WriteLine($"  - startDate: '{startDate}'");
+                System.Diagnostics.Debug.WriteLine($"  - endDate: '{endDate}'");
+                System.Diagnostics.Debug.WriteLine($"  - SID: '{SID}'");
+                System.Diagnostics.Debug.WriteLine($"  - Efek: '{Efek}'");
+
+                // Call the WSQueryPS helper method
+                var result = Helper.WSQueryPS.GetSTPSettlementData(db, loadOptions,
+                    startDate, endDate, SID, Efek);
+
+                // Log the result
+                System.Diagnostics.Debug.WriteLine("=== WSQueryPS SETTLEMENT RESULT ===");
+                System.Diagnostics.Debug.WriteLine($"Query result count: {result?.data?.Rows?.Count ?? 0}");
+               
+
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("=== SETTLEMENT CONTROLLER ERROR ===");
+                System.Diagnostics.Debug.WriteLine($"Error in GetSTPSettlementData: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
+                return Json(new { error = ex.Message, stackTrace = ex.StackTrace });
+            }
         }
         public ActionResult SimpanPenggunaanDataVDT(string id)
         {
