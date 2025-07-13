@@ -1275,6 +1275,110 @@ namespace BDA.Helper
                 throw;
             }
         }
+
+        public static WSQueryReturns GetSTPClearingData(DataEntities db, DataSourceLoadOptions loadOptions,
+    string startDate, string endDate, string SID, string Efek)
+        {
+            System.Diagnostics.Debug.WriteLine("=== WSQueryPS CLEARING DEBUG START ===");
+            System.Diagnostics.Debug.WriteLine($"WSQueryPS Clearing received parameters:");
+            System.Diagnostics.Debug.WriteLine($"  - startDate: '{startDate}' (Type: {startDate?.GetType()})");
+            System.Diagnostics.Debug.WriteLine($"  - endDate: '{endDate}' (Type: {endDate?.GetType()})");
+            System.Diagnostics.Debug.WriteLine($"  - SID: '{SID}' (Type: {SID?.GetType()})");
+            System.Diagnostics.Debug.WriteLine($"  - Efek: '{Efek}' (Type: {Efek?.GetType()})");
+
+            bool isC = false;
+            var whereQuery = "1=1";
+
+            System.Diagnostics.Debug.WriteLine("=== BUILDING CLEARING WHERE CLAUSE ===");
+            System.Diagnostics.Debug.WriteLine($"Initial whereQuery: {whereQuery}");
+
+            // Build the WHERE clause based on provided filters
+            if (!string.IsNullOrEmpty(startDate))
+            {
+                whereQuery += " AND settlementdatesk >= " + startDate;
+                System.Diagnostics.Debug.WriteLine($"Added startDate condition: {whereQuery}");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("StartDate is null or empty - skipping");
+            }
+
+            if (!string.IsNullOrEmpty(endDate))
+            {
+                whereQuery += " AND settlementdatesk <= " + endDate;
+                System.Diagnostics.Debug.WriteLine($"Added endDate condition: {whereQuery}");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("EndDate is null or empty - skipping");
+            }
+
+            if (!string.IsNullOrEmpty(SID))
+            {
+                string escapedSID = "'" + SID.Replace("'", "''") + "'"; // Prevent SQL injection
+                whereQuery += " AND investorid = " + escapedSID;
+                System.Diagnostics.Debug.WriteLine($"Added SID condition: {whereQuery}");
+                System.Diagnostics.Debug.WriteLine($"Escaped SID: {escapedSID}");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("SID is null or empty - skipping");
+            }
+
+            // Note: For Clearing, we're not filtering by Efek since it's not mentioned in the requirements
+            // If you need to filter by a security code field, you can add it here
+
+            var props = new WSQueryProperties();
+
+            // Build the complete query for Clearing
+            string baseQuery = @"
+      SELECT 
+            ROW_NUMBER() OVER (ORDER BY settlementdatesk, investorid) as rowid,
+            settlementdatesk,
+            clearingdatesk,
+            investorid,
+            securitycompanycode,
+            ISNULL(clearingobligationquantity, '0') as clearingobligationquantity
+        FROM BDAPM.pasarmodal.market_driven_stp_clearing
+        WHERE " + whereQuery;
+
+
+            props.Query = baseQuery;
+
+            System.Diagnostics.Debug.WriteLine("=== FINAL CLEARING SQL QUERY ===");
+            System.Diagnostics.Debug.WriteLine($"Complete SQL Query:");
+            System.Diagnostics.Debug.WriteLine(props.Query);
+            System.Diagnostics.Debug.WriteLine("=== END CLEARING SQL QUERY ===");
+
+            System.Diagnostics.Debug.WriteLine("=== CALLING WSQueryHelper.DoQuery FOR CLEARING ===");
+
+            try
+            {
+                var result = WSQueryHelper.DoQuery(db, props, loadOptions, isC, false);
+
+                System.Diagnostics.Debug.WriteLine("=== CLEARING WSQueryHelper.DoQuery RESULT ===");
+                System.Diagnostics.Debug.WriteLine($"Data rows count: {result?.data?.Rows?.Count ?? 0}");
+
+                if (result?.data?.Rows?.Count > 0)
+                {
+                    System.Diagnostics.Debug.WriteLine("=== CLEARING SAMPLE DATA (First Row) ===");
+                    var firstRow = result.data.Rows[0];
+                    foreach (DataColumn column in result.data.Columns)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"  {column.ColumnName}: {firstRow[column.ColumnName]}");
+                    }
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("=== CLEARING WSQueryHelper.DoQuery ERROR ===");
+                System.Diagnostics.Debug.WriteLine($"Error in Clearing WSQueryHelper.DoQuery: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
+                throw;
+            }
+        }
         public static WSQueryReturns GetBDAPMSegmentasiTransaksiGrid(DataEntities db, DataSourceLoadOptions loadOptions, string periodes, string stringPE, string jenisTransaksi)
         {
             bool isC = false;

@@ -411,6 +411,106 @@
             allowColumnResizing: true,
             width: "100%"
         });
+
+        // Initialize the Clearing DataGrid (Grid3) with custom data source
+        $("#grid3").dxDataGrid({
+            dataSource: {
+                load: function (loadOptions) {
+                    console.log("Clearing DataGrid load called with params:", currentFilterParams);
+
+                    // Only load data if we have the required filters
+                    if (!currentFilterParams.startDate || !currentFilterParams.endDate || !currentFilterParams.SID) {
+                        return {
+                            data: [],
+                            totalCount: 0
+                        };
+                    }
+
+                    // Prepare parameters for the controller
+                    var params = {
+                        skip: loadOptions.skip || 0,
+                        take: loadOptions.take || 10,
+                        requireTotalCount: loadOptions.requireTotalCount || true,
+                        startDate: currentFilterParams.startDate,
+                        endDate: currentFilterParams.endDate,
+                        SID: currentFilterParams.SID,
+                        Efek: currentFilterParams.Efek
+                    };
+
+                    // Add sorting if specified
+                    if (loadOptions.sort) {
+                        params.sort = JSON.stringify(loadOptions.sort);
+                    }
+
+                    // Add filtering if specified
+                    if (loadOptions.filter) {
+                        params.filter = JSON.stringify(loadOptions.filter);
+                    }
+
+                    console.log("Sending Clearing params to controller:", params);
+
+                    return $.ajax({
+                        url: '@Url.Action("GetSTPClearingData", "MarketDriven")',
+                        type: 'GET',
+                        data: params,
+                        dataType: 'json'
+                    }).done(function (result) {
+                        console.log("Received Clearing data:", result);
+                    }).fail(function (xhr, status, error) {
+                        console.error("Error loading Clearing data:", error);
+                        console.error("Clearing Response:", xhr.responseText);
+                    });
+                }
+            },
+            remoteOperations: true,
+            keyExpr: "rowid",
+            showBorders: true,
+            columns: [
+                { dataField: "rowid", visible: false },
+                {
+                    dataField: "settlementdatesk",
+                    caption: "Tanggal Settlement",
+                    dataType: "date",
+                    format: "dd/MM/yyyy",
+                    calculateCellValue: function (data) {
+                        return convertDateFromYYYYMMDD(data.settlementdatesk);
+                    }
+                },
+                {
+                    dataField: "clearingdatesk",
+                    caption: "Tanggal Clearing",
+                    dataType: "date",
+                    format: "dd/MM/yyyy",
+                    calculateCellValue: function (data) {
+                        return convertDateFromYYYYMMDD(data.clearingdatesk);
+                    }
+                },
+                { dataField: "investorid", caption: "SID" },
+                { dataField: "securitycompanycode", caption: "Security Company Code" },
+                {
+                    dataField: "clearingobligationquantity",
+                    caption: "Clearing Obligation Quantity",
+                    alignment: "right",
+                    dataType: "number",
+                    format: ",##0"
+                }
+            ],
+            paging: {
+                pageSize: 10,
+                enabled: true
+            },
+            pager: {
+                showInfo: true
+            },
+            scrolling: {
+                showScrollbar: "always"
+            },
+            filterRow: {
+                visible: false
+            },
+            allowColumnResizing: true,
+            width: "100%"
+        });
     });
 
     $(window).on('load', function () {
@@ -465,16 +565,19 @@
 
             console.log("Filter applied:", currentFilterParams);
 
-            // Show both grids
+            // Show all three grids
             $("#grid1Container").show();
             $("#grid2Container").show();
+            $("#grid3Container").show();
 
-            // Reload both DataGrids with new parameters
+            // Reload all three DataGrids with new parameters
             var dataGrid1 = $("#grid1").dxDataGrid("instance");
             var dataGrid2 = $("#grid2").dxDataGrid("instance");
+            var dataGrid3 = $("#grid3").dxDataGrid("instance");
 
             dataGrid1.refresh();
             dataGrid2.refresh();
+            dataGrid3.refresh();
         } else {
             console.log("Validation failed:", result);
             // Show validation errors
@@ -539,6 +642,24 @@
 
     function exportGridToExcel2() {
         var dataGrid = $("#grid2").dxDataGrid("instance");
+        dataGrid.exportToExcel(false);
+    }
+
+
+    function exportGridToPDF3() {
+        const doc = new jsPDF();
+        const dataGrid = $("#grid3").dxDataGrid("instance");
+        DevExpress.pdfExporter.exportDataGrid({
+            jsPDFDocument: doc,
+            component: dataGrid,
+            keepColumnWidths: true
+        }).then(() => {
+            doc.save('STP_Clearing_Data.pdf');
+        });
+    }
+
+    function exportGridToExcel3() {
+        var dataGrid = $("#grid3").dxDataGrid("instance");
         dataGrid.exportToExcel(false);
     }
 
