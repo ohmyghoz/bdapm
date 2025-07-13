@@ -520,6 +520,45 @@ namespace BDA.Controllers
                 return Json(new { error = ex.Message, stackTrace = ex.StackTrace });
             }
         }
+        [HttpGet]
+        public object GetSTPTransactionData(DataSourceLoadOptions loadOptions,
+    string startDate, string endDate, string SID, string Efek)
+        {
+            try
+            {
+                // Log the received parameters
+                System.Diagnostics.Debug.WriteLine("=== TRANSACTION CONTROLLER DEBUG ===");
+                System.Diagnostics.Debug.WriteLine($"Transaction received parameters - Start: {startDate}, End: {endDate}, SID: {SID}, Efek: {Efek}");
+                System.Diagnostics.Debug.WriteLine($"LoadOptions - Skip: {loadOptions.Skip}, Take: {loadOptions.Take}");
+                System.Diagnostics.Debug.WriteLine($"LoadOptions - RequireTotalCount: {loadOptions.RequireTotalCount}");
+
+                // Log before calling WSQueryPS
+                System.Diagnostics.Debug.WriteLine("=== CALLING WSQueryPS TRANSACTION ===");
+                System.Diagnostics.Debug.WriteLine($"About to call WSQueryPS.GetSTPTransactionData with:");
+                System.Diagnostics.Debug.WriteLine($"  - startDate: '{startDate}'");
+                System.Diagnostics.Debug.WriteLine($"  - endDate: '{endDate}'");
+                System.Diagnostics.Debug.WriteLine($"  - SID: '{SID}'");
+                System.Diagnostics.Debug.WriteLine($"  - Efek: '{Efek}'");
+
+                // Call the WSQueryPS helper method
+                var result = Helper.WSQueryPS.GetSTPTransactionData(db, loadOptions,
+                    startDate, endDate, SID, Efek);
+
+                // Log the result
+                System.Diagnostics.Debug.WriteLine("=== WSQueryPS TRANSACTION RESULT ===");
+                System.Diagnostics.Debug.WriteLine($"Query result count: {result?.data?.Rows?.Count ?? 0}");
+
+
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("=== TRANSACTION CONTROLLER ERROR ===");
+                System.Diagnostics.Debug.WriteLine($"Error in GetSTPTransactionData: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
+                return Json(new { error = ex.Message, stackTrace = ex.StackTrace });
+            }
+        }
         public ActionResult SimpanPenggunaanDataVDT(string id)
         {
             string message = "";

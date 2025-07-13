@@ -1379,6 +1379,125 @@ namespace BDA.Helper
                 throw;
             }
         }
+        public static WSQueryReturns GetSTPTransactionData(DataEntities db, DataSourceLoadOptions loadOptions,
+    string startDate, string endDate, string SID, string Efek)
+        {
+            System.Diagnostics.Debug.WriteLine("=== WSQueryPS TRANSACTION DEBUG START ===");
+            System.Diagnostics.Debug.WriteLine($"WSQueryPS Transaction received parameters:");
+            System.Diagnostics.Debug.WriteLine($"  - startDate: '{startDate}' (Type: {startDate?.GetType()})");
+            System.Diagnostics.Debug.WriteLine($"  - endDate: '{endDate}' (Type: {endDate?.GetType()})");
+            System.Diagnostics.Debug.WriteLine($"  - SID: '{SID}' (Type: {SID?.GetType()})");
+            System.Diagnostics.Debug.WriteLine($"  - Efek: '{Efek}' (Type: {Efek?.GetType()})");
+
+            bool isC = false;
+            var whereQuery = "1=1";
+
+            System.Diagnostics.Debug.WriteLine("=== BUILDING TRANSACTION WHERE CLAUSE ===");
+            System.Diagnostics.Debug.WriteLine($"Initial whereQuery: {whereQuery}");
+
+            // Build the WHERE clause based on provided filters
+            if (!string.IsNullOrEmpty(startDate))
+            {
+                whereQuery += " AND settledate >= " + startDate;
+                System.Diagnostics.Debug.WriteLine($"Added startDate condition: {whereQuery}");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("StartDate is null or empty - skipping");
+            }
+
+            if (!string.IsNullOrEmpty(endDate))
+            {
+                whereQuery += " AND settledate <= " + endDate;
+                System.Diagnostics.Debug.WriteLine($"Added endDate condition: {whereQuery}");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("EndDate is null or empty - skipping");
+            }
+
+            if (!string.IsNullOrEmpty(SID))
+            {
+                string escapedSID = "'" + SID.Replace("'", "''") + "'"; // Prevent SQL injection
+                whereQuery += " AND sid = " + escapedSID;
+                System.Diagnostics.Debug.WriteLine($"Added SID condition: {whereQuery}");
+                System.Diagnostics.Debug.WriteLine($"Escaped SID: {escapedSID}");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("SID is null or empty - skipping");
+            }
+
+            if (!string.IsNullOrEmpty(Efek))
+            {
+                string escapedEfek = "'" + Efek.Replace("'", "''") + "'"; // Prevent SQL injection
+                whereQuery += " AND securitycode = " + escapedEfek;
+                System.Diagnostics.Debug.WriteLine($"Added Efek condition: {whereQuery}");
+                System.Diagnostics.Debug.WriteLine($"Escaped Efek: {escapedEfek}");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("Efek is null or empty - skipping");
+            }
+
+            var props = new WSQueryProperties();
+
+            // Build the complete query for Transaction with transaction type translation
+            string baseQuery = @"
+        SELECT 
+            ROW_NUMBER() OVER (ORDER BY settledate, sid) as rowid,
+            settledate,
+            tradedatesk,
+            sid,
+            investorcode,
+            cpinvestorcode,
+            securitycode,
+            transactiontypecode,
+            CASE 
+                WHEN transactiontypecode = 'B' THEN 'Buy'
+                WHEN transactiontypecode = 'S' THEN 'Sell'
+                ELSE transactiontypecode
+            END as transactiontypedesc,
+            volume
+        FROM BDAPM.pasarmodal.market_driven_stp_tra
+        WHERE " + whereQuery;
+
+            props.Query = baseQuery;
+
+            System.Diagnostics.Debug.WriteLine("=== FINAL TRANSACTION SQL QUERY ===");
+            System.Diagnostics.Debug.WriteLine($"Complete SQL Query:");
+            System.Diagnostics.Debug.WriteLine(props.Query);
+            System.Diagnostics.Debug.WriteLine("=== END TRANSACTION SQL QUERY ===");
+
+            System.Diagnostics.Debug.WriteLine("=== CALLING WSQueryHelper.DoQuery FOR TRANSACTION ===");
+
+            try
+            {
+                var result = WSQueryHelper.DoQuery(db, props, loadOptions, isC, false);
+
+                System.Diagnostics.Debug.WriteLine("=== TRANSACTION WSQueryHelper.DoQuery RESULT ===");
+                System.Diagnostics.Debug.WriteLine($"Data rows count: {result?.data?.Rows?.Count ?? 0}");
+
+                if (result?.data?.Rows?.Count > 0)
+                {
+                    System.Diagnostics.Debug.WriteLine("=== TRANSACTION SAMPLE DATA (First Row) ===");
+                    var firstRow = result.data.Rows[0];
+                    foreach (DataColumn column in result.data.Columns)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"  {column.ColumnName}: {firstRow[column.ColumnName]}");
+                    }
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("=== TRANSACTION WSQueryHelper.DoQuery ERROR ===");
+                System.Diagnostics.Debug.WriteLine($"Error in Transaction WSQueryHelper.DoQuery: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
+                throw;
+            }
+        }
         public static WSQueryReturns GetBDAPMSegmentasiTransaksiGrid(DataEntities db, DataSourceLoadOptions loadOptions, string periodes, string stringPE, string jenisTransaksi)
         {
             bool isC = false;

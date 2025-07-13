@@ -274,7 +274,7 @@
                 { dataField: "rowid", visible: false },
                 {
                     dataField: "tanggal_balance",
-                    caption: "Tanggal Balance",
+                    caption: "Tgl. Balance",
                     dataType: "date",
                     format: "dd/MM/yyyy",
                     calculateCellValue: function (data) {
@@ -374,7 +374,7 @@
                 { dataField: "rowid", visible: false },
                 {
                     dataField: "settlementtransactiondatesk",
-                    caption: "Tanggal Settlement",
+                    caption: "Tgl. Settlement",
                     dataType: "date",
                     format: "dd/MM/yyyy",
                     calculateCellValue: function (data) {
@@ -469,7 +469,7 @@
                 { dataField: "rowid", visible: false },
                 {
                     dataField: "settlementdatesk",
-                    caption: "Tanggal Settlement",
+                    caption: "Tgl. Settlement",
                     dataType: "date",
                     format: "dd/MM/yyyy",
                     calculateCellValue: function (data) {
@@ -478,7 +478,7 @@
                 },
                 {
                     dataField: "clearingdatesk",
-                    caption: "Tanggal Clearing",
+                    caption: "Tgl. Clearing",
                     dataType: "date",
                     format: "dd/MM/yyyy",
                     calculateCellValue: function (data) {
@@ -490,6 +490,116 @@
                 {
                     dataField: "clearingobligationquantity",
                     caption: "Clearing Obligation Quantity",
+                    alignment: "right",
+                    dataType: "number",
+                    format: ",##0"
+                }
+            ],
+            paging: {
+                pageSize: 10,
+                enabled: true
+            },
+            pager: {
+                showInfo: true
+            },
+            scrolling: {
+                showScrollbar: "always"
+            },
+            filterRow: {
+                visible: false
+            },
+            allowColumnResizing: true,
+            width: "100%"
+        });
+
+        // Initialize the Transaction DataGrid (Grid4) with custom data source
+        $("#grid4").dxDataGrid({
+            dataSource: {
+                load: function (loadOptions) {
+                    console.log("Transaction DataGrid load called with params:", currentFilterParams);
+
+                    // Only load data if we have the required filters
+                    if (!currentFilterParams.startDate || !currentFilterParams.endDate || !currentFilterParams.SID) {
+                        return {
+                            data: [],
+                            totalCount: 0
+                        };
+                    }
+
+                    // Prepare parameters for the controller
+                    var params = {
+                        skip: loadOptions.skip || 0,
+                        take: loadOptions.take || 10,
+                        requireTotalCount: loadOptions.requireTotalCount || true,
+                        startDate: currentFilterParams.startDate,
+                        endDate: currentFilterParams.endDate,
+                        SID: currentFilterParams.SID,
+                        Efek: currentFilterParams.Efek
+                    };
+
+                    // Add sorting if specified
+                    if (loadOptions.sort) {
+                        params.sort = JSON.stringify(loadOptions.sort);
+                    }
+
+                    // Add filtering if specified
+                    if (loadOptions.filter) {
+                        params.filter = JSON.stringify(loadOptions.filter);
+                    }
+
+                    console.log("Sending Transaction params to controller:", params);
+
+                    return $.ajax({
+                        url: '@Url.Action("GetSTPTransactionData", "MarketDriven")',
+                        type: 'GET',
+                        data: params,
+                        dataType: 'json'
+                    }).done(function (result) {
+                        console.log("Received Transaction data:", result);
+                    }).fail(function (xhr, status, error) {
+                        console.error("Error loading Transaction data:", error);
+                        console.error("Transaction Response:", xhr.responseText);
+                    });
+                }
+            },
+            remoteOperations: true,
+            keyExpr: "rowid",
+            showBorders: true,
+            columns: [
+                { dataField: "rowid", visible: false },
+                {
+                    dataField: "settledate",
+                    caption: "Tgl. Settlement",
+                    dataType: "date",
+                    format: "dd/MM/yyyy",
+                    calculateCellValue: function (data) {
+                        return convertDateFromYYYYMMDD(data.settledate);
+                    }
+                },
+                {
+                    dataField: "tradedatesk",
+                    caption: "Tgl. Trading",
+                    dataType: "date",
+                    format: "dd/MM/yyyy",
+                    calculateCellValue: function (data) {
+                        return convertDateFromYYYYMMDD(data.tradedatesk);
+                    }
+                },
+                { dataField: "sid", caption: "SID" },
+                { dataField: "investorcode", caption: "Trading ID" },
+                { dataField: "cpinvestorcode", caption: "CP Trading ID" },
+                { dataField: "securitycode", caption: "Security Code" },
+                {
+                    dataField: "transactiontypedesc",
+                    caption: "Transaction Type Code",
+                    calculateCellValue: function (data) {
+                        // Display the translated description (Buy/Sell) but keep original code for sorting
+                        return data.transactiontypedesc || data.transactiontypecode;
+                    }
+                },
+                {
+                    dataField: "volume",
+                    caption: "Volume",
                     alignment: "right",
                     dataType: "number",
                     format: ",##0"
@@ -545,6 +655,8 @@
     });
 
 
+    // Replace your existing onButtonFilterClicked function with this final version
+
     function onButtonFilterClicked(e) {
         const result = e.validationGroup.validate();
 
@@ -565,19 +677,22 @@
 
             console.log("Filter applied:", currentFilterParams);
 
-            // Show all three grids
+            // Show all four grids
             $("#grid1Container").show();
             $("#grid2Container").show();
             $("#grid3Container").show();
+            $("#grid4Container").show();
 
-            // Reload all three DataGrids with new parameters
+            // Reload all four DataGrids with new parameters
             var dataGrid1 = $("#grid1").dxDataGrid("instance");
             var dataGrid2 = $("#grid2").dxDataGrid("instance");
             var dataGrid3 = $("#grid3").dxDataGrid("instance");
+            var dataGrid4 = $("#grid4").dxDataGrid("instance");
 
             dataGrid1.refresh();
             dataGrid2.refresh();
             dataGrid3.refresh();
+            dataGrid4.refresh();
         } else {
             console.log("Validation failed:", result);
             // Show validation errors
@@ -660,6 +775,25 @@
 
     function exportGridToExcel3() {
         var dataGrid = $("#grid3").dxDataGrid("instance");
+        dataGrid.exportToExcel(false);
+    }
+
+    // Update these export functions for Transaction grid (replace the placeholder functions)
+
+    function exportGridToPDF4() {
+        const doc = new jsPDF();
+        const dataGrid = $("#grid4").dxDataGrid("instance");
+        DevExpress.pdfExporter.exportDataGrid({
+            jsPDFDocument: doc,
+            component: dataGrid,
+            keepColumnWidths: true
+        }).then(() => {
+            doc.save('STP_Transaction_Data.pdf');
+        });
+    }
+
+    function exportGridToExcel4() {
+        var dataGrid = $("#grid4").dxDataGrid("instance");
         dataGrid.exportToExcel(false);
     }
 
