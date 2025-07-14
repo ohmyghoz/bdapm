@@ -704,6 +704,155 @@ namespace BDA.Controllers
                 return BadRequest($"Error processing file: {ex.Message}");
             }
         }
+
+        [HttpGet]
+        public JsonResult GetMarketChartData(string chartType = "Value", string startDate = null, string endDate = null, string singleDate = null)
+        {
+            try
+            {
+                System.Diagnostics.Debug.WriteLine("=== CONTROLLER CHART DEBUG ===");
+                System.Diagnostics.Debug.WriteLine($"Controller Chart - Type: {chartType}, Single: {singleDate}, Start: {startDate}, End: {endDate}");
+
+                // Call WSQueryPS method (for first version - direct SQL)
+                var result = Helper.WSQueryPS.GetMarketChartData(db, chartType, startDate, endDate, singleDate);
+
+                // OR if using second version with loadOptions:
+                // var result = Helper.WSQueryPS.GetMarketChartData(db, chartType, startDate, endDate, singleDate, null);
+
+                // Check if we have valid data
+                bool hasData = result?.data != null && result.data.Rows != null && result.data.Rows.Count > 0;
+
+                if (hasData)
+                {
+                    // Convert DataTable to List for DevExtreme
+                    var chartData = new List<object>();
+
+                    foreach (DataRow row in result.data.Rows)
+                    {
+                        chartData.Add(new
+                        {
+                            date = row["date"],
+                            value = row["value"] ?? 0,
+                            calendarsk = row["calendarsk"]
+                        });
+                    }
+
+                    System.Diagnostics.Debug.WriteLine($"Controller Chart - Returning {chartData.Count} data points");
+                    return Json(chartData);
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("Controller Chart - No data found");
+                    return Json(new List<object>());
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Controller Chart error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+                return Json(new List<object>());
+            }
+        }
+
+        [HttpGet]
+        public object GetMarketDrivenSummaryData(string filterDate)
+        {
+            try
+            {
+                System.Diagnostics.Debug.WriteLine("=== MARKET DRIVEN SUMMARY DEBUG START ===");
+                System.Diagnostics.Debug.WriteLine($"GetMarketDrivenSummaryData received filterDate: '{filterDate}'");
+
+                if (string.IsNullOrEmpty(filterDate))
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Filter date is required",
+                        data = new
+                        {
+                            closingvalue = 0,
+                            marketcapitalizationamount = 0,
+                            net_value = 0,
+                            net_volume = 0,
+                            calendarsk = ""
+                        }
+                    });
+                }
+
+                // Call the WSQueryPS helper method
+                var result = Helper.WSQueryPS.GetMarketDrivenSummaryData(db, filterDate);
+
+                System.Diagnostics.Debug.WriteLine("=== CONTROLLER RESULT ===");
+                System.Diagnostics.Debug.WriteLine($"Result data is null: {result?.data == null}");
+                System.Diagnostics.Debug.WriteLine($"Data rows count: {result?.data?.Rows?.Count ?? 0}");
+
+                // Check if we have valid data (WSQueryReturns doesn't have 'success' property)
+                bool hasData = result?.data != null && result.data.Rows != null && result.data.Rows.Count > 0;
+
+                if (hasData)
+                {
+                    var row = result.data.Rows[0];
+                    var summaryData = new
+                    {
+                        success = true,
+                        data = new
+                        {
+                            closingvalue = row["closingvalue"] ?? 0,
+                            marketcapitalizationamount = row["marketcapitalizationamount"] ?? 0,
+                            net_value = row["net_value"] ?? 0,
+                            net_volume = row["net_volume"] ?? 0,
+                            calendarsk = row["calendarsk"]?.ToString() ?? filterDate
+                        }
+                    };
+
+                    System.Diagnostics.Debug.WriteLine($"Returning summary data successfully");
+                    System.Diagnostics.Debug.WriteLine($"closingvalue: {row["closingvalue"]}");
+                    System.Diagnostics.Debug.WriteLine($"marketcapitalizationamount: {row["marketcapitalizationamount"]}");
+                    System.Diagnostics.Debug.WriteLine($"net_value: {row["net_value"]}");
+                    System.Diagnostics.Debug.WriteLine($"net_volume: {row["net_volume"]}");
+
+                    return Json(summaryData);
+                }
+                else
+                {
+                    string errorMessage = "No data found for the specified date";
+                  
+                    System.Diagnostics.Debug.WriteLine($"No data found, returning error: {errorMessage}");
+                    return Json(new
+                    {
+                        success = false,
+                        message = errorMessage,
+                        data = new
+                        {
+                            closingvalue = 0,
+                            marketcapitalizationamount = 0,
+                            net_value = 0,
+                            net_volume = 0,
+                            calendarsk = filterDate
+                        }
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in GetMarketDrivenSummaryData: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
+
+                return Json(new
+                {
+                    success = false,
+                    message = ex.Message,
+                    data = new
+                    {
+                        closingvalue = 0,
+                        marketcapitalizationamount = 0,
+                        net_value = 0,
+                        net_volume = 0,
+                        calendarsk = ""
+                    }
+                });
+            }
+        }
         public ActionResult SimpanPenggunaanDataVDT(string id)
         {
             string message = "";
