@@ -498,7 +498,7 @@
     function onClickChart(e) {
         const res = e.validationGroup.validate();
         if (res.status === "valid") { 
-            redirDetail();
+            redirDetail(e);
         }
     }
 
