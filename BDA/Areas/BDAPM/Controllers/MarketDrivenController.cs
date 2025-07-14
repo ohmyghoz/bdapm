@@ -481,7 +481,45 @@ namespace BDA.Controllers
                 return Json(new { error = ex.Message, stackTrace = ex.StackTrace });
             }
         }
+        [HttpGet]
+        public object GetSTPTransactionData(DataSourceLoadOptions loadOptions,
+        string startDate, string endDate, string SID, string Efek)
+        {
+            try
+            {
+                // Log the received parameters
+                System.Diagnostics.Debug.WriteLine("=== TRANSACTION CONTROLLER DEBUG ===");
+                System.Diagnostics.Debug.WriteLine($"Transaction received parameters - Start: {startDate}, End: {endDate}, SID: {SID}, Efek: {Efek}");
+                System.Diagnostics.Debug.WriteLine($"LoadOptions - Skip: {loadOptions.Skip}, Take: {loadOptions.Take}");
+                System.Diagnostics.Debug.WriteLine($"LoadOptions - RequireTotalCount: {loadOptions.RequireTotalCount}");
 
+                // Log before calling WSQueryPS
+                System.Diagnostics.Debug.WriteLine("=== CALLING WSQueryPS TRANSACTION ===");
+                System.Diagnostics.Debug.WriteLine($"About to call WSQueryPS.GetSTPTransactionData with:");
+                System.Diagnostics.Debug.WriteLine($"  - startDate: '{startDate}'");
+                System.Diagnostics.Debug.WriteLine($"  - endDate: '{endDate}'");
+                System.Diagnostics.Debug.WriteLine($"  - SID: '{SID}'");
+                System.Diagnostics.Debug.WriteLine($"  - Efek: '{Efek}'");
+
+                // Call the WSQueryPS helper method
+                var result = Helper.WSQueryPS.GetSTPTransactionData(db, loadOptions,
+                    startDate, endDate, SID, Efek);
+
+                // Log the result
+                System.Diagnostics.Debug.WriteLine("=== WSQueryPS TRANSACTION RESULT ===");
+                System.Diagnostics.Debug.WriteLine($"Query result count: {result?.data?.Rows?.Count ?? 0}");
+
+
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("=== TRANSACTION CONTROLLER ERROR ===");
+                System.Diagnostics.Debug.WriteLine($"Error in GetSTPTransactionData: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
+                return Json(new { error = ex.Message, stackTrace = ex.StackTrace });
+            }
+        }
         [HttpGet]
         public object GetSTPClearingData(DataSourceLoadOptions loadOptions,
     string startDate, string endDate, string SID, string Efek)
@@ -520,43 +558,150 @@ namespace BDA.Controllers
                 return Json(new { error = ex.Message, stackTrace = ex.StackTrace });
             }
         }
-        [HttpGet]
-        public object GetSTPTransactionData(DataSourceLoadOptions loadOptions,
-    string startDate, string endDate, string SID, string Efek)
+
+        [HttpPost]
+        public ActionResult ExportSTPPDFServerSide(IFormFile file, string name)
         {
             try
             {
-                // Log the received parameters
-                System.Diagnostics.Debug.WriteLine("=== TRANSACTION CONTROLLER DEBUG ===");
-                System.Diagnostics.Debug.WriteLine($"Transaction received parameters - Start: {startDate}, End: {endDate}, SID: {SID}, Efek: {Efek}");
-                System.Diagnostics.Debug.WriteLine($"LoadOptions - Skip: {loadOptions.Skip}, Take: {loadOptions.Take}");
-                System.Diagnostics.Debug.WriteLine($"LoadOptions - RequireTotalCount: {loadOptions.RequireTotalCount}");
+                var userId = HttpContext.User.Identity.Name ?? "unknown";
 
-                // Log before calling WSQueryPS
-                System.Diagnostics.Debug.WriteLine("=== CALLING WSQueryPS TRANSACTION ===");
-                System.Diagnostics.Debug.WriteLine($"About to call WSQueryPS.GetSTPTransactionData with:");
-                System.Diagnostics.Debug.WriteLine($"  - startDate: '{startDate}'");
-                System.Diagnostics.Debug.WriteLine($"  - endDate: '{endDate}'");
-                System.Diagnostics.Debug.WriteLine($"  - SID: '{SID}'");
-                System.Diagnostics.Debug.WriteLine($"  - Efek: '{Efek}'");
+                if (file != null && file.Length > 0)
+                {
+                    // Create a unique filename
+                    string fileName = $"STP_{name}_{DateTime.Now:yyyyMMdd_HHmmss}_{userId}.pdf";
+                    string tempPath = Path.Combine(_env.WebRootPath, "temp");
 
-                // Call the WSQueryPS helper method
-                var result = Helper.WSQueryPS.GetSTPTransactionData(db, loadOptions,
-                    startDate, endDate, SID, Efek);
+                    // Ensure temp directory exists
+                    if (!Directory.Exists(tempPath))
+                    {
+                        Directory.CreateDirectory(tempPath);
+                    }
 
-                // Log the result
-                System.Diagnostics.Debug.WriteLine("=== WSQueryPS TRANSACTION RESULT ===");
-                System.Diagnostics.Debug.WriteLine($"Query result count: {result?.data?.Rows?.Count ?? 0}");
+                    string filePath = Path.Combine(tempPath, fileName);
 
+                    // Save the file
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        file.CopyTo(stream);
+                    }
 
-                return Json(result);
+                    // Store file info in session or return file path
+                    HttpContext.Session.SetString($"STP_PDF_{name}", fileName);
+
+                    // Log the export
+                    try
+                    {
+                        var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+                        var currentNode = mdl.GetCurrentNode();
+                        string pageTitle = currentNode != null ? currentNode.Title : "";
+
+                        db.InsertAuditTrail("STP_Processing_Export_PDF", $"user {userId} mengekspor PDF {name}", pageTitle);
+                    }
+                    catch (Exception logEx)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Logging error: {logEx.Message}");
+                    }
+
+                    System.Diagnostics.Debug.WriteLine($"PDF file saved: {filePath}");
+                }
+
+                return Json(new { result = "Success", message = "File processed successfully" });
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine("=== TRANSACTION CONTROLLER ERROR ===");
-                System.Diagnostics.Debug.WriteLine($"Error in GetSTPTransactionData: {ex.Message}");
-                System.Diagnostics.Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
-                return Json(new { error = ex.Message, stackTrace = ex.StackTrace });
+                System.Diagnostics.Debug.WriteLine($"Error in ExportSTPPDFServerSide: {ex.Message}");
+                return Json(new { result = "Error", message = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        public ActionResult DownloadSTPPDF(string name)
+        {
+            try
+            {
+                string fileName = HttpContext.Session.GetString($"STP_PDF_{name}");
+
+                if (string.IsNullOrEmpty(fileName))
+                {
+                    return NotFound("File not found");
+                }
+
+                string tempPath = Path.Combine(_env.WebRootPath, "temp");
+                string filePath = Path.Combine(tempPath, fileName);
+
+                if (!System.IO.File.Exists(filePath))
+                {
+                    return NotFound("File not found on disk");
+                }
+
+                var fileBytes = System.IO.File.ReadAllBytes(filePath);
+
+                // Clean up the file after reading
+                try
+                {
+                    System.IO.File.Delete(filePath);
+                    HttpContext.Session.Remove($"STP_PDF_{name}");
+                }
+                catch
+                {
+                    // Ignore cleanup errors
+                }
+
+                return File(fileBytes, "application/pdf", fileName);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error downloading file: {ex.Message}");
+            }
+        }
+        [HttpPost]
+        public ActionResult ExportSTPPDFDirect(IFormFile file, string name)
+        {
+            try
+            {
+                if (file != null && file.Length > 0)
+                {
+                    var userId = HttpContext.User.Identity.Name ?? "unknown";
+                    string fileName = $"STP_{name}_{DateTime.Now:yyyyMMdd_HHmmss}_{userId}.pdf";
+
+                    // Read the file content
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        file.CopyTo(memoryStream);
+                        var fileBytes = memoryStream.ToArray();
+
+                        // Log the export
+                        try
+                        {
+                            var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+                            var currentNode = mdl.GetCurrentNode();
+                            string pageTitle = currentNode != null ? currentNode.Title : "";
+
+                            db.InsertAuditTrail("STP_Processing_Export_PDF", $"user {userId} mengekspor PDF {name}", pageTitle);
+                        }
+                        catch (Exception logEx)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Logging error: {logEx.Message}");
+                        }
+
+                        System.Diagnostics.Debug.WriteLine($"PDF direct download: {fileName}, Size: {fileBytes.Length} bytes");
+
+                        // Set proper headers for PDF download
+                        Response.Headers.Add("Content-Disposition", $"attachment; filename=\"{fileName}\"");
+                        Response.Headers.Add("Content-Type", "application/pdf");
+                        Response.Headers.Add("Content-Length", fileBytes.Length.ToString());
+
+                        return File(fileBytes, "application/pdf", fileName);
+                    }
+                }
+
+                return BadRequest("No file provided");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in ExportSTPPDFDirect: {ex.Message}");
+                return BadRequest($"Error processing file: {ex.Message}");
             }
         }
         public ActionResult SimpanPenggunaanDataVDT(string id)
