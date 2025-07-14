@@ -7092,7 +7092,7 @@ namespace BDA.Helper
                 if (tableName == "mm_bond_trades_amended")
                 {
                     props.Query = @"
-                    SELECT type_firm_id,COUNT(type_firm_id) total
+                    SELECT type_firm_id,COUNT(type_firm_id) as total
                         From pasarmodal." + tableName + @"
                     WHERE " + whereQuery + @" group by type_firm_id";
                 }
@@ -7102,7 +7102,7 @@ namespace BDA.Helper
                 if (tableName == "mm_bond_trades_amended")
                 {
                     props.Query = @"
-                    SELECT type_firm_id,COUNT(type_firm_id) total
+                    SELECT type_firm_id,COUNT(type_firm_id) as total
                         From pasarmodal." + tableName + @"
                     WHERE " + whereQuery + @" group by type_firm_id";
                 }
@@ -7152,7 +7152,7 @@ namespace BDA.Helper
                 if (tableName == "mm_bond_trades_amended")
                 {
                     props.Query = @"
-                    SELECT amended_info,COUNT(amended_info) total
+                    SELECT amended_info,COUNT(amended_info) as total
                         From pasarmodal." + tableName + @"
                     WHERE " + whereQuery + @" group by amended_info";
                 }
@@ -7162,7 +7162,7 @@ namespace BDA.Helper
                 if (tableName == "mm_bond_trades_amended")
                 {
                     props.Query = @"
-                    SELECT amended_info,COUNT(amended_info) total
+                    SELECT amended_info,COUNT(amended_info) as total
                         From pasarmodal." + tableName + @"
                     WHERE " + whereQuery + @" group by amended_info";
                 }
@@ -7212,7 +7212,7 @@ namespace BDA.Helper
                 if (tableName == "mm_bond_trades_amended")
                 {
                     props.Query = @"
-                    SELECT amended_info,COUNT(amended_info) total
+                    SELECT amended_info,COUNT(amended_info) as total
                         From pasarmodal." + tableName + @"
                     WHERE " + whereQuery + @" group by amended_info";
                 }
@@ -7222,7 +7222,7 @@ namespace BDA.Helper
                 if (tableName == "mm_bond_trades_amended")
                 {
                     props.Query = @"
-                    SELECT amended_info,COUNT(amended_info) total
+                    SELECT amended_info,COUNT(amended_info) as total
                         From pasarmodal." + tableName + @"
                     WHERE " + whereQuery + @" group by amended_info";
                 }
@@ -7275,21 +7275,21 @@ namespace BDA.Helper
                 if (tableName == "mm_bond_trades_amended")
                 {
                     props.Query = @"
-                    SELECT top 10 * FROM (
+                    SELECT * FROM (
                     SELECT amended_firm_id,Market,Non_Market,SUM(Market+Non_Market) AS Total FROM (
                     SELECT amended_firm_id,
                         SUM(CASE WHEN amended_info_type = 'Market'  THEN total ELSE 0 END) AS Market,
                         SUM(CASE WHEN amended_info_type = 'Non Market' THEN total ELSE 0 END) AS Non_Market
                         FROM
                             (
-                               SELECT	amended_firm_id,amended_info_type,CONVERT(char(10), amend_date,126) as amend_date,COUNT(amended_firm_id) AS total
+                               SELECT	amended_firm_id,amended_info_type,date_format(date_sub(amend_date,14),'yyyy-MM-dd') as amend_date,COUNT(amended_firm_id) AS total
 							                    FROM  pasarmodal." + tableName + @"
                                                 " + whereMarketNonMarket + @"
                                 GROUP by amended_firm_id,amended_info_type,amend_date
                             ) AS t
                     WHERE " + whereQuery + @" 
                     GROUP BY amended_firm_id) AS C
-                    group by amended_firm_id,Market,Non_Market) as x order by Total desc";
+                    group by amended_firm_id,Market,Non_Market) as x order by Total desc  LIMIT 10";
                 }
             }
             else
@@ -7504,7 +7504,7 @@ namespace BDA.Helper
                 if (tableName == "mm_bond_trades_cancel")
                 {
                     props.Query = @"
-                                      SELECT TOP 10 * FROM (
+                                      SELECT * FROM (
                                       SELECT buyerfirmcode,OTHERS,TRADE_CANCEL,WRONG_INPUT,DOUBLE_REPORT,NETWORK_CONNECTION,SUM(OTHERS+TRADE_CANCEL+WRONG_INPUT+DOUBLE_REPORT+NETWORK_CONNECTION) AS Total FROM (
                                       SELECT buyerfirmcode,
                                           SUM(CASE WHEN tradereason = 'OTHERS'  THEN total ELSE 0 END) AS OTHERS,
@@ -7514,13 +7514,13 @@ namespace BDA.Helper
                                           SUM(CASE WHEN tradereason = 'NETWORK CONNECTION' THEN total ELSE 0 END) AS NETWORK_CONNECTION
                                           FROM
                                               (
-                                                 SELECT	buyerfirmcode,tradereason,CONVERT(char(10), entrydate,126) as entrydate,COUNT(buyerfirmcode) AS total 
+                                                 SELECT	buyerfirmcode,tradereason,date_format(date_sub(entrydate,14),'yyyy-MM-dd') as entrydate,COUNT(buyerfirmcode) AS total 
                                   FROM  pasarmodal." + tableName + @"
                                                  GROUP by buyerfirmcode,tradereason,entrydate
                                               ) AS t
                     WHERE " + whereQuery + @" 
                                       GROUP BY buyerfirmcode) AS C
-                                      GROUP BY buyerfirmcode,OTHERS,TRADE_CANCEL,WRONG_INPUT,DOUBLE_REPORT,NETWORK_CONNECTION) AS x order by Total desc";
+                                      GROUP BY buyerfirmcode,OTHERS,TRADE_CANCEL,WRONG_INPUT,DOUBLE_REPORT,NETWORK_CONNECTION) AS x order by Total desc LIMIT 10";
                 }
             }
             else
@@ -7586,10 +7586,10 @@ namespace BDA.Helper
                 if (tableName == "mm_bond_trades_cancel")
                 {
                     props.Query = @"
-                    SELECT top 15 * from (
+                    SELECT * from (
                     SELECT bondcode,COUNT(bondcode) total
                         From pasarmodal." + tableName + @"
-                    WHERE " + whereQuery + @" Group by bondcode) AS t order by total desc";
+                    WHERE " + whereQuery + @" Group by bondcode) AS t order by total desc LIMIT 15";
                 }
             }
             else

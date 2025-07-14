@@ -21,6 +21,7 @@ using static System.Net.Mime.MediaTypeNames;
 using System.Configuration;
 using BDA.Areas.BDAPM.Models;
 using BDA.Helper;
+using System.Xml.Linq;
 
 namespace BDA.Controllers
 {
@@ -206,6 +207,72 @@ namespace BDA.Controllers
             return Json(result);
         }
 
+        [HttpGet]
+        public object GetSTPBalanceData(DataSourceLoadOptions loadOptions,
+    string startDate, string endDate, string SID, string Efek)
+        {
+            try
+            {
+                // Log the received parameters
+                System.Diagnostics.Debug.WriteLine($"Received parameters - Start: {startDate}, End: {endDate}, SID: {SID}, Efek: {Efek}");
+
+                // Call the WSQueryPS helper method directly with the YYYYMMDD formatted dates
+                var result = Helper.WSQueryPS.GetSTPBalanceData(db, loadOptions,
+                    startDate, endDate, SID, Efek);
+
+                System.Diagnostics.Debug.WriteLine($"Query result count: {result?.data?.Rows?.Count ?? 0}");
+
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in GetSTPBalanceData: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
+                return Json(new { error = ex.Message, stackTrace = ex.StackTrace });
+            }
+        }
+
+        public ActionResult SimpanPenggunaanDataSTP(string id)
+        {
+            string message = "";
+            string Penggunaan_Data = "";
+            bool result = true;
+            var userId = HttpContext.User.Identity.Name;
+
+            var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+            var currentNode = mdl.GetCurrentNode();
+            string pageTitle = currentNode != null ? currentNode.Title : "";
+
+            db.InsertAuditTrail("STP_Processing_Akses_Page", "user " + userId + " mengakses halaman STP Processing untuk digunakan sebagai " + Penggunaan_Data + "", pageTitle);
+
+            try
+            {
+                string strSQL = db.appSettings.DataConnString;
+                using (SqlConnection conn = new SqlConnection(strSQL))
+                {
+                    conn.Open();
+                    string strQuery = "Select * from MasterPenggunaanData where id=" + id + " order by id asc ";
+                    SqlDataAdapter da = new SqlDataAdapter(strQuery, conn);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+                    if (dt.Rows.Count > 0)
+                    {
+                        Penggunaan_Data = dt.Rows[0]["Penggunaan_Data"].ToString();
+                    }
+                    conn.Close();
+                    conn.Dispose();
+                }
+                result = true;
+            }
+            catch (Exception ex)
+            {
+                string errMsg = ex.Message;
+                message = "Saving Failed !, " + " " + errMsg;
+                result = false;
+            }
+            return Json(new { message, success = result }, new Newtonsoft.Json.JsonSerializerSettings());
+        }
+
         public ActionResult SimpanPenggunaanData(string id)
         {
             string message = "";
@@ -244,6 +311,253 @@ namespace BDA.Controllers
                 result = false;
             }
             return Json(new { message, success = result }, new Newtonsoft.Json.JsonSerializerSettings());
+        }
+
+        public ActionResult TopCompaniesByValue()
+        {
+            // Your permission checks can go here
+            return View();
+        }
+
+        // This action is called by the DataGrid's MVC data source.
+        // In MarketDrivenController.cs
+
+        [HttpGet]
+        public object _GetTopCompaniesData(DataSourceLoadOptions loadOptions, string selectedDate)
+        {
+            if (string.IsNullOrEmpty(selectedDate))
+            {
+                return DataSourceLoader.Load(new List<object>(), loadOptions);
+            }
+
+            // This query is from your WSQueryPS file
+            string sqlQuery = @"
+        SET ARITHABORT ON;
+        SELECT TOP 10
+            security_code,
+            SUM(value) as total_value,
+            SUM(volume) as total_volume,
+            SUM(freq) as total_freq
+        FROM BDAPM.pasarmodal.market_driven_rg_ng
+        WHERE periode_lvl1 = @Periode
+        GROUP BY security_code
+        ORDER BY total_value DESC;";
+
+            var dataList = new List<object>();
+            string connString = db.appSettings.DataConnString;
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connString))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlQuery, conn))
+                    {
+                        cmd.CommandTimeout = 300;
+                        cmd.Parameters.AddWithValue("@Periode", selectedDate);
+
+                        conn.Open();
+                        DataTable dt = new DataTable();
+                        SqlDataAdapter adapter = new SqlDataAdapter(cmd);
+                        adapter.Fill(dt);
+
+                        dataList = dt.AsEnumerable().Select(row => new {
+                            security_code = row.Field<string>("security_code"),
+                            total_value = Convert.ToDecimal(row["total_value"]),
+                            total_volume = Convert.ToInt64(row["total_volume"]),
+                            total_freq = Convert.ToInt64(row["total_freq"])
+                        }).ToList<object>();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("DATABASE ERROR: " + ex.Message);
+            }
+
+            // This line guarantees the grid gets data in the correct format
+            return DataSourceLoader.Load(dataList, loadOptions);
+        }
+        [HttpGet]
+        public object _GetChartData(string selectedDate, string securityCode)
+        {
+            if (string.IsNullOrEmpty(selectedDate) || string.IsNullOrEmpty(securityCode))
+            {
+                return new List<object>();
+            }
+
+            string sqlQuery = @"
+        SELECT 
+            RIGHT(periode, 2) as periode,  -- Extract DD from YYYYMMDD
+            security_code,
+            ISNULL(SUM(CASE WHEN market = 'NG' THEN volume ELSE 0 END), 0) as volume_ng,
+            ISNULL(MAX(CASE WHEN market = 'NG' THEN high END), 0) as high_ng,
+            ISNULL(MIN(CASE WHEN market = 'NG' THEN low END), 0) as low_ng,
+            ISNULL(MAX(CASE WHEN market = 'RG' THEN high END), 0) as high_rg,
+            ISNULL(MIN(CASE WHEN market = 'RG' THEN low END), 0) as low_rg
+        FROM BDAPM.pasarmodal.market_driven_rg_ng m 
+        WHERE periode_lvl1 = @Periode AND m.history_type = 'Date' AND m.security_code = @security_code
+        GROUP BY periode, security_code
+        ORDER BY periode;";
+
+            var dataList = new List<object>();
+            string connString = db.appSettings.DataConnString;
+
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connString))
+                {
+                    using (SqlCommand cmd = new SqlCommand(sqlQuery, conn))
+                    {
+                        cmd.CommandTimeout = 300;
+                        cmd.Parameters.AddWithValue("@Periode", selectedDate);
+                        cmd.Parameters.AddWithValue("@security_code", securityCode);
+
+                        conn.Open();
+                        DataTable dt = new DataTable();
+                        SqlDataAdapter adapter = new SqlDataAdapter(cmd);
+                        adapter.Fill(dt);
+
+                        System.Diagnostics.Debug.WriteLine($"Chart query returned {dt.Rows.Count} rows for {securityCode}");
+
+                        dataList = dt.AsEnumerable().Select(row => new {
+                            periode = row.Field<string>("periode"),
+                            security_code = row.Field<string>("security_code"),
+                            volume_ng = Convert.ToInt64(row["volume_ng"] ?? 0),
+                            high_ng = Convert.ToDecimal(row["high_ng"] ?? 0),
+                            low_ng = Convert.ToDecimal(row["low_ng"] ?? 0),
+                            high_rg = Convert.ToDecimal(row["high_rg"] ?? 0),
+                            low_rg = Convert.ToDecimal(row["low_rg"] ?? 0)
+                        }).ToList<object>();
+
+                        // Log the data for debugging
+                        System.Diagnostics.Debug.WriteLine($"Data for {securityCode}: {Newtonsoft.Json.JsonConvert.SerializeObject(dataList)}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Chart DATABASE ERROR for {securityCode}: " + ex.Message);
+                System.Diagnostics.Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
+            }
+
+            return dataList;
+        }
+
+        [HttpGet]
+        public object GetSTPSettlementData(DataSourceLoadOptions loadOptions,
+            string startDate, string endDate, string SID, string Efek)
+        {
+            try
+            {
+                // Log the received parameters
+                System.Diagnostics.Debug.WriteLine("=== SETTLEMENT CONTROLLER DEBUG ===");
+                System.Diagnostics.Debug.WriteLine($"Settlement received parameters - Start: {startDate}, End: {endDate}, SID: {SID}, Efek: {Efek}");
+                System.Diagnostics.Debug.WriteLine($"LoadOptions - Skip: {loadOptions.Skip}, Take: {loadOptions.Take}");
+                System.Diagnostics.Debug.WriteLine($"LoadOptions - RequireTotalCount: {loadOptions.RequireTotalCount}");
+
+                // Log before calling WSQueryPS
+                System.Diagnostics.Debug.WriteLine("=== CALLING WSQueryPS SETTLEMENT ===");
+                System.Diagnostics.Debug.WriteLine($"About to call WSQueryPS.GetSTPSettlementData with:");
+                System.Diagnostics.Debug.WriteLine($"  - startDate: '{startDate}'");
+                System.Diagnostics.Debug.WriteLine($"  - endDate: '{endDate}'");
+                System.Diagnostics.Debug.WriteLine($"  - SID: '{SID}'");
+                System.Diagnostics.Debug.WriteLine($"  - Efek: '{Efek}'");
+
+                // Call the WSQueryPS helper method
+                var result = Helper.WSQueryPS.GetSTPSettlementData(db, loadOptions,
+                    startDate, endDate, SID, Efek);
+
+                // Log the result
+                System.Diagnostics.Debug.WriteLine("=== WSQueryPS SETTLEMENT RESULT ===");
+                System.Diagnostics.Debug.WriteLine($"Query result count: {result?.data?.Rows?.Count ?? 0}");
+               
+
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("=== SETTLEMENT CONTROLLER ERROR ===");
+                System.Diagnostics.Debug.WriteLine($"Error in GetSTPSettlementData: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
+                return Json(new { error = ex.Message, stackTrace = ex.StackTrace });
+            }
+        }
+
+        [HttpGet]
+        public object GetSTPClearingData(DataSourceLoadOptions loadOptions,
+    string startDate, string endDate, string SID, string Efek)
+        {
+            try
+            {
+                // Log the received parameters
+                System.Diagnostics.Debug.WriteLine("=== CLEARING CONTROLLER DEBUG ===");
+                System.Diagnostics.Debug.WriteLine($"Clearing received parameters - Start: {startDate}, End: {endDate}, SID: {SID}, Efek: {Efek}");
+                System.Diagnostics.Debug.WriteLine($"LoadOptions - Skip: {loadOptions.Skip}, Take: {loadOptions.Take}");
+                System.Diagnostics.Debug.WriteLine($"LoadOptions - RequireTotalCount: {loadOptions.RequireTotalCount}");
+
+                // Log before calling WSQueryPS
+                System.Diagnostics.Debug.WriteLine("=== CALLING WSQueryPS CLEARING ===");
+                System.Diagnostics.Debug.WriteLine($"About to call WSQueryPS.GetSTPClearingData with:");
+                System.Diagnostics.Debug.WriteLine($"  - startDate: '{startDate}'");
+                System.Diagnostics.Debug.WriteLine($"  - endDate: '{endDate}'");
+                System.Diagnostics.Debug.WriteLine($"  - SID: '{SID}'");
+                System.Diagnostics.Debug.WriteLine($"  - Efek: '{Efek}'");
+
+                // Call the WSQueryPS helper method
+                var result = Helper.WSQueryPS.GetSTPClearingData(db, loadOptions,
+                    startDate, endDate, SID, Efek);
+
+                // Log the result
+                System.Diagnostics.Debug.WriteLine("=== WSQueryPS CLEARING RESULT ===");
+                System.Diagnostics.Debug.WriteLine($"Query result count: {result?.data?.Rows?.Count ?? 0}");
+
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("=== CLEARING CONTROLLER ERROR ===");
+                System.Diagnostics.Debug.WriteLine($"Error in GetSTPClearingData: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
+                return Json(new { error = ex.Message, stackTrace = ex.StackTrace });
+            }
+        }
+        [HttpGet]
+        public object GetSTPTransactionData(DataSourceLoadOptions loadOptions,
+    string startDate, string endDate, string SID, string Efek)
+        {
+            try
+            {
+                // Log the received parameters
+                System.Diagnostics.Debug.WriteLine("=== TRANSACTION CONTROLLER DEBUG ===");
+                System.Diagnostics.Debug.WriteLine($"Transaction received parameters - Start: {startDate}, End: {endDate}, SID: {SID}, Efek: {Efek}");
+                System.Diagnostics.Debug.WriteLine($"LoadOptions - Skip: {loadOptions.Skip}, Take: {loadOptions.Take}");
+                System.Diagnostics.Debug.WriteLine($"LoadOptions - RequireTotalCount: {loadOptions.RequireTotalCount}");
+
+                // Log before calling WSQueryPS
+                System.Diagnostics.Debug.WriteLine("=== CALLING WSQueryPS TRANSACTION ===");
+                System.Diagnostics.Debug.WriteLine($"About to call WSQueryPS.GetSTPTransactionData with:");
+                System.Diagnostics.Debug.WriteLine($"  - startDate: '{startDate}'");
+                System.Diagnostics.Debug.WriteLine($"  - endDate: '{endDate}'");
+                System.Diagnostics.Debug.WriteLine($"  - SID: '{SID}'");
+                System.Diagnostics.Debug.WriteLine($"  - Efek: '{Efek}'");
+
+                // Call the WSQueryPS helper method
+                var result = Helper.WSQueryPS.GetSTPTransactionData(db, loadOptions,
+                    startDate, endDate, SID, Efek);
+
+                // Log the result
+                System.Diagnostics.Debug.WriteLine("=== WSQueryPS TRANSACTION RESULT ===");
+                System.Diagnostics.Debug.WriteLine($"Query result count: {result?.data?.Rows?.Count ?? 0}");
+
+
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("=== TRANSACTION CONTROLLER ERROR ===");
+                System.Diagnostics.Debug.WriteLine($"Error in GetSTPTransactionData: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
+                return Json(new { error = ex.Message, stackTrace = ex.StackTrace });
+            }
         }
         public ActionResult SimpanPenggunaanDataVDT(string id)
         {

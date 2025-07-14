@@ -70,7 +70,7 @@ namespace SyncWebService
             {
                 int lastCnt = 0;
 
-                using (var db = new DataEntities())
+                using (DataEntities db = new DataEntities())
                 {
                     ///============= test
                     Console.WriteLine($"Test Last Periode");
@@ -92,14 +92,14 @@ namespace SyncWebService
 
 
 
-                    /*
+
                     DateTime now = System.DateTime.Now.AddDays(-1);
                     var period = now.Year.ToString() + now.Month.ToString();
 
-                    var lastQuery = from q in db.Log_ETL
-                                    where q.log_tipe == "INSERT pm_master_sid" && q.log_periode == period
-                                    orderby q.log_id descending
-                                    select q.log_insert_cnt;
+                    var lastQueryetl = from q in db.LogEtls
+                                    where q.LogTipe == "INSERT pm_master_sid" && q.LogPeriode == period
+                                    orderby q.LogId descending
+                                    select q.LogInsertCnt;
 
                     if (lastQuery.Any())
                     {
@@ -109,15 +109,15 @@ namespace SyncWebService
 
                     Console.WriteLine($"SID Periode {period} Last Count : {lastCnt}");
 
-                    
+
                     //if for testing may temporary be disabled
-                    
+
                     var conn = new OdbcConnection
                     {
                         ConnectionString = @"DRIVER={Hortonworks Hive ODBC Driver};                                        
                                         Host=10.225.60.14;
                                         Port=10000;
-                                        Schema=pasarmodal;
+                                        Schema=ojk;
                                         HiveServerType=2;
                                         KrbHostFQDN={bgrdco-bddvmst1.ojk.go.id};
                                         KrbServiceName={hive};
@@ -127,8 +127,8 @@ namespace SyncWebService
                     {
 
                         conn.Open();
-                        
-                        var q = "select count (*) as new_cnt from pasarmodal.src_sid_new where valid_from >= '" + period + "01'";
+
+                        var q = "select count (*) as new_cnt from pasarmodal.src_sid_new where valid_from >= '2010701'";
                         OdbcCommand myCommand = new OdbcCommand(q, conn);
                         myCommand.CommandTimeout = 300; // 5 menit
 
@@ -164,7 +164,7 @@ namespace SyncWebService
                             var newsync = new HiveSync();
                             newsync.pperiode = period;
                             newsync.pprocess = "Master";
-                            if(response.StatusCode == HttpStatusCode.OK)
+                            if (response.StatusCode == HttpStatusCode.OK)
                             {
                                 newsync.sync_status = "OK";
                             }
@@ -172,7 +172,7 @@ namespace SyncWebService
                             {
                                 newsync.sync_status = response.StatusCode.ToString();
                             }
-                            
+
                             db.HiveSync.Add(newsync);
                             db.SaveChanges();
                             Console.WriteLine("Sync Master");
@@ -192,10 +192,10 @@ namespace SyncWebService
                         conn.Close();
                     }
                     //end temporary disabled
-*/
+
 
                 }
-               
+
             }
             
         }
