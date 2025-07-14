@@ -6384,6 +6384,156 @@ namespace BDA.Helper
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
         }
 
+        public static WSQueryReturns GetPS07CGridTRX(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string invCode, string trxSys, string secCode, bool isHive = true)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            var groupByQuery = " GROUP BY pe, investorcode, securitycode, transactionsystem";
+            isHive = true;
+
+            if (periode != null)
+            {
+                string periodes = "'" + periode.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND pperiode in (" + periodes.Replace("-", "") + ")";
+            }
+
+            if (pe != null)
+            {
+                string namaPEs = "'" + pe.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND pe in (" + namaPEs + ")";
+            }
+
+            if (invCode != null)
+            {
+                string ic = "'" + invCode.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND investorcode = " + ic;
+            }
+
+            if (trxSys != null)
+            {
+                string ts = "'" + trxSys.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND transactionsystem in (" + ts + ")";
+            }
+
+            if (secCode != null)
+            {
+                string sc = "'" + secCode.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND securitycode in (" + sc + ")";
+            }
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                props.Query = @"SELECT pe, investorcode AS sid, investorcode AS invcode, securitycode AS seccode, transactionsystem AS trxsys, SUM(total_transaction_frequency) AS ttltrxfreq, SUM(total_transaction_volume) AS ttltrxvol, SUM(total_transaction_value) AS ttltrxval FROM pasarmodal.basis_investor_detail_trx WHERE " + whereQuery + groupByQuery + @"";
+
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+
+        public static WSQueryReturns GetPS07CGridSRE(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string sid, string trxSys, string secCode, bool isHive = true)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            //var groupByQuery = " GROUP BY pe, sid, securityphysicaltypecode, settlementaccountownertypecode, settlementaccounttypecode, accountbalancestatuscode";
+            isHive = true;
+
+            if (periode != null)
+            {
+                string periodes = "'" + periode.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND pperiode in (" + periodes.Replace("-", "") + ")";
+            }
+
+            if (pe != null)
+            {
+                string namaPEs = "'" + pe.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND pe in (" + namaPEs + ")";
+            }
+
+            if (sid != null)
+            {
+                string s = "'" + sid.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND sid = " + s;
+            }
+
+            if (trxSys != null)
+            {
+                string ts = "'" + trxSys.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND transactionsystem in (" + ts + ")";
+            }
+
+            if (secCode != null)
+            {
+                string sc = "'" + secCode.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND securitycode in (" + sc + ")";
+            }
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                //props.Query = @"SELECT pe, sid, securityphysicaltypecode AS secphytcode, settlementaccountownertypecode AS stlactowntcode, settlementaccounttypecode AS stlacttcode, accountbalancestatuscode AS actblcstscode, SUM(portfolioamount) AS portoamount, SUM(portfolioquantity) AS portoqty FROM pasarmodal.basis_investor_detail_sre WHERE " + whereQuery + groupByQuery + @"";
+                props.Query = @"SELECT pe, sid, securityphysicaltypecode AS secphytcode, settlementaccountownertypecode AS stlactowntcode, settlementaccounttypecode AS stlacttcode, accountbalancestatuscode AS actblcstscode, portfolioamount AS portoamount, portfolioquantity AS portoqty FROM pasarmodal.basis_investor_detail_sre WHERE " + whereQuery + @"";
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+
+        public static WSQueryReturns GetBDAPMNamaPEv2(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1 AND currentstatus='A' " + "";
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "dim_exchange_members")
+                {
+                    props.Query = @"
+                        SELECT exchangemembercode,exchangemembername,currentstatus from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @"";
+                }
+            }
+            else
+            {
+                if (tableName == "dim_exchange_members")
+                {
+                    props.Query = @"
+                        SELECT exchangemembercode,exchangemembername,currentstatus from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @"";
+                }
+            }
+
+            return WSQueryHelper.DoQueryNL(db, props, isC, isHive);
+        }
+
+        public static WSQueryReturns GetBDAPMSecurities(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1 AND status='A' " + "";
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                if (tableName == "dimsecurities")
+                {
+                    props.Query = @"
+                        SELECT securitycode, securityname, status from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @"";
+                }
+            }
+            else
+            {
+                if (tableName == "dim_securities")
+                {
+                    props.Query = @"
+                        SELECT securitycode, securityname, status from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @"";
+                }
+            }
+
+            return WSQueryHelper.DoQueryNL(db, props, isC, isHive);
+        }
+
         #endregion
 
         #region MM01

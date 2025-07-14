@@ -26,11 +26,11 @@
                         <input type="button" id="btnBasisInvestor" class="btn btn-danger" value="Basis Investor" onclick="location.href='@Url.Action("/", "BasisInvestor")'" />
                     </div>&nbsp;&nbsp;
                     <div class="form-group">
-                        <input type="button" id="btnDetailBI" class="btn btn-danger" value="Detail Basis Investor" />
+                        <input type="button" id="btnDetailBI" class="btn btn-danger" value="Detail Basis Investor" onclick="location.href='@Url.Action("Detail", "BasisInvestor")?pe=' + '@ViewBag.pe' + '&periode=' + '@ViewBag.periode')" />
 @*                         <input type="button" id="btnDetailBI" class="btn btn-danger" value="Detail Basis Investor" onclick="location.href='@Url.Action("Detail", "BasisInvestor")'" />
  *@                    </div>&nbsp;&nbsp;
                     <div class="form-group">
-                        <input type="button" id="btnSumTxSID" class="btn btn-danger" value="Summary Transaction SID" onclick="location.href='@Url.Action("SumTxSID", "BasisInvestor")'" />
+                        <input type="button" id="btnSumTxSID" class="btn btn-danger" value="Summary Transaction SID" />
                     </div>&nbsp;&nbsp;
                 </div>
                 <div class="row">
@@ -38,7 +38,7 @@
                
 
                     <div class="col-lg-2 form-group">
-                        <label>Periode<span class="mandatory">*</span></label>
+                        <label>Periode</label>
                         @(Html.DevExtreme().DateBox()
                             .ID("Periode")
                             .Disabled(true)
@@ -49,20 +49,20 @@
                     </div>
 
                     <div class="col-lg-2 form-group">
-                        <label>PE<span class="mandatory">*</span></label>
+                        <label>PE</label>
                         @(Html.DevExtreme().SelectBox()
-                            .Disabled(true)
+                            //.Disabled(true)
                             .ID("namaPEid")
                             .DataSource(d => d.Mvc()
-                            .Controller("BasisInvestor")
-                            .Area("BDAPM")
-                            .LoadAction("GetNamaPE")
-                            .Key("value"))
+                                .Controller("BasisInvestor")
+                                .Area("BDAPM")
+                                .LoadAction("GetNamaPE")
+                                .Key("value"))
+                            .Value(pe)
                             .ValueExpr("value")
                             .DisplayExpr("text")
                             .SearchEnabled(true)
                             .Width("100%")
-                            .Value(pe)
                             )
                     </div>
 
@@ -236,12 +236,6 @@
             <div class="gridview-div">
                  @(Html.DevExtreme().DataGrid()
                     .ID("grid1")
-                    //.DataSource(d => d.Mvc()
-                        //.Controller("SegmentationSummaryClusterMKBD")
-                        //.LoadAction("GetGridDataDetail")
-                        //.Key("rowid")
-                        //.OnBeforeSend("onGridBeforeSend"))
-                    //.RemoteOperations(true)
                     .Width("100%")
                     .AllowColumnResizing(true)
                     .ColumnAutoWidth(true)
@@ -253,13 +247,18 @@
                             columns.Add().DataField("invlasttrxindays").Caption("Investor Last Transaction in Days");
                             columns.Add().DataField("invtrxfreq").Caption("Investor Transaction Frequency");
                             columns.Add().DataField("invtotalval").Caption("Investor Total Value");
+                            columns.Add().Type(GridCommandColumnType.Buttons).Caption("Action").Buttons(b =>
+                            {
+                                b.Add().Hint("Summary Transaction SID")
+                                    .Icon("detailslayout")
+                                    .OnClick("redirDetail");
+                            });
                         })
                     .ColumnResizingMode(ColumnResizingMode.Widget)
                     .FilterRow(f => f.Visible(true))
                     .ShowBorders(false)
                     .ShowRowLines(true)
                     .WordWrapEnabled(true)
-                    //.RowAlternationEnabled(false)
                     .Paging(p =>
                         {
                             p.PageSize(20);
@@ -297,6 +296,7 @@
                                     .DisplayExpr("text")
                                     .SearchEnabled(true)
                                     .Width("100%")
+                                    .FocusStateEnabled(true)
                                     )
                             </div>
                         </form>
@@ -318,11 +318,9 @@
 </script>
 
 <script>
-
-    $(function () {
-        let PE = '@ViewBag.pe';
-        let periode = '@ViewBag.periode';
-    });
+    const PE = '@ViewBag.pe';
+    const periode = '@ViewBag.periode';
+    var sid = 0;
 
     $(function () {
         $("#penggunaandataid").dxValidator({
@@ -377,12 +375,14 @@
         }
     }
 
+    function redirDetail(e) {
+        sid = e.row.data.sid;
+        window.open('@Url.Action("SumTxSID", "BasisInvestor")?pe=' + PE + '&periode=' + periode + '&sid=' + sid);
+    }
+
     function onButtonFilterClicked(e) {
         const res = e.validationGroup.validate();
         if (res.status === "valid") {
-            var pe = '@ViewBag.pe';
-            var periode = '@ViewBag.periode';
-
             var negara = $("#Nation").dxSelectBox("instance").option("value");
             var provinsi = $("#Province").dxSelectBox("instance").option("value");
             var kota = $("#City").dxSelectBox("instance").option("value");
@@ -401,7 +401,7 @@
                 loadMode: "processed",
                 loadParams: {
                     periodeAwal: periode,
-                    namaPE: pe,
+                    namaPE: PE,
                     negara: negara,
                     provinsi: provinsi,
                     kota: kota,
@@ -413,7 +413,7 @@
                 }
             });
 
-            grid.option('dataSource', ds);
+            grid.option("dataSource", ds);
             grid.endCustomLoading();
         }
     }

@@ -2,7 +2,9 @@
 @{
     Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
     string reportId = "pe_segmentation_bridging_detail";
-    var p = (string[])ViewBag.period;
+    var pe = ViewBag.pe;
+    var periode = ViewBag.periode;
+    var sid = ViewBag.sid;
     var maxItems = db.GetSetting("LimitFilterLJK");
 }
 @section RightToolbar {
@@ -22,32 +24,32 @@
             <div class="card-body">
                 <div class="row">
                     <div class="form-group ml-3">
-                        @* <button type="button" id="btnDetailCluster" class="btn btn-danger">Detail Cluster MKBD</button> *@
                         <input type="button" id="btnBasisInvestor" class="btn btn-danger" value="Basis Investor" onclick="location.href='@Url.Action("/", "BasisInvestor")'" />
                     </div>&nbsp;&nbsp;
                     <div class="form-group">
-                        <input type="button" id="btnDetailBI" class="btn btn-danger" value="Detail Basis Investor" onclick="location.href='@Url.Action("Detail", "BasisInvestor")'" />
+                        <input type="button" id="btnDetailBI" class="btn btn-danger" value="Detail Basis Investor" onclick="location.href='@Url.Action("Detail", "BasisInvestor")?pe=' + '@ViewBag.pe' + '&periode=' + '@ViewBag.periode')" />
                     </div>&nbsp;&nbsp;
                     <div class="form-group">
-                        <input type="button" id="btnSumTxSID" class="btn btn-danger" value="Summary Transaction SID" onclick="location.href='@Url.Action("SumTxSID", "BasisInvestor")'" />
+                        <input type="button" id="btnSumTxSID" class="btn btn-danger" value="Summary Transaction SID"  />
                     </div>&nbsp;&nbsp;
                 </div>
                 <div class="row">
 
                     <div class="col-lg-2 form-group">
-                        <label>Periode<span class="mandatory">*</span></label>
+                        <label>Periode</label>
                         @(Html.DevExtreme().DateBox()
                             .ID("Periode")
-                            .DisplayFormat("MMM yyyy")
-                            //.Value(periodeAwal1 == null ? DateTime.Now : periodeAwal1)
-                            .Value(DateTime.Now)
+                            .Disabled(true)
+                            .DisplayFormat("dd MMM yyyy")
+                            .Value(periode)
                             .Max(DateTime.Now)
                             .Width("100%"))
                     </div>
 
                     <div class="col-lg-2 form-group">
-                        <label>PE<span class="mandatory">*</span></label>
+                        <label>PE</label>
                         @(Html.DevExtreme().SelectBox()
+                            .Disabled(true)
                             .ID("namaPEid")
                             .DataSource(d => d.Mvc()
                             .Controller("BasisInvestor")
@@ -58,47 +60,72 @@
                             .DisplayExpr("text")
                             .SearchEnabled(true)
                             .Width("100%")
+                            .Value(pe)
                             )
                     </div>
 
                     <div class="col-lg-2 form-group">
                         <label>SID@*<span class="mandatory">*</span>*@</label>
-                        @(Html.DevExtreme().TagBox()
+                        @(Html.DevExtreme().SelectBox()
                             .ID("SID")
-                            .DataSource(new[] { "(All)", "SID1", "SID2", "SID3" })
+                            //.DataSource(new[] { "(All)", "SID1", "SID2", "SID3" })
+                            .DataSource(new [] { sid })
                             .SearchEnabled(true)
                             .OnSelectionChanged("onSelectionChanged")
+                            .Disabled(true)
+                            .Value(sid)
                             .Width("100%"))
                     </div>
 
                     <div class="col-lg-2 form-group">
                         <label>Investor Code@*<span class="mandatory">*</span>*@</label>
-                        @(Html.DevExtreme().TagBox()
+                        @(Html.DevExtreme().SelectBox()
                             .ID("InvstCode")
-                            .DataSource(new[] { "(All)", "A", "B", "C" })
+                            //.DataSource(new[] { "(All)", "A", "B", "C" })
+                            .DataSource(new[] { sid })
                             .SearchEnabled(true)
+                            .Disabled(true)
+                            .Value(sid)
                             .OnSelectionChanged("onSelectionChanged")
                             .Width("100%"))
                     </div>
 
                     <div class="col-lg-2 form-group">
                         <label>Security Code@*<span class="mandatory">*</span>*@</label>
-                        @(Html.DevExtreme().TagBox()
+                        @(Html.DevExtreme().SelectBox()
                             .ID("SecCode")
-                            .DataSource(new[] { "SC1", "SC2", "SC3" })
+                            .DataSource(d => d.Mvc()
+                            .Controller("BasisInvestor")
+                            .Area("BDAPM")
+                            .LoadAction("GetNamaSecurities")
+                            .Key("value"))
+                            .ValueExpr("value")
+                            .DisplayExpr("text")
                             .SearchEnabled(true)
                             .OnSelectionChanged("onSelectionChanged")
+                            .Placeholder("(ALL)")
+                            .Value("")
                             .Width("100%"))
                     </div>
 
+                    @{
+                        var market = new[] { new { Text = "(All)", Value = "" },
+                                             new { Text = "Bursa", Value = "Bursa" }
+                        };
+                    }
+
                     <div class="col-lg-2 form-group">
                         <label>Market@*<span class="mandatory">*</span>*@</label>
-                        @(Html.DevExtreme().TagBox()
+                        @(Html.DevExtreme().SelectBox()
                             .ID("Market")
-                            .DataSource(new[] { "Bursa" })
+                            .DataSource(market)
                             .SearchEnabled(true)
+                            .ValueExpr("Value")
+                            .DisplayExpr("Text")
+                            .Value("")
                             .OnSelectionChanged("onSelectionChanged")
-                            .Width("100%"))
+                            .Width("100%")
+                            .Placeholder("(ALL)"))
                     </div>
 
                 </div>
@@ -118,7 +145,7 @@
         <div>
             <div class="float-right">
                 <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();"><span class="image fa fa-file-excel"></span> Export Excel</a>
-                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
                 <br /> <br />
             </div>
             <br />
@@ -127,11 +154,6 @@
                 <header class="bg-danger"><h5 class="text-white">&nbsp;Transaction Summary</h5></header>
                 @(Html.DevExtreme().DataGrid()
                     .ID("gridtrx")
-                    //.DataSource(d => d.Mvc()
-                    //.Controller("SegmentationSummaryClusterMKBD")
-                    //.LoadAction("GetGridDataDetail")
-                    //.Key("rowid")
-                    //.OnBeforeSend("onGridBeforeSend"))
                     .RemoteOperations(true)
                     .Width("100%")
                     .AllowColumnResizing(true)
@@ -143,14 +165,13 @@
                         columns.Add().DataField("invcode").Caption("Investor Code");
                         columns.Add().DataField("seccode").Caption("Security Code");
                         columns.Add().DataField("trxsys").Caption("Transaction System");
-                        columns.Add().DataField("ttltrxpreq").Caption("Total Transaction Frequency");
+                        columns.Add().DataField("ttltrxfreq").Caption("Total Transaction Frequency");
                         columns.Add().DataField("ttltrxvol").Caption("Total Transaction Volume");
                         columns.Add().DataField("ttltrxval").Caption("Total Transaction Value");
                     })
                     .ColumnResizingMode(ColumnResizingMode.Widget)
                     .FilterRow(f => f.Visible(true))
                     .ShowBorders(false)
-                    //.RowAlternationEnabled(false)
                     .Paging(p =>
                     {
                         p.PageSize(20);
@@ -164,10 +185,14 @@
             </div>
         </div>
 
+        <div class="pt-4 pb-4">
+            <br />
+        </div>
+
         @*grid*@
         <div>
             <div class="float-right">
-                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel2();"><span class="image fa fa-file-excel"></span> Export Excel</a>
                 <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
                 <br /> <br />
             </div>
@@ -176,11 +201,6 @@
                 <header class="bg-danger"><h5 class="text-white">&nbsp;SRE Summary</h5></header>
                 @(Html.DevExtreme().DataGrid()
                     .ID("gridsre")
-                    //.DataSource(d => d.Mvc()
-                    //.Controller("SegmentationSummaryClusterMKBD")
-                    //.LoadAction("GetGridDataDetail")
-                    //.Key("rowid")
-                    //.OnBeforeSend("onGridBeforeSend"))
                     .RemoteOperations(true)
                     .Width("100%")
                     .AllowColumnResizing(true)
@@ -194,12 +214,11 @@
                         columns.Add().DataField("stlacttcode").Caption("Settlement Account Type Code");
                         columns.Add().DataField("actblcstscode").Caption("Account Balance Status Code");
                         columns.Add().DataField("portoamount").Caption("Portofolio Amount");
-                        columns.Add().DataField("portoqty").Caption("Portofolio Quatity");
+                        columns.Add().DataField("portoqty").Caption("Portofolio Quantity");
                     })
                     .ColumnResizingMode(ColumnResizingMode.Widget)
                     .FilterRow(f => f.Visible(true))
                     .ShowBorders(false)
-                    //.RowAlternationEnabled(false)
                     .Paging(p =>
                     {
                         p.PageSize(20);
@@ -320,31 +339,122 @@
         }
     });
 
+    function ExportToExcel() {
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("LogExportBIDetail", "BasisInvestor")",
+            success: function (response) {
+                if (response.result == "Success") {
+                    var workbook = new ExcelJS.Workbook();
+                    var worksheet = workbook.addWorksheet('Detail Basis Investor');
+
+                    DevExpress.excelExporter.exportDataGrid({
+                        component: $("#grid1").dxDataGrid("instance"),
+                        worksheet: worksheet,
+                        customizeCell: function (options) {
+                            var { gridCell, excelCell } = options;
+
+                            if (gridCell.rowType === 'data') {
+                                if (options.gridCell.column.dataType === 'number') {
+                                    excelCell.numFmt = '#,##0';
+                                }
+                            }
+                        }
+                    }).then(function () {
+                        workbook.xlsx.writeBuffer().then(function (buffer) {
+                            saveAs(new Blob([buffer], { type: "application/octet-stream" }), "BasisInvestorDetail_" + new Date().toISOString().slice(0, 10) + ".xlsx");
+                        });
+                    });
+                }
+            }
+        });
+    }
+
+    function ExportToPdf() {
+        var dataGrid = $("#grid1").dxDataGrid("instance");
+        dataGrid.option("onExporting", function (e) { });
+        dataGrid.option("onFileSaving", function (e) {
+            var fd = new FormData();
+            fd.append("file", e.data);
+            fd.append("name", "Detail");
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("ExportPDF", "BasisInvestor")",
+                data: fd,
+                processData: false,
+                contentType: false
+            }).done(function (data) {
+                window.location = "@Url.Action("FileIndex", "BasisInvestor", new { name = "Detail" })"
+            });
+            e.cancel = true;
+        });
+        dataGrid.exportToExcel();
+    }
+
+    function thousandSeparatorDecimal(e) {
+        e = parseFloat(e);
+        if (e != null)
+            return e.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    }
+
     function onSelectionChanged(e) {
-        if (e.addedItems.length > 0) {
-            e.component.field().val(""); // Clears the search text. However, search filter is only applied to the widget after focus is lost in the input element
+        if (e.addedItems && e.addedItems.length > 0) {
+            // Get the input element of the ComboBox
+            var inputElement = e.component.$element().find("input").first();
+
+            // Clear the search text
+            if (inputElement.length) {
+                inputElement.val("");
+            }
         }
     }
 
     function onButtonFilterClicked(e) {
         const res = e.validationGroup.validate();
         if (res.status === "valid") {
-            $("#grid1").dxDataGrid("instance").refresh();
-        }
-    }
+            var pe = '@ViewBag.pe';
+            var periode = '@ViewBag.periode';
+            var sid = '@ViewBag.sid';
 
-    function onGridBeforeSend(method, ajaxOptions) {
-        let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
-        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
-        let status = $("#Statusid").dxTagBox("instance").option("value");
+            var seccode = $("#SecCode").dxSelectBox("instance").option("value");
+            var market = $("#Market").dxSelectBox("instance").option("value");
 
-        let periodeAwal = null;
-        if (tempPeriodeAwal != null) {
-            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + (tempPeriodeAwal.getMonth() + 1) + '-' + tempPeriodeAwal.getDate();
+            var gridtrx = $("#gridtrx").dxDataGrid("instance");
+            var gridsre = $("#gridsre").dxDataGrid("instance");
+
+            gridtrx.beginCustomLoading('Loading...');
+            gridsre.beginCustomLoading('Loading...');
+
+            var dsTRX = DevExpress.data.AspNet.createStore({
+                loadUrl: '@Url.Action("GetGridDetailTRX", "BasisInvestor")',
+                loadMode: "processed",
+                loadParams: {
+                    periodeAwal: periode,
+                    namaPE: pe,
+                    invCode: sid,
+                    trxSys: market,
+                    secCode: seccode
+                }
+            });
+
+            gridtrx.option('dataSource', dsTRX);
+            gridtrx.endCustomLoading();
+
+            var dsSRE = DevExpress.data.AspNet.createStore({
+                loadUrl: '@Url.Action("GetGridDetailSRE", "BasisInvestor")',
+                loadMode: "processed",
+                loadParams: {
+                    periodeAwal: periode,
+                    namaPE: pe,
+                    sid: sid,
+                    trxSys: market,
+                    secCode: seccode
+                }
+            });
+
+            gridsre.option('dataSource', dsSRE);
+            gridsre.endCustomLoading();
         }
-        ajaxOptions.data.namaPE = JSON.stringify(namaPE);
-        ajaxOptions.data.periodeAwal = periodeAwal;
-        ajaxOptions.data.status = JSON.stringify(status);
     }
 
     var waitingDialog = (function ($) {
@@ -393,3 +503,9 @@
     })(jQuery);
 
 </script>
+
+<style type="text/css">
+    .mandatory {
+        background-color: red !important;
+    }
+</style>

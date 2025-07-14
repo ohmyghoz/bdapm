@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Data.SqlClient;
+using BDA.Helper.FW;
 
 namespace BDA.Controllers
 {
@@ -57,7 +58,7 @@ namespace BDA.Controllers
 
             return View();
         }
-        public IActionResult SumTxSID(long? id)
+        public IActionResult SumTxSID(string pe, string periode, string sid)
         {
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
             var currentNode = mdl.GetCurrentNode();
@@ -66,6 +67,10 @@ namespace BDA.Controllers
             db.CheckPermission("Summary Transaction SID View", DataEntities.PermissionMessageType.ThrowInvalidOperationException); //check permission nya view/lihat nya
             ViewBag.Export = db.CheckPermission("Summary Transaction SID Export", DataEntities.PermissionMessageType.NoMessage); //check permission export
             db.InsertAuditTrail("Summary_Transaction_SID_Page", "Akses Page Summary Transaction SID", pageTitle); //simpan kedalam audit trail
+
+            ViewBag.pe = pe;
+            ViewBag.periode = periode;
+            ViewBag.sid = sid;
 
             return View();
         }
@@ -904,6 +909,179 @@ namespace BDA.Controllers
 
         #endregion
 
+        #region PS07C
+        public object GetGridDetailTRX(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE, string invCode, string trxSys, string secCode)
+        {
+            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+            TempData.Clear(); //membersihkan data filtering
+
+            string stringPeriodeAwal = null;
+            string stringNamaPE = null;
+            string stringInvCode = null;
+            string stringTrxSys = null;
+            string stringSecCode = null;
+            string reportId = "ps_basis_inv_pe"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+
+            stringPeriodeAwal = Convert.ToDateTime(DateTime.Now).ToString("yyyy-MM-dd");
+            TempData["pawal"] = stringPeriodeAwal;
+
+            if (periodeAwal != null)
+            {
+                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
+                TempData["pawal"] = stringPeriodeAwal;
+            }
+
+            if (namaPE != null)
+            {
+                stringNamaPE = namaPE;
+                TempData["pe"] = stringNamaPE;
+            }
+
+            if (invCode != null)
+            {
+                stringInvCode = invCode;
+                TempData["invCode"] = stringInvCode;
+            }
+
+            if (trxSys != null)
+            {
+                stringTrxSys = trxSys;
+                TempData["trxSys"] = stringTrxSys;
+            }
+
+            if (secCode != null)
+            {
+                stringSecCode = secCode;
+                TempData["secCode"] = stringSecCode;
+            }
+
+            db.Database.CommandTimeout = 420;
+            var result = Helper.WSQueryStore.GetPS07CGridTRX(db, loadOptions, stringPeriodeAwal, stringNamaPE, stringInvCode, stringTrxSys, stringSecCode, cekHive);
+
+            return JsonConvert.SerializeObject(result);
+        }
+
+        public object GetGridDetailSRE(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE, string sid, string trxSys, string secCode)
+        {
+            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+            TempData.Clear(); //membersihkan data filtering
+
+            string stringPeriodeAwal = null;
+            string stringNamaPE = null;
+            string stringSID = null;
+            string stringTrxSys = null;
+            string stringSecCode = null;
+            string reportId = "ps_basis_inv_pe"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+
+            stringPeriodeAwal = Convert.ToDateTime(DateTime.Now).ToString("yyyy-MM-dd");
+            TempData["pawal"] = stringPeriodeAwal;
+
+            if (periodeAwal != null)
+            {
+                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
+                TempData["pawal"] = stringPeriodeAwal;
+            }
+
+            if (namaPE != null)
+            {
+                stringNamaPE = namaPE;
+                TempData["pe"] = stringNamaPE;
+            }
+
+            if (sid != null)
+            {
+                stringSID = sid;
+                TempData["sid"] = stringSID;
+            }
+
+            if (trxSys != null)
+            {
+                stringTrxSys = trxSys;
+                TempData["trxSys"] = stringTrxSys;
+            }
+
+            if (secCode != null)
+            {
+                stringSecCode = secCode;
+                TempData["secCode"] = stringSecCode;
+            }
+
+            db.Database.CommandTimeout = 420;
+            var result = Helper.WSQueryStore.GetPS07CGridSRE(db, loadOptions, stringPeriodeAwal, stringNamaPE, stringSID, stringTrxSys, stringSecCode, cekHive);
+            var processedData = (from row in result.data.AsEnumerable()
+                                   group row by new
+                                   {
+                                       pe = row.Field<string>("pe"),
+                                       sid = row.Field<string>("sid"),
+                                       secphytcode = row.Field<string>("secphytcode"),
+                                       stlactowntcode = row.Field<string>("stlactowntcode"),
+                                       stlacttcode = row.Field<string>("stlacttcode"),
+                                       actblcstscode = row.Field<string>("actblcstscode")
+                                   } into g
+                                   select new
+                                   {
+                                       pe = g.Key.pe,
+                                       sid = g.Key.sid,
+                                       secphytcode = g.Key.secphytcode,
+                                       stlactowntcode = g.Key.stlactowntcode,
+                                       stlacttcode = g.Key.stlacttcode,
+                                       actblcstscode = g.Key.actblcstscode,
+                                       portoamount = g.Sum(x => double.TryParse(x.Field<string>("portoamount"), out double valPA) ? valPA : 0d),
+                                       portoqty = g.Sum(x => double.TryParse(x.Field<string>("portoqty"), out double valPQ) ? valPQ : 0d)
+                                   });
+
+            DataTable dt = new DataTable();
+            dt = Helper.WSQueryStore.LINQResultToDataTable(processedData);
+
+            var processedResult = new WSQueryReturns { data = dt, totalCount = dt.Rows.Count };
+
+            return JsonConvert.SerializeObject(processedResult);
+        }
+
+        public IActionResult LogExportTRXDetail()
+        {
+            try
+            {
+                var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+                var currentNode = mdl.GetCurrentNode();
+
+                string pageTitle = currentNode != null ? currentNode.Title : "";
+
+                db.CheckPermission("Detail Basis Investor Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+                db.InsertAuditTrail("BasisInvestorDetail_Akses_Page", "Export Data", pageTitle);
+                return Json(new { result = "Success" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { result = db.ProcessExceptionMessage(ex) });
+            }
+        }
+
+        public IActionResult LogExportSREDetail()
+        {
+            try
+            {
+                var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+                var currentNode = mdl.GetCurrentNode();
+
+                string pageTitle = currentNode != null ? currentNode.Title : "";
+
+                db.CheckPermission("Detail Basis Investor Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+                db.InsertAuditTrail("BasisInvestorDetail_Akses_Page", "Export Data", pageTitle);
+                return Json(new { result = "Success" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { result = db.ProcessExceptionMessage(ex) });
+            }
+        }
+
+        #endregion 
+
         [HttpPost]
         public ActionResult SimpanPenggunaanData(string id)
         {
@@ -954,14 +1132,18 @@ namespace BDA.Controllers
 
             string reportId = "dim_exchange_members"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
             var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
-            var result = Helper.WSQueryStore.GetBDAPMNamaPE(db, loadOptions, reportId, cekHive);
+
+            
+            var result = Helper.WSQueryStore.GetBDAPMNamaPEv2(db, loadOptions, reportId, cekHive);
             var varDataList = (dynamic)null;
+
             varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
                            select new
                            {
                                exchangemembercode = bs.Field<string>("exchangemembercode").ToString(),
                                exchangemembername = bs.Field<string>("exchangemembername").ToString(),
                            }).OrderBy(bs => bs.exchangemembername).ToList();
+
             DataTable dtList = new DataTable();
             dtList = Helper.WSQueryStore.LINQResultToDataTable(varDataList);
 
@@ -973,9 +1155,57 @@ namespace BDA.Controllers
                     list.Add(new NamaPE() { value = dtList.Rows[i]["exchangemembercode"].ToString(), text = namakode });
                 }
             }
-            return Json(DataSourceLoader.Load(list, loadOptions));
+
+            var res = DataSourceLoader.Load(list, loadOptions);
+
+            return Json(res);
         }
+
+        [HttpGet]
+        public object GetNamaSecurities(DataSourceLoadOptions loadOptions)
+        {
+            var userId = HttpContext.User.Identity.Name;
+            string strSQL = db.appSettings.DataConnString;
+            var list = new List<NamaSecurities>();
+
+            string reportId = "dim_securities"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+
+
+            var result = Helper.WSQueryStore.GetBDAPMSecurities(db, loadOptions, reportId, cekHive);
+            var varDataList = (dynamic)null;
+
+            varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                           select new
+                           {
+                               securitycode = bs.Field<string>("securitycode").ToString(),
+                               securityname = bs.Field<string>("securityname").ToString(),
+                           }).OrderBy(bs => bs.securityname).ToList();
+
+            DataTable dtList = new DataTable();
+            dtList = Helper.WSQueryStore.LINQResultToDataTable(varDataList);
+
+            if (dtList.Rows.Count > 0)
+            {
+                for (int i = 0; i < dtList.Rows.Count; i++)
+                {
+                    string namakode = dtList.Rows[i]["securitycode"].ToString() + " | " + dtList.Rows[i]["securityname"].ToString();
+                    list.Add(new NamaSecurities() { value = dtList.Rows[i]["securitycode"].ToString(), text = namakode });
+                }
+            }
+
+            var res = DataSourceLoader.Load(list, loadOptions);
+
+            return Json(res);
+        }
+
         public class NamaPE
+        {
+            public string value { get; set; }
+            public string text { get; set; }
+        }
+
+        public class NamaSecurities
         {
             public string value { get; set; }
             public string text { get; set; }
