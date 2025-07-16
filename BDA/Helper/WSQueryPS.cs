@@ -1498,6 +1498,165 @@ namespace BDA.Helper
                 throw;
             }
         }
+
+        public static WSQueryReturns GetMarketDrivenSummaryData(DataEntities db, string filterDate)
+        {
+            System.Diagnostics.Debug.WriteLine("=== WSQueryPS SUMMARY DIRECT SQL DEBUG START ===");
+            System.Diagnostics.Debug.WriteLine($"WSQueryPS Summary received filterDate: '{filterDate}'");
+
+            try
+            {
+                string sqlQuery = @"
+            SELECT TOP 1
+                calendarsk,
+                ISNULL(closingvalue, 0) as closingvalue,
+                ISNULL(marketcapitalizationamount, 0) as marketcapitalizationamount,
+                ISNULL(net_value, 0) as net_value,
+                ISNULL(net_volume, 0) as net_volume
+            FROM BDAPM.pasarmodal.market_driven_sum_trades
+            WHERE calendarsk = @filterDate
+            ORDER BY calendarsk DESC";
+
+                System.Diagnostics.Debug.WriteLine($"Direct SQL Query: {sqlQuery}");
+                System.Diagnostics.Debug.WriteLine($"Filter Date Parameter: {filterDate}");
+
+                DataTable dt = new DataTable();
+                string connString = db.appSettings.DataConnString;
+
+                using (var conn = new System.Data.SqlClient.SqlConnection(connString))
+                {
+                    using (var cmd = new System.Data.SqlClient.SqlCommand(sqlQuery, conn))
+                    {
+                        cmd.CommandTimeout = 300;
+
+                        // Convert string to int for the parameter
+                        if (int.TryParse(filterDate, out int dateAsInt))
+                        {
+                            cmd.Parameters.AddWithValue("@filterDate", dateAsInt);
+                        }
+                        else
+                        {
+                            throw new ArgumentException($"Invalid date format: {filterDate}");
+                        }
+
+                        var adapter = new System.Data.SqlClient.SqlDataAdapter(cmd);
+                        adapter.Fill(dt);
+                    }
+                }
+
+                System.Diagnostics.Debug.WriteLine($"Direct SQL result rows: {dt.Rows.Count}");
+
+                if (dt.Rows.Count > 0)
+                {
+                    var firstRow = dt.Rows[0];
+                    System.Diagnostics.Debug.WriteLine("=== DIRECT SQL SAMPLE DATA ===");
+                    foreach (DataColumn column in dt.Columns)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"  {column.ColumnName}: {firstRow[column.ColumnName]}");
+                    }
+                }
+
+                return new WSQueryReturns
+                {
+                    data = dt,
+                };
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Direct SQL Error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
+
+                return new WSQueryReturns
+                {
+                    data = new DataTable(),
+            
+                };
+            }
+        }
+
+        public static WSQueryReturns GetMarketChartData(DataEntities db, string chartType, string startDate = null, string endDate = null, string singleDate = null)
+        {
+            System.Diagnostics.Debug.WriteLine("=== WSQueryPS CHART DEBUG START ===");
+            System.Diagnostics.Debug.WriteLine($"Chart Type: {chartType}, Single: {singleDate}, Start: {startDate}, End: {endDate}");
+
+            try
+            {
+                string whereClause = "1=1";
+
+                // Build WHERE clause based on date parameters
+                if (!string.IsNullOrEmpty(singleDate))
+                {
+                    whereClause += " AND calendarsk = " + singleDate;
+                }
+                else if (!string.IsNullOrEmpty(startDate) && !string.IsNullOrEmpty(endDate))
+                {
+                    whereClause += " AND calendarsk >= " + startDate + " AND calendarsk <= " + endDate;
+                }
+
+                // Determine value field based on chart type
+                string valueField;
+                switch (chartType?.ToLower())
+                {
+                    case "volume":
+                        valueField = "tradingvolume";
+                        break;
+                    case "market cap":
+                        valueField = "marketcapitalizationamount";
+                        break;
+                    default: // "value"
+                        valueField = "closingvalue";
+                        break;
+                }
+
+                string sqlQuery = $@"
+            SELECT 
+                calendarsk,
+                CAST(CONCAT(
+                    SUBSTRING(CAST(calendarsk AS VARCHAR), 1, 4), '-',
+                    SUBSTRING(CAST(calendarsk AS VARCHAR), 5, 2), '-', 
+                    SUBSTRING(CAST(calendarsk AS VARCHAR), 7, 2)
+                ) AS DATE) as date,
+                ISNULL({valueField}, 0) as value
+            FROM BDAPM.pasarmodal.market_driven_sum_trades
+            WHERE {whereClause}
+            ORDER BY calendarsk ASC";
+
+                System.Diagnostics.Debug.WriteLine("=== CHART SQL QUERY ===");
+                System.Diagnostics.Debug.WriteLine(sqlQuery);
+
+                DataTable dt = new DataTable();
+                string connString = db.appSettings.DataConnString;
+
+                using (var conn = new System.Data.SqlClient.SqlConnection(connString))
+                {
+                    using (var cmd = new System.Data.SqlClient.SqlCommand(sqlQuery, conn))
+                    {
+                        cmd.CommandTimeout = 300;
+                        var adapter = new System.Data.SqlClient.SqlDataAdapter(cmd);
+                        adapter.Fill(dt);
+                    }
+                }
+
+                System.Diagnostics.Debug.WriteLine($"Chart data rows: {dt.Rows.Count}");
+
+                return new WSQueryReturns
+                {
+                    data = dt,
+                  
+                };
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Chart WSQuery error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+
+                return new WSQueryReturns
+                {
+                    data = new DataTable(),
+            
+                };
+            }
+        }
         public static WSQueryReturns GetBDAPMSegmentasiTransaksiGrid(DataEntities db, DataSourceLoadOptions loadOptions, string periodes, string stringPE, string jenisTransaksi)
         {
             bool isC = false;

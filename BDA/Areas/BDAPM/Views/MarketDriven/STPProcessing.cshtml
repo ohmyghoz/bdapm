@@ -5,6 +5,8 @@
 
 @inject BDA.DataModel.DataEntities db
 
+
+
 @using (Html.BeginForm())
 {
     @Html.AntiForgeryToken()
@@ -57,6 +59,16 @@
                         .Text("Tampilkan")
                         .OnClick("onButtonFilterClicked")
                         .ValidationGroup("Filter"))
+                </div>
+
+                <!-- Master Export Buttons -->
+                <div class="float-right">
+                    <a class="btn btn-dark font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();" title="Export All to Excel">
+                        <span class="image fa fa-file-excel"></span> Export All to Excel
+                    </a>
+                    <a class="btn btn-success font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf();" title="Export All to PDF">
+                        <span class="image fa fa-file-pdf"></span> Export All to PDF
+                    </a>
                 </div>
             </div>
         </div>
@@ -166,10 +178,15 @@
     </div>
 }
 
+
+
 <script>
     window.jsPDF = window.jspdf.jsPDF;
-    applyPlugin(window.jsPDF);
 </script>
+<!-- Keep your local Excel dependencies -->
+<script src="~/js/exceljs.min.js"></script>
+<script src="~/js/FileSaver.min.js"></script>
+
 
 <script>
     // Global variables to store filter values
@@ -270,6 +287,10 @@
             remoteOperations: true,
             keyExpr: "rowid",
             showBorders: true,
+            export: {
+                enabled: true,
+                formats: ['pdf', 'xlsx']
+            },
             columns: [
                 { dataField: "rowid", visible: false },
                 {
@@ -370,6 +391,10 @@
             remoteOperations: true,
             keyExpr: "rowid",
             showBorders: true,
+            export: {
+                enabled: true,
+                formats: ['pdf', 'xlsx']
+            },
             columns: [
                 { dataField: "rowid", visible: false },
                 {
@@ -465,15 +490,19 @@
             remoteOperations: true,
             keyExpr: "rowid",
             showBorders: true,
+            export: {
+                enabled: true,
+                formats: ['pdf', 'xlsx']
+            },
             columns: [
                 { dataField: "rowid", visible: false },
                 {
-                    dataField: "settlementdatesk",
+                    dataField: "settledate",
                     caption: "Tgl. Settlement",
                     dataType: "date",
                     format: "dd/MM/yyyy",
                     calculateCellValue: function (data) {
-                        return convertDateFromYYYYMMDD(data.settlementdatesk);
+                        return convertDateFromYYYYMMDD(data.settledate);
                     }
                 },
                 {
@@ -565,6 +594,10 @@
             remoteOperations: true,
             keyExpr: "rowid",
             showBorders: true,
+            export: {
+                enabled: true,
+                formats: ['pdf', 'xlsx']
+            },
             columns: [
                 { dataField: "rowid", visible: false },
                 {
@@ -585,7 +618,7 @@
                         return convertDateFromYYYYMMDD(data.tradedatesk);
                     }
                 },
-                { dataField: "sid", caption: "SID" },
+                { dataField: "investorid", caption: "SID" },
                 { dataField: "investorcode", caption: "Trading ID" },
                 { dataField: "cpinvestorcode", caption: "CP Trading ID" },
                 { dataField: "securitycode", caption: "Security Code" },
@@ -654,8 +687,59 @@
         }
     });
 
+    function exportGridToPDFServerSide(gridId, name) {
+        return new Promise((resolve, reject) => {
+            console.log(`Starting server-side PDF export for ${gridId} - ${name}`);
 
-    // Replace your existing onButtonFilterClicked function with this final version
+            var dataGrid = $("#" + gridId).dxDataGrid("instance");
+
+            if (!dataGrid) {
+                const error = `${name} grid not found or not initialized.`;
+                alert(error);
+                reject(error);
+                return;
+            }
+
+            dataGrid.option("onExporting", function (e) {
+                console.log(`${name} grid exporting...`);
+            });
+
+            dataGrid.option("onFileSaving", function (e) {
+                console.log(`${name} grid file saving to server...`);
+
+                var fd = new FormData();
+                fd.append("file", e.data);
+                fd.append("name", name);
+
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("ExportSTPPDFServerSide", "MarketDriven")",
+                    data: fd,
+                    processData: false,
+                    contentType: false
+                }).done(function (data) {
+                    console.log(`${name} upload response:`, data);
+
+                    if (data.result === "Success") {
+                        // Download the file
+                        window.open("@Url.Action("DownloadSTPPDF", "MarketDriven")?name=" + name, "_blank");
+                        resolve();
+                    } else {
+                        alert(`Error processing ${name} PDF: ` + data.message);
+                        reject(data.message);
+                    }
+                }).fail(function (xhr, status, error) {
+                    console.error(`${name} PDF upload failed:`, error);
+                    alert(`Failed to upload ${name} PDF: ` + error);
+                    reject(error);
+                });
+
+                e.cancel = true;
+            });
+
+            dataGrid.exportToExcel();
+        });
+    }
 
     function onButtonFilterClicked(e) {
         const result = e.validationGroup.validate();
@@ -726,85 +810,329 @@
         return null;
     }
 
-    function exportGridToPDF1() {
-        const doc = new jsPDF();
-        const dataGrid = $("#grid1").dxDataGrid("instance");
-        DevExpress.pdfExporter.exportDataGrid({
-            jsPDFDocument: doc,
-            component: dataGrid,
-            keepColumnWidths: true
-        }).then(() => {
-            doc.save('STP_Balance_Data.pdf');
+    // Master Excel Export Function
+    function ExportToExcel() {
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("LogExportSTPIndex", "MarketDriven")",
+            success: function (response) {
+                if (response.result == "Success") {
+                    var workbook = new ExcelJS.Workbook();
+                    var worksheet1 = workbook.addWorksheet('Balance');
+                    var worksheet2 = workbook.addWorksheet('Settlement');
+                    var worksheet3 = workbook.addWorksheet('Clearing');
+                    var worksheet4 = workbook.addWorksheet('Transaction');
+
+                    // Export Balance Grid
+                    DevExpress.excelExporter.exportDataGrid({
+                        component: $("#grid1").dxDataGrid("instance"),
+                        worksheet: worksheet1,
+                        customizeCell: function (options) {
+                            var { gridCell, excelCell } = options;
+                            if (gridCell.rowType === 'data') {
+                                if (options.gridCell.column.dataType === 'number') {
+                                    excelCell.numFmt = '#,##0';
+                                } else if (options.gridCell.column.dataType === 'date') {
+                                    excelCell.numFmt = 'dd/mm/yyyy';
+                                }
+                            }
+                        }
+                    }).then(() =>
+                        // Export Settlement Grid
+                        DevExpress.excelExporter.exportDataGrid({
+                            component: $("#grid2").dxDataGrid("instance"),
+                            worksheet: worksheet2,
+                            customizeCell: function (options) {
+                                var { gridCell, excelCell } = options;
+                                if (gridCell.rowType === 'data') {
+                                    if (options.gridCell.column.dataType === 'number') {
+                                        excelCell.numFmt = '#,##0';
+                                    } else if (options.gridCell.column.dataType === 'date') {
+                                        excelCell.numFmt = 'dd/mm/yyyy';
+                                    }
+                                }
+                            }
+                        })
+                    ).then(() =>
+                        // Export Clearing Grid
+                        DevExpress.excelExporter.exportDataGrid({
+                            component: $("#grid3").dxDataGrid("instance"),
+                            worksheet: worksheet3,
+                            customizeCell: function (options) {
+                                var { gridCell, excelCell } = options;
+                                if (gridCell.rowType === 'data') {
+                                    if (options.gridCell.column.dataType === 'number') {
+                                        excelCell.numFmt = '#,##0';
+                                    } else if (options.gridCell.column.dataType === 'date') {
+                                        excelCell.numFmt = 'dd/mm/yyyy';
+                                    }
+                                }
+                            }
+                        })
+                    ).then(() =>
+                        // Export Transaction Grid
+                        DevExpress.excelExporter.exportDataGrid({
+                            component: $("#grid4").dxDataGrid("instance"),
+                            worksheet: worksheet4,
+                            customizeCell: function (options) {
+                                var { gridCell, excelCell } = options;
+                                if (gridCell.rowType === 'data') {
+                                    if (options.gridCell.column.dataType === 'number') {
+                                        excelCell.numFmt = '#,##0';
+                                    } else if (options.gridCell.column.dataType === 'date') {
+                                        excelCell.numFmt = 'dd/mm/yyyy';
+                                    }
+                                }
+                            }
+                        })
+                    ).then(function () {
+                        workbook.xlsx.writeBuffer().then(function (buffer) {
+                            saveAs(new Blob([buffer], { type: "application/octet-stream" }), "STP_Processing_" + new Date().toISOString().slice(0, 10) + ".xlsx");
+                        });
+                    });
+                } else {
+                    alert("Error logging export: " + response.message);
+                }
+            },
+            error: function () {
+                alert("Error occurred while preparing export");
+            }
         });
     }
 
+    // Individual Excel Export Functions
     function exportGridToExcel1() {
         var dataGrid = $("#grid1").dxDataGrid("instance");
-        dataGrid.exportToExcel(false);
-    }
-
-    function exportGridToPDF2() {
-        const doc = new jsPDF();
-        const dataGrid = $("#grid2").dxDataGrid("instance");
-        DevExpress.pdfExporter.exportDataGrid({
-            jsPDFDocument: doc,
-            component: dataGrid,
-            keepColumnWidths: true
-        }).then(() => {
-            doc.save('STP_Settlement_Data.pdf');
-        });
+        if (dataGrid) {
+            dataGrid.exportToExcel(false);
+        } else {
+            alert("Balance grid not found or not initialized.");
+        }
     }
 
     function exportGridToExcel2() {
         var dataGrid = $("#grid2").dxDataGrid("instance");
-        dataGrid.exportToExcel(false);
-    }
-
-
-    function exportGridToPDF3() {
-        const doc = new jsPDF();
-        const dataGrid = $("#grid3").dxDataGrid("instance");
-        DevExpress.pdfExporter.exportDataGrid({
-            jsPDFDocument: doc,
-            component: dataGrid,
-            keepColumnWidths: true
-        }).then(() => {
-            doc.save('STP_Clearing_Data.pdf');
-        });
+        if (dataGrid) {
+            dataGrid.exportToExcel(false);
+        } else {
+            alert("Settlement grid not found or not initialized.");
+        }
     }
 
     function exportGridToExcel3() {
         var dataGrid = $("#grid3").dxDataGrid("instance");
-        dataGrid.exportToExcel(false);
-    }
-
-    // Update these export functions for Transaction grid (replace the placeholder functions)
-
-    function exportGridToPDF4() {
-        const doc = new jsPDF();
-        const dataGrid = $("#grid4").dxDataGrid("instance");
-        DevExpress.pdfExporter.exportDataGrid({
-            jsPDFDocument: doc,
-            component: dataGrid,
-            keepColumnWidths: true
-        }).then(() => {
-            doc.save('STP_Transaction_Data.pdf');
-        });
+        if (dataGrid) {
+            dataGrid.exportToExcel(false);
+        } else {
+            alert("Clearing grid not found or not initialized.");
+        }
     }
 
     function exportGridToExcel4() {
         var dataGrid = $("#grid4").dxDataGrid("instance");
-        dataGrid.exportToExcel(false);
+        if (dataGrid) {
+            dataGrid.exportToExcel(false);
+        } else {
+            alert("Transaction grid not found or not initialized.");
+        }
     }
 
-    // Placeholder export functions for other grids
-    function exportGridToPDF2() { console.log("PDF export for grid2"); }
-    function exportGridToExcel2() { console.log("Excel export for grid2"); }
-    function exportGridToPDF3() { console.log("PDF export for grid3"); }
-    function exportGridToExcel3() { console.log("Excel export for grid3"); }
-    function exportGridToPDF4() { console.log("PDF export for grid4"); }
-    function exportGridToExcel4() { console.log("Excel export for grid4"); }
+    // Master PDF Export Function
+    function ExportToPdf() {
+        console.log("Starting direct PDF export process...");
+
+        // Create a promise chain to download PDFs sequentially
+        exportGridToPDFDirect("grid1", "Balance")
+            .then(() => {
+                console.log("Balance PDF downloaded, starting Settlement...");
+                return exportGridToPDFDirect("grid2", "Settlement");
+            })
+            .then(() => {
+                console.log("Settlement PDF downloaded, starting Clearing...");
+                return exportGridToPDFDirect("grid3", "Clearing");
+            })
+            .then(() => {
+                console.log("Clearing PDF downloaded, starting Transaction...");
+                return exportGridToPDFDirect("grid4", "Transaction");
+            })
+            .then(() => {
+                console.log("All PDFs downloaded successfully!");
+                alert("All PDF files have been downloaded successfully!");
+            })
+            .catch((error) => {
+                console.error("Error in PDF export chain:", error);
+                alert("Error during PDF export: " + error);
+            });
+    }
+
+    // Individual PDF export functions
+    function exportGridToPDF1() {
+        var dataGrid = $("#grid1").dxDataGrid("instance");
+        if (dataGrid) {
+            var doc = new jsPDF();
+            DevExpress.pdfExporter.exportDataGrid({
+                jsPDFDocument: doc,
+                component: dataGrid,
+                indent: 5,
+            }).then(function () {
+                doc.save("STP_Balance_" + new Date().toISOString().slice(0, 10) + ".pdf");
+            });
+        }
+    }
+
+    function exportGridToPDF2() {
+        var dataGrid = $("#grid2").dxDataGrid("instance");
+        if (dataGrid) {
+            var doc = new jsPDF();
+            DevExpress.pdfExporter.exportDataGrid({
+                jsPDFDocument: doc,
+                component: dataGrid,
+                indent: 5,
+            }).then(function () {
+                doc.save("STP_Settlement_" + new Date().toISOString().slice(0, 10) + ".pdf");
+            });
+        }
+    }
+
+    function exportGridToPDF3() {
+        var dataGrid = $("#grid3").dxDataGrid("instance");
+        if (dataGrid) {
+            var doc = new jsPDF();
+            DevExpress.pdfExporter.exportDataGrid({
+                jsPDFDocument: doc,
+                component: dataGrid,
+                indent: 5,
+            }).then(function () {
+                doc.save("STP_Clearing_" + new Date().toISOString().slice(0, 10) + ".pdf");
+            });
+        }
+    }
+
+    function exportGridToPDF4() {
+        var dataGrid = $("#grid4").dxDataGrid("instance");
+        if (dataGrid) {
+            var doc = new jsPDF();
+            DevExpress.pdfExporter.exportDataGrid({
+                jsPDFDocument: doc,
+                component: dataGrid,
+                indent: 5,
+            }).then(function () {
+                doc.save("STP_Transaction_" + new Date().toISOString().slice(0, 10) + ".pdf");
+            });
+        }
+    }
+
+    // Helper function for direct PDF download
+    function exportGridToPDFDirect(gridId, name) {
+        return new Promise((resolve, reject) => {
+            console.log(`Starting direct PDF export for ${gridId} - ${name}`);
+
+            var dataGrid = $("#" + gridId).dxDataGrid("instance");
+
+            if (!dataGrid) {
+                const error = `${name} grid not found or not initialized.`;
+                alert(error);
+                reject(error);
+                return;
+            }
+
+            // Check if grid has data
+            const dataSource = dataGrid.getDataSource();
+            if (!dataSource || !dataSource.items() || dataSource.items().length === 0) {
+                const error = `${name} grid has no data to export. Please apply filters first.`;
+                alert(error);
+                reject(error);
+                return;
+            }
+
+            console.log(`${name} grid has ${dataSource.items().length} items to export`);
+
+            dataGrid.option("onExporting", function (e) {
+                console.log(`${name} grid exporting...`);
+            });
+
+            dataGrid.option("onFileSaving", function (e) {
+                console.log(`${name} grid file saving...`);
+
+                var fd = new FormData();
+                fd.append("file", e.data);
+                fd.append("name", name);
+
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("ExportSTPPDFDirect", "MarketDriven")",
+                    data: fd,
+                    processData: false,
+                    contentType: false,
+                    xhrFields: {
+                        responseType: 'blob' // Important for file download
+                    }
+                }).done(function (data, status, xhr) {
+                    console.log(`${name} PDF generated successfully`);
+
+                    // Create a blob URL and trigger download
+                    const blob = new Blob([data], { type: 'application/pdf' });
+                    const url = window.URL.createObjectURL(blob);
+
+                    // Get the filename from the response header or create a default one
+                    const contentDisposition = xhr.getResponseHeader('Content-Disposition');
+                    let filename = `STP_${name}_${new Date().toISOString().slice(0, 10)}.pdf`;
+
+                    if (contentDisposition) {
+                        const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+                        if (filenameMatch && filenameMatch[1]) {
+                            filename = filenameMatch[1].replace(/['"]/g, '');
+                        }
+                    }
+
+                    // Create download link and trigger download
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+
+                    // Clean up
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+
+                    console.log(`${name} PDF download triggered`);
+                    resolve();
+
+                }).fail(function (xhr, status, error) {
+                    console.error(`${name} PDF export failed:`, error);
+                    console.error("Response:", xhr.responseText);
+
+                    let errorMessage = `Failed to export ${name} PDF: ${error}`;
+                    if (xhr.responseText) {
+                        try {
+                            const errorObj = JSON.parse(xhr.responseText);
+                            errorMessage = `Failed to export ${name} PDF: ${errorObj.message || error}`;
+                        } catch (e) {
+                            errorMessage = `Failed to export ${name} PDF: ${xhr.responseText}`;
+                        }
+                    }
+
+                    alert(errorMessage);
+                    reject(errorMessage);
+                });
+
+                e.cancel = true;
+            });
+
+            // Trigger the export
+            dataGrid.exportToExcel();
+        });
+    }
 </script>
+
+<script>
+
+    window.jsPDF = window.jspdf.jsPDF;
+
+    applyPlugin(window.jsPDF);
+</script>
+
 
 <style type="text/css">
     .mandatory {
