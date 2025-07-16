@@ -152,7 +152,9 @@
 
             <div class="gridview-div">
                 <header class="bg-danger"><h5 class="text-white">&nbsp;Transaction Summary</h5></header>
-                @(Html.DevExtreme().DataGrid()
+                <div id="pgTRX"></div>
+                <div class="loadpanel1"></div>
+                @* @(Html.DevExtreme().DataGrid()
                     .ID("gridtrx")
                     .RemoteOperations(true)
                     .Width("100%")
@@ -181,7 +183,8 @@
                     {
                         p.ShowInfo(true);
                     })
-                    )
+                    ) *@
+
             </div>
         </div>
 
@@ -199,7 +202,9 @@
             <br />
             <div class="gridview-div">
                 <header class="bg-danger"><h5 class="text-white">&nbsp;SRE Summary</h5></header>
-                @(Html.DevExtreme().DataGrid()
+                <div id="pgSRE"></div>
+                <div class="loadpanel2"></div>
+                @* @(Html.DevExtreme().DataGrid()
                     .ID("gridsre")
                     .RemoteOperations(true)
                     .Width("100%")
@@ -228,8 +233,12 @@
                     {
                         p.ShowInfo(true);
                     })
-                    )
+                    ) *@
             </div>
+        </div>
+
+        <div class="pt-4 pb-4">
+            <br />
         </div>
 
         <!-- The Modal  Detail-->
@@ -279,29 +288,45 @@
 <script>
 
     $(function () {
-        const startDate = $("#PeriodeAwal").dxDateBox({
-            onValueChanged: function (e) {
-                endDate.option("min", e.value);
-            }
-        }).dxDateBox("instance");
+        var pgTRX = $("#pgTRX").dxPivotGrid({
+            dataSource: {
+                store: {
+                    type: "array",
+                    key: "sid",
+                    data: []
+                }
+            },
+            loadPanel: { enabled: true },
+            showBorders: true,
+            showRowGrandTotals: false,
+            showRowTotals: false,
+            showColumnGrandTotals: false,
+            showColumnTotals: false,
+            fieldChooser: { enabled: false }
+        }).dxPivotGrid("instance");
 
-        $("#PeriodeAwal").dxValidator({
-            validationGroup: "Filter",
-            validationRules: [{ type: "required", message: "[Tanggal] harus dipilih" }]
-        })
+        var pgSRE = $("#pgSRE").dxPivotGrid({
+            dataSource: {
+                store: {
+                    type: "array",
+                    key: "sid",
+                    data: []
+                }
+            },
+            loadPanel: { enabled: true },
+            showBorders: true,
+            showRowGrandTotals: false,
+            showRowTotals: false,
+            showColumnGrandTotals: false,
+            showColumnTotals: false,
+            fieldChooser: { enabled: false }
+        }).dxPivotGrid("instance");
     });
 
     $(function () {
         $("#penggunaandataid").dxValidator({
             validationGroup: "Filter",
             validationRules: [{ type: "required", message: "[Penggunaan Data] harus dipilih" }]
-        })
-    });
-
-    $(function () {
-        $("#namaPEid").dxValidator({
-            validationGroup: "Filter",
-            validationRules: [{ type: "required", message: "[Nama PE] harus dipilih" }]
         })
     });
 
@@ -419,13 +444,217 @@
             var seccode = $("#SecCode").dxSelectBox("instance").option("value");
             var market = $("#Market").dxSelectBox("instance").option("value");
 
-            var gridtrx = $("#gridtrx").dxDataGrid("instance");
-            var gridsre = $("#gridsre").dxDataGrid("instance");
+            var lp1 = $('.loadpanel1').dxLoadPanel({
+                position: { 
+                    my: "center",
+                    at: "center",
+                    of: '#pgTRX' 
+                },
+                visible: false,
+                showIndicator: true,
+                showPane: true,
+                shading: false,
+                hideOnOutsideClick: false
+            }).dxLoadPanel('instance');
 
-            gridtrx.beginCustomLoading('Loading...');
-            gridsre.beginCustomLoading('Loading...');
+            var lp2 = $('.loadpanel2').dxLoadPanel({
+                position: { 
+                    my: "center",
+                    at: "center",
+                    of: '#pgSRE' 
+                },
+                visible: false,
+                showIndicator: true,
+                showPane: true,
+                shading: false,
+                hideOnOutsideClick: false
+            }).dxLoadPanel('instance');
 
-            var dsTRX = DevExpress.data.AspNet.createStore({
+            lp1.show();
+            lp2.show();
+
+            function loadTRX() {
+                return $.ajax({
+                    url: '@Url.Action("GetGridDetailTRX", "BasisInvestor")',
+                    data: {
+                        periodeAwal: periode,
+                        namaPE: pe,
+                        invCode: sid,
+                        trxSys: market,
+                        secCode: seccode
+                    },
+                    dataType: "json",
+                    type: "POST",
+                    success: function (response) {
+                        var pgTRX = $("#pgTRX").dxPivotGrid({
+                            dataSource: {
+                                store: {
+                                    type: "array",
+                                    key: "sid",
+                                    data: response.data
+                                },
+                                fields: [
+                                    { dataField: "pe", caption: "PE", area: "row" },
+                                    { dataField: "sid", caption: "SID", area: "row" },
+                                    { dataField: "invcode", caption: "Investor Code", area: "row" },
+                                    { dataField: "seccode", caption: "Security Code", area: "row" },
+                                    { dataField: "trxsys", caption: "Transaction System", area: "row" },
+                                    { dataField: "fake", caption: "", area: "column" },
+                                    { dataField: "ttltrxfreq", caption: "Total Transaction Frequency", area: "data", dataType: "number", format: '#,##0', summaryType: "sum" },
+                                    { dataField: "ttltrxvol", caption: "Total Transaction Volume", area: "data", dataType: "number", format: '#,##0', summaryType: "sum" },
+                                    { dataField: "ttltrxval", caption: "Total Transaction Value", area: "data", dataType: "number", format: '#,##0', summaryType: "sum" }
+                                ]
+                            },
+                            loadPanel: { enabled: false },
+                            showBorders: true,
+                            showRowGrandTotals: false,
+                            showRowTotals: false,
+                            showColumnGrandTotals: false,
+                            showColumnTotals: false,
+                            headerFilter: { enabled: false, },
+                            fieldChooser: { enabled: false },
+                            customizeText: function (cellInfo) {
+                                if (cellInfo.value === "") {
+                                    return 0;
+                                }
+                                return cellInfo.valueText;
+                            },
+                            hideEmptySummaryCells: false,
+                            fieldPanel: {
+                                showColumnFields: false,
+                                showDataFields: false,
+                                showFilterFields: false,
+                                showRowFields: true,
+                                allowFieldDragging: false,
+                                visible: true,
+                            },
+                            scrolling: {
+                                mode: 'virtual',
+                            },
+                            width: "100%"
+                        }).dxPivotGrid("instance");
+
+                        pgTRX.getDataSource().expandAll("pe");
+                        pgTRX.getDataSource().expandAll("sid");
+                        pgTRX.getDataSource().expandAll("invcode");
+                        pgTRX.getDataSource().expandAll("seccode");
+                        pgTRX.getDataSource().expandAll("trxsys");
+
+                        lp1.hide();
+                        setTimeout(function () {
+                            $(".loadpanel2").dxLoadPanel("instance").repaint();
+                        }, 1000);
+                        
+                    }
+                });
+            }
+
+            function loadSRE() {
+                return $.ajax({
+                    url: '@Url.Action("GetGridDetailSRE", "BasisInvestor")',
+                    data: {
+                        periodeAwal: periode,
+                        namaPE: pe,
+                        sid: sid,
+                        trxSys: market,
+                        secCode: seccode
+                    },
+                    dataType: "json",
+                    type: "POST",
+                    success: function (response) {
+                        var pgSRE = $("#pgSRE").dxPivotGrid({
+                            dataSource: {
+                                store: {
+                                    type: "array",
+                                    key: "sid",
+                                    data: response.data
+                                },
+                                fields: [
+                                    { dataField: "pe", caption: "PE", area: "row" },
+                                    { dataField: "sid", caption: "SID", area: "row" },
+                                    { dataField: "secphytcode", caption: "Security Physical Type Code", area: "row" },
+                                    { dataField: "stlactowntcode", caption: "Settlement Account Owner Type Code", area: "row" },
+                                    { dataField: "stlacttcode", caption: "Settlement Account Type Code", area: "row" },
+                                    { dataField: "actblcstscode", caption: "Account Balance Status Code", area: "row" },
+                                    { dataField: "fake", caption: "", area: "column" },
+                                    { dataField: "portoamount", caption: "Portofolio Amount", area: "data", dataType: "number", format: '#,##0', summaryType: "sum" },
+                                    { dataField: "portoqty", caption: "Portofolio Quantity", area: "data", dataType: "number", format: '#,##0', summaryType: "sum" }
+                                ]
+                            },
+                            loadPanel: { enabled: false },
+                            showBorders: true,
+                            showRowGrandTotals: false,
+                            showRowTotals: false,
+                            showColumnGrandTotals: false,
+                            showColumnTotals: false,
+                            headerFilter: { enabled: false, },
+                            fieldChooser: { enabled: false },
+                            customizeText: function (cellInfo) {
+                                if (cellInfo.value === "") {
+                                    return 0;
+                                }
+                                return cellInfo.valueText;
+                            },
+                            hideEmptySummaryCells: false,
+                            fieldPanel: {
+                                showColumnFields: false,
+                                showDataFields: false,
+                                showFilterFields: false,
+                                showRowFields: true,
+                                allowFieldDragging: false,
+                                visible: true,
+                            },
+                            scrolling: {
+                                mode: 'virtual',
+                            },
+                            width: "100%"
+                        }).dxPivotGrid("instance");
+
+                        pgSRE.getDataSource().expandAll("pe");
+                        pgSRE.getDataSource().expandAll("sid");
+                        pgSRE.getDataSource().expandAll("secphytcode");
+                        pgSRE.getDataSource().expandAll("stlactowntcode");
+                        pgSRE.getDataSource().expandAll("stlacttcode");
+                        pgSRE.getDataSource().expandAll("actblcstscode");
+
+                        lp2.hide();
+                    }
+                });
+            }
+
+            loadTRX();
+            loadSRE();
+
+            
+@*             var dsTRX = DevExpress.data.AspNet.createStore({
+                loadUrl: '@Url.Action("GetGridDetailTRX", "BasisInvestor")',
+                loadMode: "processed",
+                loadParams: {
+                    periodeAwal: periode,
+                    namaPE: pe,
+                    invCode: sid,
+                    trxSys: market,
+                    secCode: seccode
+                }
+            });
+ *@
+            
+
+            @* dsTRX.load().done(function () {
+                pgTRX.refresh();
+            }).fail(function (error) {
+                console.error("Failed to load data: ", error);
+            });
+ *@
+
+
+            @* var gridtrx = $("#gridtrx").dxDataGrid("instance"); *@
+@*             var gridsre = $("#gridsre").dxDataGrid("instance"); *@
+
+            @* gridtrx.beginCustomLoading('Loading...'); *@
+@*             gridsre.beginCustomLoading('Loading...'); *@
+
+            @* var dsTRX = DevExpress.data.AspNet.createStore({
                 loadUrl: '@Url.Action("GetGridDetailTRX", "BasisInvestor")',
                 loadMode: "processed",
                 loadParams: {
@@ -438,9 +667,9 @@
             });
 
             gridtrx.option('dataSource', dsTRX);
-            gridtrx.endCustomLoading();
+            gridtrx.endCustomLoading(); *@
 
-            var dsSRE = DevExpress.data.AspNet.createStore({
+           @*  var dsSRE = DevExpress.data.AspNet.createStore({
                 loadUrl: '@Url.Action("GetGridDetailSRE", "BasisInvestor")',
                 loadMode: "processed",
                 loadParams: {
@@ -453,7 +682,7 @@
             });
 
             gridsre.option('dataSource', dsSRE);
-            gridsre.endCustomLoading();
+            gridsre.endCustomLoading(); *@
         }
     }
 

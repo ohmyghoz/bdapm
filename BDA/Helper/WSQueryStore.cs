@@ -6431,6 +6431,52 @@ namespace BDA.Helper
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
         }
 
+        public static WSQueryReturns GetPS07CPGTRX(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string invCode, string trxSys, string secCode, bool isHive = true)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            isHive = true;
+
+            if (periode != null)
+            {
+                string periodes = "'" + periode.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND pperiode in (" + periodes.Replace("-", "") + ")";
+            }
+
+            if (pe != null)
+            {
+                string namaPEs = "'" + pe.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND pe in (" + namaPEs + ")";
+            }
+
+            if (invCode != null)
+            {
+                string ic = "'" + invCode.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND investorcode = " + ic;
+            }
+
+            if (trxSys != null)
+            {
+                string ts = "'" + trxSys.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND transactionsystem in (" + ts + ")";
+            }
+
+            if (secCode != null)
+            {
+                string sc = "'" + secCode.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND securitycode in (" + sc + ")";
+            }
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                props.Query = @"SELECT pe, investorcode AS sid, investorcode AS invcode, securitycode AS seccode, transactionsystem AS trxsys, total_transaction_frequency AS ttltrxfreq, total_transaction_volume AS ttltrxvol, total_transaction_value AS ttltrxval FROM pasarmodal.basis_investor_detail_trx WHERE " + whereQuery + @"";
+
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+
         public static WSQueryReturns GetPS07CGridSRE(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string sid, string trxSys, string secCode, bool isHive = true)
         {
             bool isC = false;

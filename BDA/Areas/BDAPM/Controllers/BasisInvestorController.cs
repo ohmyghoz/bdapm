@@ -958,7 +958,8 @@ namespace BDA.Controllers
             }
 
             db.Database.CommandTimeout = 420;
-            var result = Helper.WSQueryStore.GetPS07CGridTRX(db, loadOptions, stringPeriodeAwal, stringNamaPE, stringInvCode, stringTrxSys, stringSecCode, cekHive);
+            //var result = Helper.WSQueryStore.GetPS07CGridTRX(db, loadOptions, stringPeriodeAwal, stringNamaPE, stringInvCode, stringTrxSys, stringSecCode, cekHive);
+            var result = Helper.WSQueryStore.GetPS07CPGTRX(db, loadOptions, stringPeriodeAwal, stringNamaPE, stringInvCode, stringTrxSys, stringSecCode, cekHive);
 
             return JsonConvert.SerializeObject(result);
         }
@@ -1012,34 +1013,35 @@ namespace BDA.Controllers
 
             db.Database.CommandTimeout = 420;
             var result = Helper.WSQueryStore.GetPS07CGridSRE(db, loadOptions, stringPeriodeAwal, stringNamaPE, stringSID, stringTrxSys, stringSecCode, cekHive);
-            var processedData = (from row in result.data.AsEnumerable()
-                                   group row by new
-                                   {
-                                       pe = row.Field<string>("pe"),
-                                       sid = row.Field<string>("sid"),
-                                       secphytcode = row.Field<string>("secphytcode"),
-                                       stlactowntcode = row.Field<string>("stlactowntcode"),
-                                       stlacttcode = row.Field<string>("stlacttcode"),
-                                       actblcstscode = row.Field<string>("actblcstscode")
-                                   } into g
-                                   select new
-                                   {
-                                       pe = g.Key.pe,
-                                       sid = g.Key.sid,
-                                       secphytcode = g.Key.secphytcode,
-                                       stlactowntcode = g.Key.stlactowntcode,
-                                       stlacttcode = g.Key.stlacttcode,
-                                       actblcstscode = g.Key.actblcstscode,
-                                       portoamount = g.Sum(x => double.TryParse(x.Field<string>("portoamount"), out double valPA) ? valPA : 0d),
-                                       portoqty = g.Sum(x => double.TryParse(x.Field<string>("portoqty"), out double valPQ) ? valPQ : 0d)
-                                   });
+            //var processedData = (from row in result.data.AsEnumerable()
+            //                       group row by new
+            //                       {
+            //                           pe = row.Field<string>("pe"),
+            //                           sid = row.Field<string>("sid"),
+            //                           secphytcode = row.Field<string>("secphytcode"),
+            //                           stlactowntcode = row.Field<string>("stlactowntcode"),
+            //                           stlacttcode = row.Field<string>("stlacttcode"),
+            //                           actblcstscode = row.Field<string>("actblcstscode")
+            //                       } into g
+            //                       select new
+            //                       {
+            //                           pe = g.Key.pe,
+            //                           sid = g.Key.sid,
+            //                           secphytcode = g.Key.secphytcode,
+            //                           stlactowntcode = g.Key.stlactowntcode,
+            //                           stlacttcode = g.Key.stlacttcode,
+            //                           actblcstscode = g.Key.actblcstscode,
+            //                           portoamount = g.Sum(x => double.TryParse(x.Field<string>("portoamount"), out double valPA) ? valPA : 0d),
+            //                           portoqty = g.Sum(x => double.TryParse(x.Field<string>("portoqty"), out double valPQ) ? valPQ : 0d)
+            //                       });
 
-            DataTable dt = new DataTable();
-            dt = Helper.WSQueryStore.LINQResultToDataTable(processedData);
+            //DataTable dt = new DataTable();
+            //dt = Helper.WSQueryStore.LINQResultToDataTable(processedData);
 
-            var processedResult = new WSQueryReturns { data = dt, totalCount = dt.Rows.Count };
+            //var processedResult = new WSQueryReturns { data = dt, totalCount = dt.Rows.Count };
 
-            return JsonConvert.SerializeObject(processedResult);
+            //return JsonConvert.SerializeObject(processedResult);
+            return JsonConvert.SerializeObject(result);
         }
 
         public IActionResult LogExportTRXDetail()
