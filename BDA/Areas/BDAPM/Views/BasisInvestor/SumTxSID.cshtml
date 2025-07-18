@@ -367,27 +367,68 @@
     function ExportToExcel() {
         $.ajax({
             type: "POST",
-            url: "@Url.Action("LogExportBIDetail", "BasisInvestor")",
+            url: "@Url.Action("LogExportTRXDetail", "BasisInvestor")",
             success: function (response) {
                 if (response.result == "Success") {
                     var workbook = new ExcelJS.Workbook();
-                    var worksheet = workbook.addWorksheet('Detail Basis Investor');
+                    var worksheet = workbook.addWorksheet('Transaction Summary');
+                    var exportHeaderOptions = {
+                        exportRowFieldHeaders: true,
+                        exportColumnFieldHeaders: false,
+                        exportDataFieldHeaders: false,
+                        exportFilterFieldHeaders: false,
+                    };
 
-                    DevExpress.excelExporter.exportDataGrid({
-                        component: $("#grid1").dxDataGrid("instance"),
+                    DevExpress.excelExporter.exportPivotGrid({
+                        component: $("#pgTRX").dxPivotGrid("instance"),
+                        exportHeaderOptions: { exportRowFieldHeaders: true },
                         worksheet: worksheet,
                         customizeCell: function (options) {
-                            var { gridCell, excelCell } = options;
+                            var gridCell = options.gridCell;
+                            var excelCell = options.excelCell;
 
-                            if (gridCell.rowType === 'data') {
-                                if (options.gridCell.column.dataType === 'number') {
+                            if (gridCell) {
+                                if (gridCell.area === 'data' && gridCell.rowType === 'D' && gridCell.columnType === 'D') {
+                                    excelCell.numFmt = '#,##0'; 
+                                }
+                            }
+                        }
+                    }).then(function () {
+                        workbook.xlsx.writeBuffer().then(function (buffer) {
+                            saveAs(new Blob([buffer], { type: "application/octet-stream" }), "TransactionSummary_" + new Date().toISOString().slice(0, 10) + ".xlsx");
+                        });
+                    });
+                }
+            }
+        });
+    }
+
+    function ExportToExcel2() {
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("LogExportSREDetail", "BasisInvestor")",
+            success: function (response) {
+                if (response.result == "Success") {
+                    var workbook = new ExcelJS.Workbook();
+                    var worksheet = workbook.addWorksheet('SRE Summary');
+
+                    DevExpress.excelExporter.exportPivotGrid({
+                        component: $("#pgTRX").dxPivotGrid("instance"),
+                        worksheet: worksheet,
+                        customizeCell: function (options) {
+                            var gridCell = options.gridCell;
+                            var excelCell = options.excelCell;
+
+                            // Defensive checks to avoid errors
+                            if (gridCell && gridCell.rowType === 'data') {
+                                if (gridCell.column && gridCell.column.dataType === 'number') {
                                     excelCell.numFmt = '#,##0';
                                 }
                             }
                         }
                     }).then(function () {
                         workbook.xlsx.writeBuffer().then(function (buffer) {
-                            saveAs(new Blob([buffer], { type: "application/octet-stream" }), "BasisInvestorDetail_" + new Date().toISOString().slice(0, 10) + ".xlsx");
+                            saveAs(new Blob([buffer], { type: "application/octet-stream" }), "SRESummary_" + new Date().toISOString().slice(0, 10) + ".xlsx");
                         });
                     });
                 }
@@ -396,24 +437,63 @@
     }
 
     function ExportToPdf() {
-        var dataGrid = $("#grid1").dxDataGrid("instance");
-        dataGrid.option("onExporting", function (e) { });
-        dataGrid.option("onFileSaving", function (e) {
+        var pivotGrid = $("#pgTRX").dxPivotGrid("instance");
+
+        pivotGrid.option("exportRowFieldHeaders", true);
+
+        pivotGrid.option("onExporting", function (e) { 
+            var workbook = new ExcelJS.Workbook();
+            var worksheet = workbook.addWorksheet('Transaction Summary');
+            var gridCell = e.gridCell;
+            var excelCell = e.excelCell;
+
+            // Ensure there is a valid gridCell before accessing its properties
+            if (gridCell) {
+                // Handle data cells (numerical cells)
+                if (gridCell.rowType === 'data') {
+                    if (gridCell.column && gridCell.column.dataType === 'number') {
+                        excelCell.numFmt = '#,##0';  // Apply number formatting
+                    }
+                }
+            }
+        });
+        pivotGrid.option("onFileSaving", function (e) {
             var fd = new FormData();
             fd.append("file", e.data);
-            fd.append("name", "Detail");
+            fd.append("name", "TransactionSummary");
             $.ajax({
                 type: "POST",
-                url: "@Url.Action("ExportPDF", "BasisInvestor")",
+                url: "@Url.Action("ExportPDFSumSID", "BasisInvestor")",
                 data: fd,
                 processData: false,
                 contentType: false
             }).done(function (data) {
-                window.location = "@Url.Action("FileIndex", "BasisInvestor", new { name = "Detail" })"
+                window.location = "@Url.Action("FileIndex", "BasisInvestor", new { name = "TransactionSummary" })"
             });
             e.cancel = true;
         });
-        dataGrid.exportToExcel();
+        pivotGrid.exportToExcel();
+    }
+
+    function ExportToPdf2() {
+        var pivotGrid = $("#pgSRE").dxPivotGrid("instance");
+        pivotGrid.option("onExporting", function (e) { });
+        pivotGrid.option("onFileSaving", function (e) {
+            var fd = new FormData();
+            fd.append("file", e.data);
+            fd.append("name", "SRESummary");
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("ExportPDFSumSID", "BasisInvestor")",
+                data: fd,
+                processData: false,
+                contentType: false
+            }).done(function (data) {
+                window.location = "@Url.Action("FileIndex", "BasisInvestor", new { name = "SRESummary" })"
+            });
+            e.cancel = true;
+        });
+        pivotGrid.exportToExcel();
     }
 
     function thousandSeparatorDecimal(e) {
