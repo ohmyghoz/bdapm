@@ -471,7 +471,7 @@ namespace BDA.Controllers
                                {
                                    tgl = Convert.ToInt32(bs.Field<string>("tgl").ToString()),
                                    nobulan = Convert.ToInt32(bs.Field<Int32>("nobulan").ToString()),
-                                   entrydate = bs.Field<string>("entrydate").ToString(),
+                                   entrydate = bs.Field<DateTime>("entrydate").ToString(),
                                    total = Convert.ToInt64(bs.Field<Int64>("total").ToString()),
                                }).OrderBy(bs => bs.tgl).OrderBy(bs => bs.nobulan).ToList();
             }

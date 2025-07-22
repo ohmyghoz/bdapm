@@ -7436,7 +7436,7 @@ namespace BDA.Helper
                 {
                     stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
                     stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                    whereQuery = whereQuery += " AND  date_format(date_sub(entrydate,14),'yyyy-MM-dd') BETWEEN " + stringPeriodeAwal.Replace("-", "") + " AND " + stringPeriodeAkhir.Replace("-", "") + "";
+                    whereQuery = whereQuery += " AND to_date(from_unixtime(unix_timestamp(entrydate,'yyyyMMdd'))) BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
                 }
                 else
                 {
@@ -7460,9 +7460,11 @@ namespace BDA.Helper
                 if (tableName == "mm_bond_trades_cancel")
                 {
                     props.Query = @"
-                    SELECT MONTH(entrydate) AS nobulan,SUBSTRING('JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC ', (MONTH(entrydate) * 4) - 3, 3) AS bulan,COUNT(bondcode) AS total 
+                    SELECT 
+                    MONTH(to_date(from_unixtime(unix_timestamp(entrydate,'yyyyMMdd')))) AS nobulan,SUBSTRING('JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC ', (MONTH(to_date(from_unixtime(unix_timestamp(entrydate,'yyyyMMdd')))) * 4) - 4, 4) AS bulan,
+                    COUNT(bondcode) AS total 
                         From pasarmodal." + tableName + @"
-                    WHERE " + whereQuery + @" GROUP by MONTH(entrydate),SUBSTRING('JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC ', (MONTH(entrydate) * 4) - 3, 3)";
+                    WHERE " + whereQuery + @" GROUP by MONTH(to_date(from_unixtime(unix_timestamp(entrydate,'yyyyMMdd')))),SUBSTRING('JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC ', (MONTH(to_date(from_unixtime(unix_timestamp(entrydate,'yyyyMMdd')))) * 4) - 3, 3)";
                 }
             }
             else
@@ -7490,7 +7492,7 @@ namespace BDA.Helper
                 {
                     stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
                     stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                    whereQuery = whereQuery += " AND  date_format(date_sub(entrydate,14),'yyyy-MM-dd') BETWEEN " + stringPeriodeAwal.Replace("-", "") + " AND " + stringPeriodeAkhir.Replace("-", "") + "";
+                    whereQuery = whereQuery += " AND  to_date(from_unixtime(unix_timestamp(entrydate,'yyyyMMdd'))) BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
                 }
                 else
                 {
@@ -7544,7 +7546,7 @@ namespace BDA.Helper
                 {
                     stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
                     stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                    whereQuery = whereQuery += " AND  date_format(date_sub(entrydate,14),'yyyy-MM-dd') BETWEEN " + stringPeriodeAwal.Replace("-", "") + " AND " + stringPeriodeAkhir.Replace("-", "") + "";
+                    whereQuery = whereQuery += " AND to_date(from_unixtime(unix_timestamp(entrydate,'yyyyMMdd'))) BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
                 }
                 else
                 {
@@ -7578,7 +7580,7 @@ namespace BDA.Helper
                                           SUM(CASE WHEN tradereason = 'NETWORK CONNECTION' THEN total ELSE 0 END) AS NETWORK_CONNECTION
                                           FROM
                                               (
-                                                 SELECT	buyerfirmcode,tradereason,date_format(date_sub(entrydate,14),'yyyy-MM-dd') as entrydate,COUNT(buyerfirmcode) AS total 
+                                                 SELECT	buyerfirmcode,tradereason,to_date(from_unixtime(unix_timestamp(entrydate,'yyyyMMdd'))) as entrydate,COUNT(buyerfirmcode) AS total 
                                   FROM  pasarmodal." + tableName + @"
                                                  GROUP by buyerfirmcode,tradereason,entrydate
                                               ) AS t
@@ -7626,7 +7628,7 @@ namespace BDA.Helper
                 {
                     stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
                     stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                    whereQuery = whereQuery += " AND  date_format(date_sub(entrydate,14),'yyyy-MM-dd') BETWEEN " + stringPeriodeAwal.Replace("-", "") + " AND " + stringPeriodeAkhir.Replace("-", "") + "";
+                    whereQuery = whereQuery += " AND to_date(from_unixtime(unix_timestamp(entrydate,'yyyyMMdd'))) BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
                 }
                 else
                 {
@@ -7682,7 +7684,7 @@ namespace BDA.Helper
                 {
                     stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
                     stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                    whereQuery = whereQuery += " AND  date_format(date_sub(entrydate,14),'yyyy-MM-dd') BETWEEN " + stringPeriodeAwal.Replace("-", "") + " AND " + stringPeriodeAkhir.Replace("-", "") + "";
+                    whereQuery = whereQuery += " AND to_date(from_unixtime(unix_timestamp(entrydate,'yyyyMMdd'))) BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
                 }
                 else
                 {
@@ -7736,7 +7738,7 @@ namespace BDA.Helper
                 {
                     stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
                     stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                    whereQuery = whereQuery += " AND  date_format(date_sub(entrydate,14),'yyyy-MM-dd') BETWEEN " + stringPeriodeAwal.Replace("-", "") + " AND " + stringPeriodeAkhir.Replace("-", "") + "";
+                    whereQuery = whereQuery += " AND to_date(from_unixtime(unix_timestamp(entrydate,'yyyyMMdd'))) BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
                 }
                 else
                 {
@@ -7760,10 +7762,14 @@ namespace BDA.Helper
                 if (tableName == "mm_bond_trades_cancel")
                 {
                     props.Query = @"
-                    SELECT tgl,nobulan,entrydate,total from (
-					SELECT date_format(date_sub(entrydate,14),'dd') as tgl,MONTH(entrydate) as nobulan,date_format(date_sub(entrydate,14),'dd-MMM-yy') as entrydate,COUNT(entrydate) total
+                    SELECT date_format(date_sub(tanggal,0),'dd') as tgl,nobulan,entrydate,total from (
+					SELECT to_date(from_unixtime(unix_timestamp(entrydate,'yyyyMMdd'))) as tanggal,
+                        MONTH(to_date(from_unixtime(unix_timestamp(entrydate,'yyyyMMdd')))) as nobulan,
+                        to_date(from_unixtime(unix_timestamp(entrydate,'yyyyMMdd'))) as entrydate,
+                        COUNT(to_date(from_unixtime(unix_timestamp(entrydate,'yyyyMMdd')))) total
                         From pasarmodal." + tableName + @"
-                    WHERE " + whereQuery + @" Group by entrydate) as t";
+                    WHERE " + whereQuery + @" 
+                    Group by to_date(from_unixtime(unix_timestamp(entrydate,'yyyyMMdd')))) as t";
                 }
             }
             else
