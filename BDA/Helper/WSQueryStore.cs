@@ -6308,6 +6308,24 @@ namespace BDA.Helper
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
         }
 
+        public static WSQueryReturns GetPS07ALL(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string invType, string invOrigin, string inRange, string market, bool isHive = true)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            isHive = true;
+
+            whereQuery += PS07Filters(periode, pe, invType, invOrigin, inRange, market);
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                props.Query = @"SELECT pperiode, exchangemembercode, investor_type, investor_origin, inputrange, market, basis_investor_1, tradeid, investortransactionfreq, investortotalvalue, portofolio_amount, basis_investor_1, sid, investorlasttransactionindays, investortotalvalue, r, f, m FROM pasarmodal.basis_investor_pe WHERE " + whereQuery + @"";
+
+            }
+
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+        }
+
         public static WSQueryReturns GetPS07BGrid(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string negara, string provinsi, string kota, string jenisKelamin, string usia, string pendidikan, string pekerjaan, string penghasilan, bool isHive = true)
         {
             bool isC = false;

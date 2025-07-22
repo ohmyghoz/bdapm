@@ -20,6 +20,10 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Data.SqlClient;
 using BDA.Helper.FW;
+using DevExpress.CodeParser;
+using System.ServiceModel.Dispatcher;
+using MathNet.Numerics.Statistics;
+using System.Net;
 
 namespace BDA.Controllers
 {
@@ -697,6 +701,230 @@ namespace BDA.Controllers
 
             return JsonConvert.SerializeObject(result);
         }
+
+        public object GetDatasAll(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE, string invType, string invOrigin, string inRange, string market, int type)
+        {
+            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+            TempData.Clear(); //membersihkan data filtering
+
+            string stringPeriodeAwal = null;
+            string stringNamaPE = null;
+            string stringInvType = null;
+            string stringInvOrigin = null;
+            string stringInRange = null;
+            string stringMarket = null;
+            int intType = 1;
+            string reportId = "ps_basis_inv_pe"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+
+            stringPeriodeAwal = Convert.ToDateTime(DateTime.Now).ToString("yyyy-MM-dd");
+            TempData["pawal"] = stringPeriodeAwal;
+
+            if (periodeAwal != null)
+            {
+                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
+                TempData["pawal"] = stringPeriodeAwal;
+            }
+
+            if (namaPE != null)
+            {
+                stringNamaPE = namaPE;
+                //string result = stringNamaPE.Replace("\",\"", "");
+                TempData["pe"] = stringNamaPE;
+            }
+
+            if (invType != null)
+            {
+                stringInvType = invType;
+                TempData["invType"] = stringInvType;
+            }
+
+            if (invOrigin != null)
+            {
+                stringInvOrigin = invOrigin;
+                TempData["invOrigin"] = stringInvOrigin;
+            }
+
+            if (inRange != null)
+            {
+                stringInRange = inRange;
+                TempData["inRange"] = stringInRange;
+            }
+
+            if (market != null)
+            {
+                stringMarket = market;
+                TempData["market"] = stringMarket;
+
+            }
+
+            if (type != 1)
+            {
+                intType = type;
+                TempData["type"] = intType;
+
+            }
+
+            db.Database.CommandTimeout = 420;
+
+            var result = Helper.WSQueryStore.GetPS07ALL(db, loadOptions, stringPeriodeAwal, stringNamaPE, stringInvType, stringInvOrigin, stringInRange, stringMarket, cekHive);
+
+            var data = result.data.AsEnumerable();
+
+            int totalClients = data.Count(row => row.Field<string>("tradeid") != null);
+            int activeClients = data.Count(row => { int itf; return int.TryParse(row.Field<string>("investortransactionfreq"), out itf) && itf > 30; });
+            long trxFreq = data.Sum(row => Convert.ToInt64(row.Field<string>("investortransactionfreq")));
+            long tradedValue = data.Sum(row => Convert.ToInt64(row.Field<string>("investortotalvalue")));
+            long clientLiquidAmount = data.Sum(row => Convert.ToInt64(row.Field<string>("portofolio_amount")));
+
+            double intrxfreq, ttlcli;
+            intrxfreq = ttlcli = 0;
+
+            List<string> segments = ["Champion", "Potential Loyalists", "Promising", "Recent Customer", "At Risk", "Churn"];
+            List<double> itf = new List<double>();
+            List<double> tc = new List<double>();
+
+            foreach (var segment in segments)
+            {
+                intrxfreq = data.Where(row => row.Field<string>("basis_investor_1") == segment).Sum(row => Convert.ToInt64(row.Field<string>("investortotalvalue"))); ;
+                ttlcli = data.Count(row => row.Field<string>("tradeid") != null & row.Field<string>("basis_investor_1") == segment);
+
+                itf.Add(intrxfreq);
+                tc.Add(ttlcli);
+
+                intrxfreq = ttlcli = 0;
+            }
+
+            double totalITF = itf.Sum();
+            double totalTC = tc.Sum();
+
+            itf = itf.Select(val => val/totalITF).ToList();
+            tc = tc.Select(val => val / totalTC).ToList();
+
+
+            double rh, rm, rl, rtotal, fh, fm, fl, ftotal, mh, mm, ml, mtotal, originAsing, originLokal, originTotal, client, newClient, totalClient, typeIndv, typeInst, typeTotal;
+            rh = rm = rl = rtotal = fh = fm = fl = ftotal = mh = mm = ml = mtotal = originAsing = originLokal = originTotal = client = newClient = totalClient = typeIndv = typeInst = typeTotal = 0;
+
+            if (intType == 1)
+            {
+                rh = data.Count(row => row.Field<string>("tradeid") != null & row.Field<string>("r") == "H");
+                rm = data.Count(row => row.Field<string>("tradeid") != null & row.Field<string>("r") == "M");
+                rl = data.Count(row => row.Field<string>("tradeid") != null & row.Field<string>("r") == "L");
+                rtotal = rh + rm + rl;
+                rh /= rtotal; rm /= rtotal; rl /= rtotal;
+
+                fh = data.Count(row => row.Field<string>("tradeid") != null & row.Field<string>("f") == "H");
+                fm = data.Count(row => row.Field<string>("tradeid") != null & row.Field<string>("f") == "M");
+                fl = data.Count(row => row.Field<string>("tradeid") != null & row.Field<string>("f") == "L");
+                ftotal = fh + fm + fl;
+                fh /= rtotal; fm /= ftotal; fl /= ftotal;
+
+                mh = data.Count(row => row.Field<string>("tradeid") != null & row.Field<string>("m") == "H");
+                mm = data.Count(row => row.Field<string>("tradeid") != null & row.Field<string>("m") == "M");
+                ml = data.Count(row => row.Field<string>("tradeid") != null & row.Field<string>("m") == "L");
+                mtotal = mh + mm + ml;
+                mh /= mtotal; mm /= mtotal; ml /= mtotal;
+            }
+            else
+            {
+                rh = data.Where(row => row.Field<string>("r") == "H").Sum(row => Convert.ToInt32(row.Field<string>("investortotalvalue")));
+                rm = data.Where(row => row.Field<string>("r") == "M").Sum(row => Convert.ToInt32(row.Field<string>("investortotalvalue")));
+                rl = data.Where(row => row.Field<string>("r") == "L").Sum(row => Convert.ToInt32(row.Field<string>("investortotalvalue")));
+                rtotal = rh + rm + rl;
+                rh /= rtotal; rm /= rtotal; rl /= rtotal;
+
+                fh = data.Where(row => row.Field<string>("f") == "H").Sum(row => Convert.ToInt32(row.Field<string>("investortotalvalue")));
+                fm = data.Where(row => row.Field<string>("f") == "M").Sum(row => Convert.ToInt32(row.Field<string>("investortotalvalue")));
+                fl = data.Where(row => row.Field<string>("f") == "L").Sum(row => Convert.ToInt32(row.Field<string>("investortotalvalue")));
+                ftotal = fh + fm + fl;
+                fh /= rtotal; fm /= ftotal; fl /= ftotal;
+
+                mh = data.Where(row => row.Field<string>("m") == "H").Sum(row => Convert.ToInt32(row.Field<string>("investortotalvalue")));
+                mm = data.Where(row => row.Field<string>("m") == "M").Sum(row => Convert.ToInt32(row.Field<string>("investortotalvalue")));
+                ml = data.Where(row => row.Field<string>("m") == "L").Sum(row => Convert.ToInt32(row.Field<string>("investortotalvalue")));
+                mtotal = mh + mm + ml;
+                mh /= mtotal; mm /= mtotal; ml /= mtotal;
+            }
+
+            switch(stringInvOrigin)
+            {
+                case "Asing":
+                    originAsing = 1; originLokal = 0; break;
+
+                case "Lokal":
+                    originAsing = 0; originLokal = 1; break;
+
+                case null:
+                    originLokal = data.Count(row => row.Field<string>("investor_origin") == "Lokal");
+                    originAsing = data.Count(row => row.Field<string>("investor_origin") == "Asing");
+                    originTotal = originAsing + originLokal;
+                    originAsing /= originTotal; originLokal /= originTotal;
+                    break;
+            }
+
+            client = 1; newClient = 0;
+
+            switch (stringInvType)
+            {
+                case "Individu":
+                    typeIndv = 1; typeInst = 0; break;
+
+                case "Institusi":
+                    typeIndv = 0; typeInst = 1; break;
+
+                case null:
+                    typeIndv = data.Count(row => row.Field<string>("investor_type") == "Individu");
+                    typeInst = data.Count(row => row.Field<string>("investor_type") == "Institusi");
+                    typeTotal = typeIndv + typeInst;
+                    typeIndv /= typeTotal; typeInst /= typeTotal;
+                    break;
+            }
+
+            List<double> R = [rh, rm, rl];
+            List<double> F = [fh, fm, fl];
+            List<double> M = [mh, mm, ml];
+            List<double> investorOrigin = [originAsing, originLokal];
+            List<double> clientVNewClient = [client, newClient];
+            List<double> investorType = [typeIndv, typeInst];
+
+            var scatterData = data.GroupBy(item => item.Field<string>("basis_investor_1"))
+                               .Select(group => new
+                               {
+                                   basis_investor = group.Select(item => item.Field<string>("basis_investor_1").ToString()).FirstOrDefault(),
+                                   log10_sid = Math.Log10(group.Count(item => item.Field<string>("sid") != null)),
+                                   med_inv_days = Statistics.Median(group.Select(item => Convert.ToDouble(item.Field<string>("investorlasttransactionindays"))).ToArray()),
+                                   med_inv_tot_val = Statistics.Median(group.Select(item => Convert.ToDouble(item.Field<string>("investortotalvalue"))).ToArray()) / 1000000  // Percentile of 'd' (as BIGINT), divided by 1 million
+                               })
+                               .OrderBy(result => result.basis_investor)
+                               .ToList();
+
+            DataTable dtsd = Helper.WSQueryStore.LINQResultToDataTable(scatterData);
+
+
+            DataBasisInvestor dbi = new DataBasisInvestor();
+
+            dbi.totalClients = totalClients;
+            dbi.activeClients = activeClients;
+            dbi.trxFreq = trxFreq;
+            dbi.tradedValue = tradedValue;
+            dbi.clientLiquidAmount = clientLiquidAmount;
+
+            dbi.segmentsITF = itf;
+            dbi.segmentsTC = tc;
+
+            dbi.R = R;
+            dbi.F = F;
+            dbi.M = M;
+            dbi.investorOrigin = investorOrigin;
+            dbi.clientVNewClient = clientVNewClient;
+            dbi.investorType = investorType;
+
+            dbi.scatterData = dtsd;
+
+            return JsonConvert.SerializeObject(dbi);
+        }
+
         #endregion
 
         #region PS07B
@@ -806,112 +1034,6 @@ namespace BDA.Controllers
 
             return JsonConvert.SerializeObject(result);
         }
-
-        public IActionResult LogExportBIDetail()
-        {
-            try
-            {
-                var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
-                var currentNode = mdl.GetCurrentNode();
-
-                string pageTitle = currentNode != null ? currentNode.Title : "";
-
-                db.CheckPermission("Detail Basis Investor Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-                db.InsertAuditTrail("BasisInvestorDetail_Akses_Page", "Export Data", pageTitle);
-                return Json(new { result = "Success" });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { result = db.ProcessExceptionMessage(ex) });
-            }
-        }
-
-       
-
-        public IActionResult ExportPDF(IFormFile file, string name)
-        {
-            try
-            {
-                var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
-                var currentNode = mdl.GetCurrentNode();
-
-                string pageTitle = currentNode != null ? currentNode.Title : "";
-
-                db.CheckPermission("Detail Basis Investor Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-                db.InsertAuditTrail("BasisInvestorDetail_Akses_Page", "Export Data", pageTitle);
-
-                var directory = _env.WebRootPath;
-                var timeStamp = DateTime.Now.ToString();
-                Workbook workbook = new Workbook(file.OpenReadStream());
-                Worksheet worksheet2 = workbook.Worksheets[0];
-                var columns1 = worksheet2.Cells.Columns.Count;
-                var rows1 = worksheet2.Cells.Rows.Count;
-                var style = workbook.CreateStyle();
-                style.SetBorder(BorderType.TopBorder, CellBorderType.Thick, Color.Black);
-                style.SetBorder(BorderType.BottomBorder, CellBorderType.Thick, Color.Black);
-                style.SetBorder(BorderType.LeftBorder, CellBorderType.Thick, Color.Black);
-                style.SetBorder(BorderType.RightBorder, CellBorderType.Thick, Color.Black);
-
-                //Apply bottom borders from cell F4 till K4
-                for (int r = 0; r <= rows1 - 1; r++)
-                {
-                    for (int col = 0; col <= columns1 - 1; col++)
-                    {
-                        Aspose.Cells.Cell cell = worksheet2.Cells[r, col];
-
-                        cell.SetStyle(style);
-                    }
-                }
-
-                foreach (Worksheet worksheet in workbook.Worksheets)
-                {
-                    //prepare logo
-                    string logo_url = Path.Combine(directory, "assets_m\\img\\OJK_Logo.png");
-                    FileStream inFile;
-                    byte[] binaryData;
-                    inFile = new FileStream(logo_url, FileMode.Open, FileAccess.Read);
-                    binaryData = new Byte[inFile.Length];
-                    long bytesRead = inFile.Read(binaryData, 0, (int)inFile.Length);
-
-                    //apply format number
-                    Style textStyle = workbook.CreateStyle();
-                    textStyle.Number = 3;
-                    StyleFlag textFlag = new StyleFlag();
-                    textFlag.NumberFormat = true;
-
-                    worksheet.Cells.Columns[9].ApplyStyle(textStyle, textFlag);
-
-                    //page setup
-                    PageSetup pageSetup = worksheet.PageSetup;
-                    pageSetup.Orientation = PageOrientationType.Landscape;
-                    pageSetup.FitToPagesWide = 1;
-                    pageSetup.FitToPagesTall = 0;
-
-                    //set header
-                    pageSetup.SetHeaderPicture(0, binaryData);
-                    pageSetup.SetHeader(0, "&G");
-                    var img = pageSetup.GetPicture(true, 0);
-                    img.WidthScale = 10;
-                    img.HeightScale = 10;
-
-                    //set footer
-                    pageSetup.SetFooter(0, timeStamp);
-
-                    inFile.Close();
-                }
-
-                timeStamp = timeStamp.Replace('/', '-').Replace(" ", "_").Replace(":", "-");
-                TempData["timeStamp"] = timeStamp;
-                var fileName = "BasisInvestor_" + name + timeStamp + ".pdf";
-                workbook.Save(Path.Combine(directory, fileName), SaveFormat.Pdf);
-                return new EmptyResult();
-            }
-            catch (Exception ex)
-            {
-                return Json(new { result = db.ProcessExceptionMessage(ex) });
-            }
-        }
-
         #endregion
 
         #region PS07C
@@ -1171,7 +1293,111 @@ namespace BDA.Controllers
             }
         }
 
-        #endregion 
+        #endregion
+
+        public IActionResult LogExportBIDetail()
+        {
+            try
+            {
+                var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+                var currentNode = mdl.GetCurrentNode();
+
+                string pageTitle = currentNode != null ? currentNode.Title : "";
+
+                db.CheckPermission("Detail Basis Investor Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+                db.InsertAuditTrail("BasisInvestorDetail_Akses_Page", "Export Data", pageTitle);
+                return Json(new { result = "Success" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { result = db.ProcessExceptionMessage(ex) });
+            }
+        }
+
+        public IActionResult ExportPDF(IFormFile file, string name)
+        {
+            try
+            {
+                var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+                var currentNode = mdl.GetCurrentNode();
+
+                string pageTitle = currentNode != null ? currentNode.Title : "";
+
+                db.CheckPermission("Detail Basis Investor Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+                db.InsertAuditTrail("BasisInvestorDetail_Akses_Page", "Export Data", pageTitle);
+
+                var directory = _env.WebRootPath;
+                var timeStamp = DateTime.Now.ToString();
+                Workbook workbook = new Workbook(file.OpenReadStream());
+                Worksheet worksheet2 = workbook.Worksheets[0];
+                var columns1 = worksheet2.Cells.Columns.Count;
+                var rows1 = worksheet2.Cells.Rows.Count;
+                var style = workbook.CreateStyle();
+                style.SetBorder(BorderType.TopBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.BottomBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.LeftBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.RightBorder, CellBorderType.Thick, Color.Black);
+
+                //Apply bottom borders from cell F4 till K4
+                for (int r = 0; r <= rows1 - 1; r++)
+                {
+                    for (int col = 0; col <= columns1 - 1; col++)
+                    {
+                        Aspose.Cells.Cell cell = worksheet2.Cells[r, col];
+
+                        cell.SetStyle(style);
+                    }
+                }
+
+                foreach (Worksheet worksheet in workbook.Worksheets)
+                {
+                    //prepare logo
+                    string logo_url = Path.Combine(directory, "assets_m\\img\\OJK_Logo.png");
+                    FileStream inFile;
+                    byte[] binaryData;
+                    inFile = new FileStream(logo_url, FileMode.Open, FileAccess.Read);
+                    binaryData = new Byte[inFile.Length];
+                    long bytesRead = inFile.Read(binaryData, 0, (int)inFile.Length);
+
+                    //apply format number
+                    Style textStyle = workbook.CreateStyle();
+                    textStyle.Number = 3;
+                    StyleFlag textFlag = new StyleFlag();
+                    textFlag.NumberFormat = true;
+
+                    worksheet.Cells.Columns[9].ApplyStyle(textStyle, textFlag);
+
+                    //page setup
+                    PageSetup pageSetup = worksheet.PageSetup;
+                    pageSetup.Orientation = PageOrientationType.Landscape;
+                    pageSetup.FitToPagesWide = 1;
+                    pageSetup.FitToPagesTall = 0;
+
+                    //set header
+                    pageSetup.SetHeaderPicture(0, binaryData);
+                    pageSetup.SetHeader(0, "&G");
+                    var img = pageSetup.GetPicture(true, 0);
+                    img.WidthScale = 10;
+                    img.HeightScale = 10;
+
+                    //set footer
+                    pageSetup.SetFooter(0, timeStamp);
+
+                    inFile.Close();
+                }
+
+                timeStamp = timeStamp.Replace('/', '-').Replace(" ", "_").Replace(":", "-");
+                TempData["timeStamp"] = timeStamp;
+                var fileName = "BasisInvestor_" + name + timeStamp + ".pdf";
+                workbook.Save(Path.Combine(directory, fileName), SaveFormat.Pdf);
+                return new EmptyResult();
+            }
+            catch (Exception ex)
+            {
+                return Json(new { result = db.ProcessExceptionMessage(ex) });
+            }
+        }
+
 
         [HttpPost]
         public ActionResult SimpanPenggunaanData(string id)
@@ -1300,6 +1526,29 @@ namespace BDA.Controllers
         {
             public string value { get; set; }
             public string text { get; set; }
+        }
+
+        public class DataBasisInvestor
+        {
+            public int totalClients { get; set; }
+            public int activeClients { get; set; }
+            public long trxFreq { get; set; }
+            public long tradedValue { get; set; }
+            public long clientLiquidAmount { get; set; }
+
+            public List<double> segmentsITF { get; set; }
+            public List<double> segmentsTC { get; set; }
+
+            public List<double> R { get; set; }
+            public List<double> F { get; set; }
+            public List<double> M { get; set; }
+
+            public List<double> investorOrigin { get; set; }
+            public List<double> clientVNewClient { get; set; }
+            public List<double> investorType { get; set; }
+
+            public DataTable scatterData { get; set; }
+
         }
 
         [HttpPost]

@@ -1165,6 +1165,20 @@
             const scatterplot = $('#scatterPlot1').dxChart("instance");;
             scatterplot.showLoadingIndicator();
 
+            function loadAllData() {
+                return $.ajax({
+                    url: '@Url.Action("GetDatasAll", "BasisInvestor")',
+                    data: { periodeAwal: periodeAwal, namaPE: namaPE, invType: invType, invOrigin: invOrigin, inRange: inpRange, market: market, type: parseInt(filterChart) },
+                    dataType: "json",
+                    type: "POST",
+                    success: function (response) {
+                        console.log(response);
+                    }
+                });
+            }
+
+
+
             function loadCard1() {
                 return $.ajax({
                     url: '@Url.Action("GetCardTotalClients", "BasisInvestor")',
@@ -1763,7 +1777,9 @@
             }
 
             (function () {
-                loadCard1()
+
+                loadAllData();
+                @* loadCard1()
                     .then(loadCard2)
                     .then(loadCard3)
                     .then(loadCard4)
@@ -1779,7 +1795,7 @@
                     .then(loadPieChartClientVNewClient)
                     .then(loadPieChartInvOrigin)
                     .then(loadPieChartInvType)
-                    .then(loadScatter);
+                    .then(loadScatter); *@
             }());
         }
     }
