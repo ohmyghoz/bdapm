@@ -51,7 +51,7 @@
                     <div class="col-lg-2 form-group">
                         <label>PE</label>
                         @(Html.DevExtreme().SelectBox()
-                            //.Disabled(true)
+                            .Disabled(true)
                             .ID("namaPEid")
                             .DataSource(d => d.Mvc()
                                 .Controller("BasisInvestor")
