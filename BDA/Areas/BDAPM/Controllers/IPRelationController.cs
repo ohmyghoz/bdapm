@@ -394,7 +394,69 @@ namespace BDA.Controllers
         }
 
         #region "GetGridData"
-        public object GetGridData(DataSourceLoadOptions loadOptions, string reportId, string startPeriode, string endPeriode, 
+
+        public object GetGridData(DataSourceLoadOptions loadOptions, string reportId, string startPeriode, string endPeriode,
+            string SID, string tradeId, string namaSID, string namaLike, string kolomRel, float nilaiRel,// string securityCode,
+            string nomorKTP, string nomorNPWP,
+            bool chk100)
+        {
+            var userId = HttpContext.User.Identity.Name;
+            var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+            var currentNode = mdl.GetCurrentNode();
+            string pageTitle = currentNode != null ? currentNode.Title : "";
+            string filterValue = "";
+            bool valid = false;
+            if (reportId == "ip_rel_sid") filterValue = "sid=" + SID + ";trade=" + tradeId + ";nama=" + namaSID + ";namamirip=" + namaLike + ";kolom=" + kolomRel + ";nilai=" + nilaiRel + ";periode=" + startPeriode + " - " + endPeriode + ";";
+            else filterValue = "sid=" + SID + ";trade=" + tradeId + ";nama=" + namaSID + ";namamirip=" + namaLike + ";ktp=" + nomorKTP + ";npwp=" + nomorNPWP + ";periode=" + startPeriode + " - " + endPeriode + ";";
+            db.InsertAuditTrail("IP_Akses_Page", "user " + userId + " mengakases " + reportId + "; " + filterValue + "", pageTitle);
+
+            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+            TempData.Clear();
+
+            string stringStartPeriode = null;
+            string stringEndPeriode = null;
+
+            //startperiodes kudu dimumdurin ke awal minggu ???
+            DateTime startDate = Convert.ToDateTime(startPeriode);
+            int dayOfWeek = (int) startDate.DayOfWeek;
+            if (dayOfWeek <= 3) startDate = startDate.AddDays(0 - dayOfWeek);
+            else startDate = startDate.AddDays(7 - dayOfWeek);
+
+            if (startPeriode != null)
+            {
+                stringStartPeriode = startDate.ToString("yyyyMMdd");
+                TempData["sPeriod"] = stringStartPeriode;
+            }
+
+            if (endPeriode != null)
+            {
+                stringEndPeriode = Convert.ToDateTime(endPeriode).ToString("yyyyMMdd");
+                TempData["ePeriod"] = stringEndPeriode;
+            }
+
+            if (reportId == "ip_rel_sid" && (SID != null || tradeId != null || namaSID != null || namaLike != null)) valid = true;
+            else if ((reportId == "ip_rel_transaction" || reportId == "ip_rel_ownership") && (SID != null || tradeId != null || nomorKTP != null || nomorNPWP != null || namaSID != null || namaLike != null)) valid = true;
+
+            if (valid && startPeriode != null)
+            {
+                var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId);
+                //cekHive = false;
+
+                loadOptions.RequireTotalCount = false;
+                var result = Helper.WSQueryStore.GetPMIPRelQuery(db, loadOptions, reportId, stringStartPeriode, stringEndPeriode, SID, tradeId, namaSID, namaLike, kolomRel, nilaiRel, //securityCode
+                    nomorKTP, nomorNPWP, chk100, cekHive);
+                loadOptions.RequireTotalCount = true;
+                return JsonConvert.SerializeObject(result);
+
+            }
+            else
+            {
+                loadOptions = new DataSourceLoadOptions();
+            }
+            return DataSourceLoader.Load(new List<string>(), loadOptions);
+        }
+
+        public object GetGridDataOld(DataSourceLoadOptions loadOptions, string reportId, string startPeriode, string endPeriode, 
             string SID, string tradeId, string namaSID, string namaLike, string kolomRel, float nilaiRel,
             string bSID, string bTradeId, string bExchangeCode, string sSID, string sTradeId, string sExchangeCode, string securityCode,
             string nomorKTP, string nomorNPWP, string exchangeCode, string invType, string invOrigin, string invClass,
@@ -439,7 +501,7 @@ namespace BDA.Controllers
                 cekHive = false;
                 
                 loadOptions.RequireTotalCount = false;
-                var result = Helper.WSQueryStore.GetPMIPRelQuery(db, loadOptions, reportId, stringStartPeriode, stringEndPeriode, SID, tradeId, namaSID, kolomRel, nilaiRel, bSID, bTradeId, bExchangeCode, sSID, sTradeId, sExchangeCode, securityCode, nomorKTP, nomorNPWP, exchangeCode, invType, invOrigin, invClass, chk100, cekHive);
+                var result = Helper.WSQueryStore.GetPMIPRelQueryOld(db, loadOptions, reportId, stringStartPeriode, stringEndPeriode, SID, tradeId, namaSID, kolomRel, nilaiRel, bSID, bTradeId, bExchangeCode, sSID, sTradeId, sExchangeCode, securityCode, nomorKTP, nomorNPWP, exchangeCode, invType, invOrigin, invClass, chk100, cekHive);
                 loadOptions.RequireTotalCount = true;
                 return JsonConvert.SerializeObject(result);
 

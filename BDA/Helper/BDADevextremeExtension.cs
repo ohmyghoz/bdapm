@@ -2860,12 +2860,184 @@ namespace BDA.Helper
             var list = db.vw_TableDictionary.Where(x => x.TableName == kode).ToList();
 
             foreach (var row in list)
+            {                
+                bool isInput = false;
+                bool allowFilter = true;
+                var caption = cultInfo.ToTitleCase(row.ColumnName.Replace("dm_", "").Replace("_", " "));
+                
+                if (row.ColumnName != "rowid" && row.ColumnName != "etl_date")
+                {
+                    var width = 150;
+                    var format = "";
+                    var visible = true;
+                    var colDataType = GridColumnDataType.String;
+
+
+                    if (row.DataType == "date")
+                    {
+                        if (row.ColumnName != "dm_periode")
+                        {
+                            format = "yyyy-MM-dd";
+                            colDataType = GridColumnDataType.Date;
+                        }
+                        else
+                        {
+                            if (isHive == false)
+                            {
+                                format = "yyyy-MM-dd";
+                                colDataType = GridColumnDataType.Date;
+                            }
+                            else
+                            {
+                                format = "";
+                                colDataType = GridColumnDataType.String;
+                            }
+                            continue;
+                        }
+                        allowFilter = false;
+                    }
+                    else if (row.DataType == "int" || row.DataType == "decimal" || row.DataType == "bigint" || row.DataType == "float")
+                    {
+                        format = ",##0";
+                        colDataType = GridColumnDataType.Number;
+                        allowFilter = false;                        
+                    }
+                    else 
+                    {
+                        width = Math.Max(130, Math.Min(300, (Int32) row.Length));
+                    }
+
+                    
+                    if (row.ColumnName == "no")
+                    {
+                        caption = "No";
+                        width = 50;
+                    }
+
+                    if (kode == "ip_rel_sid")
+                    {                        
+                        if (row.ColumnName == "keyid")
+                        {
+                            caption = "Nomor SID";
+                            width = 130;                            
+                        }
+                        else if (row.ColumnName == "cpkeyid")
+                        {
+                            caption = "Lawan SID";
+                            width = 130;                            
+                        }
+                        else if (row.ColumnName == "namasid")
+                        {
+                            caption = "Nama SID";
+                            width = 300;                            
+                            allowFilter = false;
+                        }
+                        else if (row.ColumnName == "cpnamasid")
+                        {
+                            caption = "Lawan Nama SID";
+                            width = 300;
+                            allowFilter = false;
+                        }
+                        else if (row.ColumnName == "reltoattr") caption = "Kolom Keterkaitan SID";                            
+                        else if (row.ColumnName == "cpreltoattr") caption = "Kolom Lawan Keterkaitan SID";                            
+                        else if (row.ColumnName == "attributetype") caption = "Jenis Keterkaitan";                            
+                        else if (row.ColumnName == "attributevalue") caption = "Nilai Keterkaitan";                            
+                        else if (row.ColumnName == "cpattributevalue") caption = "Nilai Keterkaitan Lawan SID";                            
+                        else if (row.ColumnName == "matchedtype") caption = "Jenis Kesamaan";                            
+                        else if (row.ColumnName == "keytype") caption = "Jenis Kemiripan";
+                        else if (row.ColumnName == "similarityvalue") {caption = "Nilai Similarity"; allowFilter = false; }
+                        else if (row.ColumnName == "psystem") caption = "Sistem";
+
+                        if ((new string[] { "yearmonth", "pmonth", "side" }.Any(s => row.ColumnName == s))) visible = false;
+                    }
+                    else
+                    {
+                        if (row.ColumnName == "inv1_keytype" || row.ColumnName == "inv2_keytype")
+                        {
+                            var namaHeader = (row.ColumnName == "inv1_keytype") ? "Investor" : "Lawan Investor";
+                            var headerStyle = (row.ColumnName == "inv1_keytype") ? "header-buy" : "header-sell";
+                            grid.Columns(c => c.Add().Caption(namaHeader).CssClass(headerStyle).Columns(c1 =>
+                            {
+                                var namaKolom = row.ColumnName.Substring(0, 5);
+                                if (kode == "ip_rel_ownership")
+                                    c1.Add().Caption("Jenis ID").DataField(namaKolom + "keytype").Width(130).DataType(GridColumnDataType.String);
+
+                                string sidTemplate = "<text><a href=\"../../IP/Index/ip_sid?detailsid=<%- data.lem %><%- value %>\"><%- value %></a></text>";
+                                c1.Add().Caption("No. SID").DataField(namaKolom.Substring(0, 4)).Width(130).DataType(GridColumnDataType.String).Format(format).CellTemplate(sidTemplate);
+
+                                c1.Add().Caption("KTP").DataField(namaKolom + "ktp").Width(130).DataType(GridColumnDataType.String);
+                                c1.Add().Caption("NPWP").DataField(namaKolom + "npwp").Width(130).DataType(GridColumnDataType.String);
+                                c1.Add().Caption("Passport").DataField(namaKolom + "passport").Width(130).DataType(GridColumnDataType.String);
+                                c1.Add().Caption("Kitas").DataField(namaKolom + "kitas").Width(130).DataType(GridColumnDataType.String).Visible(false);
+                                c1.Add().Caption("Business Reg").DataField(namaKolom + "business_reg").Width(130).DataType(GridColumnDataType.String);
+                                c1.Add().Caption("Nama SID").DataField(namaKolom + "nama_sid").Width(300).DataType(GridColumnDataType.String);
+                                c1.Add().Caption("Kode Efek").DataField(namaKolom + "seccode").Width(300).DataType(GridColumnDataType.String);
+                                c1.Add().Caption("Trade ID").DataField(namaKolom + "tradeid").Width(130).DataType(GridColumnDataType.String);
+                                if (kode == "ip_rel_ownership")
+                                {
+                                    c1.Add().Caption("Awal Memiliki").DataField(namaKolom + "startown_inrange").Width(130).DataType(GridColumnDataType.String).Visible(false);
+                                    c1.Add().Caption("Akhir Memiliki").DataField(namaKolom + "lastown_inrange").Width(130).DataType(GridColumnDataType.String).Visible(false);
+                                }
+                            }));
+                            continue;
+                        }
+                        else if (row.ColumnName.Substring(0, 3) == "inv" && (row.ColumnName != "inv1_nsec" && row.ColumnName != "inv2_nsec")) continue;
+
+                        if (row.ColumnName == "startdate") caption = "Periode Awal";
+                        else if (row.ColumnName == "enddate") caption = "Periode Akhir";
+                        else if (row.ColumnName == "identicalsecurity") caption = "Kemiripan Efek";
+                        else if (row.ColumnName == "simscore") caption = "Similarity Score";
+                        else if (row.ColumnName == "psystem") caption = "System";
+                        else if (row.ColumnName == "identical_size") caption = "Jml. Kemiripan Efek";
+                        else if (row.ColumnName == "inv1_nsec") caption = "Jml. Efek Investor";
+                        else if (row.ColumnName == "inv2_nsec") caption = "Jml. Efek Lawan Investor";
+                        else if (row.ColumnName == "allsec_size") caption = "Jml. Efek Ditemukan";
+                                                
+                        if ((new string[] {"side", "pstart", "pend" }.Any(s => row.ColumnName == s))) visible = false;                        
+                    }
+                    
+                    if (row.ColumnName == "keyid")
+                    {
+                        string ct = "<text><a href=\"../../IP/Index/ip_sid?detailsid=<%- data.lem %><%- value %>\"><%- value %></a></text>";
+                        grid.Columns(c => c.Add().Caption(caption).DataField(row.ColumnName).Width(width).Visible(visible).DataType(colDataType).Format(format).CellTemplate(ct));
+
+                    }
+                    else if (row.ColumnName == "trade_id")
+                    {
+                        grid.Columns(c => c.Add().Caption(caption).DataField(row.ColumnName).Width(width).Visible(visible).DataType(colDataType).Format(format).AllowFiltering(allowFilter).VisibleIndex(2));
+                    }
+                    else
+                        grid.Columns(c => c.Add().Caption(caption).DataField(row.ColumnName).Width(width).Visible(visible).DataType(colDataType).Format(format).AllowFiltering(allowFilter));
+                }
+            }
+
+            
+            if (kode != "ip_sid")
+            {
+                grid.OnRowDblClick("onRowDblClick");
+            }
+
+
+
+            return grid;
+        }
+
+        #region old
+        /*
+        public static DataGridBuilder<T> IPRelDataGrid<T>(this DataGridBuilder<T> grid, DataEntities db, string kode, bool isHive)
+        {
+            TextInfo cultInfo = new CultureInfo("en-US", false).TextInfo;
+            grid.Columns(c => c.Add().Caption("No").Width(50).Visible(true).AllowFiltering(false).DataField("no"));
+
+            var list = db.vw_TableDictionary.Where(x => x.TableName == kode).ToList();
+
+            foreach (var row in list)
             {
                 //string left7 = "";
                 bool isInput = false;
                 bool allowFilter = true;
                 var caption = cultInfo.ToTitleCase(row.ColumnName.Replace("dm_", "").Replace("_", " "));
-                
+
                 if (row.ColumnName != "rowid" && row.ColumnName != "etl_date")
                 {
                     var width = 150;
@@ -2910,21 +3082,21 @@ namespace BDA.Helper
                     }
 
                     if (kode == "ip_rel_sid")
-                    {                        
+                    {
                         if (row.ColumnName == "keyid")
                         {
                             caption = "Nomor SID";
-                            width = 130;                            
+                            width = 130;
                         }
                         else if (row.ColumnName == "cpkeyid")
                         {
                             caption = "Lawan SID";
-                            width = 130;                            
+                            width = 130;
                         }
                         else if (row.ColumnName == "namasid")
                         {
                             caption = "Nama SID";
-                            width = 300;                            
+                            width = 300;
                             allowFilter = false;
                         }
                         else if (row.ColumnName == "cpnamasid")
@@ -2933,14 +3105,14 @@ namespace BDA.Helper
                             width = 300;
                             allowFilter = false;
                         }
-                        else if (row.ColumnName == "reltoattr") caption = "Kolom Keterkaitan SID";                            
-                        else if (row.ColumnName == "cpreltoattr") caption = "Kolom Lawan Keterkaitan SID";                            
-                        else if (row.ColumnName == "attributetype") caption = "Jenis Keterkaitan";                            
-                        else if (row.ColumnName == "attributevalue") caption = "Nilai Keterkaitan";                            
-                        else if (row.ColumnName == "cpattributevalue") caption = "Nilai Keterkaitan Lawan SID";                            
-                        else if (row.ColumnName == "matchedtype") caption = "Jenis Kesamaan";                            
+                        else if (row.ColumnName == "reltoattr") caption = "Kolom Keterkaitan SID";
+                        else if (row.ColumnName == "cpreltoattr") caption = "Kolom Lawan Keterkaitan SID";
+                        else if (row.ColumnName == "attributetype") caption = "Jenis Keterkaitan";
+                        else if (row.ColumnName == "attributevalue") caption = "Nilai Keterkaitan";
+                        else if (row.ColumnName == "cpattributevalue") caption = "Nilai Keterkaitan Lawan SID";
+                        else if (row.ColumnName == "matchedtype") caption = "Jenis Kesamaan";
                         else if (row.ColumnName == "keytype") caption = "Jenis Kemiripan";
-                        else if (row.ColumnName == "similarityvalue") {caption = "Nilai Similarity"; allowFilter = false; }
+                        else if (row.ColumnName == "similarityvalue") { caption = "Nilai Similarity"; allowFilter = false; }
                         else if (row.ColumnName == "psystem") caption = "Sistem";
 
                         if ((new string[] { "yearmonth", "pmonth", "side" }.Any(s => row.ColumnName == s))) visible = false;
@@ -2964,7 +3136,8 @@ namespace BDA.Helper
                             width = 300;
                             allowFilter = false;
                         }
-                        else if (row.ColumnName == "seller_nama_sid") {
+                        else if (row.ColumnName == "seller_nama_sid")
+                        {
                             caption = "Seller Nama";
                             width = 300;
                             allowFilter = false;
@@ -2976,19 +3149,19 @@ namespace BDA.Helper
                         else if (row.ColumnName == "issuercode") caption = "Issuer Code";
                         else if (row.ColumnName == "listingboardcode") caption = "Listing Board Code";
                         else if (row.ColumnName == "transactionboardcode") caption = "Transaction Board Code";
-                        else if (row.ColumnName == "minsettlementdate") {caption = "Min Settlement Date"; allowFilter = false; }
-                        else if (row.ColumnName == "maxsettlementdate") {caption = "Max Settlement Date"; allowFilter = false; }
-                        else if (row.ColumnName == "ntrx") {caption = "Jumlah Transaksi"; allowFilter = false; }
-                        else if (row.ColumnName == "nbuyorder") {caption = "Jumlah Buy Order"; allowFilter = false; }
-                        else if (row.ColumnName == "nsellorder") {caption = "Jumlah Sell Order"; allowFilter = false; }
+                        else if (row.ColumnName == "minsettlementdate") { caption = "Min Settlement Date"; allowFilter = false; }
+                        else if (row.ColumnName == "maxsettlementdate") { caption = "Max Settlement Date"; allowFilter = false; }
+                        else if (row.ColumnName == "ntrx") { caption = "Jumlah Transaksi"; allowFilter = false; }
+                        else if (row.ColumnName == "nbuyorder") { caption = "Jumlah Buy Order"; allowFilter = false; }
+                        else if (row.ColumnName == "nsellorder") { caption = "Jumlah Sell Order"; allowFilter = false; }
                         else if (row.ColumnName == "nsession") caption = "Jumlah Session";
                         else if (row.ColumnName == "sessionlist") caption = "Session List";
-                        else if (row.ColumnName == "minprice") {caption = "Min Price"; allowFilter = false; }
-                        else if (row.ColumnName == "avgprice") {caption = "Avg Price"; allowFilter = false; }
-                        else if (row.ColumnName == "maxprice") {caption = "Max Price"; allowFilter = false; }
-                        else if (row.ColumnName == "nprice") {caption = "Jumlah Price"; allowFilter = false; }
-                        else if (row.ColumnName == "sumvolume") {caption = "Jumlah Volume"; allowFilter = false; }
-                        else if (row.ColumnName == "sumvalue") {caption = "Jumlah Value"; allowFilter = false; }
+                        else if (row.ColumnName == "minprice") { caption = "Min Price"; allowFilter = false; }
+                        else if (row.ColumnName == "avgprice") { caption = "Avg Price"; allowFilter = false; }
+                        else if (row.ColumnName == "maxprice") { caption = "Max Price"; allowFilter = false; }
+                        else if (row.ColumnName == "nprice") { caption = "Jumlah Price"; allowFilter = false; }
+                        else if (row.ColumnName == "sumvolume") { caption = "Jumlah Volume"; allowFilter = false; }
+                        else if (row.ColumnName == "sumvalue") { caption = "Jumlah Value"; allowFilter = false; }
                         else if (row.ColumnName == "buyer_sid") caption = "Buyer SID";
                         else if (row.ColumnName == "buyer_business_registration_number") caption = "Buyer Business Reg. Number";
                         else if (row.ColumnName == "seller_sid") caption = "Seller SID";
@@ -3009,9 +3182,9 @@ namespace BDA.Helper
                         else if (row.ColumnName == "tradeid") caption = "Trading ID";
                         else if (row.ColumnName == "emcode") caption = "Exchange Member Code";
                         else if (row.ColumnName == "securitycode") caption = "Security Code";
-                        else if (row.ColumnName == "count_sre") {caption = "NSRE (Jumlah SRE)"; allowFilter = false; }
+                        else if (row.ColumnName == "count_sre") { caption = "NSRE (Jumlah SRE)"; allowFilter = false; }
                         else if (row.ColumnName == "sre_list") caption = "SRE";
-                        else if (row.ColumnName == "sum_qty") {caption = "Volume"; allowFilter = false; }
+                        else if (row.ColumnName == "sum_qty") { caption = "Volume"; allowFilter = false; }
                         else if (row.ColumnName == "totalshares") caption = "Listed Shares";
                         else if (row.ColumnName == "listingdate") caption = "Listing Date";
                         else if (row.ColumnName == "issue_date") caption = "Issue Date";
@@ -3032,8 +3205,8 @@ namespace BDA.Helper
                         else if (row.ColumnName == "asset_class_type") caption = "Aset Tipe";
                         else if (row.ColumnName == "sector") caption = "Sektor";
                         else if (row.ColumnName == "sub_sector") caption = "Sub Sektor";
-                        else if (row.ColumnName == "prevprice") {caption = "Prev Price"; allowFilter = false; }
-                        else if (row.ColumnName == "price") {caption = "Price"; allowFilter = false; }
+                        else if (row.ColumnName == "prevprice") { caption = "Prev Price"; allowFilter = false; }
+                        else if (row.ColumnName == "price") { caption = "Price"; allowFilter = false; }
                         else if (row.ColumnName == "price_index") { caption = "Index"; width = 300; allowFilter = false; }
                         else if (row.ColumnName == "listingboardcode") caption = "Listing Board Code";
                         else if (row.ColumnName == "nama_sid")
@@ -3068,7 +3241,7 @@ namespace BDA.Helper
                 }
             }
 
-            
+
             if (kode != "ip_sid")
             {
                 grid.OnRowDblClick("onRowDblClick");
@@ -3078,6 +3251,8 @@ namespace BDA.Helper
 
             return grid;
         }
+        */
+        #endregion
 
     }
 }

@@ -31,64 +31,41 @@
 
                 <div class="row" style="border:1px solid blue;">
                     <div class="col-lg-4 form-group">
-                        @if (Model.kode == "ip_rel_transaction")
-                        {
-                            <label>Buyer SID<span class="one-mandatory">**</span></label>
-                        }
-                        else
-                        {
-                            <label>Nomor SID<span class="one-mandatory">**</span></label>
-                        }
+                        <label>Nomor SID<span class="one-mandatory">**</span></label>
                         @(Html.DevExtreme().TextBox().ID("tbSID").Placeholder("Nomor SID").InputAttr("aria-label", "Nomor SID").ShowClearButton(true).ValueChangeEvent("change").OnValueChanged("tb_valueChanged").Width("100%").Value(vbSID).MaxLength(15))
                     </div>
 
                     <div class="col-lg-4 form-group">
-                        @if (Model.kode == "ip_rel_transaction")
-                        {
-                            <label>Buyer Trading ID<span class="one-mandatory">**</span></label>
-                        }
-                        else
-                        {
-                            <label>Trading ID<span class="one-mandatory">**</span></label>
-                        }
-
+                        <label>Trading ID<span class="one-mandatory">**</span></label>
                         @(Html.DevExtreme().TextBox().ID("tbTradeId").Placeholder("Trading ID").InputAttr("aria-label", "Nomor Trade").ShowClearButton(true).ValueChangeEvent("change").OnValueChanged("tb_valueChanged").Width("100%").MaxLength(6))
                     </div>
 
                     @if (ViewBag.FullFilter)
                     {
-                        @if (Model.kode == "ip_rel_sid" || Model.kode == "ip_rel_ownership")
-                        {
-                            <div class="col-lg-4 form-group">
-                                <label>Nama SID<span class="one-mandatory">**</span></label>
-                                @(Html.DevExtreme().SelectBox()
-                                    .ID("tbNamaSID")
-                                    .ValueExpr("nama_sid")
-                                    .DisplayExpr("nama_sid")
-                                    .SearchEnabled(true)
-                                    .Option("cleanSearchOnOpening", false)
-                                    .ShowClearButton(true)
-                                    .OnSelectionChanged("tb_valueChanged")
-                                    .OnEnterKey("tbNameSearch")
-                                    .Width("100%")
-                                    .Placeholder("Ketik+Enter untuk mencari")
-                                    )
-                            </div>
-                            <div class="col-lg-4 form-group">
-                                <label>Nama SID Menyerupai<span class="one-mandatory">**</span></label>
-                                @(Html.DevExtreme().TextBox().ID("tbNamaLike").Placeholder("Min 8 digit").InputAttr("aria-label", "Min 8 Digit").ShowClearButton(true).ValueChangeEvent("change")
-                                    .OnValueChanged("tb_valueChanged").Width("100%")
-                                    //.Validator(v => { v.Add(r => r.Type(ValidationType.Pattern).Message("My custom message ").Pattern("^\\d{3}$")})
-                                    )
-                            </div>
-                        }
-                    }
+                        <div class="col-lg-4 form-group">
+                            <label>Nama SID<span class="one-mandatory">**</span></label>
+                            @(Html.DevExtreme().SelectBox()
+                                .ID("tbNamaSID")
+                                .ValueExpr("sid")
+                                .DisplayExpr("nama_sid")
+                                .SearchEnabled(true)
+                                .Option("cleanSearchOnOpening", false)
+                                .ShowClearButton(true)
+                                .OnSelectionChanged("tb_valueChanged")
+                                .OnEnterKey("tbNameSearch")
+                                .Width("100%")
+                                .Placeholder("Ketik+Enter untuk mencari")
+                                )
+                        </div>
+                        <div class="col-lg-4 form-group">
+                            <label>Nama SID Menyerupai<span class="one-mandatory">**</span></label>
+                            @(Html.DevExtreme().TextBox().ID("tbNamaLike").Placeholder("Min 8 digit").InputAttr("aria-label", "Min 8 Digit").ShowClearButton(true).ValueChangeEvent("change")
+                                .OnValueChanged("tb_valueChanged").Width("100%")
+                                //.Validator(v => { v.Add(r => r.Type(ValidationType.Pattern).Message("My custom message ").Pattern("^\\d{3}$")})
+                                )
+                        </div>
 
-                    
-
-                    @if (Model.kode == "ip_rel_transaction" || Model.kode == "ip_rel_ownership")
-                    {
-                        @if (Model.kode == "ip_rel_ownership")
+                        @if (Model.kode == "ip_rel_transaction" || Model.kode == "ip_rel_ownership")
                         {
                             <div class="col-lg-4 form-group">
                                 <label>NIK<span class="one-mandatory">**</span></label>
@@ -100,123 +77,33 @@
                                 @(Html.DevExtreme().TextBox().ID("tbNPWP").Placeholder("Nomor NPWP").InputAttr("aria-label", "Nomor NPWP").ShowClearButton(true).ValueChangeEvent("change").OnValueChanged("tb_valueChanged").Width("100%")//.Mask("0000000000000009").MaskRules(new { X = new JS("/[02-9]/") }).MaxLength(16)
                                     )
                             </div>
-                        
-                            <div class="col-lg-4 form-group">
-                                <label>Investor Type<span class="mandatory">*</span></label>
-                                @(Html.DevExtreme().SelectBox()
-                                    .ID("InvType")
-                                    .DataSource(d => d.Mvc()
-                                    .Controller("IPRelation")
-                                    .LoadAction("GetSistem")
-                                    .LoadParams(new { reportId = Model.kode, tipe = "InvestorType" })
-                                    .Key("kode"))
-                                    .ValueExpr("kode")
-                                    .DisplayExpr("text")
-                                    .SearchEnabled(true)
-                                    .Width("100%")
-                                    //.Value(vbS)
-                                    )
-                            </div>
-                            <div class="col-lg-4 form-group">
-                                <label>Investor Origin<span class="mandatory">*</span></label>
-                                @(Html.DevExtreme().SelectBox()
-                                    .ID("InvOrigin")
-                                    .DataSource(d => d.Mvc()
-                                    .Controller("IPRelation")
-                                    .LoadAction("GetSistem")
-                                    .LoadParams(new { reportId = Model.kode, tipe = "InvestorOrigin" })
-                                    .Key("kode"))
-                                    .ValueExpr("kode")
-                                    .DisplayExpr("text")
-                                    .SearchEnabled(true)
-                                    .Width("100%")
-                                    //.Value(vbS)
-                                    )
-                            </div>
-                            <div class="col-lg-4 form-group">
-                                <label>Investor Class<span class="mandatory">*</span></label>
-                                @(Html.DevExtreme().SelectBox()
-                                    .ID("InvClass")
-                                    .DataSource(d => d.Mvc()
-                                    .Controller("IPRelation")
-                                    .LoadAction("GetSistem")
-                                    .LoadParams(new { reportId = Model.kode, tipe = "InvestorClass" })
-                                    .Key("kode"))
-                                    .ValueExpr("kode")
-                                    .DisplayExpr("text")
-                                    .SearchEnabled(true)
-                                    .Width("100%")
-                                    //.Value(vbS)
-                                    )
-                            </div>
-                        
-                        }
 
-                        <div class="col-lg-4 form-group">
-                            @if (Model.kode == "ip_rel_transaction")
-                            {
-                                <label>Buyer Exch. Member Code</label>
+                            @if (Model.kode == "ip_false") 
+                            { 
+                            <div class="col-lg-4 form-group">
+                                <label>Securities<span class="mandatory">*</span></label>
+                                @(Html.DevExtreme().SelectBox()
+                                    .ID("Security")
+                                    .DataSource(d => d.Mvc()
+                                    .Controller("IPRelation")
+                                    .LoadAction("GetSistem")
+                                    .LoadParams(new { reportId = Model.kode, tipe = "security", partString = new JS("GetSecuritiesSearchText") })
+                                    .Key("kode"))
+                                    .OnKeyUp("OnSecuritiesSearch")
+                                    .ValueExpr("kode")
+                                    .DisplayExpr("text")
+                                    .SearchEnabled(true)
+                                    .Width("100%")
+                                    //.Value(vbS)
+                                    )
+                            </div>
                             }
-                            else
-                            {
-                                <label>Exch. Member Code</label>
-                            }
-                            @(Html.DevExtreme().SelectBox()
-                                    .ID("ExchangeId")
-                                    .DataSource(d => d.Mvc()
-                                    .Controller("IPRelation")
-                                    .LoadAction("GetSistem")
-                                    .LoadParams(new { reportId = Model.kode, tipe = "ExchangeMember" })
-                                    .Key("kode"))
-                                    .ValueExpr("kode")
-                                    .DisplayExpr("text")
-                                    .SearchEnabled(true)
-                                    .Width("100%")
-                                    .Placeholder("Exchange Member Code")
-                                    //.Value(vbS)
-                                    )                            
-                        </div>
-
-                        @if (Model.kode == "ip_rel_transaction")
-                        {
-                            <div class="col-lg-4 form-group">
-                                <label>Seller SID<span class="one-mandatory">**</span></label>
-                                @(Html.DevExtreme().TextBox().ID("tbSSID").Placeholder("Nomor SID").InputAttr("aria-label", "Nomor SID").ShowClearButton(true).ValueChangeEvent("change").OnValueChanged("tb_valueChanged").Width("100%").Value(vbSID).MaxLength(15))
-                            </div>
-
-                            <div class="col-lg-4 form-group">
-                                <label>Seller Trading ID<span class="one-mandatory">**</span></label>
-                                @(Html.DevExtreme().TextBox().ID("tbSTradeId").Placeholder("Trading ID").InputAttr("aria-label", "Nomor Trade").ShowClearButton(true).ValueChangeEvent("change").OnValueChanged("tb_valueChanged").Width("100%").MaxLength(6))
-                            </div>
-                            <div class="col-lg-4 form-group">
-                                <label>Seller Exch. Member Code</label>
-                                @(Html.DevExtreme().SelectBox()
-                                    .ID("SExchangeId")
-                                    .DataSource(d => d.Mvc()
-                                    .Controller("IPRelation")
-                                    .LoadAction("GetSistem")
-                                    .LoadParams(new { reportId = Model.kode, tipe = "ExchangeMember"})
-                                    .Key("kode"))
-                                    .ValueExpr("kode")
-                                    .DisplayExpr("text")
-                                    .SearchEnabled(true)
-                                    .Width("100%")
-                                    .Placeholder("Exchange Member Code")
-                                    //.Value(vbS)
-                                    )      
-                            </div>
                         }
-
-                        
-                        
                     }
+
+                    
                     <div class="col-lg-12 form-group">
-                        @if (Model.kode == "ip_rel_transaction"){
-                            <label id="lblHint1" class="bottom-corner">**Wajib Ada Yang Diisi</label>
-                        }
-                        else{
-                            <label id="lblHint1" class="bottom-corner">**Wajib Diisi Hanya Salah Satu</label>
-                        }
+                        <label id="lblHint1" class="bottom-corner">**Wajib Ada Yang Diisi</label>
                     </div>
                     
                 </div>
@@ -274,26 +161,7 @@
                             .Width("100%"))
                     </div>
 
-                    @if (Model.kode == "ip_rel_transaction" || Model.kode == "ip_rel_ownership")
-                    {
-                        <div class="col-lg-4 form-group">
-                            <label>Securities<span class="mandatory">*</span></label>
-                            @(Html.DevExtreme().SelectBox()
-                                .ID("Security")
-                                .DataSource(d => d.Mvc()
-                                .Controller("IPRelation")
-                                .LoadAction("GetSistem")
-                                .LoadParams(new { reportId = Model.kode, tipe = "security", partString = new JS("GetSecuritiesSearchText") })
-                                .Key("kode"))
-                                .OnKeyUp("OnSecuritiesSearch")
-                                .ValueExpr("kode")
-                                .DisplayExpr("text")
-                                .SearchEnabled(true)
-                                .Width("100%")
-                                //.Value(vbS)
-                                )
-                        </div>
-                    }
+                    
 
                     <div class="col-lg-12 form-group"  >
                         <label id="lblHint3" class="bottom-corner">*Wajib Dipilih</label>
@@ -325,7 +193,7 @@
                     {
                         <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();" title="Export Excel maksimal @maxExport data"><span class="image fa fa-file-excel"></span> Export Excel</a>
                         <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf();" title="Export PDF maksimal @maxExport data"><span class="image fa fa-file-pdf"></span> Export PDF</a>
-                        @if (Model.kode == "ip_rel_ownership")
+                        @if (Model.kode == "ip_false")
                         {
                             <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:Antrian();"><span class="image fa fa-file-invoice"></span> Antrian (CSV)</a>
                         }
@@ -350,17 +218,18 @@
                      .RemoteOperations(true)
                      .Width("100%")
                      .AllowColumnResizing(true)
-                     .ColumnChooser(cc => {                         
-                         cc.Mode(GridColumnChooserMode.Select);
-                         cc.Search(ccs => ccs.Enabled(true).EditorOptions(new { Placeholder = "Search column" }) );
-                         cc.Enabled(true);
-                      })
+                     .ColumnChooser(c => c.Enabled(true).Mode(GridColumnChooserMode.Select).Search(cc => cc.Enabled(true)) )
+                     //.ColumnChooser(cc => {                         
+                     //    cc.Mode(GridColumnChooserMode.Select);
+                     //    cc.Search(ccs => ccs.Enabled(true).EditorOptions(new { Placeholder = "Search column" }) );
+                     //    cc.Enabled(true);
+                     // })
                      .ColumnFixing(c => c.Enabled(true))
                      .Scrolling(s => s.ShowScrollbar(ShowScrollbarMode.Always))
                      .FilterRow(f => f.Visible(true))
                      .OnCellPrepared("onCellPrepared") //add hover
                      .ShowBorders(false)
-                     //.OnRowDblClick("onRowDblClick")
+                     .OnRowDblClick("onRowDblClick")
                      .Selection(c => c.Mode(SelectionMode.Single))
                      .Paging(p =>
                      {
@@ -499,7 +368,7 @@
 </script>
 
 <script type="text/javascript">
-    const resetFilter = {ip_rel_sid : { tbSID: 0, tbTradeId: 0, tbNamaSID: 0, tbNamaLike: 0}, ip_rel_ownership : { tbSID: 0, tbTradeId: 0, tbKTP: 0, tbNPWP: 0, tbNamaSID: 0, tbNamaLike: 0}};
+    const resetFilter = { ip_rel_sid: { tbSID: 0, tbTradeId: 0, tbNamaSID: 0, tbNamaLike: 0 }, ip_rel_transaction: { tbSID: 0, tbTradeId: 0, tbKTP: 0, tbNPWP: 0, tbNamaSID: 0, tbNamaLike: 0 }, ip_rel_ownership: { tbSID: 0, tbTradeId: 0, tbKTP: 0, tbNPWP: 0, tbNamaSID: 0, tbNamaLike: 0 } };
     const maxItems = @maxItems;
     const searchEditorOptions = { placeholder: 'Search column', mode: 'text' };
 
@@ -563,8 +432,8 @@
         let mdl = '@Model.kode';
         var detailSid = "";
         if(mdl == "ip_rel_sid") detailSid = "@Url.Action("Index", "IP", new { id = "ip_sid" })?detailsid=" + e.data.lem + e.data.keyid;
-        if(mdl == "ip_rel_transaction") detailSid = "@Url.Action("Index", "IP", new { id = "ip_sid" })?detailsid=" + e.data.lem + e.data.buyer_sid;
-        if(mdl == "ip_rel_ownership") detailSid = "@Url.Action("Index", "IP", new { id = "ip_sid" })?detailsid=" + e.data.lem + e.data.sid;
+        if(mdl == "ip_rel_transaction") detailSid = "@Url.Action("Index", "IP", new { id = "ip_sid" })?detailsid=" + e.data.lem + e.data.inv1;
+        if(mdl == "ip_rel_ownership") detailSid = "@Url.Action("Index", "IP", new { id = "ip_sid" })?detailsid=" + e.data.lem + e.data.inv1;
 
         window.open(detailSid);
 
@@ -600,7 +469,6 @@
 
     function tb_valueChanged(data) {
         let mdl = '@Model.kode';
-        if (mdl == "ip_rel_transaction") return;
         var listReset = Object.keys(resetFilter[mdl]);
         
         var idFilter = data.element.attr("id");        
@@ -649,14 +517,9 @@
         const res = e.validationGroup.validate();
         if (res.status === "valid") {
             let sid = "";
-            let tradeId = "";
-            let exchId = "";
-            let ssid = "";
-            let stradeId = "";
-            let sexchId = "";
+            let tradeId = "";            
             let nomorKTP = ""; @*//$("#tbKTP").dxTextBox("instance").option("value");*@
-            let nomorNPWP = ""; @*$("#tbNPWP").dxTextBox("instance").option("value");*@
-            let passport = ""; @* $("#tbPassport").dxTextBox("instance").option("value");*@
+            let nomorNPWP = ""; @*$("#tbNPWP").dxTextBox("instance").option("value");*@            
             let namaLike = "";
             let namaSID = "";
             let valid = false;
@@ -670,14 +533,7 @@
                 }
                 if (sid != "" || tradeId != "" || (namaSID != "" && namaSID != null) || namaLike != "") valid = true;
             }
-            else if (mdl == "ip_rel_transaction") {
-                sid = $("#tbSID").dxTextBox("instance").option("value");
-                tradeId = $("#tbTradeId").dxTextBox("instance").option("value");
-                ssid = $("#tbSSID").dxTextBox("instance").option("value");
-                stradeId = $("#tbSTradeId").dxTextBox("instance").option("value");
-                if (sid != "" || tradeId != "" || ssid != "" || stradeId != "") valid = true;
-            } 
-            else if (mdl == "ip_rel_ownership") {
+            else if (mdl == "ip_rel_transaction" || mdl == "ip_rel_ownership") {
                 sid = $("#tbSID").dxTextBox("instance").option("value");
                 tradeId = $("#tbTradeId").dxTextBox("instance").option("value");
                 if ('@(ViewBag.FullFilter)' == 'True') {
@@ -687,8 +543,8 @@
                 let nomorKTP = $("#tbKTP").dxTextBox("instance").option("value");
                 let nomorNPWP = $("#tbNPWP").dxTextBox("instance").option("value");
                 if (sid != "" || tradeId != "" || (namaSID != "" && namaSID != null) || namaLike != "" || nomorKTP != "" || nomorNPWP != "") valid = true;
-            }
-
+            } 
+            
 
             if (valid == true) {
 
@@ -730,32 +586,16 @@
         ajaxOptions.data.startPeriode = periode;
         ajaxOptions.data.endPeriode = endperiode;
 
-        if (mdl == "ip_rel_transaction") {
-            let exchangeCode = $("#ExchangeId").dxSelectBox("instance").option("value");
-            ajaxOptions.data.bSID = sid;
-            ajaxOptions.data.bTradeId = tradeId;            
-            ajaxOptions.data.bExchangeCode = exchangeCode;
+        ajaxOptions.data.SID = sid;
+        ajaxOptions.data.tradeId = tradeId;
 
-            let sSid = $("#tbSSID").dxTextBox("instance").option("value");
-            let sTradeId = $("#tbSTradeId").dxTextBox("instance").option("value");
-            let sExchangeCode = $("#SExchangeId").dxSelectBox("instance").option("value");
-            ajaxOptions.data.sSID = sSid;
-            ajaxOptions.data.sTradeId = sTradeId;
-            ajaxOptions.data.sExchangeCode = sExchangeCode;
-        }
-        else {
-            ajaxOptions.data.SID = sid;
-            ajaxOptions.data.tradeId = tradeId;
-
-            let namaLike = null;
-            let namaSID = "";
-            if ('@(ViewBag.FullFilter)' == 'True') {
-                namaLike = $("#tbNamaLike").dxTextBox("instance").option("value");
-                namaSID = $("#tbNamaSID").dxSelectBox("instance").option("value");
-                ajaxOptions.data.namaSID = namaSID;
-                ajaxOptions.data.namaLike = namaLike;
-                
-            }
+        let namaLike = null;
+        let namaSID = "";
+        if ('@(ViewBag.FullFilter)' == 'True') {
+            namaLike = $("#tbNamaLike").dxTextBox("instance").option("value");
+            namaSID = $("#tbNamaSID").dxSelectBox("instance").option("value");
+            ajaxOptions.data.namaSID = namaSID;
+            ajaxOptions.data.namaLike = namaLike;
         }
 
         if (mdl == "ip_rel_sid") {
@@ -765,24 +605,14 @@
             ajaxOptions.data.nilaiRel = nilaiRel;
         }
         else {
-            let security = $("#Security").dxSelectBox("instance").option("value");
-            ajaxOptions.data.securityCode = security;
-        }
-
-        if (mdl == "ip_rel_ownership") { 
-            let nomorKTP = $("#tbKTP").dxTextBox("instance").option("value");
-            let nomorNPWP = $("#tbNPWP").dxTextBox("instance").option("value");
-            let exchangeCode = $("#ExchangeId").dxSelectBox("instance").option("value");
-            ajaxOptions.data.nomorKTP = nomorKTP;
-            ajaxOptions.data.nomorNPWP = nomorNPWP;            
-            ajaxOptions.data.exchangeCode = exchangeCode;
-
-            let invType = $("#InvType").dxSelectBox("instance").option("value");
-            let invOrigin = $("#InvOrigin").dxSelectBox("instance").option("value");
-            let invClass = $("#InvClass").dxSelectBox("instance").option("value");
-            ajaxOptions.data.invType = invType;
-            ajaxOptions.data.invOrigin = invOrigin;
-            ajaxOptions.data.invClass = invClass;
+            if ('@(ViewBag.FullFilter)' == 'True') {
+                let nomorKTP = $("#tbKTP").dxTextBox("instance").option("value");
+                let nomorNPWP = $("#tbNPWP").dxTextBox("instance").option("value");
+                ajaxOptions.data.nomorKTP = nomorKTP;
+                ajaxOptions.data.nomorNPWP = nomorNPWP;
+            }
+            //let security = $("#Security").dxSelectBox("instance").option("value");
+            //ajaxOptions.data.securityCode = security;
         }
 
         //ajaxOptions.data.periode = JSON.stringify(periode);
