@@ -6006,7 +6006,7 @@ namespace BDA.Helper
                     periodWhereQuery = " AND pmonth between '" + startperiodes.Substring(0, 6) + "' and '" + endperiodes.Substring(0, 6) + "'";
                 }
                 else {
-                    periodWhereQuery = " AND startdate between '" + startperiodes + "' and '" + endperiodes + "'";
+                    periodWhereQuery = " AND pstart between '" + startperiodes + "' and '" + endperiodes + "'";
                 }
                 
             }
