@@ -7829,7 +7829,7 @@ namespace BDA.Helper
                         COUNT(to_date(from_unixtime(unix_timestamp(entrydate,'yyyyMMdd')))) total
                         From pasarmodal." + tableName + @"
                     WHERE " + whereQuery + @" 
-                    Group by to_date(from_unixtime(unix_timestamp(entrydate,'yyyyMMdd')))) as t";
+                    Group by to_date(from_unixtime(unix_timestamp(entrydate,'yyyyMMdd'))) order by entrydate,nobulan asc) as t";
                 }
             }
             else
