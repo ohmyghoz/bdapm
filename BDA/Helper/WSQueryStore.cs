@@ -5974,7 +5974,7 @@ namespace BDA.Helper
             bool isC = false;
             var whereQuery = "1=1";
             var periodWhereQuery = "";
-            isHive = false;
+            //isHive = false;
 
             if (tableName == "ip_rel_sid")
             {
