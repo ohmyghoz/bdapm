@@ -1,4 +1,4 @@
-﻿@using DevExtreme.AspNet.Mvc
+﻿﻿@using DevExtreme.AspNet.Mvc
 @{
     Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
 }
@@ -102,8 +102,7 @@
                         .ID("Filter")
                         .Type(ButtonType.Default)
                         .Text("Tampilkan")
-                        .OnClick("onButtonFilterClicked")
-                        .ValidationGroup("Filter"))
+                        .OnClick("refreshTopCompaniesGrid"))
                 </div>
 
                 @*                 <div class="float-right">
@@ -127,23 +126,32 @@
                 </div>
 
                 <div class="row">
-                    @(Html.DevExtreme().DataGrid()
-                        .ID("grid1")
-                        .DataSource(d => d.StaticJson().Url("/tempData/md_rg_ng.json")
-                        ) // Update this line
-                        .KeyExpr("rowid")
+                    @(
+                    Html.DevExtreme().DataGrid()
+
+                        .ID("top-companies-grid")
+                        .DataSource(d => d.Mvc()
+                        .Controller("MarketDriven")
+                        .LoadAction("_GetTopCompaniesData") // This action calls your query
+                        .LoadParams(new
+                        {
+                            selectedDate = new JS("getFormattedPeriod")
+                        })
+                        .Key("security_code") // Unique key for the rows
+                        )
+                        .OnContentReady("onGridContentReady")
+                        .OnDataErrorOccurred("function(e) { console.error('Grid data error:', e.error); }")
+
                         .RemoteOperations(true)
                         .Width("100%")
                         .AllowColumnResizing(true)
                         .ColumnAutoWidth(true)
                         .Columns(columns =>
                         {
-                            columns.Add().DataField("rowid").Visible(false);
-                            columns.Add().DataField("periode_lvl2").Visible(false);
                             columns.Add().DataField("security_code").Caption("Security Code");
-                            columns.Add().DataField("value").Caption("Value").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0"); ;
-                            columns.Add().DataField("volume").Caption("Volume").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0"); ;
-                            columns.Add().DataField("freq").Caption("Freq").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0"); ;
+                            columns.Add().DataField("total_value").Caption("Total Value").Alignment(HorizontalAlignment.Right).Format("#,##0");
+                            columns.Add().DataField("total_volume").Caption("Total Volume").Alignment(HorizontalAlignment.Right).Format("#,##0");
+                            columns.Add().DataField("total_freq").Caption("Total Frequency").Alignment(HorizontalAlignment.Right).Format("#,##0");
                         })
                         .FilterRow(f => f.Visible(false))
                         .ShowBorders(true)
@@ -156,306 +164,15 @@
                         .Pager(p =>
                         {
                             p.ShowInfo(true);
-                        }))
+                        })
+                )
                 </div>
             </div>
         </div>
-        <div>
-            <div class="row">
-                <div class="col-lg-6 form-group" id="chartContainer1" style="display: none; padding-right:25px; padding-left:25px;">
-
-                    @(
-                        Html.DevExtreme().Chart()
-                        .ID("market-value-chart1")
-                        .Palette(VizPalette.Material)
-                        .Title("MSIN")
-                        .ArgumentAxis(a => a.Label(l => l.OverlappingBehavior(OverlappingBehavior.Stagger)))
-                        .CommonSeriesSettings(s => s
-                        .ArgumentField("Day")
-                        )
-                        .CommonAxisSettings(s => s
-                        .Grid(g => g.Visible(true))
-                        )
-                        .Margin(m => m.Left(20))
-                        .Series(s =>
-                        {
-                            s.Add()
-                            .ValueField("HighNG").Name("High NG")
-                            .Type(SeriesType.Spline)
-                            .Axis("value");
-                            s.Add()
-                            .ValueField("LowNG").Name("Low NG")
-                            .Type(SeriesType.Spline)
-                            .Axis("value");
-                            s.Add()
-                            .ValueField("HighRG").Name("High RG")
-                            .Type(SeriesType.Spline)
-                            .Axis("value");
-                            s.Add()
-                            .ValueField("LowRG").Name("Low RG")
-                            .Type(SeriesType.Spline)
-                            .Axis("value");
-                            s.Add()
-                            .ValueField("CloseRG").Name("Close RG")
-                            .Type(SeriesType.Spline)
-                            .Axis("value");
-                            s.Add()
-                            .ValueField("VolumeNG").Name("Volume NG")
-                            .Type(SeriesType.Bar)
-                            .Axis("volume");
-
-
-                        })
-                        .Tooltip(t => t.Enabled(true))
-                        .Legend(l => l
-                        .VerticalAlignment(VerticalEdge.Top)
-                        .HorizontalAlignment(HorizontalAlignment.Right)
-                        )
-                        .ValueAxis(a =>
-                        {
-                            a.Add()
-                            .Name("value")
-                            .Position(Position.Right)
-                            .Label(l => l.Format(Format.Decimal))
-                            .AllowDecimals(false)
-                            .AxisDivisionFactor(60);
-
-                            a.Add()
-                            .Name("volume")
-                            .Position(Position.Left)
-                            .Label(l => l.Format(Format.Decimal))
-                            .TickInterval(10000000)
-                            ;
-                        }
-                        )
-                        .Export(e => e.Enabled(true))
-                        .DataSource(new[] {
-                new { Day = "1/4", HighNG = "50", LowNG = "50", CloseRG= "50", HighRG="50", LowRG="50", VolumeNG="514588200", date="20210104" }
-
-                })
-                        )
-                </div>
-                <div class="col-lg-6 form-group" id="chartContainer2" style="display: none; padding-right:25px; padding-left:25px;">
-                    @(
-                        Html.DevExtreme().Chart()
-                        .ID("market-value-chart2")
-                        .Palette(VizPalette.Material)
-                        .Title("BNBR")
-                        .ArgumentAxis(a => a.Label(l => l.OverlappingBehavior(OverlappingBehavior.Stagger)))
-                        .CommonSeriesSettings(s => s
-                        .ArgumentField("Day")
-                        )
-                        .CommonAxisSettings(s => s
-                        .Grid(g => g.Visible(true))
-                        )
-                        .Margin(m => m.Left(20))
-                        .Series(s =>
-                        {
-                            s.Add()
-                            .ValueField("HighNG").Name("High NG")
-                            .Type(SeriesType.Spline)
-                            .Axis("value");
-                            s.Add()
-                            .ValueField("LowNG").Name("Low NG")
-                            .Type(SeriesType.Spline)
-                            .Axis("value");
-                            s.Add()
-                            .ValueField("HighRG").Name("High RG")
-                            .Type(SeriesType.Spline)
-                            .Axis("value");
-                            s.Add()
-                            .ValueField("LowRG").Name("Low RG")
-                            .Type(SeriesType.Spline)
-                            .Axis("value");
-                            s.Add()
-                            .ValueField("CloseRG").Name("Close RG")
-                            .Type(SeriesType.Spline)
-                            .Axis("value");
-                            s.Add()
-                            .ValueField("VolumeNG").Name("Volume NG")
-                            .Type(SeriesType.Bar)
-                            .Axis("volume");
-
-
-                        })
-                        .Tooltip(t => t.Enabled(true))
-                        .Legend(l => l
-                        .VerticalAlignment(VerticalEdge.Top)
-                        .HorizontalAlignment(HorizontalAlignment.Right)
-                        )
-                        .ValueAxis(a =>
-                        {
-                            a.Add()
-                            .Name("value")
-                            .Position(Position.Right)
-                            .Label(l => l.Format(Format.Decimal))
-                            .AllowDecimals(false)
-                            .AxisDivisionFactor(60);
-
-                            a.Add()
-                            .Name("volume")
-                            .Position(Position.Left)
-                            .Label(l => l.Format(Format.Decimal))
-                            .TickInterval(10000000)
-                            ;
-                        }
-                        )
-                        .Export(e => e.Enabled(true))
-                        .DataSource(new[] {
-                new { Day = "1/4", HighNG = "50", LowNG = "50", CloseRG= "50", HighRG="50", LowRG="50", VolumeNG="50000000", date="20210104" }
-
-                })
-                        )
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-6 form-group" id="chartContainer3" style="display: none; padding-right:25px; padding-left:25px;">
-                    @(
-                        Html.DevExtreme().Chart()
-                        .ID("market-value-chart3")
-                        .Palette(VizPalette.Material)
-                        .Title("TGRA")
-                        .ArgumentAxis(a => a.Label(l => l.OverlappingBehavior(OverlappingBehavior.Stagger)))
-                        .CommonSeriesSettings(s => s
-                        .ArgumentField("Day")
-                        )
-                        .CommonAxisSettings(s => s
-                        .Grid(g => g.Visible(true))
-                        )
-                        .Margin(m => m.Left(20))
-                        .Series(s =>
-                        {
-                            s.Add()
-                            .ValueField("HighNG").Name("High NG")
-                            .Type(SeriesType.Spline)
-                            .Axis("value");
-                            s.Add()
-                            .ValueField("LowNG").Name("Low NG")
-                            .Type(SeriesType.Spline)
-                            .Axis("value");
-                            s.Add()
-                            .ValueField("HighRG").Name("High RG")
-                            .Type(SeriesType.Spline)
-                            .Axis("value");
-                            s.Add()
-                            .ValueField("LowRG").Name("Low RG")
-                            .Type(SeriesType.Spline)
-                            .Axis("value");
-                            s.Add()
-                            .ValueField("CloseRG").Name("Close RG")
-                            .Type(SeriesType.Spline)
-                            .Axis("value");
-                            s.Add()
-                            .ValueField("VolumeNG").Name("Volume NG")
-                            .Type(SeriesType.Bar)
-                            .Axis("volume");
-
-
-                        })
-                        .Tooltip(t => t.Enabled(true))
-                        .Legend(l => l
-                        .VerticalAlignment(VerticalEdge.Top)
-                        .HorizontalAlignment(HorizontalAlignment.Right)
-                        )
-                        .ValueAxis(a =>
-                        {
-                            a.Add()
-                            .Name("value")
-                            .Position(Position.Right)
-                            .Label(l => l.Format(Format.Decimal))
-                            .AllowDecimals(false)
-                            .AxisDivisionFactor(60);
-
-                            a.Add()
-                            .Name("volume")
-                            .Position(Position.Left)
-                            .Label(l => l.Format(Format.Decimal))
-                            .TickInterval(10000000)
-                            ;
-                        }
-                        )
-                        .Export(e => e.Enabled(true))
-                        .DataSource(new[] {
-                new { Day = "1/4", HighNG = "50", LowNG = "50", CloseRG= "50", HighRG="50", LowRG="50", VolumeNG="366014300", date="20210104" }
-
-                })
-                        )
-                </div>
-                <div class="col-lg-6 form-group" id="chartContainer4" style="display: none; padding-right:25px; padding-left:25px;">
-                    @(
-                        Html.DevExtreme().Chart()
-                        .ID("market-value-chart4")
-                        .Palette(VizPalette.Material)
-                        .Title("MTFN")
-                        .ArgumentAxis(a => a.Label(l => l.OverlappingBehavior(OverlappingBehavior.Stagger)))
-                        .CommonSeriesSettings(s => s
-                        .ArgumentField("Day")
-                        )
-                        .CommonAxisSettings(s => s
-                        .Grid(g => g.Visible(true))
-                        )
-                        .Margin(m => m.Left(20))
-                        .Series(s =>
-                        {
-                            s.Add()
-                            .ValueField("HighNG").Name("High NG")
-                            .Type(SeriesType.Spline)
-                            .Axis("value");
-                            s.Add()
-                            .ValueField("LowNG").Name("Low NG")
-                            .Type(SeriesType.Spline)
-                            .Axis("value");
-                            s.Add()
-                            .ValueField("HighRG").Name("High RG")
-                            .Type(SeriesType.Spline)
-                            .Axis("value");
-                            s.Add()
-                            .ValueField("LowRG").Name("Low RG")
-                            .Type(SeriesType.Spline)
-                            .Axis("value");
-                            s.Add()
-                            .ValueField("CloseRG").Name("Close RG")
-                            .Type(SeriesType.Spline)
-                            .Axis("value");
-                            s.Add()
-                            .ValueField("VolumeNG").Name("Volume NG")
-                            .Type(SeriesType.Bar)
-                            .Axis("volume");
-
-
-                        })
-                        .Tooltip(t => t.Enabled(true))
-                        .Legend(l => l
-                        .VerticalAlignment(VerticalEdge.Top)
-                        .HorizontalAlignment(HorizontalAlignment.Right)
-                        )
-                        .ValueAxis(a =>
-                        {
-                            a.Add()
-                            .Name("value")
-                            .Position(Position.Right)
-                            .Label(l => l.Format(Format.Decimal))
-                            .AllowDecimals(false)
-                            .AxisDivisionFactor(60);
-
-                            a.Add()
-                            .Name("volume")
-                            .Position(Position.Left)
-                            .Label(l => l.Format(Format.Decimal))
-                            .TickInterval(10000000)
-                            ;
-                        }
-                        )
-                        .Export(e => e.Enabled(true))
-                        .DataSource(new[] {
-                new { Day = "1/4", HighNG = "50", LowNG = "50", CloseRG= "50", HighRG="50", LowRG="50", VolumeNG="310000000", date="20210104" }
-
-                })
-                        )
-                </div>
-            </div>
-
+        <div class="row" id="dynamicChartsContainer" style="display: none;">
+            <!-- Charts will be generated here dynamically -->
         </div>
+        
     </div>
 
 
@@ -497,23 +214,273 @@
     <!-- The Modal  Detail-->
 }
 
-
-
 <script>
-    window.jsPDF = window.jspdf.jsPDF;
-    applyPlugin(window.jsPDF);
-</script>
+    // Store the top 4 security codes
+    let topSecurityCodes = [];
 
-<script>
+    // This function gets the date from the appropriate DateBox based on period type
+    function getFormattedPeriod() {
+        const periodType = $("#Periodid").dxSelectBox("instance").option("value");
+
+        if (periodType === "Monthly") {
+            const date = $("#DatepickmID").dxDateBox("instance").option("value");
+            if (date) {
+                const year = date.getFullYear();
+                const month = ("0" + (date.getMonth() + 1)).slice(-2);
+                return year + "" + month;
+            }
+        } else if (periodType === "Daily") {
+            const date = $("#datepickdID").dxDateBox("instance").option("value");
+            if (date) {
+                const year = date.getFullYear();
+                const month = ("0" + (date.getMonth() + 1)).slice(-2);
+                const day = ("0" + date.getDate()).slice(-2);
+                return year + month + day;
+            }
+        } else if (periodType === "Custom Date") {
+            const startDate = $("#StartDateID").dxDateBox("instance").option("value");
+            if (startDate) {
+                const year = startDate.getFullYear();
+                const month = ("0" + (startDate.getMonth() + 1)).slice(-2);
+                return year + "" + month;
+            }
+        }
+        return null;
+    }
+
+    // Main function to refresh grid and create charts
+    function refreshTopCompaniesGrid() {
+        console.log("refreshTopCompaniesGrid called from button");
+
+        const formattedDate = getFormattedPeriod();
+        console.log("Formatted date:", formattedDate);
+
+        if (!formattedDate) {
+            alert("Please select a period first!");
+            return;
+        }
+
+        // Show the grid container
+        document.getElementById("gridContainer").style.display = "block";
+
+        try {
+            // Get the grid instance and refresh
+            const grid = $("#top-companies-grid").dxDataGrid("instance");
+
+            // Use the refresh promise to know when data is loaded
+            grid.refresh().done(function () {
+                console.log("Grid refresh completed");
+                // Create charts after grid data is loaded
+                setTimeout(function () {
+                    createChartsForTopCompanies();
+                }, 1000);
+            });
+        } catch (error) {
+            console.error("Error refreshing grid:", error);
+        }
+    }
+
+    // Function called when grid content is ready
+    function onGridContentReady(e) {
+        console.log('Grid content ready, row count:', e.component.getVisibleRows().length);
+    }
+
+    function createChartsForTopCompanies() {
+        console.log("createChartsForTopCompanies called");
+
+        const formattedDate = getFormattedPeriod();
+        if (!formattedDate) {
+            console.log("No formatted date available");
+            return;
+        }
+
+        try {
+            // Get the grid data to extract top 4 security codes
+            const grid = $("#top-companies-grid").dxDataGrid("instance");
+            const gridData = grid.getDataSource().items();
+
+            if (!gridData || gridData.length === 0) {
+                console.log("No grid data available");
+                return;
+            }
+
+            // Get top 4 security codes
+            topSecurityCodes = gridData.slice(0, 4).map(item => item.security_code);
+            console.log("Top 4 security codes:", topSecurityCodes);
+
+            // Clear existing charts
+            $("#dynamicChartsContainer").empty();
+
+            // Create charts in 2x2 layout using Bootstrap rows
+            for (let i = 0; i < topSecurityCodes.length; i += 2) {
+                // Create a new row for every 2 charts
+                const rowDiv = $('<div class="row chart-row" style="margin-bottom: 20px;"></div>');
+                $("#dynamicChartsContainer").append(rowDiv);
+
+                // Add first chart in the row
+                if (topSecurityCodes[i]) {
+                    createChartForSecurity(topSecurityCodes[i], i, formattedDate, rowDiv);
+                }
+
+                // Add second chart in the row (if exists)
+                if (topSecurityCodes[i + 1]) {
+                    createChartForSecurity(topSecurityCodes[i + 1], i + 1, formattedDate, rowDiv);
+                }
+            }
+
+            // Show the charts container
+            document.getElementById("dynamicChartsContainer").style.display = "block";
+        } catch (error) {
+            console.error("Error in createChartsForTopCompanies:", error);
+        }
+    }
+
+    // Function to create individual chart
+    function createChartForSecurity(securityCode, index, selectedDate, rowContainer) {
+        const chartId = `market-chart-${index + 1}`;
+        const containerId = `chartContainer-${index + 1}`;
+
+        // Create chart container HTML for 2x2 layout
+        const chartHtml = `
+            <div class="col-lg-6 col-md-6 col-sm-12 form-group" id="${containerId}" style="padding: 15px;">
+                <div id="${chartId}" style="height: 400px; border: 1px solid #ddd; border-radius: 5px; padding: 10px;"></div>
+            </div>
+        `;
+
+        // Append to the specific row container instead of the main container
+        if (rowContainer) {
+            rowContainer.append(chartHtml);
+        } else {
+            $("#dynamicChartsContainer").append(chartHtml);
+        }
+
+        // Create the DevExtreme chart
+        $(`#${chartId}`).dxChart({
+            palette: "Material",
+            title: securityCode,
+            dataSource: {
+                load: function () {
+                    return $.ajax({
+                        url: '@Url.Action("_GetChartData", "MarketDriven")',
+                        data: {
+                            selectedDate: selectedDate,
+                            securityCode: securityCode
+                        },
+                        dataType: "json"
+                    }).done(function (data) {
+                        console.log(`Chart data for ${securityCode}:`, data);
+                        if (!data || data.length === 0) {
+                            console.warn(`No data returned for ${securityCode}`);
+                        }
+                    }).fail(function (xhr, status, error) {
+                        console.error(`Failed to load chart data for ${securityCode}:`, error);
+                    });
+                }
+            },
+            // Add this to handle empty data gracefully
+            onInitialized: function (e) {
+                console.log(`Chart initialized for ${securityCode}`);
+            },
+            onDrawn: function (e) {
+                console.log(`Chart drawn for ${securityCode}`);
+            },
+            argumentAxis: {
+                argumentType: "string",
+                label: {
+                    overlappingBehavior: "stagger"
+                }
+            },
+            commonSeriesSettings: {
+                argumentField: "periode"
+            },
+            commonAxisSettings: {
+                grid: {
+                    visible: true
+                }
+            },
+            margin: {
+                left: 20
+            },
+            series: [
+                {
+                    valueField: "high_ng",
+                    name: "High NG",
+                    type: "spline",
+                    axis: "value"
+                },
+                {
+                    valueField: "low_ng",
+                    name: "Low NG",
+                    type: "spline",
+                    axis: "value"
+                },
+                {
+                    valueField: "high_rg",
+                    name: "High RG",
+                    type: "spline",
+                    axis: "value"
+                },
+                {
+                    valueField: "low_rg",
+                    name: "Low RG",
+                    type: "spline",
+                    axis: "value"
+                },
+                {
+                    valueField: "volume_ng",
+                    name: "Volume NG",
+                    type: "bar",
+                    axis: "volume"
+                }
+            ],
+            tooltip: {
+                enabled: true
+            },
+            legend: {
+                verticalAlignment: "top",
+                horizontalAlignment: "right"
+            },
+            valueAxis: [
+                {
+                    name: "value",
+                    position: "right",
+                    label: {
+                        format: "decimal"
+                    },
+                    allowDecimals: false,
+                    axisDivisionFactor: 60
+                },
+                {
+                    name: "volume",
+                    position: "left",
+                    label: {
+                        format: "decimal"
+                    },
+                    tickInterval: 10000000
+                }
+            ],
+            export: {
+                enabled: true
+            },
+            // Add a no-data message
+            noDataText: `No data available for ${securityCode}`
+        });
+    }
+
+    // Period change handler - SINGLE DEFINITION
     function onPeriodChanged(e) {
+        console.log("Period changed to:", e.value);
         const selectedValue = e.value;
         const datepickdayDiv = document.getElementById("datepickday");
         const datepickmonthDiv = document.getElementById("datepickmonth");
-        const asingDiv = document.getElementById("asingDiv");
-        const starttimeDiv = document.getElementById("starttime")
-        const endtimeDiv = document.getElementById("endtime")
-        const startdateDiv = document.getElementById("startdate")
-        const enddateDiv = document.getElementById("enddate")
+        const starttimeDiv = document.getElementById("starttime");
+        const endtimeDiv = document.getElementById("endtime");
+        const startdateDiv = document.getElementById("startdate");
+        const enddateDiv = document.getElementById("enddate");
+
+        // Hide grid and charts when period type changes
+        document.getElementById("gridContainer").style.display = "none";
+        document.getElementById("dynamicChartsContainer").style.display = "none";
 
         if (selectedValue === "Daily") {
             starttimeDiv.style.display = "block";
@@ -522,7 +489,6 @@
             datepickmonthDiv.style.display = "none";
             startdateDiv.style.display = "none";
             enddateDiv.style.display = "none";
-
         } else if (selectedValue === "Monthly") {
             datepickmonthDiv.style.display = "block";
             starttimeDiv.style.display = "none";
@@ -540,8 +506,30 @@
         }
     }
 
+    // Export functions
+    function exportGridToPDF() {
+        const doc = new jsPDF();
+        const dataGrid = $("#top-companies-grid").dxDataGrid("instance");
+
+        DevExpress.pdfExporter.exportDataGrid({
+            jsPDFDocument: doc,
+            component: dataGrid,
+            keepColumnWidths: true
+        }).then(() => {
+            doc.save('GridData.pdf');
+        });
+    }
+
+    function exportGridToExcel() {
+        var dataGrid = $("#top-companies-grid").dxDataGrid("instance");
+        dataGrid.exportToExcel(false);
+    }
+
+    // Document ready
     $(document).ready(function () {
-        // Hide the confirmation and asing divs initially
+        console.log("Document ready");
+
+        // Hide all date controls initially
         document.getElementById("starttime").style.display = "none";
         document.getElementById("endtime").style.display = "none";
         document.getElementById("datepickday").style.display = "none";
@@ -550,33 +538,7 @@
         document.getElementById("enddate").style.display = "none";
     });
 
-    $(function () {
-        const startDate = $("#PeriodeAwal").dxDateBox({
-            onValueChanged: function (e) {
-                endDate.option("min", e.value);
-            }
-        }).dxDateBox("instance");
-
-        $("#PeriodeAwal").dxValidator({
-            validationGroup: "Filter",
-            validationRules: [{ type: "required", message: "[Tanggal] harus dipilih" }]
-        })
-    });
-
-    $(function () {
-        $("#penggunaandataid").dxValidator({
-            validationGroup: "Filter",
-            validationRules: [{ type: "required", message: "[Penggunaan Data] harus dipilih" }]
-        })
-    });
-
-    $(function () {
-        $("#namaPEid").dxValidator({
-            validationGroup: "Filter",
-            validationRules: [{ type: "required", message: "[Nama PE] harus dipilih" }]
-        })
-    });
-
+    // Modal and other functions
     $(window).on('load', function () {
         $("#ModalSimpanPenggunaanData").modal("show");
     });
@@ -595,14 +557,11 @@
                 type: "POST",
                 success: function (data) {
                     if (data.success == true) {
-                        //alert(data.message);
-    @* waitingDialog.hide(); *@
-                            $('#ModalSimpanPenggunaanData').modal('hide');
+                        $('#ModalSimpanPenggunaanData').modal('hide');
                         return "Saving Success !";
                     }
                     else if (data.success == false) {
-    @*  waitingDialog.hide(); *@
-                            alert(data.message);
+                        alert(data.message);
                         $('#ModalSimpanPenggunaanData').modal('hide');
                         return "Saving Failed !";
                     }
@@ -611,113 +570,8 @@
         }
     });
 
-    function exportGridToPDF() {
-        const doc = new jsPDF();
-
-        // Get the DataGrid instance
-        const dataGrid = $("#grid1").dxDataGrid("instance");
-
-        // Export DataGrid to PDF
-        DevExpress.pdfExporter.exportDataGrid({
-            jsPDFDocument: doc,
-            component: dataGrid,
-            keepColumnWidths: true
-        }).then(() => {
-            // Save the PDF with a given file name
-            doc.save('GridData.pdf');
-        });
-    }
-
-    function exportGridToExcel() {
-        var dataGrid = $("#grid1").dxDataGrid("instance");
-        dataGrid.exportToExcel(false); // 'false' means export all data, not just selected rows
-    }
-
-  
-
-    function onSelectionChanged(e) {
-        if (e.addedItems.length > 0) {
-            e.component.field().val(""); // Clears the search text. However, search filter is only applied to the widget after focus is lost in the input element
-        }
-    }
-
-
-    function onLJKOpened(e) {
-        e.component.content().find('.dx-list-select-all').hide();
-    }
-
-    function onButtonFilterClicked(e) {
-        // Get the date value from the DateBox
-        var dateValue = $("#datepickdID").dxDateBox("instance").option("value");
-
-        // Format the date to yyyymmdd
-        var formattedDate = formatDateToYYYYMMDD(dateValue);
-
-        // Get the value from the ItemsPerPageSelectBox
-        var itemsPerPage = $("#ItemsPerPageSelectBox").dxSelectBox("instance").option("value");
-
-        // Log the formatted date and items per page for debugging
-        console.log("Formatted Date:", formattedDate);
-        console.log("Items Per Page:", itemsPerPage);
-
-        // Apply the filter to the grid
-        $("#grid1").dxDataGrid("instance").filter(["periode_lvl2", "=", formattedDate]);
-
-        // Set the page size based on the selected items per page
-        if (itemsPerPage === "All") {
-            $("#grid1").dxDataGrid("instance").option("paging", { enabled: false });
-        } else {
-            $("#grid1").dxDataGrid("instance").option("paging", { enabled: true, pageSize: itemsPerPage });
-        }
-
-        // Show the grid container
-        setTimeout(function () {
-            document.getElementById("gridContainer").style.display = "block";
-        }, 1500);
-
-        // Show the chart container
-        if (formattedDate == "20210104") {
-            setTimeout(function () {
-                document.getElementById("chartContainer1").style.display = "block";
-                document.getElementById("chartContainer2").style.display = "block";
-                document.getElementById("chartContainer3").style.display = "block";
-                document.getElementById("chartContainer4").style.display = "block";
-            }, 1000);
-        } else {
-            document.getElementById("chartContainer1").style.display = "none";
-            document.getElementById("chartContainer2").style.display = "none";
-            document.getElementById("chartContainer3").style.display = "none";
-            document.getElementById("chartContainer4").style.display = "none";
-        }
-
-
-    }
-
-    function formatDateToYYYYMMDD(date) {
-        var d = new Date(date);
-        var year = d.getFullYear();
-        var month = ("0" + (d.getMonth() + 1)).slice(-2);
-        var day = ("0" + d.getDate()).slice(-2);
-        return year + month + day;
-    }
-
-    function onGridBeforeSend(method, ajaxOptions) {
-        let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
-        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
-        let status = $("#Statusid").dxTagBox("instance").option("value");
-
-        let periodeAwal = null;
-        if (tempPeriodeAwal != null) {
-            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + (tempPeriodeAwal.getMonth() + 1) + '-' + tempPeriodeAwal.getDate();
-        }
-        ajaxOptions.data.namaPE = JSON.stringify(namaPE);
-        ajaxOptions.data.periodeAwal = periodeAwal;
-        ajaxOptions.data.status = JSON.stringify(status);
-    }
-
+    // Waiting dialog
     var waitingDialog = (function ($) {
-
-        // Creating modal dialog's DOM
         var $dialog = $(
             '<div class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">' +
             '<div class="modal-dialog modal-m">' +
@@ -730,7 +584,6 @@
 
         return {
             show: function (message, options) {
-                // Assigning defaults
                 var settings = $.extend({
                     dialogSize: 'm',
                     progressType: ''
@@ -741,19 +594,14 @@
                 if (typeof options === 'undefined') {
                     options = {};
                 }
-                // Configuring dialog
                 $dialog.find('.modal-dialog').attr('class', 'modal-dialog').addClass('modal-' + settings.dialogSize);
                 $dialog.find('.progress-bar').attr('class', 'progress-bar');
                 if (settings.progressType) {
                     $dialog.find('.progress-bar').addClass('progress-bar-' + settings.progressType);
                 }
                 $dialog.find('h3').text(message);
-                // Opening dialog
                 $dialog.modal();
             },
-            /**
-                * Closes dialog
-                */
             hide: function () {
                 $dialog.modal('hide');
             }
@@ -761,10 +609,49 @@
     })(jQuery);
 </script>
 
+
+<script>
+    window.jsPDF = window.jspdf.jsPDF;
+    applyPlugin(window.jsPDF);
+</script>
+
+
+
 <style type="text/css">
     .mandatory {
         color: red;
     }
+    
+    /* Chart container styling for 2x2 layout */
+    #dynamicChartsContainer {
+        padding: 0 15px;
+    }
+    
+    #dynamicChartsContainer .chart-row {
+        margin-left: -15px;
+        margin-right: -15px;
+    }
+    
+    #dynamicChartsContainer .form-group {
+        margin-bottom: 0;
+    }
+    
+    /* Ensure charts have consistent sizing */
+    #dynamicChartsContainer [id^="market-chart-"] {
+        min-height: 400px;
+    }
+    
+    
+    @@media (max-width: 992px) {
+        #dynamicChartsContainer .col-lg-6 {
+            margin-bottom: 20px;
+        }
+    }
+    
+    @@media (max-width: 768px) {
+        #dynamicChartsContainer [id^="market-chart-"] {
+            height: 300px;
+        }
+    }
 </style>
-
 

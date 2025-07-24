@@ -143,17 +143,6 @@
                             .Width("100%"))
                     </div>
                     
-                    <div class="col-lg-3 form-group">
-                        <label>Value/Volume/Market Cap@*<span class="mandatory">*</span>*@</label>
-                        @(Html.DevExtreme().TagBox()
-                            .ID("VVMid")
-                            .DataSource(new[] { "Value", "Volume","Market Cap" })
-                            .ShowSelectionControls(true)
-                            .MaxDisplayedTags(3)
-                            .SearchEnabled(true)
-                            .OnSelectionChanged("onSelectionChanged")
-                            .Width("100%"))
-                    </div>
 
                     <div class="col-lg-3 form-group">
                         <label>Swap APE@*<span class="mandatory">*</span>*@</label>
@@ -206,7 +195,7 @@
             </div> *@
             </div>
         </div>
- 
+
         <div class="row filter-panel" style="padding-top:0px;">
             <div class="card-body">
                 <div class="row">
@@ -214,166 +203,131 @@
                         <div class="row">
                             <h4 class="headerTable">IHSG</h4>
                         </div>
-                        <div class="row" id="cardGrid1" style="padding-top:50px; padding-bottom:50px; padding-right:5px; padding-left:5px; display: none">
-                            @(
-                                    Html.DevExtreme().DataGrid()
-                                    .ID("gridCard1")
-                                    .DataSource(d => d.StaticJson()
-                                    .Url("/tempData/md_summary.json")
-                                    )
-                                    .Columns(columns =>
-                                    {
-                                        columns.Add().DataField("calendarsk").Visible(false);
-                                        columns.Add().DataField("closingvalue").Format(f => f.Type(Format.FixedPoint)
-                                    .Precision(0)
-                                    )
-                                      
-                                        .CellTemplate(@<text>
-                                        <div style="font-size: 28px; text-align: center; font-weight:bold">
-                                            <%- value ? value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".").replace(/[.](?=[^.]*$)/, ",") : '0' %>
-                                        </div>
-                                    </text>);
-
-                                    })
-                                .WordWrapEnabled(true)
-                                .AllowColumnResizing(true)
-                                .ShowBorders(false)
-                                .ShowColumnHeaders(false)
-                                .Paging(p => p.PageSize(1))  // Set page size to 1
-                                .Pager(p => p.Visible(false))  // Hide the pager
-                                )
+                        <div class="row" id="cardGrid1" style="padding-top:30px; padding-bottom:30px; padding-right:5px; padding-left:5px; display: none; align-items: center; justify-content: center; min-height: 120px;">
+                            <div id="ihsgValue" style="font-size: 28px; text-align: center; font-weight:bold; width: 100%; display: flex; align-items: center; justify-content: center;">
+                                0
+                            </div>
                         </div>
                     </div>
                     <div class="col-lg-3 form-group" style="padding-right:10px;padding-left:10px;border: 1px solid black">
                         <div class="row">
                             <h4 class="headerTable">Market Cap</h4>
                         </div>
-                        <div class="row" id="cardGrid2" style="padding-top:50px; padding-bottom:50px; padding-right:5px; padding-left:5px; display: none">
-                            @(
-                                    Html.DevExtreme().DataGrid()
-                                    .ID("gridCard2")
-                                    .DataSource(d => d.StaticJson()
-                                    .Url("/tempData/md_summary.json")
-                                    )
-                                    .Columns(columns =>
-                                    {
-                                        columns.Add().DataField("calendarsk").Visible(false);
-                                        columns.Add().DataField("marketcapitalizationamount")
-                                    .CellTemplate(@<text>
-                                        <div style="font-size: 28px; text-align: center; font-weight:bold">
-                                <%- value ? value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".").replace(/[.](?=[^.]*$)/, ",") : '0' %>
-                                        </div>
-                                    </text>);
-
-                                    })
-                                 .WordWrapEnabled(true)
-                                .ShowBorders(false)
-                                .ShowColumnHeaders(false)
-                                .Paging(p => p.PageSize(1))  // Set page size to 1
-                                .Pager(p => p.Visible(false))  // Hide the pager
-                                )
+                        <div class="row" id="cardGrid2" style="padding-top:30px; padding-bottom:30px; padding-right:5px; padding-left:5px; display: none; align-items: center; justify-content: center; min-height: 120px;">
+                            <div id="marketCapValue" style="font-size: 28px; text-align: center; font-weight:bold; width: 100%; display: flex; align-items: center; justify-content: center;">
+                                0
+                            </div>
                         </div>
                     </div>
                     <div class="col-lg-3 form-group" style="padding-right:10px;padding-left:10px;border: 1px solid black">
                         <div class="row">
                             <h4 class="headerTable">Net Buy (Sell) Value</h4>
                         </div>
-                        <div class="row" id="cardGrid3" style="padding-top:50px; padding-bottom:50px; padding-right:5px; padding-left:5px; display: none">
-                            @(
-                                    Html.DevExtreme().DataGrid()
-                                    .ID("gridCard3")
-                                    .DataSource(d => d.StaticJson()
-                                    .Url("/tempData/md_summary.json")
-                                    )
-                                    .Columns(columns =>
-                                    {
-                                        columns.Add().DataField("calendarsk").Visible(false);
-                                        columns.Add().DataField("net_value")
-                                    .CellTemplate(@<text>
-                            <div style="font-size: 28px; text-align: center; font-weight:bold">
-                                <%- value ? value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".").replace(/[.](?=[^.]*$)/, ",") : '0' %>
+                        <div class="row" id="cardGrid3" style="padding-top:30px; padding-bottom:30px; padding-right:5px; padding-left:5px; display: none; align-items: center; justify-content: center; min-height: 120px;">
+                            <div id="netValueValue" style="font-size: 28px; text-align: center; font-weight:bold; width: 100%; display: flex; align-items: center; justify-content: center;">
+                                0
                             </div>
-                        </text>);
-
-                                    })
-                                .WordWrapEnabled(true)
-                                .ShowBorders(false)
-                                .ShowColumnHeaders(false)
-                                .Paging(p => p.PageSize(1))  // Set page size to 1
-                                .Pager(p => p.Visible(false))  // Hide the pager
-                                )
                         </div>
                     </div>
                     <div class="col-lg-3 form-group" style="padding-right:10px;padding-left:10px;border: 1px solid black">
                         <div class="row">
                             <h4 class="headerTable">Net Buy (Sell) Volume</h4>
                         </div>
-                        <div class="row" id="cardGrid4" style="padding-top:50px; padding-bottom:50px; padding-right:5px; padding-left:5px; display: none">
-                            @(
-                                    Html.DevExtreme().DataGrid()
-                                    .ID("gridCard4")
-                                    .DataSource(d => d.StaticJson()
-                                    .Url("/tempData/md_summary.json")
-                                    )
-                                    .Columns(columns =>
-                                    {
-                                        columns.Add().DataField("calendarsk").Visible(false);
-                                        columns.Add().DataField("net_volume")
-                                    .CellTemplate(@<text>
-                            <div style="font-size: 28px; text-align: center; font-weight:bold">
-                                <%- value ? value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".").replace(/[.](?=[^.]*$)/, ",") : '0' %>
+                        <div class="row" id="cardGrid4" style="padding-top:30px; padding-bottom:30px; padding-right:5px; padding-left:5px; display: none; align-items: center; justify-content: center; min-height: 120px;">
+                            <div id="netVolumeValue" style="font-size: 28px; text-align: center; font-weight:bold; width: 100%; display: flex; align-items: center; justify-content: center;">
+                                0
                             </div>
-                        </text>);
-
-                                    })
-                                .WordWrapEnabled(true)
-                                .ShowBorders(false)
-                                .ShowColumnHeaders(false)
-                                .Paging(p => p.PageSize(1))  // Set page size to 1
-                                .Pager(p => p.Visible(false))  // Hide the pager
-                                )
                         </div>
                     </div>
                 </div>
-            </div>
-            </div>
-
-            <div style="padding-top:0px;">
-        <div class="card-body">
-                <div class="row">
-                    <h4 class="headerTable">Market Value</h4>
+                <!-- Single date info for all 4 cards -->
+                <div class="row" id="cardGridInfo" style="display: none; padding: 10px; font-size: 14px; text-align: center; color: #666;">
+                    *hasil berdasarkan data tanggal   <span id="dateInfo"></span>
                 </div>
-                <div id="chart1" style="display:none;">
-                    @(Html.DevExtreme().Chart()
-                        .ID("marketValueChart")
-                        .Palette(VizPalette.Material)
-                        .CommonSeriesSettings(s => s
-                        .ArgumentField("date")
-                        .Type(SeriesType.Spline)
-                        )
-                        .CommonAxisSettings(s => s
-                        .Grid(g => g.Visible(true))
-                        )
-                        .Margin(m => m.Left(20))
-                        .Series(s =>
-                        {
-                                s.Add().ValueField("closingvalue").Name("Market Value");
+            </div>
+        </div>
 
-                        })
-                        .Tooltip(t => t.Enabled(true))
-                        .Legend(l => l
-                        .VerticalAlignment(VerticalEdge.Top)
-                        .HorizontalAlignment(HorizontalAlignment.Right)
-                        )
-                        
-                        
-                        .Export(e => e.Enabled(true))
-                        .DataSource(d => d.StaticJson()
-                                    .Url("/tempData/md_summary_graph.json")
-                                    .Key("date")
+        <!-- Replace the chart section with this corrected version -->
+        <div class="row" style="padding-top: 20px;">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <!-- Chart Type Selection -->
+                        <div class="row" style="padding-bottom: 20px;">
+                          
+                                <label>Value/Volume/Market Cap</label>
+                                @(Html.DevExtreme().SelectBox()
+                                    .ID("ChartType")
+                                    .DataSource(new[] { "Value", "Volume", "Market Cap" })
+                                    .Value("Value")
+                                    .OnValueChanged(@<text>
+                                function (e) {
+                                onChartTypeSelectionChanged(e);
+                                }
+                            </text>)
+                                    .Width("100%"))
+                           
+                        </div>
 
+                        <!-- Single Chart Container -->
+                        <div class="row">
+                            <div class="col-lg-12">
+                                @(Html.DevExtreme().Chart()
+                                    .ID("marketDataChart")
+                                    .Palette(VizPalette.Bright)
+                                    .CommonSeriesSettings(s => s
+                                    .ArgumentField("date")
+                                    .Type(SeriesType.Spline)
+                                    .Point(p => p.Visible(true).Size(4))
                                     )
-                        )
+                                    .CommonAxisSettings(s => s
+                                    .Grid(g => g.Visible(true))
+                                    )
+                                    .Margin(m => m.Bottom(20))
+                                    .Series(s =>
+                                    {
+                                        s.Add().ValueField("value").Name("Market Value");
+                                    })
+                                    .Tooltip(t => t
+                                    .Enabled(true)
+                                    .CustomizeTooltip(@<text>
+                                function(arg) {
+                                return {
+                                text: arg.seriesName + "<br />" +
+                                "Date: " + new Date(arg.argument).toLocaleDateString('id-ID') + "<br />" +
+                                "Value: " + formatNumber(arg.value)
+                                };
+                                }
+                            </text>)
+                                    )
+                                    .Legend(l => l
+                                    .VerticalAlignment(VerticalEdge.Bottom)
+                                    .HorizontalAlignment(HorizontalAlignment.Center)
+                                    )
+                                    .ArgumentAxis(a => a
+                                    .ArgumentType(ChartDataType.DateTime)
+                                    .Label(l => l
+                                    .Format(f => f.Type(Format.ShortDate))
+                                    .RotationAngle(-45)
+                                    )
+                                    .Grid(g => g.Visible(true))
+                                    )
+                                    .ValueAxis(v => v
+                                    .Add()
+                                    .Label(l => l.CustomizeText(@<text>
+                                function(arg) {
+                                return formatNumber(arg.value);
+                                }
+                            </text>))
+                                    .Grid(g => g.Visible(true))
+                                    )
+                                    .Export(e => e.Enabled(true))
+                                    .Title("Market Value Chart")
+                                    .DataSource(new object[0])
+                                    )
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -573,6 +527,187 @@
 </script>
 
 <script>
+    // Function to refresh chart data
+    function refreshChartData(chartType) {
+        try {
+            // Get current filter values
+            var dayDate = $("#datePickdID").dxDateBox("instance")?.option("value");
+            var monthDate = $("#DatepickmID").dxDateBox("instance")?.option("value");
+            var startDate = $("#StartDateID").dxDateBox("instance")?.option("value");
+            var endDate = $("#EndDateID").dxDateBox("instance")?.option("value");
+
+            console.log("Refreshing chart data for:", chartType);
+
+            // Build URL parameters
+            var params = "?chartType=" + encodeURIComponent(chartType || "Value");
+
+            if (dayDate) {
+                params += "&singleDate=" + dateToYYYYMMDD(dayDate);
+            } else if (monthDate) {
+                var year = monthDate.getFullYear();
+                var month = monthDate.getMonth();
+                var firstDay = new Date(year, month, 1);
+                var lastDay = new Date(year, month + 1, 0);
+
+                params += "&startDate=" + dateToYYYYMMDD(firstDay);
+                params += "&endDate=" + dateToYYYYMMDD(lastDay);
+            } else if (startDate && endDate) {
+                params += "&startDate=" + dateToYYYYMMDD(startDate);
+                params += "&endDate=" + dateToYYYYMMDD(endDate);
+            }
+
+            // Build the full URL
+            var baseUrl = '@Url.Action("GetMarketChartData", "MarketDriven")';
+            var chartUrl = baseUrl + params;
+            console.log("Chart URL:", chartUrl);
+
+            // Use AJAX to get data and then update chart
+            $.ajax({
+                url: chartUrl,
+                type: 'GET',
+                dataType: 'json'
+            }).done(function (data) {
+                console.log("Chart data received:", data);
+
+                // Update chart data source
+                var chart = $("#marketDataChart").dxChart("instance");
+                if (chart) {
+                    chart.option("dataSource", data);
+                }
+            }).fail(function (xhr, status, error) {
+                console.error("Error loading chart data:", error);
+                console.error("Response:", xhr.responseText);
+            });
+
+        } catch (error) {
+            console.error("Error refreshing chart data:", error);
+        }
+    }
+
+    // Chart type selection handler
+    function onChartTypeSelectionChanged(e) {
+        var selectedType = e.value;
+        console.log("Chart type changed to:", selectedType);
+
+        // Update chart title and series name
+        var chart = $("#marketDataChart").dxChart("instance");
+        if (chart) {
+            var chartTitle;
+            var seriesName;
+
+            switch (selectedType) {
+                case "Volume":
+                    chartTitle = "Trading Volume Chart";
+                    seriesName = "Trading Volume";
+                    break;
+                case "Market Cap":
+                    chartTitle = "Market Capitalization Chart";
+                    seriesName = "Market Capitalization";
+                    break;
+                default: // "Value"
+                    chartTitle = "Market Value Chart";
+                    seriesName = "Market Value";
+                    break;
+            }
+
+            // Fix: Update title properly
+            chart.option("title", { text: chartTitle });
+            // Fix: Update series name properly
+            chart.option("series[0].name", seriesName);
+
+            // Refresh data with current filters
+            refreshChartData(selectedType);
+        }
+    }
+
+    // Function to refresh chart data
+    function refreshChartData(chartType) {
+        try {
+            // Get current filter values
+            var dayDate = $("#datePickdID").dxDateBox("instance")?.option("value");
+            var monthDate = $("#DatepickmID").dxDateBox("instance")?.option("value");
+            var startDate = $("#StartDateID").dxDateBox("instance")?.option("value");
+            var endDate = $("#EndDateID").dxDateBox("instance")?.option("value");
+
+            console.log("Refreshing chart data for:", chartType);
+            console.log("Filter dates:", { dayDate, monthDate, startDate, endDate });
+
+            // Build URL parameters
+            var params = "?chartType=" + encodeURIComponent(chartType || "Value");
+
+            if (dayDate) {
+                params += "&singleDate=" + dateToYYYYMMDD(dayDate);
+            } else if (monthDate) {
+                var year = monthDate.getFullYear();
+                var month = monthDate.getMonth();
+                var firstDay = new Date(year, month, 1);
+                var lastDay = new Date(year, month + 1, 0);
+
+                params += "&startDate=" + dateToYYYYMMDD(firstDay);
+                params += "&endDate=" + dateToYYYYMMDD(lastDay);
+            } else if (startDate && endDate) {
+                params += "&startDate=" + dateToYYYYMMDD(startDate);
+                params += "&endDate=" + dateToYYYYMMDD(endDate);
+            }
+
+            // Build the full URL
+            var baseUrl = '@Url.Action("GetMarketChartData", "MarketDriven")';
+            var chartUrl = baseUrl + params;
+            console.log("Chart URL:", chartUrl);
+
+            // Use AJAX to get data and then update chart
+            $.ajax({
+                url: chartUrl,
+                type: 'GET',
+                dataType: 'json'
+            }).done(function (data) {
+                console.log("Chart data received:", data.length, "points");
+
+                // Update chart data source
+                var chart = $("#marketDataChart").dxChart("instance");
+                if (chart) {
+                    chart.option("dataSource", data);
+                    console.log("Chart data updated successfully");
+                }
+            }).fail(function (xhr, status, error) {
+                console.error("Error loading chart data:", error);
+                console.error("Response:", xhr.responseText);
+
+                // Show empty chart on error
+                var chart = $("#marketDataChart").dxChart("instance");
+                if (chart) {
+                    chart.option("dataSource", []);
+                }
+            });
+
+        } catch (error) {
+            console.error("Error refreshing chart data:", error);
+        }
+    }
+
+
+    $(document).ready(function () {
+        // Hide the confirmation and asing divs initially
+        document.getElementById("starttime").style.display = "none";
+        document.getElementById("endtime").style.display = "none";
+        document.getElementById("datepickday").style.display = "none";
+        document.getElementById("datepickmonth").style.display = "none";
+        document.getElementById("startdate").style.display = "none";
+        document.getElementById("enddate").style.display = "none";
+    });
+
+
+    // Initialize chart on page load
+    $(document).ready(function () {
+        // **FIX 2: Set default chart type to "Value"**
+        setTimeout(function () {
+            var chartTypeSelect = $("#ChartType").dxSelectBox("instance");
+            if (chartTypeSelect) {
+                chartTypeSelect.option("value", "Value");
+            }
+            console.log("Chart initialized with default type: Value");
+        }, 500);
+    });
     function onPeriodChanged(e) {
         const selectedValue = e.value;
         const datepickdayDiv = document.getElementById("datepickday");
@@ -608,28 +743,262 @@
         }
     }
 
-    $(document).ready(function () {
-        // Hide the confirmation and asing divs initially
-        document.getElementById("starttime").style.display = "none";
-        document.getElementById("endtime").style.display = "none";
-        document.getElementById("datepickday").style.display = "none";
-        document.getElementById("datepickmonth").style.display = "none";
-        document.getElementById("startdate").style.display = "none";
-        document.getElementById("enddate").style.display = "none";
-    });
+    function onButtonFilterClicked(e) {
+        console.log("onButtonFilterClicked triggered");
 
-    $(function () {
-        const startDate = $("#PeriodeAwal").dxDateBox({
-            onValueChanged: function (e) {
-                endDate.option("min", e.value);
+        // Get filter values
+        var dayDate = $("#datePickdID").dxDateBox("instance")?.option("value");
+        var monthDate = $("#DatepickmID").dxDateBox("instance")?.option("value");
+        var startDate = $("#StartDateID").dxDateBox("instance")?.option("value");
+        var endDate = $("#EndDateID").dxDateBox("instance")?.option("value");
+        var buySell = $("#Buysellid").dxSelectBox("instance")?.option("value");
+
+        console.log("Date values:", { dayDate, monthDate, startDate, endDate, buySell });
+
+        var filterDateInt = null;
+        var displayDate = "";
+
+        // Determine which date to use based on priority: dayDate > monthDate > startDate
+        if (dayDate) {
+            filterDateInt = dateToYYYYMMDD(dayDate);
+            displayDate = formatDateToDDMMYYYY(dayDate);
+            console.log("Using dayDate:", filterDateInt);
+        } else if (monthDate) {
+            // Get first day of the selected month
+            var firstDayOfMonth = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
+            filterDateInt = dateToYYYYMMDD(firstDayOfMonth);
+            displayDate = formatDateToDDMMYYYY(firstDayOfMonth);
+            console.log("Using first day of monthDate:", filterDateInt);
+        } else if (startDate) {
+            filterDateInt = dateToYYYYMMDD(startDate);
+            displayDate = formatDateToDDMMYYYY(startDate);
+            console.log("Using startDate:", filterDateInt);
+        }
+
+        if (!filterDateInt) {
+            alert("Please select a date in one of the date fields");
+            return;
+        }
+
+        // Convert buySell to transaction code
+        var transactionCode = null;
+        if (buySell === "Buy") {
+            transactionCode = "B";
+        } else if (buySell === "Sell") {
+            transactionCode = "S";
+        }
+
+        console.log("Transaction code:", transactionCode);
+        console.log("Filter date integer:", filterDateInt);
+
+        // Load summary data for cards FIRST
+        loadSummaryData(filterDateInt.toString(), displayDate);
+
+        // Setup filters for grids and charts with safety checks
+        setupGridFilters(filterDateInt, transactionCode, startDate, endDate);
+
+        var currentChartType = $("#ChartType").dxSelectBox("instance")?.option("value") || "Value";
+        refreshChartData(currentChartType);
+
+        // Show the chart section
+        $("#marketDataChart").closest(".card").show();
+
+        // Then refresh chart data
+        refreshChartData(currentChartType);
+
+        // Show all components
+        showAllComponents();
+    }
+
+    // Helper function to load summary data for cards
+    function loadSummaryData(filterDate, displayDate) {
+        console.log("Loading summary data for date:", filterDate);
+
+        $.ajax({
+            url: '@Url.Action("GetMarketDrivenSummaryData", "MarketDriven")',
+            type: 'GET',
+            data: { filterDate: filterDate },
+            dataType: 'json'
+        }).done(function (response) {
+            console.log("Summary data response:", response);
+
+            if (response.success && response.data) {
+                // Update the card values with proper formatting
+                $("#ihsgValue").text(formatNumber(response.data.closingvalue));
+                $("#marketCapValue").text(formatNumber(response.data.marketcapitalizationamount));
+                $("#netValueValue").text(formatNumber(response.data.net_value));
+                $("#netVolumeValue").text(formatNumber(response.data.net_volume));
+
+                // Update single date info for all cards
+                $("#dateInfo").text(displayDate);
+
+                // Show the cards and single date info
+                $("#cardGrid1, #cardGrid2, #cardGrid3, #cardGrid4").show();
+                $("#cardGridInfo").show();
+            } else {
+                console.warn("No data found for the selected date:", displayDate);
+                // Still show cards with zero values
+                $("#ihsgValue, #marketCapValue, #netValueValue, #netVolumeValue").text("0");
+                $("#dateInfo").text(displayDate);
+                $("#cardGrid1, #cardGrid2, #cardGrid3, #cardGrid4").show();
+                $("#cardGridInfo").show();
             }
-        }).dxDateBox("instance");
+        }).fail(function (xhr, status, error) {
+            console.error("Error loading summary data:", error);
+            console.error("Response:", xhr.responseText);
+            alert("Error loading summary data: " + error);
+        });
+    }
 
-        $("#PeriodeAwal").dxValidator({
-            validationGroup: "Filter",
-            validationRules: [{ type: "required", message: "[Tanggal] harus dipilih" }]
-        })
-    });
+    // Helper function to setup grid and chart filters with safety checks
+    function setupGridFilters(filterDateInt, transactionCode, startDate, endDate) {
+        console.log("Setting up grid filters...");
+
+        // Build filter conditions
+        var filterconditionsGrid1d = ["tradedatesk", "=", filterDateInt];
+
+        var filterconditionsGridMd = [];
+        if (startDate && endDate) {
+            var startDateInt = dateToYYYYMMDD(startDate);
+            var endDateInt = dateToYYYYMMDD(endDate);
+            filterconditionsGridMd = [
+                ["tradedatesk", ">=", startDateInt],
+                "and",
+                ["tradedatesk", "<=", endDateInt]
+            ];
+        }
+
+        if (transactionCode) {
+            filterconditionsGrid1d.push("and");
+            filterconditionsGrid1d.push(["transactiontypecode", "=", transactionCode]);
+
+            if (filterconditionsGridMd.length > 0) {
+                filterconditionsGridMd.push("and");
+                filterconditionsGridMd.push(["transactiontypecode", "=", transactionCode]);
+            }
+        }
+
+        console.log("Filter conditions:", { filterconditionsGrid1d, filterconditionsGridMd });
+
+        // Apply filters to grids with safety checks
+        try {
+            var gridInv = $("#gridInvestor").dxDataGrid("instance");
+            if (gridInv) {
+                if (filterconditionsGridMd.length > 0 && startDate && endDate) {
+                    gridInv.filter(filterconditionsGridMd);
+                } else {
+                    gridInv.filter(filterconditionsGrid1d);
+                }
+                gridInv.refresh();
+                console.log("Investor grid filtered successfully");
+            } else {
+                console.warn("Investor grid not found");
+            }
+        } catch (error) {
+            console.error("Error filtering Investor grid:", error);
+        }
+
+        try {
+            var gridSec = $("#gridSecurity").dxDataGrid("instance");
+            if (gridSec) {
+                if (filterconditionsGridMd.length > 0 && startDate && endDate) {
+                    gridSec.filter(filterconditionsGridMd);
+                } else {
+                    gridSec.filter(filterconditionsGrid1d);
+                }
+                gridSec.refresh();
+                console.log("Security grid filtered successfully");
+            } else {
+                console.warn("Security grid not found");
+            }
+        } catch (error) {
+            console.error("Error filtering Security grid:", error);
+        }
+
+        try {
+            var gridCPInv = $("#gridCPInv").dxDataGrid("instance");
+            if (gridCPInv) {
+                if (filterconditionsGridMd.length > 0 && startDate && endDate) {
+                    gridCPInv.filter(filterconditionsGridMd);
+                } else {
+                    gridCPInv.filter(filterconditionsGrid1d);
+                }
+                gridCPInv.refresh();
+                console.log("CP Investor grid filtered successfully");
+            } else {
+                console.warn("CP Investor grid not found");
+            }
+        } catch (error) {
+            console.error("Error filtering CP Investor grid:", error);
+        }
+
+        // Handle chart filtering with safety checks
+        try {
+            var chartView = $("#marketValueChart").dxChart("instance");
+            if (chartView && startDate && endDate) {
+                var filterconditionsGraph = [
+                    ["calendarsk", ">=", dateToYYYYMMDD(startDate)],
+                    "and",
+                    ["calendarsk", "<=", dateToYYYYMMDD(endDate)]
+                ];
+                chartView.getDataSource().filter(filterconditionsGraph);
+                chartView.getDataSource().load();
+                $("#chart1").show();
+                console.log("Chart filtered successfully");
+            } else if (chartView) {
+                $("#chart1").hide();
+                console.log("Chart hidden (no date range)");
+            } else {
+                console.warn("Chart not found");
+            }
+        } catch (error) {
+            console.error("Error filtering chart:", error);
+        }
+    }
+
+    // Helper function to show all components
+    function showAllComponents() {
+        console.log("Showing all grid components...");
+        $("#gridInv").show();
+        $("#gridSec").show();
+        $("#gridCPInv").show();
+    }
+
+    // Helper function to format numbers with thousand separators
+    function formatNumber(value) {
+        // Treat null/undefined/empty as 0
+        if (value == null || value === '') return '0';
+
+        // Convert to string and split into integer & fractional parts
+        const [rawInt = '0', rawFrac = ''] = value.toString().split('.');
+
+        // Insert dots every 3 digits in the integer part
+        const intPart = rawInt.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+        // If there’s a fractional part, change the dot to a comma
+        const fracPart = rawFrac ? ',' + rawFrac : '';
+
+        // Re‑assemble
+        return intPart + fracPart;
+    }
+
+    // Helper function to format date to DD-MM-YYYY
+    function formatDateToDDMMYYYY(date) {
+        if (!date) return "";
+        var day = date.getDate().toString().padStart(2, '0');
+        var month = (date.getMonth() + 1).toString().padStart(2, '0');
+        var year = date.getFullYear();
+        return day + "-" + month + "-" + year;
+    }
+
+    // Keep your existing dateToYYYYMMDD function
+    function dateToYYYYMMDD(date) {
+        if (!date) return null;
+        var year = date.getFullYear();
+        var month = (date.getMonth() + 1).toString().padStart(2, '0');
+        var day = date.getDate().toString().padStart(2, '0');
+        return parseInt(year + month + day);
+    }
 
     $(function () {
         $("#penggunaandataid").dxValidator({
@@ -638,12 +1007,7 @@
         })
     });
 
-    $(function () {
-        $("#namaPEid").dxValidator({
-            validationGroup: "Filter",
-            validationRules: [{ type: "required", message: "[Nama PE] harus dipilih" }]
-        })
-    });
+ 
 
     $(window).on('load', function () {
         $("#ModalSimpanPenggunaanData").modal("show");
@@ -735,37 +1099,9 @@
         }
     }
 
-    function onButtonFilterClicked(e) {
-        const res = e.validationGroup.validate();
-        if (res.status === "valid") {
-            $("#grid1").dxDataGrid("instance").refresh();
-        }
-    }
 
-    function onGridBeforeSend(method, ajaxOptions) {
-        let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
-        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
-        let status = $("#Statusid").dxTagBox("instance").option("value");
 
-        let periodeAwal = null;
-        if (tempPeriodeAwal != null) {
-            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + (tempPeriodeAwal.getMonth() + 1) + '-' + tempPeriodeAwal.getDate();
-        }
-        ajaxOptions.data.namaPE = JSON.stringify(namaPE);
-        ajaxOptions.data.periodeAwal = periodeAwal;
-        ajaxOptions.data.status = JSON.stringify(status);
-    }
-
-    function onLJKOpened(e) {
-        e.component.content().find('.dx-list-select-all').hide();
-    }
-
-    function Detail(e) {
-        var keys = e.row.key;
-        if (typeof (keys) !== "undefined" && typeof (keys) !== null) {
-            window.open('@Url.Action("Detail", "SegmentationSummaryClusterMKBD")?id=' + keys.toString());
-        }
-    }
+   
 
     function formatAccountingNumber(value) {
         if (value < 0) {
@@ -783,145 +1119,6 @@
     }
 
 
-    $(document).ready(function () {
-        $("#filterButton").dxButton({
-            onClick: function (e) {
-
-                // Get filter values
-                var dayDate = $("#datePickdID").dxDateBox("instance").option("value");
-                var startDate = $("#StartDateID").dxDateBox("instance").option("value");
-                var endDate = $("#EndDateID").dxDateBox("instance").option("value");
-                var buySell = $("#Buysellid").dxTagBox("instance").option("value");
-
-                console.log(buySell);
-
-                if (buySell == "Buy")
-                {
-                    var beli = "B";
-                }
-                else if (buySell == "Sell")
-                {
-                    var beli = "S";
-                }
-              
-               console.log(beli);
-
-                if (dayDate) {
-                var dayDateInt = dateToYYYYMMDD(dayDate);
-                }
-
-            if (startDate && endDate) {
-                var startDateInt = dateToYYYYMMDD(startDate);
-                var endDateInt = dateToYYYYMMDD(endDate);
-                }
-              
-                console.log(startDateInt);
-                console.log(endDateInt);
-               
-                //filter gridCard
-                var filterconditionsCard = 
-                    ["calendarsk", "=", dayDateInt]
-                    
-                ;
-
-                var filterconditionsGraph =[
-                    ["calendarsk", ">=", startDateInt],
-                   "and",
-                   ["calendarsk", "<=", endDateInt]
-                ];
-
-                var filterconditionsGrid1d = 
-                 ["tradedatesk", "=", dayDateInt]
-
-                ;
-
-                var filterconditionsGridMd =[
-                    ["tradedatesk", ">=", startDateInt],
-                   "and",
-                   ["tradedatesk", "<=", endDateInt]
-                ];
-                
-                 if (beli) {
-                    filterconditionsGrid1d.push("and");
-                    filterconditionsGrid1d.push(["transactiontypecode", "=", beli]);
-                    
-                }
-
-                $("#cardGrid1").show();
-                $("#cardGrid2").show();
-                $("#cardGrid3").show();
-                $("#cardGrid4").show();
-                $("#chart1").show();
-
-                $("#gridInv").show();
-                $("#gridSec").show();
-                $("#gridCPInv").show();
-               
-                //filter grid1
-               
-               
-              
-
-                var dataGrid1 = $("#gridCard1").dxDataGrid("instance");
-                dataGrid1.filter(filterconditionsCard);
-
-                var dataGrid2 = $("#gridCard2").dxDataGrid("instance");
-                dataGrid2.filter(filterconditionsCard);
-
-                var dataGrid3 = $("#gridCard3").dxDataGrid("instance");
-                dataGrid3.filter(filterconditionsCard);
-
-                var dataGrid4 = $("#gridCard4").dxDataGrid("instance");
-                dataGrid4.filter(filterconditionsCard);
-               
-                var chartView = $("#marketValueChart").dxChart("instance");
-               
-
-                if (startDateInt && endDateInt) {
-                        chartView.getDataSource().filter(filterconditionsGraph);
-                        chartView.getDataSource().load();
-                    } else if (dayDateInt) {
-                        $("#chart1").hide();
-                    }
-
-              
-                
-
-                var gridInv = $("#gridInvestor").dxDataGrid("instance");
-                if (startDateInt && endDateInt) {
-                    gridInv.filter(filterconditionsGridMd);
-                } else if (dayDateInt) {
-                    gridInv.filter(filterconditionsGrid1d);
-                }
-
-                var gridSec = $("#gridSecurity").dxDataGrid("instance");
-                if (startDateInt && endDateInt) {
-                    gridSec.filter(filterconditionsGridMd);
-                } else if (dayDateInt) {
-                    gridSec.filter(filterconditionsGrid1d);
-                }
-
-                var gridCPInv = $("#gridCPInv").dxDataGrid("instance");
-                if (startDateInt && endDateInt) {
-                    gridCPInv.filter(filterconditionsGridMd);
-                } else if (dayDateInt) {
-                    gridCPInv.filter(filterconditionsGrid1d);
-                }
-
-                dataGrid1.refresh();
-                dataGrid2.refresh();
-                dataGrid3.refresh();
-                dataGrid4.refresh();
-
-                chartView.refresh();
-                gridInv.refresh();
-                gridSec.refresh();
-                gridCPInv.refresh();
-
-
-            }
-        });
-    });
 
     function dateToYYYYMMDD(date) {
         var year = date.getFullYear();

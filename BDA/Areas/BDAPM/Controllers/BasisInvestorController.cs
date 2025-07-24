@@ -11,11 +11,19 @@ using Aspose.Cells;
 using BDA.DataModel;
 using DevExtreme.AspNet.Data;
 using DevExtreme.AspNet.Mvc;
+using DevExpress.Pdf;
+using DevExpress.XtraPrinting;
+using DevExpress.XtraReports;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Data.SqlClient;
+using BDA.Helper.FW;
+using DevExpress.CodeParser;
+using System.ServiceModel.Dispatcher;
+using MathNet.Numerics.Statistics;
+using System.Net;
 
 namespace BDA.Controllers
 {
@@ -57,7 +65,7 @@ namespace BDA.Controllers
 
             return View();
         }
-        public IActionResult SumTxSID(long? id)
+        public IActionResult SumTxSID(string pe, string periode, string sid)
         {
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
             var currentNode = mdl.GetCurrentNode();
@@ -67,7 +75,22 @@ namespace BDA.Controllers
             ViewBag.Export = db.CheckPermission("Summary Transaction SID Export", DataEntities.PermissionMessageType.NoMessage); //check permission export
             db.InsertAuditTrail("Summary_Transaction_SID_Page", "Akses Page Summary Transaction SID", pageTitle); //simpan kedalam audit trail
 
+            ViewBag.pe = pe;
+            ViewBag.periode = periode;
+            ViewBag.sid = sid;
+
             return View();
+        }
+
+        public FileResult FileIndex(string name)
+        {
+            var directory = _env.WebRootPath;
+            var timeStamp = TempData.Peek("timeStamp").ToString();
+            var fileName = "BasisInvestor_" + name + timeStamp + ".pdf";
+            var filePath = Path.Combine(directory, fileName);
+            var fileByte = System.IO.File.ReadAllBytes(filePath);
+            System.IO.File.Delete(filePath);
+            return File(fileByte, "application/pdf", fileName);
         }
 
         #region PS07
@@ -678,6 +701,230 @@ namespace BDA.Controllers
 
             return JsonConvert.SerializeObject(result);
         }
+
+        public object GetDatasAll(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE, string invType, string invOrigin, string inRange, string market, int type)
+        {
+            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+            TempData.Clear(); //membersihkan data filtering
+
+            string stringPeriodeAwal = null;
+            string stringNamaPE = null;
+            string stringInvType = null;
+            string stringInvOrigin = null;
+            string stringInRange = null;
+            string stringMarket = null;
+            int intType = 1;
+            string reportId = "ps_basis_inv_pe"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+
+            stringPeriodeAwal = Convert.ToDateTime(DateTime.Now).ToString("yyyy-MM-dd");
+            TempData["pawal"] = stringPeriodeAwal;
+
+            if (periodeAwal != null)
+            {
+                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
+                TempData["pawal"] = stringPeriodeAwal;
+            }
+
+            if (namaPE != null)
+            {
+                stringNamaPE = namaPE;
+                //string result = stringNamaPE.Replace("\",\"", "");
+                TempData["pe"] = stringNamaPE;
+            }
+
+            if (invType != null)
+            {
+                stringInvType = invType;
+                TempData["invType"] = stringInvType;
+            }
+
+            if (invOrigin != null)
+            {
+                stringInvOrigin = invOrigin;
+                TempData["invOrigin"] = stringInvOrigin;
+            }
+
+            if (inRange != null)
+            {
+                stringInRange = inRange;
+                TempData["inRange"] = stringInRange;
+            }
+
+            if (market != null)
+            {
+                stringMarket = market;
+                TempData["market"] = stringMarket;
+
+            }
+
+            if (type != 1)
+            {
+                intType = type;
+                TempData["type"] = intType;
+
+            }
+
+            db.Database.CommandTimeout = 420;
+
+            var result = Helper.WSQueryStore.GetPS07ALL(db, loadOptions, stringPeriodeAwal, stringNamaPE, stringInvType, stringInvOrigin, stringInRange, stringMarket, cekHive);
+
+            var data = result.data.AsEnumerable();
+
+            int totalClients = data.Count(row => row.Field<string>("tradeid") != null);
+            int activeClients = data.Count(row => { int itf; return int.TryParse(row.Field<string>("investortransactionfreq"), out itf) && itf > 30; });
+            long trxFreq = data.Sum(row => Convert.ToInt64(row.Field<string>("investortransactionfreq")));
+            long tradedValue = data.Sum(row => Convert.ToInt64(row.Field<string>("investortotalvalue")));
+            long clientLiquidAmount = data.Sum(row => Convert.ToInt64(row.Field<string>("portofolio_amount")));
+
+            double intrxfreq, ttlcli;
+            intrxfreq = ttlcli = 0;
+
+            List<string> segments = ["Champion", "Potential Loyalists", "Promising", "Recent Customer", "At Risk", "Churn"];
+            List<double> itf = new List<double>();
+            List<double> tc = new List<double>();
+
+            foreach (var segment in segments)
+            {
+                intrxfreq = data.Where(row => row.Field<string>("basis_investor_1") == segment).Sum(row => Convert.ToInt64(row.Field<string>("investortotalvalue"))); ;
+                ttlcli = data.Count(row => row.Field<string>("tradeid") != null & row.Field<string>("basis_investor_1") == segment);
+
+                itf.Add(intrxfreq);
+                tc.Add(ttlcli);
+
+                intrxfreq = ttlcli = 0;
+            }
+
+            double totalITF = itf.Sum();
+            double totalTC = tc.Sum();
+
+            itf = itf.Select(val => val/totalITF).ToList();
+            tc = tc.Select(val => val / totalTC).ToList();
+
+
+            double rh, rm, rl, rtotal, fh, fm, fl, ftotal, mh, mm, ml, mtotal, originAsing, originLokal, originTotal, client, newClient, totalClient, typeIndv, typeInst, typeTotal;
+            rh = rm = rl = rtotal = fh = fm = fl = ftotal = mh = mm = ml = mtotal = originAsing = originLokal = originTotal = client = newClient = totalClient = typeIndv = typeInst = typeTotal = 0;
+
+            if (intType == 1)
+            {
+                rh = data.Count(row => row.Field<string>("tradeid") != null & row.Field<string>("r") == "H");
+                rm = data.Count(row => row.Field<string>("tradeid") != null & row.Field<string>("r") == "M");
+                rl = data.Count(row => row.Field<string>("tradeid") != null & row.Field<string>("r") == "L");
+                rtotal = rh + rm + rl;
+                rh /= rtotal; rm /= rtotal; rl /= rtotal;
+
+                fh = data.Count(row => row.Field<string>("tradeid") != null & row.Field<string>("f") == "H");
+                fm = data.Count(row => row.Field<string>("tradeid") != null & row.Field<string>("f") == "M");
+                fl = data.Count(row => row.Field<string>("tradeid") != null & row.Field<string>("f") == "L");
+                ftotal = fh + fm + fl;
+                fh /= rtotal; fm /= ftotal; fl /= ftotal;
+
+                mh = data.Count(row => row.Field<string>("tradeid") != null & row.Field<string>("m") == "H");
+                mm = data.Count(row => row.Field<string>("tradeid") != null & row.Field<string>("m") == "M");
+                ml = data.Count(row => row.Field<string>("tradeid") != null & row.Field<string>("m") == "L");
+                mtotal = mh + mm + ml;
+                mh /= mtotal; mm /= mtotal; ml /= mtotal;
+            }
+            else
+            {
+                rh = data.Where(row => row.Field<string>("r") == "H").Sum(row => Convert.ToInt32(row.Field<string>("investortotalvalue")));
+                rm = data.Where(row => row.Field<string>("r") == "M").Sum(row => Convert.ToInt32(row.Field<string>("investortotalvalue")));
+                rl = data.Where(row => row.Field<string>("r") == "L").Sum(row => Convert.ToInt32(row.Field<string>("investortotalvalue")));
+                rtotal = rh + rm + rl;
+                rh /= rtotal; rm /= rtotal; rl /= rtotal;
+
+                fh = data.Where(row => row.Field<string>("f") == "H").Sum(row => Convert.ToInt32(row.Field<string>("investortotalvalue")));
+                fm = data.Where(row => row.Field<string>("f") == "M").Sum(row => Convert.ToInt32(row.Field<string>("investortotalvalue")));
+                fl = data.Where(row => row.Field<string>("f") == "L").Sum(row => Convert.ToInt32(row.Field<string>("investortotalvalue")));
+                ftotal = fh + fm + fl;
+                fh /= rtotal; fm /= ftotal; fl /= ftotal;
+
+                mh = data.Where(row => row.Field<string>("m") == "H").Sum(row => Convert.ToInt32(row.Field<string>("investortotalvalue")));
+                mm = data.Where(row => row.Field<string>("m") == "M").Sum(row => Convert.ToInt32(row.Field<string>("investortotalvalue")));
+                ml = data.Where(row => row.Field<string>("m") == "L").Sum(row => Convert.ToInt32(row.Field<string>("investortotalvalue")));
+                mtotal = mh + mm + ml;
+                mh /= mtotal; mm /= mtotal; ml /= mtotal;
+            }
+
+            switch(stringInvOrigin)
+            {
+                case "Asing":
+                    originAsing = 1; originLokal = 0; break;
+
+                case "Lokal":
+                    originAsing = 0; originLokal = 1; break;
+
+                case null:
+                    originLokal = data.Count(row => row.Field<string>("investor_origin") == "Lokal");
+                    originAsing = data.Count(row => row.Field<string>("investor_origin") == "Asing");
+                    originTotal = originAsing + originLokal;
+                    originAsing /= originTotal; originLokal /= originTotal;
+                    break;
+            }
+
+            client = 1; newClient = 0;
+
+            switch (stringInvType)
+            {
+                case "Individu":
+                    typeIndv = 1; typeInst = 0; break;
+
+                case "Institusi":
+                    typeIndv = 0; typeInst = 1; break;
+
+                case null:
+                    typeIndv = data.Count(row => row.Field<string>("investor_type") == "Individu");
+                    typeInst = data.Count(row => row.Field<string>("investor_type") == "Institusi");
+                    typeTotal = typeIndv + typeInst;
+                    typeIndv /= typeTotal; typeInst /= typeTotal;
+                    break;
+            }
+
+            List<double> R = [rh, rm, rl];
+            List<double> F = [fh, fm, fl];
+            List<double> M = [mh, mm, ml];
+            List<double> investorOrigin = [originAsing, originLokal];
+            List<double> clientVNewClient = [client, newClient];
+            List<double> investorType = [typeIndv, typeInst];
+
+            var scatterData = data.GroupBy(item => item.Field<string>("basis_investor_1"))
+                               .Select(group => new
+                               {
+                                   basis_investor = group.Select(item => item.Field<string>("basis_investor_1").ToString()).FirstOrDefault(),
+                                   log10_sid = Math.Log10(group.Count(item => item.Field<string>("sid") != null)),
+                                   med_inv_days = Statistics.Median(group.Select(item => Convert.ToDouble(item.Field<string>("investorlasttransactionindays"))).ToArray()),
+                                   med_inv_tot_val = Statistics.Median(group.Select(item => Convert.ToDouble(item.Field<string>("investortotalvalue"))).ToArray()) / 1000000  // Percentile of 'd' (as BIGINT), divided by 1 million
+                               })
+                               .OrderBy(result => result.basis_investor)
+                               .ToList();
+
+            DataTable dtsd = Helper.WSQueryStore.LINQResultToDataTable(scatterData);
+
+
+            DataBasisInvestor dbi = new DataBasisInvestor();
+
+            dbi.totalClients = totalClients;
+            dbi.activeClients = activeClients;
+            dbi.trxFreq = trxFreq;
+            dbi.tradedValue = tradedValue;
+            dbi.clientLiquidAmount = clientLiquidAmount;
+
+            dbi.segmentsITF = itf;
+            dbi.segmentsTC = tc;
+
+            dbi.R = R;
+            dbi.F = F;
+            dbi.M = M;
+            dbi.investorOrigin = investorOrigin;
+            dbi.clientVNewClient = clientVNewClient;
+            dbi.investorType = investorType;
+
+            dbi.scatterData = dtsd;
+
+            return JsonConvert.SerializeObject(dbi);
+        }
+
         #endregion
 
         #region PS07B
@@ -787,6 +1034,266 @@ namespace BDA.Controllers
 
             return JsonConvert.SerializeObject(result);
         }
+        #endregion
+
+        #region PS07C
+        public object GetGridDetailTRX(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE, string invCode, string trxSys, string secCode)
+        {
+            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+            TempData.Clear(); //membersihkan data filtering
+
+            string stringPeriodeAwal = null;
+            string stringNamaPE = null;
+            string stringInvCode = null;
+            string stringTrxSys = null;
+            string stringSecCode = null;
+            string reportId = "ps_basis_inv_pe"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+
+            stringPeriodeAwal = Convert.ToDateTime(DateTime.Now).ToString("yyyy-MM-dd");
+            TempData["pawal"] = stringPeriodeAwal;
+
+            if (periodeAwal != null)
+            {
+                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
+                TempData["pawal"] = stringPeriodeAwal;
+            }
+
+            if (namaPE != null)
+            {
+                stringNamaPE = namaPE;
+                TempData["pe"] = stringNamaPE;
+            }
+
+            if (invCode != null)
+            {
+                stringInvCode = invCode;
+                TempData["invCode"] = stringInvCode;
+            }
+
+            if (trxSys != null)
+            {
+                stringTrxSys = trxSys;
+                TempData["trxSys"] = stringTrxSys;
+            }
+
+            if (secCode != null)
+            {
+                stringSecCode = secCode;
+                TempData["secCode"] = stringSecCode;
+            }
+
+            db.Database.CommandTimeout = 420;
+            //var result = Helper.WSQueryStore.GetPS07CGridTRX(db, loadOptions, stringPeriodeAwal, stringNamaPE, stringInvCode, stringTrxSys, stringSecCode, cekHive);
+            var result = Helper.WSQueryStore.GetPS07CPGTRX(db, loadOptions, stringPeriodeAwal, stringNamaPE, stringInvCode, stringTrxSys, stringSecCode, cekHive);
+
+            return JsonConvert.SerializeObject(result);
+        }
+
+        public object GetGridDetailSRE(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE, string sid, string trxSys, string secCode)
+        {
+            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+            TempData.Clear(); //membersihkan data filtering
+
+            string stringPeriodeAwal = null;
+            string stringNamaPE = null;
+            string stringSID = null;
+            string stringTrxSys = null;
+            string stringSecCode = null;
+            string reportId = "ps_basis_inv_pe"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+
+            stringPeriodeAwal = Convert.ToDateTime(DateTime.Now).ToString("yyyy-MM-dd");
+            TempData["pawal"] = stringPeriodeAwal;
+
+            if (periodeAwal != null)
+            {
+                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
+                TempData["pawal"] = stringPeriodeAwal;
+            }
+
+            if (namaPE != null)
+            {
+                stringNamaPE = namaPE;
+                TempData["pe"] = stringNamaPE;
+            }
+
+            if (sid != null)
+            {
+                stringSID = sid;
+                TempData["sid"] = stringSID;
+            }
+
+            if (trxSys != null)
+            {
+                stringTrxSys = trxSys;
+                TempData["trxSys"] = stringTrxSys;
+            }
+
+            if (secCode != null)
+            {
+                stringSecCode = secCode;
+                TempData["secCode"] = stringSecCode;
+            }
+
+            db.Database.CommandTimeout = 420;
+            var result = Helper.WSQueryStore.GetPS07CGridSRE(db, loadOptions, stringPeriodeAwal, stringNamaPE, stringSID, stringTrxSys, stringSecCode, cekHive);
+            //var processedData = (from row in result.data.AsEnumerable()
+            //                       group row by new
+            //                       {
+            //                           pe = row.Field<string>("pe"),
+            //                           sid = row.Field<string>("sid"),
+            //                           secphytcode = row.Field<string>("secphytcode"),
+            //                           stlactowntcode = row.Field<string>("stlactowntcode"),
+            //                           stlacttcode = row.Field<string>("stlacttcode"),
+            //                           actblcstscode = row.Field<string>("actblcstscode")
+            //                       } into g
+            //                       select new
+            //                       {
+            //                           pe = g.Key.pe,
+            //                           sid = g.Key.sid,
+            //                           secphytcode = g.Key.secphytcode,
+            //                           stlactowntcode = g.Key.stlactowntcode,
+            //                           stlacttcode = g.Key.stlacttcode,
+            //                           actblcstscode = g.Key.actblcstscode,
+            //                           portoamount = g.Sum(x => double.TryParse(x.Field<string>("portoamount"), out double valPA) ? valPA : 0d),
+            //                           portoqty = g.Sum(x => double.TryParse(x.Field<string>("portoqty"), out double valPQ) ? valPQ : 0d)
+            //                       });
+
+            //DataTable dt = new DataTable();
+            //dt = Helper.WSQueryStore.LINQResultToDataTable(processedData);
+
+            //var processedResult = new WSQueryReturns { data = dt, totalCount = dt.Rows.Count };
+
+            //return JsonConvert.SerializeObject(processedResult);
+            return JsonConvert.SerializeObject(result);
+        }
+
+        public IActionResult LogExportTRXDetail()
+        {
+            try
+            {
+                var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+                var currentNode = mdl.GetCurrentNode();
+
+                string pageTitle = currentNode != null ? currentNode.Title : "";
+
+                db.CheckPermission("Summary Transaction SID Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+                db.InsertAuditTrail("SummaryTransactionSID_Akses_Page", "Export Data", pageTitle);
+                return Json(new { result = "Success" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { result = db.ProcessExceptionMessage(ex) });
+            }
+        }
+
+        public IActionResult LogExportSREDetail()
+        {
+            try
+            {
+                var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+                var currentNode = mdl.GetCurrentNode();
+
+                string pageTitle = currentNode != null ? currentNode.Title : "";
+
+                db.CheckPermission("Summary Transaction SID Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+                db.InsertAuditTrail("SummaryTransactionSID_Akses_Page", "Export Data", pageTitle);
+                return Json(new { result = "Success" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { result = db.ProcessExceptionMessage(ex) });
+            }
+        }
+
+        public IActionResult ExportPDFSumSID(IFormFile file, string name)
+        {
+            try
+            {
+                var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+                var currentNode = mdl.GetCurrentNode();
+
+                string pageTitle = currentNode != null ? currentNode.Title : "";
+
+                db.CheckPermission("Summary Transaction SID Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+                db.InsertAuditTrail("SummaryTransactionSID_Akses_Page", "Export Data", pageTitle);
+
+                var directory = _env.WebRootPath;
+                var timeStamp = DateTime.Now.ToString();
+                Workbook workbook = new Workbook(file.OpenReadStream());
+                Worksheet worksheet2 = workbook.Worksheets[0];
+                var columns1 = worksheet2.Cells.Columns.Count;
+                var rows1 = worksheet2.Cells.Rows.Count;
+                var style = workbook.CreateStyle();
+                style.SetBorder(BorderType.TopBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.BottomBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.LeftBorder, CellBorderType.Thick, Color.Black);
+                style.SetBorder(BorderType.RightBorder, CellBorderType.Thick, Color.Black);
+
+                //Apply bottom borders from cell F4 till K4
+                for (int r = 0; r <= rows1 - 1; r++)
+                {
+                    for (int col = 0; col <= columns1 - 1; col++)
+                    {
+                        Aspose.Cells.Cell cell = worksheet2.Cells[r, col];
+
+                        cell.SetStyle(style);
+                    }
+                }
+
+                foreach (Worksheet worksheet in workbook.Worksheets)
+                {
+                    //prepare logo
+                    string logo_url = Path.Combine(directory, "assets_m\\img\\OJK_Logo.png");
+                    FileStream inFile;
+                    byte[] binaryData;
+                    inFile = new FileStream(logo_url, FileMode.Open, FileAccess.Read);
+                    binaryData = new Byte[inFile.Length];
+                    long bytesRead = inFile.Read(binaryData, 0, (int)inFile.Length);
+
+                    //apply format number
+                    Style textStyle = workbook.CreateStyle();
+                    textStyle.Number = 3;
+                    StyleFlag textFlag = new StyleFlag();
+                    textFlag.NumberFormat = true;
+
+                    worksheet.Cells.Columns[9].ApplyStyle(textStyle, textFlag);
+
+                    //page setup
+                    PageSetup pageSetup = worksheet.PageSetup;
+                    pageSetup.Orientation = PageOrientationType.Landscape;
+                    pageSetup.FitToPagesWide = 1;
+                    pageSetup.FitToPagesTall = 0;
+
+                    //set header
+                    pageSetup.SetHeaderPicture(0, binaryData);
+                    pageSetup.SetHeader(0, "&G");
+                    var img = pageSetup.GetPicture(true, 0);
+                    img.WidthScale = 10;
+                    img.HeightScale = 10;
+
+                    //set footer
+                    pageSetup.SetFooter(0, timeStamp);
+
+                    inFile.Close();
+                }
+
+                timeStamp = timeStamp.Replace('/', '-').Replace(" ", "_").Replace(":", "-");
+                TempData["timeStamp"] = timeStamp;
+                var fileName = "BasisInvestor_" + name + timeStamp + ".pdf";
+                workbook.Save(Path.Combine(directory, fileName), SaveFormat.Pdf);
+                return new EmptyResult();
+            }
+            catch (Exception ex)
+            {
+                return Json(new { result = db.ProcessExceptionMessage(ex) });
+            }
+        }
+
+        #endregion
 
         public IActionResult LogExportBIDetail()
         {
@@ -805,17 +1312,6 @@ namespace BDA.Controllers
             {
                 return Json(new { result = db.ProcessExceptionMessage(ex) });
             }
-        }
-
-        public FileResult FileIndex(string name)
-        {
-            var directory = _env.WebRootPath;
-            var timeStamp = TempData.Peek("timeStamp").ToString();
-            var fileName = "BasisInvestor_" + name + timeStamp + ".pdf";
-            var filePath = Path.Combine(directory, fileName);
-            var fileByte = System.IO.File.ReadAllBytes(filePath);
-            System.IO.File.Delete(filePath);
-            return File(fileByte, "application/pdf", fileName);
         }
 
         public IActionResult ExportPDF(IFormFile file, string name)
@@ -902,7 +1398,6 @@ namespace BDA.Controllers
             }
         }
 
-        #endregion
 
         [HttpPost]
         public ActionResult SimpanPenggunaanData(string id)
@@ -954,14 +1449,18 @@ namespace BDA.Controllers
 
             string reportId = "dim_exchange_members"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
             var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
-            var result = Helper.WSQueryStore.GetBDAPMNamaPE(db, loadOptions, reportId, cekHive);
+
+            
+            var result = Helper.WSQueryStore.GetBDAPMNamaPEv2(db, loadOptions, reportId, cekHive);
             var varDataList = (dynamic)null;
+
             varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
                            select new
                            {
                                exchangemembercode = bs.Field<string>("exchangemembercode").ToString(),
                                exchangemembername = bs.Field<string>("exchangemembername").ToString(),
                            }).OrderBy(bs => bs.exchangemembername).ToList();
+
             DataTable dtList = new DataTable();
             dtList = Helper.WSQueryStore.LINQResultToDataTable(varDataList);
 
@@ -973,12 +1472,83 @@ namespace BDA.Controllers
                     list.Add(new NamaPE() { value = dtList.Rows[i]["exchangemembercode"].ToString(), text = namakode });
                 }
             }
-            return Json(DataSourceLoader.Load(list, loadOptions));
+
+            var res = DataSourceLoader.Load(list, loadOptions);
+
+            return Json(res);
         }
+
+        [HttpGet]
+        public object GetNamaSecurities(DataSourceLoadOptions loadOptions)
+        {
+            var userId = HttpContext.User.Identity.Name;
+            string strSQL = db.appSettings.DataConnString;
+            var list = new List<NamaSecurities>();
+
+            string reportId = "dim_securities"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+
+
+            var result = Helper.WSQueryStore.GetBDAPMSecurities(db, loadOptions, reportId, cekHive);
+            var varDataList = (dynamic)null;
+
+            varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                           select new
+                           {
+                               securitycode = bs.Field<string>("securitycode").ToString(),
+                               securityname = bs.Field<string>("securityname").ToString(),
+                           }).OrderBy(bs => bs.securityname).ToList();
+
+            DataTable dtList = new DataTable();
+            dtList = Helper.WSQueryStore.LINQResultToDataTable(varDataList);
+
+            if (dtList.Rows.Count > 0)
+            {
+                for (int i = 0; i < dtList.Rows.Count; i++)
+                {
+                    string namakode = dtList.Rows[i]["securitycode"].ToString() + " | " + dtList.Rows[i]["securityname"].ToString();
+                    list.Add(new NamaSecurities() { value = dtList.Rows[i]["securitycode"].ToString(), text = namakode });
+                }
+            }
+
+            var res = DataSourceLoader.Load(list, loadOptions);
+
+            return Json(res);
+        }
+
         public class NamaPE
         {
             public string value { get; set; }
             public string text { get; set; }
+        }
+
+        public class NamaSecurities
+        {
+            public string value { get; set; }
+            public string text { get; set; }
+        }
+
+        public class DataBasisInvestor
+        {
+            public int totalClients { get; set; }
+            public int activeClients { get; set; }
+            public long trxFreq { get; set; }
+            public long tradedValue { get; set; }
+            public long clientLiquidAmount { get; set; }
+
+            public List<double> segmentsITF { get; set; }
+            public List<double> segmentsTC { get; set; }
+
+            public List<double> R { get; set; }
+            public List<double> F { get; set; }
+            public List<double> M { get; set; }
+
+            public List<double> investorOrigin { get; set; }
+            public List<double> clientVNewClient { get; set; }
+            public List<double> investorType { get; set; }
+
+            public DataTable scatterData { get; set; }
+
         }
 
         [HttpPost]

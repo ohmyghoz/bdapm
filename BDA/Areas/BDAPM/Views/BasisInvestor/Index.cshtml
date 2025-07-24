@@ -498,7 +498,7 @@
     function onClickChart(e) {
         const res = e.validationGroup.validate();
         if (res.status === "valid") { 
-            redirDetail();
+            redirDetail(e);
         }
     }
 
@@ -1165,6 +1165,123 @@
             const scatterplot = $('#scatterPlot1').dxChart("instance");;
             scatterplot.showLoadingIndicator();
 
+            function loadAllData() {
+                return $.ajax({
+                    url: '@Url.Action("GetDatasAll", "BasisInvestor")',
+                    data: { periodeAwal: periodeAwal, namaPE: namaPE, invType: invType, invOrigin: invOrigin, inRange: inpRange, market: market, type: parseInt(filterChart) },
+                    dataType: "json",
+                    type: "POST",
+                    success: function (response) {
+                        $('#totalClients').text(new Intl.NumberFormat("id").format(response.totalClients));
+                        $('#activeClient').text(new Intl.NumberFormat("id").format(response.activeClients));
+                        $('#trxFreq').text(new Intl.NumberFormat("id").format(response.trxFreq));
+                        $('#tradedValue').text(new Intl.NumberFormat("id").format(response.tradedValue));
+                        $('#clientLiquidAmt').text(new Intl.NumberFormat("id").format(response.clientLiquidAmount));
+
+                        var segments1 = response.segmentsITF;
+                        var segments2 = response.segmentsTC;
+                        var segmentsCategory = ["a", "b", "c", "d", "e"];
+
+                        segments1.forEach((val, index) => {
+                            var data1 = {
+                                category: segmentsCategory[index],
+                                value: val,
+                                type: "a"
+                            };
+
+                            chartDatas.push(data1);
+
+                            var data2 = {
+                                    category: segmentsCategory[index],
+                                value: segments2[index],
+                                type: "b"
+                            };
+
+                            chartDatas.push(data2);
+                        });
+
+                        vertchart.option("dataSource", chartDatas);
+                        vertchart.hideLoadingIndicator();
+
+                        var dataR = [
+                            { category: "High", value: response.R[0] },
+                            { category: "Low", value: response.R[2] },
+                            { category: "Medium", value: response.R[1] }
+                        ];
+
+                        var dataF = [
+                            { category: "High", value: response.F[0] },
+                            { category: "Low", value: response.F[2] },
+                            { category: "Medium", value: response.F[1] }
+                        ];
+
+                        var dataM = [
+                            { category: "High", value: response.M[0] },
+                            { category: "Low", value: response.M[2] },
+                            { category: "Medium", value: response.M[1] }
+                        ];
+
+                        piechart1.option("dataSource", dataR);
+                        piechart1.hideLoadingIndicator();
+                        piechart2.option("dataSource", dataF);
+                        piechart2.hideLoadingIndicator();
+                        piechart3.option("dataSource", dataM);
+                        piechart3.hideLoadingIndicator();
+
+                        var dataCVNC = [
+                            { category: "Client", value: response.clientVNewClient[0] },
+                            { category: "New Client", value: response.clientVNewClient[1] }
+                        ];
+
+                        piechart4.option("dataSource", dataCVNC);
+                        piechart4.hideLoadingIndicator();
+
+                        var dataInvOrigin = [
+                            { category: "Asing", value: response.investorOrigin[0] },
+                            { category: "Lokal", value: response.investorOrigin[1] }
+                        ];
+
+                        piechart5.option("dataSource", dataInvOrigin);
+                        piechart5.hideLoadingIndicator();
+
+                        var dataInvType = [
+                             { category: "Individu", value: response.investorType[0] },
+                             { category: "Institusi", value: response.investorType[1] }
+                         ];
+
+                        piechart6.option("dataSource", dataInvType);
+                        piechart6.hideLoadingIndicator();
+
+                        var dataScatter = [{
+                            total1: Number(response.scatterData[0].med_inv_tot_val),
+                            total2: Number(response.scatterData[1].med_inv_tot_val),
+                            total3: Number(response.scatterData[2].med_inv_tot_val),
+                            total4: Number(response.scatterData[3].med_inv_tot_val),
+                            total5: Number(response.scatterData[4].med_inv_tot_val),
+                            total6: Number(response.scatterData[5].med_inv_tot_val),
+                            day1: Number(response.scatterData[0].med_inv_days),
+                            day2: Number(response.scatterData[1].med_inv_days),
+                            day3: Number(response.scatterData[2].med_inv_days),
+                            day4: Number(response.scatterData[3].med_inv_days),
+                            day5: Number(response.scatterData[4].med_inv_days),
+                            day6: Number(response.scatterData[5].med_inv_days),
+                            sid1: Number(response.scatterData[0].log10_sid),
+                            sid2: Number(response.scatterData[1].log10_sid),
+                            sid3: Number(response.scatterData[2].log10_sid),
+                            sid4: Number(response.scatterData[3].log10_sid),
+                            sid5: Number(response.scatterData[4].log10_sid),
+                            sid6: Number(response.scatterData[5].log10_sid)
+                        }];
+
+                        scatterplot.option("dataSource", dataScatter);
+                        scatterplot.hideLoadingIndicator();
+
+                    }
+                });
+            }
+
+
+@* 
             function loadCard1() {
                 return $.ajax({
                     url: '@Url.Action("GetCardTotalClients", "BasisInvestor")',
@@ -1227,10 +1344,10 @@
                         $('#clientLiquidAmt').text(new Intl.NumberFormat("id").format(response.data[0].client_liquid_amt));
                     }
                 });
-            }
+            } *@
 
 
-            function loadChart1() {
+           @*  function loadChart1() {
                 return $.ajax({
                     url: '@Url.Action("GetBarChartSegments", "BasisInvestor")',
                     data: { periodeAwal: periodeAwal, namaPE: namaPE, invType: invType, invOrigin: invOrigin, inRange: inpRange, market: market, segment: "Champion" },
@@ -1426,9 +1543,9 @@
             function loadChartDatas() {
                 vertchart.option("dataSource", chartDatas);
                 vertchart.hideLoadingIndicator();
-            }
+            } *@
 
-            function loadPieChartsRFM() {
+            @* function loadPieChartsRFM() {
                 let rh = 0, rm = 0, rl = 0, fh = 0, fm = 0, fl = 0, mh = 0, mm = 0, ml = 0;
 
                 function getChartR() {
@@ -1585,8 +1702,8 @@
                 getChartF();
                 getChartM();
             }
-
-            function loadPieChartClientVNewClient() { 
+ *@
+@*             function loadPieChartClientVNewClient() { 
                 var data = [
                     { category: "Client", value: 1 },
                     { category: "New Client", value: 0 }
@@ -1594,9 +1711,9 @@
 
                 piechart4.option("dataSource", data);
                 piechart4.hideLoadingIndicator();
-            }
+            } *@
 
-            function loadPieChartInvOrigin() {
+            @* function loadPieChartInvOrigin() {
                 let lokal = 0, asing = 0;
 
                 switch (invOrigin) {
@@ -1726,9 +1843,9 @@
                         });
                         break;
                 }
-            }
+            } *@
 
-            function loadScatter() {
+            @* function loadScatter() {
                 return $.ajax({
                     url: '@Url.Action("GetScatter", "BasisInvestor")',
                     data: { periodeAwal: periodeAwal, namaPE: namaPE, invType: invType, invOrigin: invOrigin, inRange: inpRange, market: market },
@@ -1760,10 +1877,12 @@
                         scatterplot.hideLoadingIndicator();
                     }
                 });
-            }
+            } *@
 
             (function () {
-                loadCard1()
+
+                loadAllData();
+                @* loadCard1()
                     .then(loadCard2)
                     .then(loadCard3)
                     .then(loadCard4)
@@ -1779,7 +1898,7 @@
                     .then(loadPieChartClientVNewClient)
                     .then(loadPieChartInvOrigin)
                     .then(loadPieChartInvType)
-                    .then(loadScatter);
+                    .then(loadScatter); *@
             }());
         }
     }

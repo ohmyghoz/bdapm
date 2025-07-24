@@ -2,7 +2,9 @@
 @{
     Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
     string reportId = "pe_segmentation_bridging_detail";
-    var p = (string[])ViewBag.period;
+    var pe = ViewBag.pe;
+    var periode = ViewBag.periode;
+    var sid = ViewBag.sid;
     var maxItems = db.GetSetting("LimitFilterLJK");
 }
 @section RightToolbar {
@@ -22,32 +24,32 @@
             <div class="card-body">
                 <div class="row">
                     <div class="form-group ml-3">
-                        @* <button type="button" id="btnDetailCluster" class="btn btn-danger">Detail Cluster MKBD</button> *@
                         <input type="button" id="btnBasisInvestor" class="btn btn-danger" value="Basis Investor" onclick="location.href='@Url.Action("/", "BasisInvestor")'" />
                     </div>&nbsp;&nbsp;
                     <div class="form-group">
-                        <input type="button" id="btnDetailBI" class="btn btn-danger" value="Detail Basis Investor" onclick="location.href='@Url.Action("Detail", "BasisInvestor")'" />
+                        <input type="button" id="btnDetailBI" class="btn btn-danger" value="Detail Basis Investor" onclick="location.href='@Url.Action("Detail", "BasisInvestor")?pe=' + '@ViewBag.pe' + '&periode=' + '@ViewBag.periode')" />
                     </div>&nbsp;&nbsp;
                     <div class="form-group">
-                        <input type="button" id="btnSumTxSID" class="btn btn-danger" value="Summary Transaction SID" onclick="location.href='@Url.Action("SumTxSID", "BasisInvestor")'" />
+                        <input type="button" id="btnSumTxSID" class="btn btn-danger" value="Summary Transaction SID"  />
                     </div>&nbsp;&nbsp;
                 </div>
                 <div class="row">
 
                     <div class="col-lg-2 form-group">
-                        <label>Periode<span class="mandatory">*</span></label>
+                        <label>Periode</label>
                         @(Html.DevExtreme().DateBox()
                             .ID("Periode")
-                            .DisplayFormat("MMM yyyy")
-                            //.Value(periodeAwal1 == null ? DateTime.Now : periodeAwal1)
-                            .Value(DateTime.Now)
+                            .Disabled(true)
+                            .DisplayFormat("dd MMM yyyy")
+                            .Value(periode)
                             .Max(DateTime.Now)
                             .Width("100%"))
                     </div>
 
                     <div class="col-lg-2 form-group">
-                        <label>PE<span class="mandatory">*</span></label>
+                        <label>PE</label>
                         @(Html.DevExtreme().SelectBox()
+                            .Disabled(true)
                             .ID("namaPEid")
                             .DataSource(d => d.Mvc()
                             .Controller("BasisInvestor")
@@ -58,47 +60,72 @@
                             .DisplayExpr("text")
                             .SearchEnabled(true)
                             .Width("100%")
+                            .Value(pe)
                             )
                     </div>
 
                     <div class="col-lg-2 form-group">
                         <label>SID@*<span class="mandatory">*</span>*@</label>
-                        @(Html.DevExtreme().TagBox()
+                        @(Html.DevExtreme().SelectBox()
                             .ID("SID")
-                            .DataSource(new[] { "(All)", "SID1", "SID2", "SID3" })
+                            //.DataSource(new[] { "(All)", "SID1", "SID2", "SID3" })
+                            .DataSource(new [] { sid })
                             .SearchEnabled(true)
                             .OnSelectionChanged("onSelectionChanged")
+                            .Disabled(true)
+                            .Value(sid)
                             .Width("100%"))
                     </div>
 
                     <div class="col-lg-2 form-group">
                         <label>Investor Code@*<span class="mandatory">*</span>*@</label>
-                        @(Html.DevExtreme().TagBox()
+                        @(Html.DevExtreme().SelectBox()
                             .ID("InvstCode")
-                            .DataSource(new[] { "(All)", "A", "B", "C" })
+                            //.DataSource(new[] { "(All)", "A", "B", "C" })
+                            .DataSource(new[] { sid })
                             .SearchEnabled(true)
+                            .Disabled(true)
+                            .Value(sid)
                             .OnSelectionChanged("onSelectionChanged")
                             .Width("100%"))
                     </div>
 
                     <div class="col-lg-2 form-group">
                         <label>Security Code@*<span class="mandatory">*</span>*@</label>
-                        @(Html.DevExtreme().TagBox()
+                        @(Html.DevExtreme().SelectBox()
                             .ID("SecCode")
-                            .DataSource(new[] { "SC1", "SC2", "SC3" })
+                            .DataSource(d => d.Mvc()
+                            .Controller("BasisInvestor")
+                            .Area("BDAPM")
+                            .LoadAction("GetNamaSecurities")
+                            .Key("value"))
+                            .ValueExpr("value")
+                            .DisplayExpr("text")
                             .SearchEnabled(true)
                             .OnSelectionChanged("onSelectionChanged")
+                            .Placeholder("(ALL)")
+                            .Value("")
                             .Width("100%"))
                     </div>
 
+                    @{
+                        var market = new[] { new { Text = "(All)", Value = "" },
+                                             new { Text = "Bursa", Value = "Bursa" }
+                        };
+                    }
+
                     <div class="col-lg-2 form-group">
                         <label>Market@*<span class="mandatory">*</span>*@</label>
-                        @(Html.DevExtreme().TagBox()
+                        @(Html.DevExtreme().SelectBox()
                             .ID("Market")
-                            .DataSource(new[] { "Bursa" })
+                            .DataSource(market)
                             .SearchEnabled(true)
+                            .ValueExpr("Value")
+                            .DisplayExpr("Text")
+                            .Value("")
                             .OnSelectionChanged("onSelectionChanged")
-                            .Width("100%"))
+                            .Width("100%")
+                            .Placeholder("(ALL)"))
                     </div>
 
                 </div>
@@ -118,20 +145,17 @@
         <div>
             <div class="float-right">
                 <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();"><span class="image fa fa-file-excel"></span> Export Excel</a>
-                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
                 <br /> <br />
             </div>
             <br />
 
             <div class="gridview-div">
                 <header class="bg-danger"><h5 class="text-white">&nbsp;Transaction Summary</h5></header>
-                @(Html.DevExtreme().DataGrid()
+                <div id="pgTRX"></div>
+                <div class="loadpanel1"></div>
+                @* @(Html.DevExtreme().DataGrid()
                     .ID("gridtrx")
-                    //.DataSource(d => d.Mvc()
-                    //.Controller("SegmentationSummaryClusterMKBD")
-                    //.LoadAction("GetGridDataDetail")
-                    //.Key("rowid")
-                    //.OnBeforeSend("onGridBeforeSend"))
                     .RemoteOperations(true)
                     .Width("100%")
                     .AllowColumnResizing(true)
@@ -143,14 +167,13 @@
                         columns.Add().DataField("invcode").Caption("Investor Code");
                         columns.Add().DataField("seccode").Caption("Security Code");
                         columns.Add().DataField("trxsys").Caption("Transaction System");
-                        columns.Add().DataField("ttltrxpreq").Caption("Total Transaction Frequency");
+                        columns.Add().DataField("ttltrxfreq").Caption("Total Transaction Frequency");
                         columns.Add().DataField("ttltrxvol").Caption("Total Transaction Volume");
                         columns.Add().DataField("ttltrxval").Caption("Total Transaction Value");
                     })
                     .ColumnResizingMode(ColumnResizingMode.Widget)
                     .FilterRow(f => f.Visible(true))
                     .ShowBorders(false)
-                    //.RowAlternationEnabled(false)
                     .Paging(p =>
                     {
                         p.PageSize(20);
@@ -160,27 +183,29 @@
                     {
                         p.ShowInfo(true);
                     })
-                    )
+                    ) *@
+
             </div>
+        </div>
+
+        <div class="pt-4 pb-4">
+            <br />
         </div>
 
         @*grid*@
         <div>
             <div class="float-right">
-                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel2();"><span class="image fa fa-file-excel"></span> Export Excel</a>
                 <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
                 <br /> <br />
             </div>
             <br />
             <div class="gridview-div">
                 <header class="bg-danger"><h5 class="text-white">&nbsp;SRE Summary</h5></header>
-                @(Html.DevExtreme().DataGrid()
+                <div id="pgSRE"></div>
+                <div class="loadpanel2"></div>
+                @* @(Html.DevExtreme().DataGrid()
                     .ID("gridsre")
-                    //.DataSource(d => d.Mvc()
-                    //.Controller("SegmentationSummaryClusterMKBD")
-                    //.LoadAction("GetGridDataDetail")
-                    //.Key("rowid")
-                    //.OnBeforeSend("onGridBeforeSend"))
                     .RemoteOperations(true)
                     .Width("100%")
                     .AllowColumnResizing(true)
@@ -194,12 +219,11 @@
                         columns.Add().DataField("stlacttcode").Caption("Settlement Account Type Code");
                         columns.Add().DataField("actblcstscode").Caption("Account Balance Status Code");
                         columns.Add().DataField("portoamount").Caption("Portofolio Amount");
-                        columns.Add().DataField("portoqty").Caption("Portofolio Quatity");
+                        columns.Add().DataField("portoqty").Caption("Portofolio Quantity");
                     })
                     .ColumnResizingMode(ColumnResizingMode.Widget)
                     .FilterRow(f => f.Visible(true))
                     .ShowBorders(false)
-                    //.RowAlternationEnabled(false)
                     .Paging(p =>
                     {
                         p.PageSize(20);
@@ -209,8 +233,12 @@
                     {
                         p.ShowInfo(true);
                     })
-                    )
+                    ) *@
             </div>
+        </div>
+
+        <div class="pt-4 pb-4">
+            <br />
         </div>
 
         <!-- The Modal  Detail-->
@@ -260,29 +288,45 @@
 <script>
 
     $(function () {
-        const startDate = $("#PeriodeAwal").dxDateBox({
-            onValueChanged: function (e) {
-                endDate.option("min", e.value);
-            }
-        }).dxDateBox("instance");
+        var pgTRX = $("#pgTRX").dxPivotGrid({
+            dataSource: {
+                store: {
+                    type: "array",
+                    key: "sid",
+                    data: []
+                }
+            },
+            loadPanel: { enabled: true },
+            showBorders: true,
+            showRowGrandTotals: false,
+            showRowTotals: false,
+            showColumnGrandTotals: false,
+            showColumnTotals: false,
+            fieldChooser: { enabled: false }
+        }).dxPivotGrid("instance");
 
-        $("#PeriodeAwal").dxValidator({
-            validationGroup: "Filter",
-            validationRules: [{ type: "required", message: "[Tanggal] harus dipilih" }]
-        })
+        var pgSRE = $("#pgSRE").dxPivotGrid({
+            dataSource: {
+                store: {
+                    type: "array",
+                    key: "sid",
+                    data: []
+                }
+            },
+            loadPanel: { enabled: true },
+            showBorders: true,
+            showRowGrandTotals: false,
+            showRowTotals: false,
+            showColumnGrandTotals: false,
+            showColumnTotals: false,
+            fieldChooser: { enabled: false }
+        }).dxPivotGrid("instance");
     });
 
     $(function () {
         $("#penggunaandataid").dxValidator({
             validationGroup: "Filter",
             validationRules: [{ type: "required", message: "[Penggunaan Data] harus dipilih" }]
-        })
-    });
-
-    $(function () {
-        $("#namaPEid").dxValidator({
-            validationGroup: "Filter",
-            validationRules: [{ type: "required", message: "[Nama PE] harus dipilih" }]
         })
     });
 
@@ -320,31 +364,406 @@
         }
     });
 
+    function ExportToExcel() {
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("LogExportTRXDetail", "BasisInvestor")",
+            success: function (response) {
+                if (response.result == "Success") {
+                    var workbook = new ExcelJS.Workbook();
+                    var worksheet = workbook.addWorksheet('Transaction Summary');
+                    var exportHeaderOptions = {
+                        exportRowFieldHeaders: true,
+                        exportColumnFieldHeaders: false,
+                        exportDataFieldHeaders: false,
+                        exportFilterFieldHeaders: false,
+                    };
+
+                    DevExpress.excelExporter.exportPivotGrid({
+                        component: $("#pgTRX").dxPivotGrid("instance"),
+                        exportHeaderOptions: { exportRowFieldHeaders: true },
+                        worksheet: worksheet,
+                        customizeCell: function (options) {
+                            var gridCell = options.gridCell;
+                            var excelCell = options.excelCell;
+
+                            if (gridCell) {
+                                if (gridCell.area === 'data' && gridCell.rowType === 'D' && gridCell.columnType === 'D') {
+                                    excelCell.numFmt = '#,##0'; 
+                                }
+                            }
+                        }
+                    }).then(function () {
+                        workbook.xlsx.writeBuffer().then(function (buffer) {
+                            saveAs(new Blob([buffer], { type: "application/octet-stream" }), "TransactionSummary_" + new Date().toISOString().slice(0, 10) + ".xlsx");
+                        });
+                    });
+                }
+            }
+        });
+    }
+
+    function ExportToExcel2() {
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("LogExportSREDetail", "BasisInvestor")",
+            success: function (response) {
+                if (response.result == "Success") {
+                    var workbook = new ExcelJS.Workbook();
+                    var worksheet = workbook.addWorksheet('SRE Summary');
+
+                    DevExpress.excelExporter.exportPivotGrid({
+                        component: $("#pgTRX").dxPivotGrid("instance"),
+                        worksheet: worksheet,
+                        customizeCell: function (options) {
+                            var gridCell = options.gridCell;
+                            var excelCell = options.excelCell;
+
+                            // Defensive checks to avoid errors
+                            if (gridCell && gridCell.rowType === 'data') {
+                                if (gridCell.column && gridCell.column.dataType === 'number') {
+                                    excelCell.numFmt = '#,##0';
+                                }
+                            }
+                        }
+                    }).then(function () {
+                        workbook.xlsx.writeBuffer().then(function (buffer) {
+                            saveAs(new Blob([buffer], { type: "application/octet-stream" }), "SRESummary_" + new Date().toISOString().slice(0, 10) + ".xlsx");
+                        });
+                    });
+                }
+            }
+        });
+    }
+
+    function ExportToPdf() {
+        var pivotGrid = $("#pgTRX").dxPivotGrid("instance");
+
+        pivotGrid.option("exportRowFieldHeaders", true);
+
+        pivotGrid.option("onExporting", function (e) { 
+            var workbook = new ExcelJS.Workbook();
+            var worksheet = workbook.addWorksheet('Transaction Summary');
+            var gridCell = e.gridCell;
+            var excelCell = e.excelCell;
+
+            // Ensure there is a valid gridCell before accessing its properties
+            if (gridCell) {
+                // Handle data cells (numerical cells)
+                if (gridCell.rowType === 'data') {
+                    if (gridCell.column && gridCell.column.dataType === 'number') {
+                        excelCell.numFmt = '#,##0';  // Apply number formatting
+                    }
+                }
+            }
+        });
+        pivotGrid.option("onFileSaving", function (e) {
+            var fd = new FormData();
+            fd.append("file", e.data);
+            fd.append("name", "TransactionSummary");
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("ExportPDFSumSID", "BasisInvestor")",
+                data: fd,
+                processData: false,
+                contentType: false
+            }).done(function (data) {
+                window.location = "@Url.Action("FileIndex", "BasisInvestor", new { name = "TransactionSummary" })"
+            });
+            e.cancel = true;
+        });
+        pivotGrid.exportToExcel();
+    }
+
+    function ExportToPdf2() {
+        var pivotGrid = $("#pgSRE").dxPivotGrid("instance");
+        pivotGrid.option("onExporting", function (e) { });
+        pivotGrid.option("onFileSaving", function (e) {
+            var fd = new FormData();
+            fd.append("file", e.data);
+            fd.append("name", "SRESummary");
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("ExportPDFSumSID", "BasisInvestor")",
+                data: fd,
+                processData: false,
+                contentType: false
+            }).done(function (data) {
+                window.location = "@Url.Action("FileIndex", "BasisInvestor", new { name = "SRESummary" })"
+            });
+            e.cancel = true;
+        });
+        pivotGrid.exportToExcel();
+    }
+
+    function thousandSeparatorDecimal(e) {
+        e = parseFloat(e);
+        if (e != null)
+            return e.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    }
+
     function onSelectionChanged(e) {
-        if (e.addedItems.length > 0) {
-            e.component.field().val(""); // Clears the search text. However, search filter is only applied to the widget after focus is lost in the input element
+        if (e.addedItems && e.addedItems.length > 0) {
+            // Get the input element of the ComboBox
+            var inputElement = e.component.$element().find("input").first();
+
+            // Clear the search text
+            if (inputElement.length) {
+                inputElement.val("");
+            }
         }
     }
 
     function onButtonFilterClicked(e) {
         const res = e.validationGroup.validate();
         if (res.status === "valid") {
-            $("#grid1").dxDataGrid("instance").refresh();
-        }
-    }
+            var pe = '@ViewBag.pe';
+            var periode = '@ViewBag.periode';
+            var sid = '@ViewBag.sid';
 
-    function onGridBeforeSend(method, ajaxOptions) {
-        let namaPE = $("#namaPEid").dxSelectBox("instance").option("value");
-        let tempPeriodeAwal = $("#PeriodeAwal").dxDateBox("instance").option("value");
-        let status = $("#Statusid").dxTagBox("instance").option("value");
+            var seccode = $("#SecCode").dxSelectBox("instance").option("value");
+            var market = $("#Market").dxSelectBox("instance").option("value");
 
-        let periodeAwal = null;
-        if (tempPeriodeAwal != null) {
-            periodeAwal = tempPeriodeAwal.getFullYear() + '-' + (tempPeriodeAwal.getMonth() + 1) + '-' + tempPeriodeAwal.getDate();
+            var lp1 = $('.loadpanel1').dxLoadPanel({
+                position: { 
+                    my: "center",
+                    at: "center",
+                    of: '#pgTRX' 
+                },
+                visible: false,
+                showIndicator: true,
+                showPane: true,
+                shading: false,
+                hideOnOutsideClick: false
+            }).dxLoadPanel('instance');
+
+            var lp2 = $('.loadpanel2').dxLoadPanel({
+                position: { 
+                    my: "center",
+                    at: "center",
+                    of: '#pgSRE' 
+                },
+                visible: false,
+                showIndicator: true,
+                showPane: true,
+                shading: false,
+                hideOnOutsideClick: false
+            }).dxLoadPanel('instance');
+
+            lp1.show();
+            lp2.show();
+
+            function loadTRX() {
+                return $.ajax({
+                    url: '@Url.Action("GetGridDetailTRX", "BasisInvestor")',
+                    data: {
+                        periodeAwal: periode,
+                        namaPE: pe,
+                        invCode: sid,
+                        trxSys: market,
+                        secCode: seccode
+                    },
+                    dataType: "json",
+                    type: "POST",
+                    success: function (response) {
+                        var pgTRX = $("#pgTRX").dxPivotGrid({
+                            dataSource: {
+                                store: {
+                                    type: "array",
+                                    key: "sid",
+                                    data: response.data
+                                },
+                                fields: [
+                                    { dataField: "pe", caption: "PE", area: "row" },
+                                    { dataField: "sid", caption: "SID", area: "row" },
+                                    { dataField: "invcode", caption: "Investor Code", area: "row" },
+                                    { dataField: "seccode", caption: "Security Code", area: "row" },
+                                    { dataField: "trxsys", caption: "Transaction System", area: "row" },
+                                    { dataField: "fake", caption: "", area: "column" },
+                                    { dataField: "ttltrxfreq", caption: "Total Transaction Frequency", area: "data", dataType: "number", format: '#,##0', summaryType: "sum" },
+                                    { dataField: "ttltrxvol", caption: "Total Transaction Volume", area: "data", dataType: "number", format: '#,##0', summaryType: "sum" },
+                                    { dataField: "ttltrxval", caption: "Total Transaction Value", area: "data", dataType: "number", format: '#,##0', summaryType: "sum" }
+                                ]
+                            },
+                            loadPanel: { enabled: false },
+                            showBorders: true,
+                            showRowGrandTotals: false,
+                            showRowTotals: false,
+                            showColumnGrandTotals: false,
+                            showColumnTotals: false,
+                            headerFilter: { enabled: false, },
+                            fieldChooser: { enabled: false },
+                            customizeText: function (cellInfo) {
+                                if (cellInfo.value === "") {
+                                    return 0;
+                                }
+                                return cellInfo.valueText;
+                            },
+                            hideEmptySummaryCells: false,
+                            fieldPanel: {
+                                showColumnFields: false,
+                                showDataFields: false,
+                                showFilterFields: false,
+                                showRowFields: true,
+                                allowFieldDragging: false,
+                                visible: true,
+                            },
+                            scrolling: {
+                                mode: 'virtual',
+                            },
+                            width: "100%"
+                        }).dxPivotGrid("instance");
+
+                        pgTRX.getDataSource().expandAll("pe");
+                        pgTRX.getDataSource().expandAll("sid");
+                        pgTRX.getDataSource().expandAll("invcode");
+                        pgTRX.getDataSource().expandAll("seccode");
+                        pgTRX.getDataSource().expandAll("trxsys");
+
+                        lp1.hide();
+                        setTimeout(function () {
+                            $(".loadpanel2").dxLoadPanel("instance").repaint();
+                        }, 1000);
+                        
+                    }
+                });
+            }
+
+            function loadSRE() {
+                return $.ajax({
+                    url: '@Url.Action("GetGridDetailSRE", "BasisInvestor")',
+                    data: {
+                        periodeAwal: periode,
+                        namaPE: pe,
+                        sid: sid,
+                        trxSys: market,
+                        secCode: seccode
+                    },
+                    dataType: "json",
+                    type: "POST",
+                    success: function (response) {
+                        var pgSRE = $("#pgSRE").dxPivotGrid({
+                            dataSource: {
+                                store: {
+                                    type: "array",
+                                    key: "sid",
+                                    data: response.data
+                                },
+                                fields: [
+                                    { dataField: "pe", caption: "PE", area: "row" },
+                                    { dataField: "sid", caption: "SID", area: "row" },
+                                    { dataField: "secphytcode", caption: "Security Physical Type Code", area: "row" },
+                                    { dataField: "stlactowntcode", caption: "Settlement Account Owner Type Code", area: "row" },
+                                    { dataField: "stlacttcode", caption: "Settlement Account Type Code", area: "row" },
+                                    { dataField: "actblcstscode", caption: "Account Balance Status Code", area: "row" },
+                                    { dataField: "fake", caption: "", area: "column" },
+                                    { dataField: "portoamount", caption: "Portofolio Amount", area: "data", dataType: "number", format: '#,##0', summaryType: "sum" },
+                                    { dataField: "portoqty", caption: "Portofolio Quantity", area: "data", dataType: "number", format: '#,##0', summaryType: "sum" }
+                                ]
+                            },
+                            loadPanel: { enabled: false },
+                            showBorders: true,
+                            showRowGrandTotals: false,
+                            showRowTotals: false,
+                            showColumnGrandTotals: false,
+                            showColumnTotals: false,
+                            headerFilter: { enabled: false, },
+                            fieldChooser: { enabled: false },
+                            customizeText: function (cellInfo) {
+                                if (cellInfo.value === "") {
+                                    return 0;
+                                }
+                                return cellInfo.valueText;
+                            },
+                            hideEmptySummaryCells: false,
+                            fieldPanel: {
+                                showColumnFields: false,
+                                showDataFields: false,
+                                showFilterFields: false,
+                                showRowFields: true,
+                                allowFieldDragging: false,
+                                visible: true,
+                            },
+                            scrolling: {
+                                mode: 'virtual',
+                            },
+                            width: "100%"
+                        }).dxPivotGrid("instance");
+
+                        pgSRE.getDataSource().expandAll("pe");
+                        pgSRE.getDataSource().expandAll("sid");
+                        pgSRE.getDataSource().expandAll("secphytcode");
+                        pgSRE.getDataSource().expandAll("stlactowntcode");
+                        pgSRE.getDataSource().expandAll("stlacttcode");
+                        pgSRE.getDataSource().expandAll("actblcstscode");
+
+                        lp2.hide();
+                    }
+                });
+            }
+
+            loadTRX();
+            loadSRE();
+
+            
+@*             var dsTRX = DevExpress.data.AspNet.createStore({
+                loadUrl: '@Url.Action("GetGridDetailTRX", "BasisInvestor")',
+                loadMode: "processed",
+                loadParams: {
+                    periodeAwal: periode,
+                    namaPE: pe,
+                    invCode: sid,
+                    trxSys: market,
+                    secCode: seccode
+                }
+            });
+ *@
+            
+
+            @* dsTRX.load().done(function () {
+                pgTRX.refresh();
+            }).fail(function (error) {
+                console.error("Failed to load data: ", error);
+            });
+ *@
+
+
+            @* var gridtrx = $("#gridtrx").dxDataGrid("instance"); *@
+@*             var gridsre = $("#gridsre").dxDataGrid("instance"); *@
+
+            @* gridtrx.beginCustomLoading('Loading...'); *@
+@*             gridsre.beginCustomLoading('Loading...'); *@
+
+            @* var dsTRX = DevExpress.data.AspNet.createStore({
+                loadUrl: '@Url.Action("GetGridDetailTRX", "BasisInvestor")',
+                loadMode: "processed",
+                loadParams: {
+                    periodeAwal: periode,
+                    namaPE: pe,
+                    invCode: sid,
+                    trxSys: market,
+                    secCode: seccode
+                }
+            });
+
+            gridtrx.option('dataSource', dsTRX);
+            gridtrx.endCustomLoading(); *@
+
+           @*  var dsSRE = DevExpress.data.AspNet.createStore({
+                loadUrl: '@Url.Action("GetGridDetailSRE", "BasisInvestor")',
+                loadMode: "processed",
+                loadParams: {
+                    periodeAwal: periode,
+                    namaPE: pe,
+                    sid: sid,
+                    trxSys: market,
+                    secCode: seccode
+                }
+            });
+
+            gridsre.option('dataSource', dsSRE);
+            gridsre.endCustomLoading(); *@
         }
-        ajaxOptions.data.namaPE = JSON.stringify(namaPE);
-        ajaxOptions.data.periodeAwal = periodeAwal;
-        ajaxOptions.data.status = JSON.stringify(status);
     }
 
     var waitingDialog = (function ($) {
@@ -393,3 +812,9 @@
     })(jQuery);
 
 </script>
+
+<style type="text/css">
+    .mandatory {
+        background-color: red !important;
+    }
+</style>

@@ -349,16 +349,6 @@
             }
         });
 
-        $.ajax({
-            url: '@Url.Action("GetChartBondType", "MMCancelTransaksi")',
-            data: { periodeAwal: periodeAwal, periodeAkhir: periodeAkhir, bondissuertypecode: JSON.stringify(bondissuertypecode) },
-            dataType: "json",
-            type: "POST",
-            success: function (response) {
-            $("#pie-chartcancellation").dxPieChart("instance").refresh();
-            }
-        });
-
          $.ajax({
             url: '@Url.Action("GetChartBondType", "MMCancelTransaksi")',
             data: { periodeAwal: periodeAwal, periodeAkhir: periodeAkhir, bondissuertypecode: JSON.stringify(bondissuertypecode) },
