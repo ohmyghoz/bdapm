@@ -2896,12 +2896,13 @@ namespace BDA.Helper
                         }
                         allowFilter = false;
                     }
-                    else if (row.DataType == "int" || row.DataType == "decimal" || row.DataType == "bigint" || row.DataType == "float")
+                    else if (row.DataType == "int" || row.DataType == "decimal" || row.DataType == "bigint")
                     {
                         format = ",##0";
                         colDataType = GridColumnDataType.Number;
-                        allowFilter = false;                        
-                    }
+                        allowFilter = false;   
+                        if (row.DataType == "float") format = "#.##0";
+                    }                    
                     else 
                     {
                         width = Math.Max(130, Math.Min(300, (Int32) row.Length));
