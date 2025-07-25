@@ -72,6 +72,10 @@
             });
     }
 
+    function redirDetail() {}
+
+    function redirDelete() {}
+
     function gridOnBeforeSend(method, ajaxOptions) {
         var tempstartDate = $("#startDate").dxDateBox("instance").option('value');
         var tempendDate = $("#endDate").dxDateBox("instance").option('value');
@@ -100,14 +104,21 @@
     <div class="row filter-panel" style="padding-top:0px;">
         <div class="card-body">
             <div class="row">
-                <div class="col-lg-6 form-group">
+                <div class="col-lg-4 form-group">
+                    <label>Tanggal Log</label>
+                    @(Html.DevExtreme().DateBox()
+                            .ID("logDate")
+                            .Name("logDate")
+                            .Width("100%").Value(DateTime.Now).DisplayFormat("dd MMM yyyy"))
+                </div>
+                <div class="col-lg-4 form-group">
                     <label>Tanggal Mulai</label>
                     @(Html.DevExtreme().DateBox()
                             .ID("startDate")
                             .Name("startDate")
                             .Width("100%").Value(DateTime.Now).DisplayFormat("dd MMM yyyy"))
                 </div>
-                <div class="col-lg-6 form-group">
+                <div class="col-lg-4 form-group">
                     <label>Tanggal Selesai</label>
                     @(Html.DevExtreme().DateBox()
                             .ID("endDate")
@@ -139,11 +150,16 @@
 
         @(Html.DevExtreme().DataGrid()
             .ID("grid1")
-            .DataSource(d => d.Mvc()
+            .DataSource(@* d => d.Mvc()
                 .Controller("Log_Monitoring_Data")
                 .LoadAction("GetGridData")
                 .OnBeforeSend("gridOnBeforeSend")
-                .Key("log_id")
+                .Key("log_id") *@
+            new [] {
+                    new { log_date = "15 Mei 2025 13:12:11", log_kode = "PS01", log_nama = "Summary Cluster MKBD",
+                          log_periode = "20240101", log_start = "15 Mei 2025 13:12:00", log_end = "15 Mei 2025 17:00:00", log_total_waktu = "04:12:00",
+                          log_delete_cnt = 200, log_insert_cnt = 400000, log_status = "F", log_percentage = "100%" }
+                }
             )
             .RemoteOperations(true)
             .Export(e => e.AllowExportSelectedData(true).Texts(q => q.ExportTo("Ekspor")))
@@ -152,14 +168,28 @@
             {
 
                 columns.Add().DataField("log_date").Caption("Tanggal Log").Width("10%").DataType(GridColumnDataType.DateTime).Format("dd MMM yyyy HH:mm:ss").SortOrder(SortOrder.Desc);
-                columns.Add().DataField("log_tipe").Caption("Tipe").Width("20%");
+                columns.Add().DataField("log_kode").Caption("Kode Job").Width("20%");
+                columns.Add().DataField("log_nama").Caption("Nama Job").Width("20%");
                 columns.Add().DataField("log_periode").Caption("Periode").Width("10%");
-                columns.Add().DataField("log_delete_cnt").Caption("Jumlah Penghapusan").Width("10%");
-                columns.Add().DataField("log_insert_cnt").Caption("Jumlah Penambahan").Width("10%");
+
                 columns.Add().DataField("log_start").Caption("Mulai").Width("10%").DataType(GridColumnDataType.DateTime).Format("dd MMM yyyy HH:mm:ss");
                 columns.Add().DataField("log_end").Caption("Selesai").Width("10%").DataType(GridColumnDataType.DateTime).Format("dd MMM yyyy HH:mm:ss");
+                columns.Add().DataField("log_total_waktu").Caption("Total Waktu").Width("10%");
+
+                columns.Add().DataField("log_delete_cnt").Caption("Total Penghapusan").Width("10%");
+                columns.Add().DataField("log_insert_cnt").Caption("Total Insert Data").Width("10%");
                 columns.Add().DataField("log_status").Caption("Status").Width("10%");
-                columns.Add().DataField("log_errmessage").Caption("Pesan Error").Width("10%");
+                columns.Add().DataField("log_percentage").Caption("Persentase").Width("10%");
+                columns.Add().Type(GridCommandColumnType.Buttons).Caption("Aksi").Buttons(b =>
+                            {
+                                b.Add().Hint("Detail")
+                                    .Icon("activefolder")
+                                    .OnClick("redirDetail");
+
+                                b.Add().Hint("Delete")
+                                    .Icon("trash")
+                                    .OnClick("redirDelete");
+                            });
                 columns.Add().DataField("log_id").Visible(false);
 
             })

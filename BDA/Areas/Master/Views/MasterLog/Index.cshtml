@@ -87,6 +87,10 @@
         });
 
     }
+    
+    function redirDetail() {}
+
+    function redirDelete() {}
 
     function gridOnBeforeSend(method, ajaxOptions) {
         var tempstartDate = $("#startDate").dxDateBox("instance").option('value');
@@ -117,77 +121,12 @@
 <div class="card card-default">
     <div class="row filter-panel" style="padding-top:0px;">
         <div class="card-body">
-            <div class="row">
-                <div class="col-lg-6 form-group">
-                    <label>Tanggal Mulai</label>
-                    @(Html.DevExtreme().DateBox()
-                        .ID("startDate")
-                        .Name("startDate")
-                        .Width("100%").Value(DateTime.Now).DisplayFormat("dd MMM yyyy"))
-                </div>
-                <div class="col-lg-6 form-group">
-                    <label>Tanggal Selesai</label>
-                    @(Html.DevExtreme().DateBox()
-                        .ID("endDate")
-                        .Name("endDate")
-                        .Width("100%").Value(DateTime.Now).DisplayFormat("dd MMM yyyy"))
-                </div>
-                <div class="col-lg-6 form-group">
-                    <label>Menu</label>
-                    @(Html.DevExtreme().DropDownBox()
-                        .ID("menu")
-                        .DataSource(d => d.Mvc()
-                        .Controller("MasterLog")
-                        .LoadAction("GetRefModul")
-                        .Key("ModId"))
-                        .ValueExpr("ModId")
-                        .DisplayExpr("ModKode")
-                        .Placeholder("Select...")
-                        .ShowClearButton(true)
-                        .OnValueChanged("treeBox_valueChanged")
-                        .ContentTemplate(new TemplateName("EmbeddedTreeViewSingle")))
-                </div>
-                @using (Html.DevExtreme().NamedTemplate("EmbeddedTreeViewSingle"))
-                {
-                    @(Html.DevExtreme().TreeView()
-                        .ID("tree")
-                        .DataSource(new JS(@"component.getDataSource()"))
-                        .KeyExpr("ModId")
-                        .ParentIdExpr("ParentModId")
-                        .DisplayExpr("ModKode")
-                        .DataStructure(TreeViewDataStructure.Plain)
-                        .SelectionMode(NavSelectionMode.Multiple)
-                        .ShowCheckBoxesMode(TreeViewCheckBoxMode.Normal)
-                        .SelectNodesRecursive(true)
-                        .SelectByClick(true)
-                        .Height(235)
-                        .OnItemSelectionChanged(@<text>
-                    function(args) {
-                    component.option("value", args.component.getSelectedNodeKeys());
-                    }
-                </text>)
-                        .OnContentReady(@<text>
-                    function(args) {
-                    syncTreeViewSelection(args.component, component.option("value"));
-                    }
-                </text>)
-                        )
-                }
-            </div>
-
-            <div class="float-left">
-                @(Html.DevExtreme().Button().Type(ButtonType.Default).Text("Cari").OnClick(@<text>
-                    function () {
-                    $("#grid1").dxDataGrid("instance").getDataSource().reload();
-                    }
-                </text>))
-            </div>
-
+            
             <div class="float-right">
                 @if (ViewBag.Export)
                 {
-                    <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:exportToEx();"><span class="image fa fa-file-excel"></span> Export Excel</a>
-                    <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:exportToPDF();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                    <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:exportToPDF();"><span class="image fa fa-download"></span> Download Template</a>
+                    <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:exportToEx();"><span class="image fa fa-upload"></span> Upload</a>
                 }
             </div>
         </div>
@@ -199,27 +138,36 @@
 
         @(Html.DevExtreme().DataGrid()
             .ID("grid1")
-            .DataSource(d => d.Mvc()
+            .DataSource(@* d => d.Mvc()
             .Controller("MasterLog")
             .LoadAction("GetGridData")
             .OnBeforeSend("gridOnBeforeSend")
-            .Key("AuditId")
+            .Key("AuditId") *@
+            new [] {
+                    new { log_no = 1, log_kode = "PS01", log_nama = "Summary Cluster MKBD", log_waktu = "02:00" },
+                    new { log_no = 2, log_kode = "PS02", log_nama = "Basis Investor", log_waktu = "04:00" }
+                }
             )
             .RemoteOperations(true)
             .Export(e => e.AllowExportSelectedData(true).Texts(q => q.ExportTo("Ekspor")))
             .Width("100%")
             .Columns(columns =>
             {
+                columns.Add().DataField("log_no").Caption("No").Width("10%");
+                columns.Add().DataField("log_kode").Caption("Kode Job").Width("20%");
+                columns.Add().DataField("log_nama").Caption("Nama Sequence").Width("20%");
+                columns.Add().DataField("log_waktu").Caption("Waktu Scheduler").Width("10%");
+                columns.Add().Type(GridCommandColumnType.Buttons).Caption("Aksi").Buttons(b =>
+                            {
+                                b.Add().Hint("Detail")
+                                    .Icon("activefolder")
+                                    .OnClick("redirDetail");
 
-                columns.Add().DataField("AuditDate").Width("150px").Caption("Tanggal").DataType(GridColumnDataType.DateTime).Format("dd MMM yyyy HH:mm:ss").SortIndex(0).SortOrder(SortOrder.Desc).Alignment(HorizontalAlignment.Left);
-                columns.Add().DataField("AuditCause").Width("250px").Caption("Aksi");
-                columns.Add().DataField("AuditTipe").Width("250px").Caption("Tipe");
-                columns.Add().DataField("AuditMenu").Width("250px").Caption("Menu");
-                columns.Add().DataField("AuditUser").Width("150px").Caption("User ID");
-                columns.Add().DataField("AuditIpAddress").Width("120px").Caption("IP Address");
-                //columns.Add().DataField("AuditPrevUrl").Width("200px").Caption("URL Halaman Sebelumnya");
-                columns.Add().DataField("AuditUrl").Width("200px").Caption("URL Halaman");
-
+                                b.Add().Hint("Delete")
+                                    .Icon("trash")
+                                    .OnClick("redirDelete");
+                            });
+                columns.Add().DataField("log_id").Visible(false);
             })
             .FilterRow(f => f.Visible(true))
             //.AllowColumnResizing(true)
