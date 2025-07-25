@@ -814,7 +814,7 @@
 
     function createBarChart() {
         $("#chartContainer1").dxChart({
-            @* dataSource: [{
+            dataSource: [{
                 category: "a",
                 value: 0.745,
                 type: "a"
@@ -822,7 +822,52 @@
                 category: "a",
                 value: 0.251,
                 type: "b"
-            }], *@
+            },
+            {
+                category: "b",
+                value: 0.745,
+                type: "a"
+            }, {
+                category: "b",
+                value: 0.251,
+                type: "b"
+            },
+            {
+                category: "c",
+                value: 0.745,
+                type: "a"
+            }, {
+                category: "c",
+                value: 0.251,
+                type: "b"
+            },
+            {
+                category: "d",
+                value: 0.745,
+                type: "a"
+            }, {
+                category: "d",
+                value: 0.251,
+                type: "b"
+            },
+            {
+                category: "e",
+                value: 0.745,
+                type: "a"
+            }, {
+                category: "e",
+                value: 0.251,
+                type: "b"
+            },
+            {
+                category: "f",
+                value: 0.745,
+                type: "a"
+            }, {
+                category: "f",
+                value: 0.251,
+                type: "b"
+            }],
             rotated: true,
             commonSeriesSettings: {
                 argumentField: "category",
@@ -1192,7 +1237,7 @@
                             chartDatas.push(data1);
 
                             var data2 = {
-                                    category: segmentsCategory[index],
+                                category: segmentsCategory[index],
                                 value: segments2[index],
                                 type: "b"
                             };
