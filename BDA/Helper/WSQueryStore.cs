@@ -14,6 +14,7 @@ using System.Data.SqlClient;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using static System.Data.Odbc.ODBC32;
 
 namespace BDA.Helper
 {
@@ -5781,8 +5782,8 @@ namespace BDA.Helper
 
             }
             var props = new WSQueryProperties();
-            props.Query = @"SELECT top 10 nama_sid from dbo.pm_master_sid WHERE " + whereQuery + @" group by nama_sid ORDER BY len(nama_sid) asc";
-            if (isHive) props.Query = @"SELECT nama_sid FROM pasarmodal.src_sid_new x WHERE " + whereQuery + @" group by nama_sid ORDER BY length(nama_sid) asc LIMIT 10";
+            props.Query = @"SELECT top 10 sid, nama_sid from dbo.pm_master_sid WHERE " + whereQuery + @" group by sid, nama_sid ORDER BY len(nama_sid) asc";
+            if (isHive) props.Query = @"SELECT sid, nama_sid FROM pasarmodal.src_sid_new x WHERE " + whereQuery + @" group by sid, nama_sid ORDER BY length(nama_sid) asc LIMIT 10";
             //props.Query = @"SELECT top 20 nama_sid, sid, len(nama_sid) len_nama FROM pasarmodal.master_sid x WHERE " + whereQuery + @" ORDER BY len_nama asc";
             //if (isHive) props.Query = @"SELECT nama_sid, sid, length(nama_sid) len_nama FROM pasarmodal.src_sid x WHERE " + whereQuery + @" ORDER BY len_nama asc LIMIT 20";
 
@@ -5931,7 +5932,7 @@ namespace BDA.Helper
             else if (tradeId != null) whereQuery = whereQuery += " AND SUBSTRING(sid, 8, 6) = '" + tradeId + "' ";
             else if (nomorKTP != null) whereQuery = whereQuery += " AND ktp = '" + nomorKTP + "' ";
             else if (nomorNPWP != null) whereQuery = whereQuery += " AND npwp = '" + nomorNPWP + "' ";
-            else if (namaSID != null) whereQuery = whereQuery += " AND nama_sid = '" + namaSID.ToUpper() + "' ";
+            else if (namaSID != null) whereQuery = whereQuery += " AND sid = '" + namaSID + "' "; //sid
             else if (namaLike != null) whereQuery = whereQuery += " AND nama_sid like '%" + namaLike.ToUpper() + "%' ";
             else if (passport != null) whereQuery = whereQuery += " AND passport = '" + passport + "' ";
             else if (businessReg != null) whereQuery = whereQuery += " AND business_registration_number = '" + businessReg + "' ";
@@ -5967,6 +5968,64 @@ namespace BDA.Helper
         }
 
         public static WSQueryReturns GetPMIPRelQuery(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string startPeriod, string endPeriod, 
+            string SID, string tradeId, string namaSID, string namaLike, string relCol, float relVal, //string secCode,
+            string nomorKTP, string nomorNPWP, bool chk100 = false, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1";
+            var periodWhereQuery = "";
+            //isHive = false;
+
+            if (tableName == "ip_rel_sid")
+            {
+                if (SID != null) whereQuery = whereQuery += " AND keyid = '" + SID + "' ";                
+                if (tradeId != null) whereQuery = whereQuery += " AND SUBSTRING(keyid, 8, 6) = '" + tradeId + "' ";
+                if (namaSID != null) whereQuery = whereQuery += " AND keyid = '" + namaSID.ToUpper() + "' ";
+                if (namaLike != null) whereQuery = whereQuery += " AND nama_sid like '%" + namaLike.ToUpper() + "%' ";                
+                if (relCol != null) whereQuery = whereQuery += " AND attributetype = '" + relCol + "' ";
+                if (relVal > 0) whereQuery = whereQuery += " AND similarityvalue >= " + relVal + " ";
+            }
+            else if (tableName == "ip_rel_transaction" || tableName == "ip_rel_ownership")
+            {
+                if (SID != null) whereQuery = whereQuery += " AND inv1 = '" + SID + "' ";
+                if (tradeId != null) whereQuery = whereQuery += " AND SUBSTRING(inv1, 8, 6) = '" + tradeId + "' ";
+                if (namaSID != null) whereQuery = whereQuery += " AND inv1 = '" + namaSID + "' ";//no sid
+                if (namaLike != null) whereQuery = whereQuery += " AND inv1_nama_sid like '%" + namaLike.ToUpper() + "%' ";
+                if (nomorKTP != null) whereQuery = whereQuery += " AND inv1_ktp = '" + nomorKTP + "' ";
+                if (nomorNPWP != null) whereQuery = whereQuery += " AND inv1_npwp = '" + nomorNPWP + "' ";
+                //if (secCode != null) whereQuery = whereQuery += " AND securitycode= '" + secCode.ToUpper() + "' ";
+            }
+
+            
+            if (endPeriod != null)
+            {
+                string startperiodes = startPeriod.Replace("'", "").Replace(",", "','").Replace("' ", "'"); //cegah sql inject dikit
+                string endperiodes = endPeriod.Replace("'", "").Replace(",", "','").Replace("' ", "'"); //cegah sql inject dikit
+                if (tableName == "ip_rel_sid")
+                {
+                    periodWhereQuery = " AND pmonth between '" + startperiodes.Substring(0, 6) + "' and '" + endperiodes.Substring(0, 6) + "'";
+                }
+                else {
+                    periodWhereQuery = " AND pstart between '" + startperiodes + "' and '" + endperiodes + "'";
+                }
+                
+            }
+            
+
+            string sqlGetQuery = "select table_" + (isHive ? "hive" : "sql") + @" as queryString from dbo.ref_query where table_id = '" + tableName + "'";
+            
+            DataRow dr = ExecuteSimpleSQL(db.appSettings.DataConnString, sqlGetQuery).data.Rows[0];
+            string queryString = dr["queryString"].ToString();
+            queryString = queryString.Replace("@wherefilter", whereQuery).Replace("@whereperiode", periodWhereQuery);
+
+            var props = new WSQueryProperties();
+            props.Query = queryString;
+
+
+            return NonDecryptResults(WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive));
+        }
+
+        public static WSQueryReturns GetPMIPRelQueryOld(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string startPeriod, string endPeriod,
             string SID, string tradeId, string namaSID, string relCol, float relVal,
             string bSID, string bTradeId, string bExchange, string sSID, string sTradeId, string sExchange, string secCode,
             string nomorKTP, string nomorNPWP, string exchange, string invType, string invOrigin, string invClass, bool chk100 = false, bool isHive = false)
@@ -5978,7 +6037,7 @@ namespace BDA.Helper
 
             if (tableName == "ip_rel_sid")
             {
-                if (SID != null) whereQuery = whereQuery += " AND keyid = '" + SID + "' ";                
+                if (SID != null) whereQuery = whereQuery += " AND keyid = '" + SID + "' ";
                 if (tradeId != null) whereQuery = whereQuery += " AND SUBSTRING(keyid, 8, 6) = '" + tradeId + "' ";
                 if (namaSID != null) whereQuery = whereQuery += " AND nama_sid = '" + namaSID.ToUpper() + "' ";
                 if (relCol != null) whereQuery = whereQuery += " AND attributetype = '" + relCol + "' ";
@@ -6007,7 +6066,7 @@ namespace BDA.Helper
                 if (invClass != null) whereQuery = whereQuery += " AND investorclass '" + invClass.ToUpper() + "' ";
             }
 
-                
+
 
 
             if (endPeriod != null)
@@ -6018,15 +6077,16 @@ namespace BDA.Helper
                 {
                     periodWhereQuery = " AND pmonth between '" + startperiodes.Substring(0, 6) + "' and '" + endperiodes.Substring(0, 6) + "'";
                 }
-                else {
+                else
+                {
                     periodWhereQuery = " AND " + ((tableName == "ip_rel_transaction") ? "tradedate" : "calendarsk") + " between '" + startperiodes + "' and '" + endperiodes + "'";
                 }
-                
+
             }
-            
+
 
             string sqlGetQuery = "select table_" + (isHive ? "hive" : "sql") + @" as queryString from dbo.ref_query where table_id = '" + tableName + "'";
-            
+
             DataRow dr = ExecuteSimpleSQL(db.appSettings.DataConnString, sqlGetQuery).data.Rows[0];
             string queryString = dr["queryString"].ToString();
             queryString = queryString.Replace("@wherefilter", whereQuery).Replace("@whereperiode", periodWhereQuery);
@@ -7436,7 +7496,7 @@ namespace BDA.Helper
                 {
                     stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
                     stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                    whereQuery = whereQuery += " AND  date_format(date_sub(entrydate,14),'yyyy-MM-dd') BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
+                    whereQuery = whereQuery += " AND to_date(from_unixtime(unix_timestamp(entrydate,'yyyyMMdd'))) BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
                 }
                 else
                 {
@@ -7460,9 +7520,11 @@ namespace BDA.Helper
                 if (tableName == "mm_bond_trades_cancel")
                 {
                     props.Query = @"
-                    SELECT MONTH(entrydate) AS nobulan,SUBSTRING('JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC ', (MONTH(entrydate) * 4) - 3, 3) AS bulan,COUNT(bondcode) AS total 
+                    SELECT 
+                    MONTH(to_date(from_unixtime(unix_timestamp(entrydate,'yyyyMMdd')))) AS nobulan,SUBSTRING('JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC ', (MONTH(to_date(from_unixtime(unix_timestamp(entrydate,'yyyyMMdd')))) * 4) - 4, 4) AS bulan,
+                    COUNT(bondcode) AS total 
                         From pasarmodal." + tableName + @"
-                    WHERE " + whereQuery + @" GROUP by MONTH(entrydate),SUBSTRING('JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC ', (MONTH(entrydate) * 4) - 3, 3)";
+                    WHERE " + whereQuery + @" GROUP by MONTH(to_date(from_unixtime(unix_timestamp(entrydate,'yyyyMMdd')))),SUBSTRING('JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC ', (MONTH(to_date(from_unixtime(unix_timestamp(entrydate,'yyyyMMdd')))) * 4) - 3, 3)";
                 }
             }
             else
@@ -7490,7 +7552,7 @@ namespace BDA.Helper
                 {
                     stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
                     stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                    whereQuery = whereQuery += " AND  date_format(date_sub(entrydate,14),'yyyy-MM-dd') BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
+                    whereQuery = whereQuery += " AND  to_date(from_unixtime(unix_timestamp(entrydate,'yyyyMMdd'))) BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
                 }
                 else
                 {
@@ -7544,7 +7606,7 @@ namespace BDA.Helper
                 {
                     stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
                     stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                    whereQuery = whereQuery += " AND  date_format(date_sub(entrydate,14),'yyyy-MM-dd') BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
+                    whereQuery = whereQuery += " AND to_date(from_unixtime(unix_timestamp(entrydate,'yyyyMMdd'))) BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
                 }
                 else
                 {
@@ -7578,7 +7640,7 @@ namespace BDA.Helper
                                           SUM(CASE WHEN tradereason = 'NETWORK CONNECTION' THEN total ELSE 0 END) AS NETWORK_CONNECTION
                                           FROM
                                               (
-                                                 SELECT	buyerfirmcode,tradereason,date_format(date_sub(entrydate,14),'yyyy-MM-dd') as entrydate,COUNT(buyerfirmcode) AS total 
+                                                 SELECT	buyerfirmcode,tradereason,to_date(from_unixtime(unix_timestamp(entrydate,'yyyyMMdd'))) as entrydate,COUNT(buyerfirmcode) AS total 
                                   FROM  pasarmodal." + tableName + @"
                                                  GROUP by buyerfirmcode,tradereason,entrydate
                                               ) AS t
@@ -7626,7 +7688,7 @@ namespace BDA.Helper
                 {
                     stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
                     stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                    whereQuery = whereQuery += " AND  date_format(date_sub(entrydate,14),'yyyy-MM-dd') BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
+                    whereQuery = whereQuery += " AND to_date(from_unixtime(unix_timestamp(entrydate,'yyyyMMdd'))) BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
                 }
                 else
                 {
@@ -7682,7 +7744,7 @@ namespace BDA.Helper
                 {
                     stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
                     stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                    whereQuery = whereQuery += " AND  date_format(date_sub(entrydate,14),'yyyy-MM-dd') BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
+                    whereQuery = whereQuery += " AND to_date(from_unixtime(unix_timestamp(entrydate,'yyyyMMdd'))) BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
                 }
                 else
                 {
@@ -7736,7 +7798,7 @@ namespace BDA.Helper
                 {
                     stringPeriodeAwal = "'" + stringPeriodeAwal.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
                     stringPeriodeAkhir = "'" + stringPeriodeAkhir.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                    whereQuery = whereQuery += " AND  date_format(date_sub(entrydate,14),'yyyy-MM-dd') BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
+                    whereQuery = whereQuery += " AND to_date(from_unixtime(unix_timestamp(entrydate,'yyyyMMdd'))) BETWEEN " + stringPeriodeAwal + " AND " + stringPeriodeAkhir + "";
                 }
                 else
                 {
@@ -7760,10 +7822,14 @@ namespace BDA.Helper
                 if (tableName == "mm_bond_trades_cancel")
                 {
                     props.Query = @"
-                    SELECT tgl,nobulan,entrydate,total from (
-					SELECT date_format(date_sub(entrydate,14),'dd') as tgl,MONTH(entrydate) as nobulan,date_format(date_sub(entrydate,14),'dd-MMM-yy') as entrydate,COUNT(entrydate) total
+                    SELECT date_format(date_sub(tanggal,0),'dd') as tgl,nobulan,entrydate,total from (
+					SELECT to_date(from_unixtime(unix_timestamp(entrydate,'yyyyMMdd'))) as tanggal,
+                        MONTH(to_date(from_unixtime(unix_timestamp(entrydate,'yyyyMMdd')))) as nobulan,
+                        to_date(from_unixtime(unix_timestamp(entrydate,'yyyyMMdd'))) as entrydate,
+                        COUNT(to_date(from_unixtime(unix_timestamp(entrydate,'yyyyMMdd')))) total
                         From pasarmodal." + tableName + @"
-                    WHERE " + whereQuery + @" Group by entrydate) as t";
+                    WHERE " + whereQuery + @" 
+                    Group by to_date(from_unixtime(unix_timestamp(entrydate,'yyyyMMdd'))) order by entrydate,nobulan asc) as t";
                 }
             }
             else

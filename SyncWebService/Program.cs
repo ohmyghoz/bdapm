@@ -86,7 +86,7 @@ namespace SyncWebService
                     }
 
                     Console.WriteLine($"Last Periode : {lastPeriode}");
-                    Thread.Sleep(new TimeSpan(0, 0, 10));
+                    Thread.Sleep(new TimeSpan(0, 0, 5));
 
                     //==================
 
@@ -108,7 +108,7 @@ namespace SyncWebService
 
 
                     Console.WriteLine($"SID Periode {period} Last Count : {lastCnt}");
-
+                    Thread.Sleep(new TimeSpan(0, 0, 5));
 
                     //if for testing may temporary be disabled
 
@@ -146,7 +146,7 @@ namespace SyncWebService
                         }
 
                         Console.WriteLine($"Hive SID Periode {period} New Count: {hiveNewCnt}");
-
+                        Thread.Sleep(new TimeSpan(0, 0, 5));
 
 
                         if (hiveNewCnt > lastCnt)
