@@ -6658,6 +6658,90 @@ namespace BDA.Helper
             return WSQueryHelper.DoQueryNL(db, props, isC, isHive);
         }
 
+        public static WSQueryReturns GetBDAPMNegara(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1 AND Stsrc='A' " + "";
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                //if (tableName == "dimsecurities")
+                //{
+                //    props.Query = @"
+                //        SELECT securitycode, securityname, status from pasarmodal." + tableName + @"
+                //        WHERE " + whereQuery + @"";
+                //}
+            }
+            else
+            {
+                if (tableName == "MasterNegara")
+                {
+                    props.Query = @"
+                        SELECT NamaNegara from dbo." + tableName + @"
+                        WHERE " + whereQuery + @"";
+                }
+            }
+
+            return WSQueryHelper.DoQueryNL(db, props, isC, isHive);
+        }
+
+        public static WSQueryReturns GetBDAPMProvinsi(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1 AND Stsrc='A' " + "";
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                //if (tableName == "dimsecurities")
+                //{
+                //    props.Query = @"
+                //        SELECT securitycode, securityname, status from pasarmodal." + tableName + @"
+                //        WHERE " + whereQuery + @"";
+                //}
+            }
+            else
+            {
+                if (tableName == "MasterPropinsi")
+                {
+                    props.Query = @"
+                        SELECT RefPropinsiNama from dbo." + tableName + @"
+                        WHERE " + whereQuery + @"";
+                }
+            }
+
+            return WSQueryHelper.DoQueryNL(db, props, isC, isHive);
+        }
+
+        public static WSQueryReturns GetBDAPMKota(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1 AND Stsrc='A' " + "";
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                //if (tableName == "dimsecurities")
+                //{
+                //    props.Query = @"
+                //        SELECT securitycode, securityname, status from pasarmodal." + tableName + @"
+                //        WHERE " + whereQuery + @"";
+                //}
+            }
+            else
+            {
+                if (tableName == "MasterKota2")
+                {
+                    props.Query = @"
+                        SELECT NamaKota from dbo." + tableName + @"
+                        WHERE " + whereQuery + @"";
+                }
+            }
+
+            return WSQueryHelper.DoQueryNL(db, props, isC, isHive);
+        }
+
         #endregion
 
         #region MM01

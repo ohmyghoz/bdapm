@@ -1516,6 +1516,117 @@ namespace BDA.Controllers
             return Json(res);
         }
 
+        [HttpGet]
+        public object GetNamaNegara(DataSourceLoadOptions loadOptions)
+        {
+            var userId = HttpContext.User.Identity.Name;
+            string strSQL = db.appSettings.DataConnString;
+            var list = new List<NamaNegara>();
+
+            string reportId = "MasterNegara"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+            var cekHive = false; //Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+
+
+            var result = Helper.WSQueryStore.GetBDAPMNegara(db, loadOptions, reportId, cekHive);
+            var varDataList = (dynamic)null;
+
+            varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                           select new
+                           {
+                               NamaNegara = bs.Field<string>("NamaNegara").ToString(),
+                           }).OrderBy(bs => bs.NamaNegara).ToList();
+
+            DataTable dtList = new DataTable();
+            dtList = Helper.WSQueryStore.LINQResultToDataTable(varDataList);
+
+            if (dtList.Rows.Count > 0)
+            {
+                for (int i = 0; i < dtList.Rows.Count; i++)
+                {
+                    string var = dtList.Rows[i]["NamaNegara"].ToString();
+                    list.Add(new NamaNegara() { value = var, text = var });
+                }
+            }
+
+            var res = DataSourceLoader.Load(list, loadOptions);
+
+            return Json(res);
+        }
+
+        [HttpGet]
+        public object GetNamaProvinsi(DataSourceLoadOptions loadOptions)
+        {
+            var userId = HttpContext.User.Identity.Name;
+            string strSQL = db.appSettings.DataConnString;
+            var list = new List<NamaProvinsi>();
+
+            string reportId = "MasterPropinsi"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+            var cekHive = false; //Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+
+
+            var result = Helper.WSQueryStore.GetBDAPMProvinsi(db, loadOptions, reportId, cekHive);
+            var varDataList = (dynamic)null;
+
+            varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                           select new
+                           {
+                               RefPropinsiNama = bs.Field<string>("RefPropinsiNama").ToString(),
+                           }).OrderBy(bs => bs.RefPropinsiNama).ToList();
+
+            DataTable dtList = new DataTable();
+            dtList = Helper.WSQueryStore.LINQResultToDataTable(varDataList);
+
+            if (dtList.Rows.Count > 0)
+            {
+                for (int i = 0; i < dtList.Rows.Count; i++)
+                {
+                    string var = dtList.Rows[i]["RefPropinsiNama"].ToString();
+                    list.Add(new NamaProvinsi() { value = var, text = var });
+                }
+            }
+
+            var res = DataSourceLoader.Load(list, loadOptions);
+
+            return Json(res);
+        }
+
+        [HttpGet]
+        public object GetNamaKota(DataSourceLoadOptions loadOptions)
+        {
+            var userId = HttpContext.User.Identity.Name;
+            string strSQL = db.appSettings.DataConnString;
+            var list = new List<NamaKota>();
+
+            string reportId = "MasterKota2"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+            var cekHive = false; //Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+
+
+            var result = Helper.WSQueryStore.GetBDAPMKota(db, loadOptions, reportId, cekHive);
+            var varDataList = (dynamic)null;
+
+            varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                           select new
+                           {
+                               NamaKota = bs.Field<string>("NamaKota").ToString(),
+                           }).OrderBy(bs => bs.NamaKota).ToList();
+
+            DataTable dtList = new DataTable();
+            dtList = Helper.WSQueryStore.LINQResultToDataTable(varDataList);
+
+            if (dtList.Rows.Count > 0)
+            {
+                for (int i = 0; i < dtList.Rows.Count; i++)
+                {
+                    string var = dtList.Rows[i]["NamaKota"].ToString();
+                    list.Add(new NamaKota() { value = var, text = var });
+                }
+            }
+
+            var res = DataSourceLoader.Load(list, loadOptions);
+
+            return Json(res);
+        }
+
         public class NamaPE
         {
             public string value { get; set; }
@@ -1549,6 +1660,24 @@ namespace BDA.Controllers
 
             public DataTable scatterData { get; set; }
 
+        }
+
+        public class NamaNegara
+        {
+            public string value { get; set; }
+            public string text { get; set; }
+        }
+
+        public class NamaProvinsi 
+        {
+            public string value { get; set; }
+            public string text { get; set; }
+        }
+
+        public class NamaKota
+        {
+            public string value { get; set; }
+            public string text { get; set; }
         }
 
         [HttpPost]

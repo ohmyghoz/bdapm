@@ -70,37 +70,49 @@
                         <label>Negara@*<span class="mandatory">*</span>*@</label>
                         @(Html.DevExtreme().SelectBox()
                             .ID("Nation")
-                            //.DataSource(new[] { "(All)", "Indonesia", "Luar Negeri" })
-                            .DataSource(new[] { "" })
+                            .DataSource(d => d.Mvc()
+                                .Controller("BasisInvestor")
+                                .Area("BDAPM")
+                                .LoadAction("GetNamaNegara")
+                                .Key("value"))
+                            .ValueExpr("value")
+                            .DisplayExpr("text")
                             .SearchEnabled(true)
-                            .Value("")
                             .OnSelectionChanged("onSelectionChanged")
                             .Width("100%")
-                            .Placeholder("(ALL)"))
+                            )
                     </div>
 
                     <div class="col-lg-2 form-group">
                         <label>Provinsi@*<span class="mandatory">*</span>*@</label>
                         @(Html.DevExtreme().SelectBox()
                             .ID("Province")
-                            .DataSource(new[] { "(All)", "A", "B", "C" })
+                            .DataSource(d => d.Mvc()
+                                .Controller("BasisInvestor")
+                                .Area("BDAPM")
+                                .LoadAction("GetNamaProvinsi")
+                                .Key("value"))
+                            .ValueExpr("value")
+                            .DisplayExpr("text")
                             .SearchEnabled(true)
-                            .Value("")
                             .OnSelectionChanged("onSelectionChanged")
-                            .Width("100%")
-                            .Placeholder("(ALL)"))
+                            .Width("100%"))
                     </div>
 
                     <div class="col-lg-2 form-group">
                         <label>Kota@*<span class="mandatory">*</span>*@</label>
                         @(Html.DevExtreme().SelectBox()
                             .ID("City")
-                            .DataSource(new[] { "(All)", "A", "B", "C" })
+                            .DataSource(d => d.Mvc()
+                                .Controller("BasisInvestor")
+                                .Area("BDAPM")
+                                .LoadAction("GetNamaKota")
+                                .Key("value"))
+                            .ValueExpr("value")
+                            .DisplayExpr("text")
                             .SearchEnabled(true)
-                            .Value("")
                             .OnSelectionChanged("onSelectionChanged")
-                            .Width("100%")
-                            .Placeholder("(ALL)"))
+                            .Width("100%"))
                     </div>
 
                     <div class="col-lg-2 form-group">
