@@ -518,7 +518,9 @@ namespace BDA.Controllers
                     worksheet.Cells.Columns[1].ApplyStyle(textStyle, textFlag);
                     worksheet.Cells.Columns[2].ApplyStyle(textStyle, textFlag);
                     worksheet.Cells.Columns[3].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[3].Width = 10;
                     worksheet.Cells.Columns[4].ApplyStyle(textStyle, textFlag);
+                    worksheet.Cells.Columns[4].Width = 20;
                     worksheet.Cells.Columns[5].ApplyStyle(textStyle, textFlag);
                     worksheet.Cells.Columns[6].ApplyStyle(textStyle, textFlag);
                     worksheet.Cells.Columns[7].ApplyStyle(textStyle, textFlag);
