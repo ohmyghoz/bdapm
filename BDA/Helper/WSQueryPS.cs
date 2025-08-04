@@ -1121,21 +1121,57 @@ namespace BDA.Helper
             }
             return list;
         }
-        public static List<LeaderLaggardViewModel> GetLeadersOrLaggards(DataEntities db, bool isLeader, string selectedDate, int topN)
+        public static List<LeaderLaggardViewModel> GetLeadersOrLaggards(DataEntities db, bool isLeader, string selectedDate, int topN, string periodType = "Daily")
         {
             var list = new List<LeaderLaggardViewModel>();
 
-            // Determine the sorting order based on the isGainer flag
-            string orderByClause = isLeader ? "ORDER BY point DESC" : "ORDER BY point ASC";
+            // Input validation
+            if (string.IsNullOrEmpty(selectedDate) || topN <= 0)
+            {
+                System.Diagnostics.Debug.WriteLine($"Invalid parameters: selectedDate='{selectedDate}', topN={topN}");
+                return list;
+            }
 
-            // Build the query
+            // Determine history_type based on periodType
+            string historyType;
+            switch (periodType)
+            {
+                case "Monthly":
+                    historyType = "monthly";
+                    break;
+                case "Daily":
+                case "Custom Date":
+                default:
+                    historyType = "daily";
+                    break;
+            }
+
+            // Determine the sorting order based on the isLeader flag
+            string orderByClause = isLeader ? "ORDER BY point DESC" : "ORDER BY point ASC";
+            string queryType = isLeader ? "Leaders" : "Laggards";
+
+            // Build the query with dynamic history_type
             string sqlQuery = $@"
-        SET ARITHABORT ON;
-        SELECT TOP (@TopN) * FROM pasarmodal.market_driven_ape_growth
-        WHERE history_type = 'daily' AND periode = @Periode
-        {orderByClause}";
+SET ARITHABORT ON;
+SELECT TOP (@TopN) 
+    security_code,
+    security_name,
+    ISNULL(volume, 0) as volume,
+    ISNULL(turnover, 0) as turnover,
+    ISNULL(freq, 0) as freq,
+    ISNULL(net_value, 0) as net_value,
+    ISNULL(net_volume, 0) as net_volume,
+    ISNULL(point, 0) as point,
+    ISNULL(price, 0) as price,
+    ISNULL(changeprice, 0) as changeprice,
+    ISNULL(highvalue, 0) as highvalue,
+    ISNULL(lowvalue, 0) as lowvalue
+FROM BDAPM.pasarmodal.market_driven_ape_growth
+WHERE history_type = @HistoryType AND periode = @Periode
+{orderByClause}";
 
             string connString = db.appSettings.DataConnString;
+
             try
             {
                 using (SqlConnection conn = new SqlConnection(connString))
@@ -1145,43 +1181,126 @@ namespace BDA.Helper
                         cmd.CommandTimeout = 300;
                         cmd.Parameters.AddWithValue("@Periode", selectedDate);
                         cmd.Parameters.AddWithValue("@TopN", topN);
+                        cmd.Parameters.AddWithValue("@HistoryType", historyType);
 
                         conn.Open();
                         DataTable dt = new DataTable();
                         new SqlDataAdapter(cmd).Fill(dt);
 
-                        // Map the results to the ViewModel list
+                        // Map the results to the ViewModel list with null checks
                         foreach (DataRow row in dt.Rows)
                         {
                             list.Add(new LeaderLaggardViewModel
                             {
-                                SecurityCode = row["security_code"] as string,
-                                SecurityName = row["security_name"] as string,
-                                Volume = row["volume"] != DBNull.Value ? Convert.ToInt64(row["volume"]) : 0,
-                                Turnover = row["turnover"] != DBNull.Value ? Convert.ToDecimal(row["turnover"]) : 0,
-                                Freq = row["freq"] != DBNull.Value ? Convert.ToInt32(row["freq"]) : 0,
-                                NetValue = row["net_value"] != DBNull.Value ? Convert.ToDecimal(row["net_value"]) : 0,
-                                NetVolume = row["net_volume"] != DBNull.Value ? Convert.ToDecimal(row["net_volume"]) : 0,
-                                Point = row["point"] != DBNull.Value ? Convert.ToDecimal(row["point"]) : 0,
-                                Price = row["price"] != DBNull.Value ? Convert.ToDecimal(row["price"]) : 0,
-                                ChangePercentage = row["changeprice"] != DBNull.Value ? Convert.ToDecimal(row["changeprice"]) : 0,
-                                MaxPrice = row["highvalue"] != DBNull.Value ? Convert.ToDecimal(row["highvalue"]) : 0,
-                                MinPrice = row["lowvalue"] != DBNull.Value ? Convert.ToDecimal(row["lowvalue"]) : 0
+                                SecurityCode = row["security_code"]?.ToString() ?? "",
+                                SecurityName = row["security_name"]?.ToString() ?? "",
+                                Volume = Convert.ToInt64(row["volume"] ?? 0),
+                                Turnover = Convert.ToDecimal(row["turnover"] ?? 0),
+                                Freq = Convert.ToInt32(row["freq"] ?? 0),
+                                NetValue = Convert.ToDecimal(row["net_value"] ?? 0),
+                                NetVolume = Convert.ToDecimal(row["net_volume"] ?? 0),
+                                Point = Convert.ToDecimal(row["point"] ?? 0),
+                                Price = Convert.ToDecimal(row["price"] ?? 0),
+                                ChangePercentage = Convert.ToDecimal(row["changeprice"] ?? 0),
+                                MaxPrice = Convert.ToDecimal(row["highvalue"] ?? 0),
+                                MinPrice = Convert.ToDecimal(row["lowvalue"] ?? 0)
                             });
                         }
                     }
                 }
             }
+            catch (SqlException sqlEx)
+            {
+                System.Diagnostics.Debug.WriteLine($"SQL Error in Get{queryType}: {sqlEx.Message}");
+                System.Diagnostics.Debug.WriteLine($"SQL Query: {sqlQuery}");
+                throw new ApplicationException($"Database error while retrieving {queryType.ToLower()} data for {periodType} period", sqlEx);
+            }
             catch (Exception ex)
             {
-                // Handle or log the error
-                System.Diagnostics.Debug.WriteLine("DATABASE ERROR: " + ex.Message);
+                System.Diagnostics.Debug.WriteLine($"General Error in Get{queryType}: {ex.Message}");
+                throw new ApplicationException($"Error while retrieving {queryType.ToLower()} data for {periodType} period", ex);
             }
+
             return list;
         }
 
-        // Replace the GetSTPBalanceData method in your WSQueryPS class with this corrected version
+        public static List<LeaderLaggardViewModel> GetLeadersOrLaggardsCustomDate(
+    DataEntities db, string startDate, string endDate, int topN, bool isLeader)
+        {
+            var list = new List<LeaderLaggardViewModel>();
+            string orderByClause = isLeader ? "point DESC" : "point ASC";
+            string sqlQuery = $@"
+WITH Aggregated AS (
+    SELECT
+        security_code,
+        MAX(security_name) as security_name,
+        SUM(volume) as volume,
+        AVG(turnover) as turnover,
+        SUM(freq) as freq,
+        SUM(net_value) as net_value,
+        SUM(net_volume) as net_volume,
+        AVG(point) as point,
+        MAX(CASE WHEN periode = @EndDate THEN price ELSE NULL END) as price,
+        MAX(CASE WHEN periode = @EndDate THEN price ELSE NULL END) as price_end,
+        MIN(CASE WHEN periode = @StartDate THEN price ELSE NULL END) as price_start,
+        ((MAX(CASE WHEN periode = @EndDate THEN price ELSE NULL END) - MIN(CASE WHEN periode = @StartDate THEN price ELSE NULL END)) * 100.0 / NULLIF(MIN(CASE WHEN periode = @StartDate THEN price ELSE NULL END),0)) as ChangePercentage,
+        MAX(highvalue) as MaxPrice,
+        MIN(lowvalue) as MinPrice
+    FROM BDAPM.pasarmodal.market_driven_ape_growth
+    WHERE history_type = 'daily'
+      AND periode BETWEEN @StartDate AND @EndDate
+    GROUP BY security_code
+)
+SELECT TOP (@TopN)
+    security_code,
+    security_name,
+    volume,
+    turnover,
+    freq,
+    net_value,
+    net_volume,
+    point,
+    price,
+    ChangePercentage,
+    MaxPrice,
+    MinPrice
+FROM Aggregated
+ORDER BY {orderByClause};
+";
 
+            using (SqlConnection conn = new SqlConnection(db.appSettings.DataConnString))
+            using (SqlCommand cmd = new SqlCommand(sqlQuery, conn))
+            {
+                cmd.CommandTimeout = 300;
+                cmd.Parameters.AddWithValue("@StartDate", startDate);
+                cmd.Parameters.AddWithValue("@EndDate", endDate);
+                cmd.Parameters.AddWithValue("@TopN", topN);
+
+                conn.Open();
+                DataTable dt = new DataTable();
+                new SqlDataAdapter(cmd).Fill(dt);
+
+                foreach (DataRow row in dt.Rows)
+                {
+                    list.Add(new LeaderLaggardViewModel
+                    {
+                        SecurityCode = row["security_code"]?.ToString() ?? "",
+                        SecurityName = row["security_name"]?.ToString() ?? "",
+                        Volume = row["volume"] == DBNull.Value ? 0 : Convert.ToInt64(row["volume"]),
+                        Turnover = row["turnover"] == DBNull.Value ? 0 : Convert.ToDecimal(row["turnover"]),
+                        Freq = row["freq"] == DBNull.Value ? 0 : Convert.ToInt32(row["freq"]),
+                        NetValue = row["net_value"] == DBNull.Value ? 0 : Convert.ToDecimal(row["net_value"]),
+                        NetVolume = row["net_volume"] == DBNull.Value ? 0 : Convert.ToDecimal(row["net_volume"]),
+                        Point = row["point"] == DBNull.Value ? 0 : Convert.ToDecimal(row["point"]),
+                        Price = row["price"] == DBNull.Value ? 0 : Convert.ToDecimal(row["price"]),
+                        ChangePercentage = row["ChangePercentage"] == DBNull.Value ? 0 : Convert.ToDecimal(row["ChangePercentage"]),
+                        MaxPrice = row["MaxPrice"] == DBNull.Value ? 0 : Convert.ToDecimal(row["MaxPrice"]),
+                        MinPrice = row["MinPrice"] == DBNull.Value ? 0 : Convert.ToDecimal(row["MinPrice"])
+                    });
+                }
+            }
+            return list;
+        }
         public static WSQueryReturns GetSTPBalanceData(DataEntities db, DataSourceLoadOptions loadOptions,
     string startDate, string endDate, string SID, string Efek)
         {
