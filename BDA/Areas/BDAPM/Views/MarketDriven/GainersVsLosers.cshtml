@@ -165,65 +165,182 @@
 
 
 
+
 <script>
     window.jsPDF = window.jspdf.jsPDF;
     applyPlugin(window.jsPDF);
-</script>
 
+    // Define all functions in global scope
+    window.onButtonFilterClicked = function () {
+        console.log("onButtonFilterClicked triggered!");
 
-    <script>
-        function onButtonFilterClicked() {
-            var selectedDate = getFormattedDate();
+        try {
+            var periodType = $("#Periodid").dxSelectBox("instance").option("value");
+            console.log("Period Type:", periodType);
+
+            var selectedDate = null;
+            var endDate = null;
+
+            // For Custom Date, we need both start and end date
+            if (periodType === "Custom Date") {
+                var startDateValue = $("#StartDateID").dxDateBox("instance").option("value");
+                var endDateValue = $("#EndDateID").dxDateBox("instance").option("value");
+                selectedDate = window.formatDateYYYYMMDD(startDateValue);
+                endDate = window.formatDateYYYYMMDD(endDateValue);
+                console.log("Custom period start date:", startDateValue, selectedDate);
+                console.log("Custom period end date:", endDateValue, endDate);
+
+                if (!selectedDate || !endDate) {
+                    DevExpress.ui.notify("Please select both start and end date.", "warning", 3000);
+                    return;
+                }
+                if (selectedDate > endDate) {
+                    DevExpress.ui.notify("Start date cannot be after end date.", "warning", 3000);
+                    return;
+                }
+            } else {
+                selectedDate = window.getFormattedDateByPeriod(periodType);
+            }
+
             var topN = $("#ItemsPerPageSelectBox").dxSelectBox("instance").option("value");
+            console.log("Top N:", topN);
 
-            if (!selectedDate) {
-                alert("Please select a period.");
+            // Validate inputs
+            if (!periodType) {
+                DevExpress.ui.notify("Please select a period type.", "warning", 3000);
                 return;
             }
 
-            $('#gainerLoserContent').html('<p>Loading data, please wait...</p>');
+            if (!selectedDate) {
+                DevExpress.ui.notify("Please select a valid date.", "warning", 3000);
+                return;
+            }
+
+            // Convert topN to number, default to 10
+            var topCount = topN === "All" ? 500 : (parseInt(topN) || 10);
+
+            // Show loading indicator
+            showLoadingIndicator();
+
+            var ajaxData = {
+                selectedDate: selectedDate,
+                topN: topCount,
+                periodType: periodType
+            };
+            if (periodType === "Custom Date") {
+                ajaxData.endDate = endDate;
+            }
 
             $.ajax({
                 url: '@Url.Action("_GetGainersAndLosersData", "MarketDriven")',
                 type: 'POST',
-                data: {
-                    selectedDate: selectedDate,
-                    topN: topN
-                },
+                data: ajaxData,
                 success: function (responseHtml) {
-                    // 'responseHtml' is now the complete HTML from your partial view.
-                    // Just place it directly into your placeholder div.
+                    console.log("AJAX Success");
                     $('#gainerLoserContent').html(responseHtml);
+                    hideLoadingIndicator();
+                    DevExpress.ui.notify("Data loaded successfully.", "success", 2000);
                 },
-                error: function () {
-                    $('#gainerLoserContent').html('<p class="text-danger">An error occurred while loading data.</p>');
+                error: function (xhr, status, error) {
+                    console.error('AJAX Error:', error);
+                    console.error('Status:', status);
+                    console.error('Response:', xhr.responseText);
+
+                    hideLoadingIndicator();
+
+                    var errorMessage = 'An error occurred while loading data.';
+                    if (xhr.responseText) {
+                        try {
+                            var errorData = JSON.parse(xhr.responseText);
+                            errorMessage = errorData.message || errorMessage;
+                        } catch (e) {
+                            errorMessage = xhr.responseText.substring(0, 200) + '...';
+                        }
+                    }
+
+                    $('#gainerLoserContent').html(`
+                            <div class="alert alert-danger">
+                                <i class="fa fa-exclamation-triangle"></i> ${errorMessage}
+                                <br><small>Error Code: ${xhr.status}</small>
+                            </div>
+                        `);
+
+                    DevExpress.ui.notify(errorMessage, "error", 5000);
                 }
             });
+        } catch (e) {
+            console.error("Error in onButtonFilterClicked:", e);
+            alert("Error: " + e.message);
         }
+    };
 
-        // Helper function to get the date in yyyymmdd format
-        function getFormattedDate() {
-            var dateBox = $("#DatepickdID").dxDateBox("instance");
-            var dateValue = dateBox.option("value");
-            if (!dateValue) return null;
+    window.getFormattedDateByPeriod = function (periodType) {
+        console.log("getFormattedDateByPeriod called with:", periodType);
 
-            var year = dateValue.getFullYear();
-            var month = ('0' + (dateValue.getMonth() + 1)).slice(-2);
-            var day = ('0' + dateValue.getDate()).slice(-2);
-            return year + month + day;
+        var dateValue = null;
+
+        try {
+            switch (periodType) {
+                case "Daily":
+                    dateValue = $("#DatepickdID").dxDateBox("instance").option("value");
+                    console.log("Daily date value:", dateValue);
+                    return window.formatDateYYYYMMDD(dateValue);
+
+                case "Monthly":
+                    dateValue = $("#DatepickmID").dxDateBox("instance").option("value");
+                    console.log("Monthly date value:", dateValue);
+                    return window.formatDateYYYYMM(dateValue);
+
+                default:
+                    // For custom, use separate logic in onButtonFilterClicked
+                    console.log("Unknown or Custom period type:", periodType);
+                    return null;
+            }
+        } catch (e) {
+            console.error("Error in getFormattedDateByPeriod:", e);
+            return null;
         }
+    };
 
-        // You can now DELETE the old 'buildListHtml' JavaScript function,
-        // as the server is building the HTML now.
-    </script>
+    // Utility: Format JS Date to YYYYMMDD
+    window.formatDateYYYYMMDD = function (dateValue) {
+        if (!dateValue) return null;
+        var year = dateValue.getFullYear();
+        var month = ('0' + (dateValue.getMonth() + 1)).slice(-2);
+        var day = ('0' + dateValue.getDate()).slice(-2);
+        return year + month + day;
+    };
 
+    // Utility: Format JS Date to YYYYMM
+    window.formatDateYYYYMM = function (dateValue) {
+        if (!dateValue) return null;
+        var year = dateValue.getFullYear();
+        var month = ('0' + (dateValue.getMonth() + 1)).slice(-2);
+        return year + month;
+    };
 
-<script>
-    function onPeriodChanged(e) {
+    window.showLoadingIndicator = function () {
+        $('#gainerLoserContent').html(`
+                <div class="text-center p-5">
+                    <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                    <h5 class="text-muted">Loading Gainers & Losers Data</h5>
+                    <p class="text-muted">Please wait...</p>
+                </div>
+            `);
+    };
+
+    window.hideLoadingIndicator = function () {
+        // Loading indicator will be replaced by the actual content
+    };
+
+    window.onPeriodChanged = function (e) {
+        console.log("onPeriodChanged called with:", e.value);
+
         const selectedValue = e.value;
         const datepickdayDiv = document.getElementById("datepickday");
         const datepickmonthDiv = document.getElementById("datepickmonth");
-        const asingDiv = document.getElementById("asingDiv");
         const starttimeDiv = document.getElementById("starttime")
         const endtimeDiv = document.getElementById("endtime")
         const startdateDiv = document.getElementById("startdate")
@@ -236,7 +353,6 @@
             datepickmonthDiv.style.display = "none";
             startdateDiv.style.display = "none";
             enddateDiv.style.display = "none";
-
         } else if (selectedValue === "Monthly") {
             datepickmonthDiv.style.display = "block";
             starttimeDiv.style.display = "none";
@@ -252,18 +368,63 @@
             startdateDiv.style.display = "block";
             enddateDiv.style.display = "block";
         }
+    };
+
+    // Alternative global function definitions for DevExtreme compatibility
+    function onButtonFilterClicked() {
+        window.onButtonFilterClicked();
+    }
+
+    function getFormattedDateByPeriod(periodType) {
+        return window.getFormattedDateByPeriod(periodType);
+    }
+
+    function showLoadingIndicator() {
+        window.showLoadingIndicator();
+    }
+
+    function hideLoadingIndicator() {
+        window.hideLoadingIndicator();
+    }
+
+    function onPeriodChanged(e) {
+        window.onPeriodChanged(e);
     }
 
     $(document).ready(function () {
-        // Hide the confirmation and asing divs initially
-        document.getElementById("starttime").style.display = "none";
-        document.getElementById("endtime").style.display = "none";
-        document.getElementById("datepickday").style.display = "none";
-        document.getElementById("datepickmonth").style.display = "none";
-        document.getElementById("startdate").style.display = "none";
-        document.getElementById("enddate").style.display = "none";
+        console.log("Document ready - initializing...");
+
+        try {
+            // Hide all date divs initially
+            document.getElementById("starttime").style.display = "none";
+            document.getElementById("endtime").style.display = "none";
+            document.getElementById("datepickday").style.display = "none";
+            document.getElementById("datepickmonth").style.display = "none";
+            document.getElementById("startdate").style.display = "none";
+            document.getElementById("enddate").style.display = "none";
+
+            // Set default values (wait for DevExtreme to initialize)
+            setTimeout(function () {
+                try {
+                    $("#Periodid").dxSelectBox("instance").option("value", "Daily");
+                    $("#ItemsPerPageSelectBox").dxSelectBox("instance").option("value", "10");
+                    $("#DatepickdID").dxDateBox("instance").option("value", new Date());
+
+                    // Trigger the period change to show the correct date picker
+                    onPeriodChanged({ value: "Daily" });
+
+                    console.log("Initialization complete");
+                } catch (e) {
+                    console.error("Error in delayed initialization:", e);
+                }
+            }, 500);
+
+        } catch (e) {
+            console.error("Error in document ready:", e);
+        }
     });
 
+    // Keep all your existing functions below this line
     $(function () {
         const startDate = $("#PeriodeAwal").dxDateBox({
             onValueChanged: function (e) {
@@ -309,14 +470,11 @@
                 type: "POST",
                 success: function (data) {
                     if (data.success == true) {
-                        //alert(data.message);
-    @* waitingDialog.hide(); *@
-                            $('#ModalSimpanPenggunaanData').modal('hide');
+                        $('#ModalSimpanPenggunaanData').modal('hide');
                         return "Saving Success !";
                     }
                     else if (data.success == false) {
-    @*  waitingDialog.hide(); *@
-                            alert(data.message);
+                        alert(data.message);
                         $('#ModalSimpanPenggunaanData').modal('hide');
                         return "Saving Failed !";
                     }
@@ -339,13 +497,10 @@
                     var dataGrid = $("#grid1").dxDataGrid("instance");
                     var fileName = "MaxMinOverdue_" + new Date().toISOString().slice(0, 10) + ".pdf";
                     doc.setFontSize("6")
-                    //var keys = $("#grid1").dxDataGrid("getSelectedRowsData")
-                    //console.log(keys)
                     DevExpress.pdfExporter.exportDataGrid({
                         jsPDFDocument: doc,
                         component: dataGrid,
                         keepColumnWidths: true
-                        //selectedRowsOnly: true
                     }).then(function () {
                         doc.save(fileName);
                     });
@@ -377,11 +532,9 @@
 
     function onSelectionChanged(e) {
         if (e.addedItems.length > 0) {
-            e.component.field().val(""); // Clears the search text. However, search filter is only applied to the widget after focus is lost in the input element
+            e.component.field().val("");
         }
     }
-
-  
 
     function onLJKOpened(e) {
         e.component.content().find('.dx-list-select-all').hide();
@@ -395,8 +548,6 @@
     }
 
     var waitingDialog = (function ($) {
-
-        // Creating modal dialog's DOM
         var $dialog = $(
             '<div class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">' +
             '<div class="modal-dialog modal-m">' +
@@ -409,7 +560,6 @@
 
         return {
             show: function (message, options) {
-                // Assigning defaults
                 var settings = $.extend({
                     dialogSize: 'm',
                     progressType: ''
@@ -420,19 +570,14 @@
                 if (typeof options === 'undefined') {
                     options = {};
                 }
-                // Configuring dialog
                 $dialog.find('.modal-dialog').attr('class', 'modal-dialog').addClass('modal-' + settings.dialogSize);
                 $dialog.find('.progress-bar').attr('class', 'progress-bar');
                 if (settings.progressType) {
                     $dialog.find('.progress-bar').addClass('progress-bar-' + settings.progressType);
                 }
                 $dialog.find('h3').text(message);
-                // Opening dialog
                 $dialog.modal();
             },
-            /**
-                * Closes dialog
-                */
             hide: function () {
                 $dialog.modal('hide');
             }
