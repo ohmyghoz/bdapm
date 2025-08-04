@@ -14,6 +14,7 @@ using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Core.Objects;
 using System.Linq;
 
+
 public partial class DataEntities : DbContext
 {
     public DataEntities()
@@ -23,7 +24,7 @@ public partial class DataEntities : DbContext
 
     protected override void OnModelCreating(DbModelBuilder modelBuilder)
     {
-        throw new UnintentionalCodeFirstException();
+            throw new UnintentionalCodeFirstException();
     }
 
     public virtual DbSet<Alert_Master> Alert_Master { get; set; }
@@ -159,23 +160,27 @@ public partial class DataEntities : DbContext
     public virtual DbSet<vw_PeriodTableHive> vw_PeriodTableHive { get; set; }
     public virtual DbSet<vw_RefDeskripsiKategori> vw_RefDeskripsiKategori { get; set; }
     public virtual DbSet<vw_TableDictionary> vw_TableDictionary { get; set; }
-
+    public virtual DbSet<DimDataPm> DimDataPms { get; set; }
+    public virtual DbSet<DimIoProc> DimIoProcs { get; set; }
+    public virtual DbSet<DimJobProc> DimJobProcs { get; set; }
+    public virtual DbSet<DimMasterJob> DimMasterJobs { get; set; }
+    public virtual DbSet<FctLogProcess> FctLogProcesses { get; set; }
     public virtual ObjectResult<FW_userPermission_Result> FW_userPermission(string user_id, string mod_kode, string role_name)
-    {
-        var user_idParameter = user_id != null ?
-            new ObjectParameter("user_id", user_id) :
-            new ObjectParameter("user_id", typeof(string));
+{
+    var user_idParameter = user_id != null ?
+        new ObjectParameter("user_id", user_id) :
+        new ObjectParameter("user_id", typeof(string));
 
-        var mod_kodeParameter = mod_kode != null ?
-            new ObjectParameter("mod_kode", mod_kode) :
-            new ObjectParameter("mod_kode", typeof(string));
+    var mod_kodeParameter = mod_kode != null ?
+        new ObjectParameter("mod_kode", mod_kode) :
+        new ObjectParameter("mod_kode", typeof(string));
 
-        var role_nameParameter = role_name != null ?
-            new ObjectParameter("role_name", role_name) :
-            new ObjectParameter("role_name", typeof(string));
+    var role_nameParameter = role_name != null ?
+        new ObjectParameter("role_name", role_name) :
+        new ObjectParameter("role_name", typeof(string));
 
-        return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<FW_userPermission_Result>("FW_userPermission", user_idParameter, mod_kodeParameter, role_nameParameter);
-    }
+    return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<FW_userPermission_Result>("FW_userPermission", user_idParameter, mod_kodeParameter, role_nameParameter);
+}
 
     public virtual ObjectResult<PrintLongString_Result> PrintLongString(string str)
     {
