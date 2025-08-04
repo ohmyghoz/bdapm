@@ -6767,7 +6767,7 @@ namespace BDA.Helper
                 if (tableName == "mrkt_mnpltn_prtn_rcgntn")
                 {
                     props.Query = @"
-                        SELECT sourcetradeid from pasarmodal." + tableName + @"
+                        SELECT distinct sourcetradeid from pasarmodal." + tableName + @"
                         WHERE " + whereQuery + @" 
                         group by sourcetradeid";
                 }
@@ -6807,8 +6807,8 @@ namespace BDA.Helper
                 if (tableName == "mrkt_mnpltn_prtn_rcgntn")
                 {
                     props.Query = @"
-                        SELECT bondissuertypecode from pasarmodal." + tableName + @"
-                        WHERE " + whereQuery + @" 
+                        SELECT distinct bondissuertypecode from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @"
                         group by bondissuertypecode";
                 }
             }
@@ -6817,7 +6817,7 @@ namespace BDA.Helper
                 if (tableName == "mrkt_mnpltn_prtn_rcgntn")
                 {
                     props.Query = @"
-                        SELECT bondissuertypecode from pasarmodal." + tableName + @"
+                        SELECT distinct bondissuertypecode from pasarmodal." + tableName + @"
                         WHERE " + whereQuery + @"
                         group by bondissuertypecode";
                 }
@@ -6847,7 +6847,7 @@ namespace BDA.Helper
                 if (tableName == "mrkt_mnpltn_prtn_rcgntn")
                 {
                     props.Query = @"
-                        SELECT sourcename from pasarmodal." + tableName + @"
+                        SELECT distinct sourcename from pasarmodal." + tableName + @"
                         WHERE " + whereQuery + @" 
                         group by sourcename";
                 }
@@ -6857,7 +6857,7 @@ namespace BDA.Helper
                 if (tableName == "mrkt_mnpltn_prtn_rcgntn")
                 {
                     props.Query = @"
-                        SELECT sourcename from pasarmodal." + tableName + @"
+                        SELECT distinct sourcename from pasarmodal." + tableName + @"
                         WHERE " + whereQuery + @"
                         group by sourcename";
                 }
@@ -6887,7 +6887,7 @@ namespace BDA.Helper
                 if (tableName == "mrkt_mnpltn_prtn_rcgntn")
                 {
                     props.Query = @"
-                        SELECT targetname from pasarmodal." + tableName + @"
+                        SELECT distinct targetname from pasarmodal." + tableName + @"
                         WHERE " + whereQuery + @" 
                         group by targetname";
                 }
@@ -6897,7 +6897,7 @@ namespace BDA.Helper
                 if (tableName == "mrkt_mnpltn_prtn_rcgntn")
                 {
                     props.Query = @"
-                        SELECT targetname from pasarmodal." + tableName + @"
+                        SELECT distinct targetname from pasarmodal." + tableName + @"
                         WHERE " + whereQuery + @"
                         group by targetname";
                 }
@@ -6927,7 +6927,7 @@ namespace BDA.Helper
                 if (tableName == "mrkt_mnpltn_prtn_rcgntn")
                 {
                     props.Query = @"
-                        SELECT reporttypecode from pasarmodal." + tableName + @"
+                        SELECT distinct reporttypecode from pasarmodal." + tableName + @"
                         WHERE " + whereQuery + @" 
                         group by reporttypecode";
                 }
@@ -6937,7 +6937,7 @@ namespace BDA.Helper
                 if (tableName == "mrkt_mnpltn_prtn_rcgntn")
                 {
                     props.Query = @"
-                        SELECT reporttypecode from pasarmodal." + tableName + @"
+                        SELECT distinct reporttypecode from pasarmodal." + tableName + @"
                         WHERE " + whereQuery + @"
                         group by reporttypecode";
                 }
@@ -6967,7 +6967,7 @@ namespace BDA.Helper
                 if (tableName == "mrkt_mnpltn_prtn_rcgntn")
                 {
                     props.Query = @"
-                        SELECT bondreportstatuscode from pasarmodal." + tableName + @"
+                        SELECT distinct bondreportstatuscode from pasarmodal." + tableName + @"
                         WHERE " + whereQuery + @" 
                         group by bondreportstatuscode";
                 }
@@ -6977,7 +6977,7 @@ namespace BDA.Helper
                 if (tableName == "mrkt_mnpltn_prtn_rcgntn")
                 {
                     props.Query = @"
-                        SELECT bondreportstatuscode from pasarmodal." + tableName + @"
+                        SELECT distinct bondreportstatuscode from pasarmodal." + tableName + @"
                         WHERE " + whereQuery + @"
                         group by bondreportstatuscode";
                 }
@@ -7007,7 +7007,7 @@ namespace BDA.Helper
                 if (tableName == "mrkt_mnpltn_prtn_rcgntn")
                 {
                     props.Query = @"
-                        SELECT bondreportstatuscode from pasarmodal." + tableName + @"
+                        SELECT distinct bondreportstatuscode from pasarmodal." + tableName + @"
                         WHERE " + whereQuery + @" 
                         group by bondreportstatuscode";
                 }
@@ -7017,7 +7017,7 @@ namespace BDA.Helper
                 if (tableName == "mrkt_mnpltn_prtn_rcgntn")
                 {
                     props.Query = @"
-                        SELECT bondreportstatuscode from pasarmodal." + tableName + @"
+                        SELECT distinct bondreportstatuscode from pasarmodal." + tableName + @"
                         WHERE " + whereQuery + @"
                         group by bondreportstatuscode";
                 }

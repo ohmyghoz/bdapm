@@ -24,6 +24,11 @@ public partial class DataEntities : DbContext
 
     protected override void OnModelCreating(DbModelBuilder modelBuilder)
     {
+            modelBuilder.Entity<DimDataPm>().ToTable("dim_data_pm");
+            modelBuilder.Entity<DimIoProc>().ToTable("dim_io_proc");
+            modelBuilder.Entity<DimJobProc>().ToTable("dim_job_proc");
+            modelBuilder.Entity<DimMasterJob>().ToTable("dim_master_job");
+            modelBuilder.Entity<FctLogProcess>().ToTable("fct_log_process");
             throw new UnintentionalCodeFirstException();
     }
 
