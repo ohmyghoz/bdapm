@@ -29,6 +29,11 @@ public partial class AuditTrail
     public string AuditJson { get; set; }
     public string AuditErrMsg { get; set; }
     public string AuditMenu { get; set; }
-}
+    public string AuditSatker { get; set; }
+    public string AuditNip { get; set; }
+    public string AuditDataIn { get; set; }
+    public string AuditDataOut { get; set; }
+    public string AuditDesc { get; set; }
+    }
 
 }
