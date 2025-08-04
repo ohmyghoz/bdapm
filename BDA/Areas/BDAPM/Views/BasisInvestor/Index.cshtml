@@ -43,7 +43,7 @@
             <div class="card-body">
                 <div class="row">
                     <div class="form-group ml-3">
-                        <input type="button" id="btnBasisInvestor" class="btn btn-danger" value="Basis Investor" onclick="location.href='@Url.Action("/", "BasisInvestor")'" />
+                        <input type="button" id="btnBasisInvestor" class="btn btn-danger" value="Basis Investor" onclick="location.href='@Url.Action("Index","BasisInvestor")'" />
                     </div>&nbsp;&nbsp;
                     <div class="form-group">
 @*                         <input type="button" id="btnDetailBI" class="btn btn-danger" value="Detail Basis Investor" onclick="location.href='@Url.Action("Detail", "BasisInvestor")'" /> *@
@@ -67,7 +67,7 @@
                     </div>
 
                     <div class="col-lg-2 form-group">
-                        <label>PE<span class="mandatory">*</span></label>
+                        <label>Nama PE<span class="mandatory">*</span></label>
                         @(Html.DevExtreme().SelectBox()
                             .ID("namaPEid")
                             .DataSource(d => d.Mvc()
@@ -249,9 +249,9 @@
                         Presentase By Segment <span id="tooltipGraph" class="fa fa-info-circle info-icon float-right" data-toggle="tooltip" data-placement="auto" data-html="true" title="<p><b>Investor Total Value adalah nilai tengah atau median dari keseluruhan nasabah yang termasuk kategori nasabah tersebut (bukan melainkan total transaksi secara keseluruhan)</b></p>"></span>
                     </div>
 
-                    <div class="card-body pt-0 pb-0 clickChart">
-                        <div class="row">
-                            <div class="col-4 pr-0">
+                    <div class="card-body pt-0 pb-0 clickChart" style="max-height: 100%; overflow: hidden;">
+                        <div class="row" style="display: flex; flex-wrap: nowrap; height: 100%">
+                            <div class="col-4 pr-0" style="min-width: 120px;">
                                 <div class="row">
                                     <div class="col-12 text-left text-nowrap mx-auto pt-12 pb-2"><small>% Transaction Freq</small></div>
                                     <br /><br />
@@ -307,7 +307,7 @@
                                 </div>
 
                             </div>
-                            <div class="col-8 pl-0">
+                            <div class="col-8 pl-0" style="overflow-y: auto; overflow-x: hidden;">
                                 <div id="chartContainer1" class="h-100">BARCHART</div>
                             </div>
                         </div>
@@ -351,7 +351,7 @@
                 </div>
 
                 <div class="row mx-auto">
-                    <div class="col-xl-2">
+                    <div class="col-xl-4">
                         @{
                             var chrtFilter = new[] {
                     new { Text = "Jumlah SID", Value = 1 },
@@ -369,8 +369,6 @@
                             .Width(150))
 
                     </div>
-
-                    <div class="col-xl-2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
 
                     <div class="col-xl-8">
 
@@ -527,7 +525,7 @@
                 type: "donut",
                 label: {
                     visible: true,
-                    position: "inside",
+                    position: "column",
                     backgroundColor: "none",
                     font: {
                         color: "#000000",
@@ -573,7 +571,7 @@
                 type: "donut",
                 label: {
                     visible: true,
-                    position: "inside",
+                    position: "column",
                     backgroundColor: "none",
                     font: {
                         color: "#000000",
@@ -619,7 +617,7 @@
                 type: "donut",
                 label: {
                     visible: true,
-                    position: "inside",
+                    position: "column",
                     backgroundColor: "none",
                     font: {
                         color: "#000000",
@@ -661,7 +659,7 @@
                 type: "donut",
                 label: {
                     visible: true,
-                    position: "inside",
+                    position: "column",
                     backgroundColor: "none",
                     font: {
                         color: "#000000",
@@ -715,7 +713,7 @@
                 type: "donut",
                 label: {
                     visible: true,
-                    position: "inside",
+                    position: "column",
                     backgroundColor: "none",
                     font: {
                         color: "#000000",
@@ -769,7 +767,7 @@
                 type: "donut",
                 label: {
                     visible: true,
-                    position: "inside",
+                    position: "column",
                     backgroundColor: "none",
                     font: {
                         color: "#000000",

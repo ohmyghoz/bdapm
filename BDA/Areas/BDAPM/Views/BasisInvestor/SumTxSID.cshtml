@@ -24,10 +24,10 @@
             <div class="card-body">
                 <div class="row">
                     <div class="form-group ml-3">
-                        <input type="button" id="btnBasisInvestor" class="btn btn-danger" value="Basis Investor" onclick="location.href='@Url.Action("/", "BasisInvestor")'" />
+                        <input type="button" id="btnBasisInvestor" class="btn btn-danger" value="Basis Investor" onclick="location.href='@Url.Action("Index", "BasisInvestor")'" />
                     </div>&nbsp;&nbsp;
                     <div class="form-group">
-                        <input type="button" id="btnDetailBI" class="btn btn-danger" value="Detail Basis Investor" onclick="location.href='@Url.Action("Detail", "BasisInvestor")?pe=' + '@ViewBag.pe' + '&periode=' + '@ViewBag.periode')" />
+                        <input type="button" id="btnDetailBI" class="btn btn-danger" value="Detail Basis Investor" onclick="location.href='@Url.Action("Detail", "BasisInvestor")?pe=@ViewBag.pe&periode=@ViewBag.periode'" />
                     </div>&nbsp;&nbsp;
                     <div class="form-group">
                         <input type="button" id="btnSumTxSID" class="btn btn-danger" value="Summary Transaction SID"  />

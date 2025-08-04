@@ -89,64 +89,64 @@
     }
     
     function redirDetail(e) {
-        kode = e.row.data.log_kode;
-        console.log(kode);
+        var kode = e.row.data.log_kode;
 
-        var data = [
-            { log_kode: "PS01", log_seq: 1, log_job: "Pengaliran Data", log_table_src: "MKBD10C", log_table_dst: "StagingMKBD", log_script: "data/ojk/mkbd" },
-            { log_kode: "PS01", log_seq: 2, log_job: "Clustering Data", log_table_src: "StagingMKBD", log_table_dst: "TempMKBD", log_script: "data/ojk/mkbd" },
-            { log_kode: "PS01", log_seq: 3, log_job: "Generate Detil Data", log_table_src: "TempMKBD", log_table_dst: "FactMKBD", log_script: "data/ojk/mkbd" },
-        ];
-
-
-        $("#popup").dxPopup({
-            visible: true,
-            title: "Detil",
-            showCloseButton: true,
-            height: 400,
-            contentTemplate: function (contentElement) {
-                const detailGrid = $("<div>").appendTo(contentElement);
-                detailGrid.dxDataGrid({
-                    dataSource: data,
-                    columns: [
-                        { dataField: "log_kode", caption: "Kode Job" },
-                        { dataField: "log_seq", caption: "Urutan Proses" },
-                        { dataField: "log_job", caption: "Nama Job" },
-                        { dataField: "log_table_src", caption: "Nama Tabel Sumber" },
-                        { dataField: "log_table_dst", caption: "Nama Tabel Target" },
-                        { dataField: "log_script", caption: "Lokasi Script" },
-                    ],
-                    showBorders: true
-                });
-            }
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("ExportPDF", "BasisInvestor")",
+            data: {paramID: kode},
+            dataType: "json",
+            type: "POST",
+        }).done(function (resp) {
+            $("#popup").dxPopup({
+                visible: true,
+                title: "Detil",
+                showCloseButton: true,
+                height: 400,
+                contentTemplate: function (contentElement) {
+                    const detailGrid = $("<div>").appendTo(contentElement);
+                    detailGrid.dxDataGrid({
+                        dataSource: resp,
+                        columns: [
+                            { dataField: "log_kode", caption: "Kode Job" },
+                            { dataField: "log_seq", caption: "Urutan Proses" },
+                            { dataField: "log_job", caption: "Nama Job" },
+                            { dataField: "log_table_src", caption: "Nama Tabel Sumber" },
+                            { dataField: "log_table_dst", caption: "Nama Tabel Target" },
+                            { dataField: "log_script", caption: "Lokasi Script" },
+                        ],
+                        showBorders: true
+                    });
+                }
+            });
         });
     }
 
     function redirDelete() {}
 
-    function gridOnBeforeSend(method, ajaxOptions) {
-        var tempstartDate = $("#startDate").dxDateBox("instance").option('value');
-        var tempendDate = $("#endDate").dxDateBox("instance").option('value');
-        var menu = $("#menu").dxDropDownBox("instance").option('text');
-        var startDate = null;
-        var endDate = null;
+    // function gridOnBeforeSend(method, ajaxOptions) {
+    //     var tempstartDate = $("#startDate").dxDateBox("instance").option('value');
+    //     var tempendDate = $("#endDate").dxDateBox("instance").option('value');
+    //     var menu = $("#menu").dxDropDownBox("instance").option('text');
+    //     var startDate = null;
+    //     var endDate = null;
 
-        if (tempstartDate > tempendDate) {
-            swal({ type: 'error', title: 'Validasi', text: 'Periksa Kembali Tanggal Inputan' });
-        }
+    //     if (tempstartDate > tempendDate) {
+    //         swal({ type: 'error', title: 'Validasi', text: 'Periksa Kembali Tanggal Inputan' });
+    //     }
 
-        if (tempstartDate != null) {
-            startDate = tempstartDate.getFullYear() + '-' + (tempstartDate.getMonth() + 1) + '-' + tempstartDate.getDate();
-        }
-        if (tempendDate != null) {
-            endDate = tempendDate.getFullYear() + '-' + (tempendDate.getMonth() + 1) + '-' + tempendDate.getDate();
-        }
+    //     if (tempstartDate != null) {
+    //         startDate = tempstartDate.getFullYear() + '-' + (tempstartDate.getMonth() + 1) + '-' + tempstartDate.getDate();
+    //     }
+    //     if (tempendDate != null) {
+    //         endDate = tempendDate.getFullYear() + '-' + (tempendDate.getMonth() + 1) + '-' + tempendDate.getDate();
+    //     }
 
-        ajaxOptions.data.paramMenu = menu?.toString();
-        ajaxOptions.data.paramStartDate = startDate;
-        ajaxOptions.data.paramEndDate = endDate;
+    //     ajaxOptions.data.paramMenu = menu?.toString();
+    //     ajaxOptions.data.paramStartDate = startDate;
+    //     ajaxOptions.data.paramEndDate = endDate;
 
-    }
+    // }
 </script>
 
 
@@ -170,15 +170,11 @@
 
         @(Html.DevExtreme().DataGrid()
             .ID("grid1")
-            .DataSource(@* d => d.Mvc()
+            .DataSource(d => d.Mvc()
             .Controller("MasterLog")
             .LoadAction("GetGridData")
-            .OnBeforeSend("gridOnBeforeSend")
-            .Key("AuditId") *@
-            new [] {
-                    new { log_no = 1, log_kode = "PS01", log_nama = "Summary Cluster MKBD", log_waktu = "02:00" },
-                    new { log_no = 2, log_kode = "PS02", log_nama = "Basis Investor", log_waktu = "04:00" }
-                }
+            //.OnBeforeSend("gridOnBeforeSend")
+            .Key("log_kode")
             )
             .RemoteOperations(true)
             .Export(e => e.AllowExportSelectedData(true).Texts(q => q.ExportTo("Ekspor")))
@@ -199,7 +195,6 @@
                                     .Icon("trash")
                                     .OnClick("redirDelete");
                             });
-                columns.Add().DataField("log_id").Visible(false);
             })
             .FilterRow(f => f.Visible(true))
             //.AllowColumnResizing(true)

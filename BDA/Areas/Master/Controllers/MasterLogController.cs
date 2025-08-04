@@ -67,13 +67,41 @@ namespace BDA.Areas.Master.Controllers
             return View();
         }
 
-        //public object GetGridData(DataSourceLoadOptions loadOptions)
-        //{
-        //    //List<dim_>
-        //    //return DataSourceLoader.Load(datas, loadOptions);
-           
+        public object GetGridData(DataSourceLoadOptions loadOptions)
+        {
+            List<LogMasterData> data = db.DimMasterJobs
+                                        .Select((item, index) => new LogMasterData
+                                        { 
+                                            log_no = index + 1,
+                                            log_kode = item.JobId,
+                                            log_nama = item.JobName,
+                                            log_waktu = item.Scheduler
+                                        }).ToList();
 
-        //}
+
+
+            return DataSourceLoader.Load(data, loadOptions);
+        }
+
+        public object GetGridDataDetails(DataSourceLoadOptions loadOptions, string paramID)
+        {
+            string id = paramID;
+            List<DimJobProc> datas = db.DimJobProcs.Where(x => x.JobId.Equals(id)).ToList();
+            List<LogMasterDataDetail> data = datas
+                                        .Select((item, index) => new LogMasterDataDetail
+                                        {
+                                            log_kode = item.JobId,
+                                            log_seq = item.SeqNo,
+                                            log_job = item.ProcName,
+                                            log_table_src = "",
+                                            log_table_dst = "",
+                                            log_script = item.ScriptLocation
+                                        }).ToList();
+
+
+
+            return DataSourceLoader.Load(datas, loadOptions);
+        }
 
         public IActionResult GetRefModul(DataSourceLoadOptions loadOptions)
         {

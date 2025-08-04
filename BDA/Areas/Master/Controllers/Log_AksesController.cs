@@ -95,8 +95,8 @@ namespace BDA.Areas.Master.Controllers
             }
 
             if (paramSatker != null) 
-            { 
-                
+            {
+                data = data.Where(x => x.AuditSatker.Equals(paramSatker)).ToList();
             }
 
             List<LogAksesData> datas = (from x in data
@@ -105,34 +105,18 @@ namespace BDA.Areas.Master.Controllers
                                            ID = x.AuditId.ToString(),
                                            AuditDate = x.AuditDate,
                                            AuditIpAddress = x.AuditIpAddress,
-                                           AuditNIP = "",
+                                           AuditNIP = x.AuditNip,
                                            AuditUser = x.AuditUser,
-                                           AuditSatker = "",
+                                           AuditSatker = x.AuditSatker,
                                            AuditCause = x.AuditCause,
                                            AuditMenu = x.AuditMenu,
                                            AuditUrl = x.AuditUrl,
-                                           AuditIn = "",
-                                           AuditOut = "",
-                                           AuditDesc = ""
+                                           AuditIn = x.AuditDataIn,
+                                           AuditOut = x.AuditDataOut,
+                                           AuditDesc = x.AuditDesc
                                        }).ToList();
 
             return DataSourceLoader.Load(datas, loadOptions);
-
-            //if (paramMenu != null)
-            //{
-            //    var query = from q in db.AuditTrail
-            //                where q.AuditDate >= startDate && q.AuditDate <= endDate && paramMenu.Contains(q.AuditMenu)
-            //                select new { q.AuditCause, q.AuditMenu, q.AuditDate, q.AuditDebtorName, q.AuditErrMsg, q.AuditId, q.AuditIpAddress, q.AuditUser, q.AuditPrevUrl, q.AuditUrl, q.AuditTipe };
-            //    return DataSourceLoader.Load(query.ToList(), loadOptions);
-            //}
-            //else
-            //{
-            //    var query = from q in db.AuditTrail
-            //                where q.AuditDate >= startDate && q.AuditDate <= endDate
-            //                select new { q.AuditCause, q.AuditMenu, q.AuditDate, q.AuditDebtorName, q.AuditErrMsg, q.AuditId, q.AuditIpAddress, q.AuditUser, q.AuditPrevUrl, q.AuditUrl, q.AuditTipe };
-            //    return DataSourceLoader.Load(query.ToList(), loadOptions);
-            //}
-            
         }
         
         public IActionResult GetRefModul(DataSourceLoadOptions loadOptions)
