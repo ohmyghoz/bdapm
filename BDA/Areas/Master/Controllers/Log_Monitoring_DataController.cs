@@ -86,6 +86,35 @@ namespace BDA.Areas.Master.Controllers
             return DataSourceLoader.Load(query, loadOptions);
         }
 
-     
+        public class LogMonData
+        {
+            public DateTime log_date { get; set; }
+            public string log_kode { get; set; }
+            public string log_nama { get; set; }
+            public string log_periode { get; set; }
+            public DateTime log_start { get; set; }
+            public DateTime log_end { get; set; }
+            public string log_total_waktu { get; set; }
+            public int log_delete_cnt { get; set; }
+            public int log_insert_cnt { get; set; }
+            public string log_status { get; set; }
+            public double log_percentage { get; set; }
+
+        }
+
+        public class LogMonDataDetail
+        {
+            public DateTime log_date { get; set; }
+            public string log_kode { get; set; }
+            public int log_seq { get; set; }
+            public string log_nama { get; set; }
+            public DateTime log_start { get; set; }
+            public DateTime log_end { get; set; }
+            public int log_delete_cnt { get; set; }
+            public int log_insert_cnt { get; set; }
+            public string log_status { get; set; }
+            public string log_desc { get; set; }
+        }
+
     }
 }

@@ -92,6 +92,8 @@
         var tempstartDate = $("#startDate").dxDateBox("instance").option('value');
         var tempendDate = $("#endDate").dxDateBox("instance").option('value');
         var menu = $("#menu").dxDropDownBox("instance").option('text');
+        var satker = $("#satker").dxTextBox("instance").option('value');
+        var userID = $("#userID").dxTextBox("instance").option('value');
         var startDate = null;
         var endDate = null;
 
@@ -107,6 +109,8 @@
         }
 
         ajaxOptions.data.paramMenu = menu?.toString();
+        ajaxOptions.data.paramSatker = satker?.toString();
+        ajaxOptions.data.paramUserID = userID?.toString();
         ajaxOptions.data.paramStartDate = startDate;
         ajaxOptions.data.paramEndDate = endDate;
 
@@ -134,17 +138,17 @@
                 </div>
                  <div class="col-lg-6 form-group">
                     <label>Satuan Kerja</label>
-                    @(Html.DevExtreme().SelectBox()
+                    @(Html.DevExtreme().TextBox()
                             .ID("satker")
                             .Name("satker")
-                            .Width("100%").Value("(ALL)"))
+                            .Width("100%"))
                 </div>
                  <div class="col-lg-6 form-group">
                     <label>User ID</label>
-                    @(Html.DevExtreme().SelectBox()
+                    @(Html.DevExtreme().TextBox()
                             .ID("userID")
                             .Name("userID")
-                            .Width("100%").Value("(ALL)"))
+                            .Width("100%"))
                 </div>
                 <div class="col-lg-6 form-group">
                     <label>Menu</label>
@@ -212,12 +216,12 @@
 
         @(Html.DevExtreme().DataGrid()
             .ID("grid1")
-            .DataSource(@* d => d.Mvc()
+            .DataSource(d => d.Mvc()
                 .Controller("Log_Akses")
                 .LoadAction("GetGridData")
                 .OnBeforeSend("gridOnBeforeSend")
-                .Key("AuditId") *@
-                new [] {
+                .Key("ID")
+                @* new [] {
                     new { AuditDate = "11 Mei 2025 22:21:20", AuditIpAddress = "127.0.0.1", AuditNIP = "01234",
                           AuditUser = "admin", AuditSatker = "DPDS", AuditCause = "LOGIN", AuditMenu = "Home", AuditUrl = "localhost/login",
                           AuditIn = "-", AuditOut = "-", AuditDesc = "" },
@@ -227,7 +231,7 @@
                     new { AuditDate = "11 Mei 2025 22:21:20", AuditIpAddress = "127.0.0.1", AuditNIP = "01234",
                           AuditUser = "admin", AuditSatker = "DPDS", AuditCause = "DOWNLOAD", AuditMenu = "MKBD", AuditUrl = "localhost/MKBD",
                           AuditIn = "Periode: 20240101, SID: 12345", AuditOut = "4000", AuditDesc = "" },
-                }
+                } *@
             )
             .RemoteOperations(true)
             .Export(e => e.AllowExportSelectedData(true).Texts(q => q.ExportTo("Ekspor")))
@@ -248,6 +252,8 @@
                 columns.Add().DataField("AuditIn").Width("200px").Caption("Input Parameter");
                 columns.Add().DataField("AuditOut").Width("200px").Caption("Output Parameter");
                 columns.Add().DataField("AuditDesc").Width("200px").Caption("Keterangan");
+
+                columns.Add().DataField("ID").Visible(false);
 
                 //columns.Add().DataField("AuditTipe").Width("250px").Caption("Tipe");
 
@@ -280,3 +286,13 @@
 </div>
 
 
+<style type="text/css">
+    .mandatory {
+        background-color: red !important;
+    }
+
+    .dx-datagrid-headers {
+        background-color: #a01905;
+        color: #ffffff;
+    }
+</style>

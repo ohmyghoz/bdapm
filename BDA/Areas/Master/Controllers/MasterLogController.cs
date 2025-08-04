@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BDA.DataModel;
 using BDA.Helper;
+using DevExpress.Xpo.DB.Helpers;
 using DevExtreme.AspNet.Data;
 using DevExtreme.AspNet.Mvc;
 using Microsoft.AspNetCore.Hosting;
@@ -66,36 +67,13 @@ namespace BDA.Areas.Master.Controllers
             return View();
         }
 
-        public object GetGridData(DataSourceLoadOptions loadOptions, string paramStartDate, string paramEndDate, string paramMenu)
-        {
-            DateTime startDate = Convert.ToDateTime(paramStartDate);
-            DateTime endDate = Convert.ToDateTime(paramEndDate);
+        //public object GetGridData(DataSourceLoadOptions loadOptions)
+        //{
+        //    //List<dim_>
+        //    //return DataSourceLoader.Load(datas, loadOptions);
+           
 
-            if (paramEndDate == null)
-            {
-                endDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 23, 59, 59);
-            }
-            else
-            {
-                endDate = new DateTime(endDate.Year, endDate.Month, endDate.Day, 23, 59, 59);
-            }
-
-            if (paramMenu != null)
-            {
-                var query = from q in db.AuditTrail
-                            where q.AuditDate >= startDate && q.AuditDate <= endDate && paramMenu.Contains(q.AuditMenu)
-                            select new { q.AuditCause, q.AuditMenu, q.AuditDate, q.AuditDebtorName, q.AuditErrMsg, q.AuditId, q.AuditIpAddress, q.AuditUser, q.AuditPrevUrl, q.AuditUrl, q.AuditTipe };
-                return DataSourceLoader.Load(query.ToList(), loadOptions);
-            }
-            else
-            {
-                var query = from q in db.AuditTrail
-                            where q.AuditDate >= startDate && q.AuditDate <= endDate
-                            select new { q.AuditCause, q.AuditMenu, q.AuditDate, q.AuditDebtorName, q.AuditErrMsg, q.AuditId, q.AuditIpAddress, q.AuditUser, q.AuditPrevUrl, q.AuditUrl, q.AuditTipe };
-                return DataSourceLoader.Load(query.ToList(), loadOptions);
-            }
-
-        }
+        //}
 
         public IActionResult GetRefModul(DataSourceLoadOptions loadOptions)
         {
@@ -105,6 +83,26 @@ namespace BDA.Areas.Master.Controllers
                 .OrderBy(x => x.ModUrut)
                 .ToList();
             return Content(JsonConvert.SerializeObject(DataSourceLoader.Load(list, loadOptions)), "application/json");
+        }
+
+        public class LogMasterData
+        {
+            public int log_no { get; set; }
+            public string log_kode { get; set; }
+            public string log_nama { get; set; }
+            public string log_waktu { get; set; }
+
+        }
+
+        public class LogMasterDataDetail
+        {
+            public string log_kode { get; set; }
+            public int log_seq { get; set; }
+            public string log_job { get; set; }
+            public string log_table_src { get; set;}
+            public string log_table_dst { get; set; }
+            public string log_script { get; set; }
+
         }
 
     }
