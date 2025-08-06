@@ -6015,14 +6015,29 @@ namespace BDA.Helper
             string sqlGetQuery = "select table_" + (isHive ? "hive" : "sql") + @" as queryString from dbo.ref_query where table_id = '" + tableName + "'";
             
             DataRow dr = ExecuteSimpleSQL(db.appSettings.DataConnString, sqlGetQuery).data.Rows[0];
-            string queryString = dr["queryString"].ToString();
-            queryString = queryString.Replace("@wherefilter", whereQuery).Replace("@whereperiode", periodWhereQuery);
 
+            var ordByQuery = "1";
+            if (loadOptions.Sort != null && loadOptions.Sort.Any())
+            {
+                ordByQuery = "";
+                foreach (var srt in loadOptions.Sort)
+                {
+                    if (ordByQuery != "") { ordByQuery += ", "; }
+                    ordByQuery += srt.Selector + " " + (srt.Desc == true ? "desc" : "asc");
+                }
+            }
+            else if (tableName == "ip_rel_sid") ordByQuery = "pmonth asc";
+            else ordByQuery = "pstart asc";
+
+            string queryString = dr["queryString"].ToString();
+            queryString = queryString.Replace("@wherefilter", whereQuery).Replace("@whereperiode", periodWhereQuery).Replace("@orderby", ordByQuery);
+            
             var props = new WSQueryProperties();
             props.Query = queryString;
 
 
-            return NonDecryptResults(WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive));
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+            //return NonDecryptResults(WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive));
         }
 
         public static WSQueryReturns GetPMIPRelQueryOld(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string startPeriod, string endPeriod,

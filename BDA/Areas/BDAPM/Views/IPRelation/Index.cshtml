@@ -622,7 +622,7 @@
     function ExportToExcel() {
         $.ajax({
             type: "POST",
-            url: "@Url.Action("LogExportIndex", "IP", new { reportId = Model.kode })",
+            url: "@Url.Action("LogExportIndex", "IPRelation", new { reportId = Model.kode })",
             success: function (response) {
                 if (response.result == "Success") {
                     var workbook = new ExcelJS.Workbook();
@@ -634,9 +634,12 @@
                         customizeCell: function (options) {
                             var { gridCell, excelCell } = options;
 
-                            if (gridCell.rowType === 'data') {
+                            if (gridCell.rowType === 'data') {                                
                                 if (options.gridCell.column.dataType === 'number') {
                                     excelCell.numFmt = '#,##0.00';
+                                }                                
+                                if (gridCell.column.caption === 'No') {
+                                    excelCell.numFmt = '#,##0';
                                 }
                             }
                         }
@@ -658,12 +661,12 @@
             fd.append("file", e.data);
             $.ajax({
                 type: "POST",
-                url: "@Url.Action("ExportPDF", "IP", new { reportId = Model.kode })",
+                url: "@Url.Action("ExportPDF", "IPRelation", new { reportId = Model.kode })",
                 data: fd,
                 processData: false,
                 contentType: false
             }).done(function (data) {
-                window.location = "@Url.Action("File", "IP", new { reportId = Model.kode })"
+                window.location = "@Url.Action("File", "IPRelation", new { reportId = Model.kode })"
             });
             e.cancel = true;
         });

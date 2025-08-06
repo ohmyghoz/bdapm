@@ -298,17 +298,44 @@ namespace BDA.Controllers
                     numericStyle.SetBorder(BorderType.LeftBorder, CellBorderType.Medium, Color.Black);
                     numericStyle.SetBorder(BorderType.RightBorder, CellBorderType.Medium, Color.Black);
 
+                    //apply format number
+                    Style dateStyle = workbook.CreateStyle();
+                    dateStyle.Custom = "yyyy-mm-dd";                    
+                    dateStyle.HorizontalAlignment = TextAlignmentType.Left;
+                    dateStyle.SetBorder(BorderType.TopBorder, CellBorderType.Medium, Color.Black);
+                    dateStyle.SetBorder(BorderType.BottomBorder, CellBorderType.Medium, Color.Black);
+                    dateStyle.SetBorder(BorderType.LeftBorder, CellBorderType.Medium, Color.Black);
+                    dateStyle.SetBorder(BorderType.RightBorder, CellBorderType.Medium, Color.Black);
+
+                    Style idxStyle = workbook.CreateStyle();
+                    idxStyle.Custom = "#,##0";
+                    idxStyle.HorizontalAlignment = TextAlignmentType.Center;
+
+                    idxStyle.SetBorder(BorderType.TopBorder, CellBorderType.Medium, Color.Black);
+                    idxStyle.SetBorder(BorderType.BottomBorder, CellBorderType.Medium, Color.Black);
+                    idxStyle.SetBorder(BorderType.LeftBorder, CellBorderType.Medium, Color.Black);
+                    idxStyle.SetBorder(BorderType.RightBorder, CellBorderType.Medium, Color.Black);
+
+                    /*
                     StyleFlag numericFlag = new StyleFlag();
                     numericFlag.NumberFormat = true;
                     numericFlag.HorizontalAlignment = true;
-
+                    */
 
                     foreach (Cell cell in worksheet.Cells)
-                    {
+                    {                        
                         if (cell.Type == CellValueType.IsNumeric)
                         {
-                            cell.SetStyle(numericStyle);
-                        }
+                            var isDate = false;
+                            var cellCol = cell.Column;
+                            var cellTipe = cell.Type;
+                            if (cell.DateTimeValue.Year > 1990) isDate = true;
+                            if (isDate)
+                                cell.SetStyle(dateStyle);
+                            else if (cell.Column == 0)
+                                cell.SetStyle(idxStyle);
+                            else cell.SetStyle(numericStyle);
+                        }                        
                     }
 
                     //page setup
@@ -440,12 +467,14 @@ namespace BDA.Controllers
             if (valid && startPeriode != null)
             {
                 var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId);
-                //cekHive = false;
-
-                loadOptions.RequireTotalCount = false;
+                cekHive = false;
+                
+                loadOptions.RequireTotalCount = true;
+                
+                //loadOptions.Take = 0;
                 var result = Helper.WSQueryStore.GetPMIPRelQuery(db, loadOptions, reportId, stringStartPeriode, stringEndPeriode, SID, tradeId, namaSID, namaLike, kolomRel, nilaiRel, //securityCode
                     nomorKTP, nomorNPWP, chk100, cekHive);
-                loadOptions.RequireTotalCount = true;
+                //loadOptions.RequireTotalCount = true;
                 return JsonConvert.SerializeObject(result);
 
             }
