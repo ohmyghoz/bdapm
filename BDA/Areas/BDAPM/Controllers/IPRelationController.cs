@@ -467,7 +467,7 @@ namespace BDA.Controllers
             if (valid && startPeriode != null)
             {
                 var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId);
-                cekHive = false;
+                //cekHive = false;
                 
                 loadOptions.RequireTotalCount = true;
                 
