@@ -7027,7 +7027,7 @@ namespace BDA.Helper
         }
         public static WSQueryReturns GetBDAPMMMTransaksiSPVQuery(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string stringPeriodeAwal, string stringPeriodeAkhir, 
             string stringcaseid, string stringtradeid, string stringbondtypecode, string stringsourcenameid, string stringtargetnameid, 
-            string stringreporttypeid, string stringbondlateid, string stringbondreportid, bool isHive = false)
+            string stringreporttypeid, string stringbondreportid, bool isHive = false)
         {
             bool isC = false;
             var whereQuery = "1=1";
@@ -7085,12 +7085,6 @@ namespace BDA.Helper
             {
                 stringreporttypeid = "'" + stringreporttypeid.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
                 whereQuery = whereQuery += " AND reporttypecode in (" + stringreporttypeid + ")";
-            }
-
-            if (stringbondlateid != null)
-            {
-                stringbondlateid = "'" + stringbondlateid.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND reporttypecode in (" + stringbondlateid + ")";
             }
 
             if (stringbondreportid != null)
