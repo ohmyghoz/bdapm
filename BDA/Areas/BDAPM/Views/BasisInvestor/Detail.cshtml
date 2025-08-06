@@ -30,7 +30,7 @@
 @*                         <input type="button" id="btnDetailBI" class="btn btn-danger" value="Detail Basis Investor" onclick="location.href='@Url.Action("Detail", "BasisInvestor")'" />
  *@                    </div>&nbsp;&nbsp;
                     <div class="form-group">
-                        <input type="button" id="btnSumTxSID" class="btn btn-danger" value="Summary Transaction SID" />
+                        <input type="button" id="btnSumTxSID" class="btn btn-danger" value="Summary Transaction SID" onclick="alert('Summary Transaction SID ditampilkan dengan klik tombol detail pada Tabel!')" />
                     </div>&nbsp;&nbsp;
                 </div>
                 <div class="row">
@@ -42,7 +42,7 @@
                         @(Html.DevExtreme().DateBox()
                             .ID("Periode")
                             .Disabled(true)
-                            .DisplayFormat("dd MMM yyyy")
+                            .DisplayFormat("MMM yyyy")
                             .Value(periode)
                             .Max(DateTime.Now)
                             .Width("100%"))
@@ -253,13 +253,14 @@
                     .ColumnAutoWidth(true)
                     .Columns(columns =>
                         {
+                            columns.Add().DataField("tradeid").Visible(false);
                             columns.Add().DataField("sid").Caption("SID");
                             columns.Add().DataField("fullname").Caption("Full Name");
                             columns.Add().DataField("newsre").Caption("New SRE");
                             columns.Add().DataField("invlasttrxindays").Caption("Investor Last Transaction in Days");
                             columns.Add().DataField("invtrxfreq").Caption("Investor Transaction Frequency");
                             columns.Add().DataField("invtotalval").Caption("Investor Total Value");
-                            columns.Add().Type(GridCommandColumnType.Buttons).Caption("Action").Buttons(b =>
+                            columns.Add().Type(GridCommandColumnType.Buttons).Caption("Detail").Buttons(b =>
                             {
                                 b.Add().Hint("Summary Transaction SID")
                                     .Icon("detailslayout")
@@ -333,6 +334,7 @@
     const PE = '@ViewBag.pe';
     const periode = '@ViewBag.periode';
     var sid = 0;
+    var tradeid = 0;
 
     $(function () {
         $("#penggunaandataid").dxValidator({
@@ -389,7 +391,8 @@
 
     function redirDetail(e) {
         sid = e.row.data.sid;
-        window.open('@Url.Action("SumTxSID", "BasisInvestor")?pe=' + PE + '&periode=' + periode + '&sid=' + sid);
+        tradeid = e.row.data.tradeid;
+        window.open('@Url.Action("SumTxSID", "BasisInvestor")?pe=' + PE + '&periode=' + periode + '&sid=' + sid + '&tradeid=' + tradeid);
     }
 
     function onButtonFilterClicked(e) {

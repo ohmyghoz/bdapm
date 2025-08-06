@@ -51,7 +51,7 @@
                     </div>&nbsp;&nbsp;
                     <div class="form-group">
 @*                         <input type="button" id="btnSumTxSID" class="btn btn-danger" value="Summary Transaction SID" onclick="location.href='@Url.Action("SumTxSID", "BasisInvestor")'" /> *@
-                        <input type="button" id="btnSumTxSID" class="btn btn-danger" value="Summary Transaction SID" />
+                        <input type="button" id="btnSumTxSID" class="btn btn-danger" value="Summary Transaction SID" onclick="alert('Summary Transaction SID hanya dapat ditampilkan setelah ke menu Detail Basis Investor!')" />
                     </div>&nbsp;&nbsp;
                 </div>
                 <div class="row">
@@ -60,7 +60,8 @@
                         <label>Periode<span class="mandatory">*</span></label>
                         @(Html.DevExtreme().DateBox()
                             .ID("Periode")
-                            .DisplayFormat("dd MMM yyyy")
+                            .DisplayFormat("MMM yyyy")
+                            .CalendarOptions(t => t.MaxZoomLevel(CalendarZoomLevel.Year).MinZoomLevel(CalendarZoomLevel.Decade))
                             .Value(DateTime.Now)
                             .Max(DateTime.Now)
                             .Width("100%"))
@@ -1108,7 +1109,7 @@
 
     function redirDetail(e) {
         let periodeAwal = $("#Periode").dxDateBox("instance").option("value");
-        let periode = periodeAwal.getFullYear() + '-' + String(periodeAwal.getMonth() + 1).padStart(2, '0') + '-' + String(periodeAwal.getDate()).padStart(2, '0');
+        let periode = periodeAwal.getFullYear() + '-' + String(periodeAwal.getMonth() + 1).padStart(2, '0');
         let PE = $("#namaPEid").dxSelectBox("instance").option("value");
         if (periodeAwal === null || PE === null) {
             alert("Periode Data dan Nama PE Harus Diisi!");
