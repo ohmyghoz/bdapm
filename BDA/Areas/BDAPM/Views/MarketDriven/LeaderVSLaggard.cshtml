@@ -172,49 +172,170 @@
 
 
 <script>
-    function onButtonFilterClicked() {
-        var selectedDate = getFormattedDate();
-        var topN = $("#ItemsPerPageSelectBox").dxSelectBox("instance").option("value");
+    // Define all functions in global scope
+    window.onButtonFilterClicked = function () {
+        console.log("onButtonFilterClicked triggered!");
 
-        if (!selectedDate) {
-            alert("Please select a period.");
-            return;
-        }
+        try {
+            var periodType = $("#Periodid").dxSelectBox("instance").option("value");
+            console.log("Period Type:", periodType);
 
-        $('#gainerLoserContent').html('<p>Loading data, please wait...</p>');
+            var selectedDate = null;
+            var endDate = null;
 
-        $.ajax({
-            url: '@Url.Action("_LeadersAndLaggardsData", "MarketDriven")',
-            type: 'POST',
-            data: {
-                selectedDate: selectedDate,
-                topN: topN
-            },
-            success: function (responseHtml) {
-                // 'responseHtml' is now the complete HTML from your partial view.
-                // Just place it directly into your placeholder div.
-                $('#gainerLoserContent').html(responseHtml);
-            },
-            error: function () {
-                $('#gainerLoserContent').html('<p class="text-danger">An error occurred while loading data.</p>');
+            // For Custom Date, we need both start and end date
+            if (periodType === "Custom Date") {
+                var startDateValue = $("#StartDateID").dxDateBox("instance").option("value");
+                var endDateValue = $("#EndDateID").dxDateBox("instance").option("value");
+                selectedDate = window.formatDateYYYYMMDD(startDateValue);
+                endDate = window.formatDateYYYYMMDD(endDateValue);
+                console.log("Custom period start date:", startDateValue, selectedDate);
+                console.log("Custom period end date:", endDateValue, endDate);
+
+                if (!selectedDate || !endDate) {
+                    DevExpress.ui.notify("Please select both start and end date.", "warning", 3000);
+                    return;
+                }
+                if (selectedDate > endDate) {
+                    DevExpress.ui.notify("Start date cannot be after end date.", "warning", 3000);
+                    return;
+                }
+            } else {
+                selectedDate = window.getFormattedDateByPeriod(periodType);
             }
-        });
-    }
 
-    // Helper function to get the date in yyyymmdd format
-    function getFormattedDate() {
-        var dateBox = $("#DatepickdID").dxDateBox("instance");
-        var dateValue = dateBox.option("value");
+            var topN = $("#ItemsPerPageSelectBox").dxSelectBox("instance").option("value");
+            console.log("Top N:", topN);
+
+            // Validate inputs
+            if (!periodType) {
+                DevExpress.ui.notify("Please select a period type.", "warning", 3000);
+                return;
+            }
+
+            if (!selectedDate) {
+                DevExpress.ui.notify("Please select a valid date.", "warning", 3000);
+                return;
+            }
+
+            // Convert topN to number, default to 10
+            var topCount = topN === "All" ? 500 : (parseInt(topN) || 10);
+
+            // Show loading indicator
+            showLoadingIndicator();
+
+            var ajaxData = {
+                selectedDate: selectedDate,
+                topN: topCount,
+                periodType: periodType
+            };
+            if (periodType === "Custom Date") {
+                ajaxData.endDate = endDate;
+            }
+
+            $.ajax({
+                url: '@Url.Action("_LeadersAndLaggardsData", "MarketDriven")',
+                type: 'POST',
+                data: ajaxData,
+                success: function (responseHtml) {
+                    console.log("AJAX Success");
+                    $('#gainerLoserContent').html(responseHtml);
+                    hideLoadingIndicator();
+                    DevExpress.ui.notify("Data loaded successfully.", "success", 2000);
+                },
+                error: function (xhr, status, error) {
+                    console.error('AJAX Error:', error);
+                    console.error('Status:', status);
+                    console.error('Response:', xhr.responseText);
+
+                    hideLoadingIndicator();
+
+                    var errorMessage = 'An error occurred while loading data.';
+                    if (xhr.responseText) {
+                        try {
+                            var errorData = JSON.parse(xhr.responseText);
+                            errorMessage = errorData.message || errorMessage;
+                        } catch (e) {
+                            errorMessage = xhr.responseText.substring(0, 200) + '...';
+                        }
+                    }
+
+                    $('#gainerLoserContent').html(`
+                                <div class="alert alert-danger">
+                                    <i class="fa fa-exclamation-triangle"></i> ${errorMessage}
+                                    <br><small>Error Code: ${xhr.status}</small>
+                                </div>
+                            `);
+
+                    DevExpress.ui.notify(errorMessage, "error", 5000);
+                }
+            });
+        } catch (e) {
+            console.error("Error in onButtonFilterClicked:", e);
+            alert("Error: " + e.message);
+        }
+    };
+
+    window.getFormattedDateByPeriod = function (periodType) {
+        console.log("getFormattedDateByPeriod called with:", periodType);
+
+        var dateValue = null;
+
+        try {
+            switch (periodType) {
+                case "Daily":
+                    dateValue = $("#DatepickdID").dxDateBox("instance").option("value");
+                    console.log("Daily date value:", dateValue);
+                    return window.formatDateYYYYMMDD(dateValue);
+
+                case "Monthly":
+                    dateValue = $("#DatepickmID").dxDateBox("instance").option("value");
+                    console.log("Monthly date value:", dateValue);
+                    return window.formatDateYYYYMM(dateValue);
+
+                default:
+                    // For custom, use separate logic in onButtonFilterClicked
+                    console.log("Unknown or Custom period type:", periodType);
+                    return null;
+            }
+        } catch (e) {
+            console.error("Error in getFormattedDateByPeriod:", e);
+            return null;
+        }
+    };
+
+    // Utility: Format JS Date to YYYYMMDD
+    window.formatDateYYYYMMDD = function (dateValue) {
         if (!dateValue) return null;
-
         var year = dateValue.getFullYear();
         var month = ('0' + (dateValue.getMonth() + 1)).slice(-2);
         var day = ('0' + dateValue.getDate()).slice(-2);
         return year + month + day;
-    }
+    };
 
-    // You can now DELETE the old 'buildListHtml' JavaScript function,
-    // as the server is building the HTML now.
+    // Utility: Format JS Date to YYYYMM
+    window.formatDateYYYYMM = function (dateValue) {
+        if (!dateValue) return null;
+        var year = dateValue.getFullYear();
+        var month = ('0' + (dateValue.getMonth() + 1)).slice(-2);
+        return year + month;
+    };
+
+    window.showLoadingIndicator = function () {
+        $('#gainerLoserContent').html(`
+                    <div class="text-center p-5">
+                        <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                        <h5 class="text-muted">Loading Gainers & Losers Data</h5>
+                        <p class="text-muted">Please wait...</p>
+                    </div>
+                `);
+    };
+
+    window.hideLoadingIndicator = function () {
+        // Loading indicator will be replaced by the actual content
+    };
 </script>
 
 

@@ -483,52 +483,7 @@
         }
     });
 
-    function ExportToPdf() {
-        $.ajax({
-            type: "POST",
-            url: "@Url.Action("LogExportIndex", "MaxMinOverdue")",
-            success: function (response) {
-                if (response.result == "Success") {
-                    const doc = new jsPDF({
-                        orientation: "landscape",
-                        unit: "cm",
-                        format: [21, 60]
-                    });
-                    var dataGrid = $("#grid1").dxDataGrid("instance");
-                    var fileName = "MaxMinOverdue_" + new Date().toISOString().slice(0, 10) + ".pdf";
-                    doc.setFontSize("6")
-                    DevExpress.pdfExporter.exportDataGrid({
-                        jsPDFDocument: doc,
-                        component: dataGrid,
-                        keepColumnWidths: true
-                    }).then(function () {
-                        doc.save(fileName);
-                    });
-                }
-            }
-        });
-    }
-
-    function ExportToPdf2() {
-        var dataGrid = $("#grid1").dxDataGrid("instance");
-        dataGrid.option("onExporting", function (e) { });
-        dataGrid.option("onFileSaving", function (e) {
-            var fd = new FormData();
-            fd.append("file", e.data);
-            $.ajax({
-                type: "POST",
-                url: "@Url.Action("ExportPDF", "SegmentationSummaryClusterMKBD")",
-                data: fd,
-                processData: false,
-                contentType: false
-            }).done(function (data) {
-                window.location = "@Url.Action("File", "SegmentationSummaryClusterMKBD")"
-            });
-            e.cancel = true;
-        });
-
-        dataGrid.exportToExcel();
-    }
+   
 
     function onSelectionChanged(e) {
         if (e.addedItems.length > 0) {
