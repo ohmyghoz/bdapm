@@ -314,7 +314,7 @@ namespace BDA.Controllers
             public string text { get; set; }
         }
         public object GetGridData(DataSourceLoadOptions loadOptions, string periodeAwal, string periodeAkhir, 
-            string caseid, string tradeid, string bondtypecode, string sourcenameid, string targetnameid, string reporttypeid, string bondlateid, string bondreportid)
+            string caseid, string tradeid, string bondtypecode, string sourcenameid, string targetnameid, string reporttypeid,string bondreportid)
         {
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
             TempData.Clear(); //membersihkan data filtering
@@ -324,7 +324,6 @@ namespace BDA.Controllers
             string[] strsourcenameid = JsonConvert.DeserializeObject<string[]>(sourcenameid);
             string[] strtargetnameid = JsonConvert.DeserializeObject<string[]>(targetnameid);
             string[] strreporttypeid = JsonConvert.DeserializeObject<string[]>(reporttypeid);
-            string[] strbondlateid = JsonConvert.DeserializeObject<string[]>(bondlateid);
             string[] strbondreportid = JsonConvert.DeserializeObject<string[]>(bondreportid);
 
 
@@ -337,7 +336,6 @@ namespace BDA.Controllers
             string stringsourcenameid = null;
             string stringtargetnameid = null;
             string stringreporttypeid = null;
-            string stringbondlateid = null;
             string stringbondreportid = null; 
 
             string reportId = "mrkt_mnpltn_prtn_rcgntn"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
@@ -391,15 +389,9 @@ namespace BDA.Controllers
                 TempData["reporttypeid"] = stringreporttypeid;
             }
 
-            if (strbondlateid.Length > 0)
-            {
-                stringbondlateid = string.Join(", ", strbondlateid);
-                TempData["bondlateid"] = stringbondlateid;
-            }
-
             if (strbondreportid.Length > 0)
             {
-                stringbondlateid = string.Join(", ", strbondreportid);
+                stringbondreportid = string.Join(", ", strbondreportid);
                 TempData["bondreportid"] = stringbondreportid;
             }
 
@@ -407,7 +399,7 @@ namespace BDA.Controllers
             if (periodeAwal.Length > 0) //jika ada parameter nya
             {
                 var result = Helper.WSQueryStore.GetBDAPMMMTransaksiSPVQuery(db, loadOptions, reportId,  periodeAwal,  periodeAkhir, stringcaseid, stringtradeid,
-                    stringbondtypecode, stringsourcenameid, stringtargetnameid, stringreporttypeid, stringbondlateid, stringbondreportid, cekHive);
+                    stringbondtypecode, stringsourcenameid, stringtargetnameid, stringreporttypeid, stringbondreportid, cekHive);
                 return JsonConvert.SerializeObject(result);
             }
             else

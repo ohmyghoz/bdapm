@@ -6019,14 +6019,29 @@ namespace BDA.Helper
             string sqlGetQuery = "select table_" + (isHive ? "hive" : "sql") + @" as queryString from dbo.ref_query where table_id = '" + tableName + "'";
             
             DataRow dr = ExecuteSimpleSQL(db.appSettings.DataConnString, sqlGetQuery).data.Rows[0];
-            string queryString = dr["queryString"].ToString();
-            queryString = queryString.Replace("@wherefilter", whereQuery).Replace("@whereperiode", periodWhereQuery);
 
+            var ordByQuery = "1";
+            if (loadOptions.Sort != null && loadOptions.Sort.Any())
+            {
+                ordByQuery = "";
+                foreach (var srt in loadOptions.Sort)
+                {
+                    if (ordByQuery != "") { ordByQuery += ", "; }
+                    ordByQuery += srt.Selector + " " + (srt.Desc == true ? "desc" : "asc");
+                }
+            }
+            else if (tableName == "ip_rel_sid") ordByQuery = "pmonth asc";
+            else ordByQuery = "pstart asc";
+
+            string queryString = dr["queryString"].ToString();
+            queryString = queryString.Replace("@wherefilter", whereQuery).Replace("@whereperiode", periodWhereQuery).Replace("@orderby", ordByQuery);
+            
             var props = new WSQueryProperties();
             props.Query = queryString;
 
 
-            return NonDecryptResults(WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive));
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+            //return NonDecryptResults(WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive));
         }
 
         public static WSQueryReturns GetPMIPRelQueryOld(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string startPeriod, string endPeriod,
@@ -6949,7 +6964,7 @@ namespace BDA.Helper
         }
         public static WSQueryReturns GetBDAPMMMTransaksiSPVQuery(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string stringPeriodeAwal, string stringPeriodeAkhir, 
             string stringcaseid, string stringtradeid, string stringbondtypecode, string stringsourcenameid, string stringtargetnameid, 
-            string stringreporttypeid, string stringbondlateid, string stringbondreportid, bool isHive = false)
+            string stringreporttypeid, string stringbondreportid, bool isHive = false)
         {
             bool isC = false;
             var whereQuery = "1=1";
@@ -7007,12 +7022,6 @@ namespace BDA.Helper
             {
                 stringreporttypeid = "'" + stringreporttypeid.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
                 whereQuery = whereQuery += " AND reporttypecode in (" + stringreporttypeid + ")";
-            }
-
-            if (stringbondlateid != null)
-            {
-                stringbondlateid = "'" + stringbondlateid.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND reporttypecode in (" + stringbondlateid + ")";
             }
 
             if (stringbondreportid != null)
