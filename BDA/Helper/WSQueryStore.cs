@@ -2,13 +2,17 @@
 using BDA.Helper.FW;
 using DevExpress.Charts.Native;
 using DevExpress.CodeParser;
+using DevExpress.DashboardCommon;
 using DevExpress.Data.Extensions;
+using DevExpress.Xpo.DB.Helpers;
 using DevExpress.XtraRichEdit;
 using DevExtreme.AspNet.Mvc;
+using DocumentFormat.OpenXml.Drawing.Charts;
 using Microsoft.AspNetCore.Http;
 using Org.BouncyCastle.Asn1.Mozilla;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Data.SqlClient;
 using System.Globalization;
@@ -6544,6 +6548,120 @@ namespace BDA.Helper
             }
 
             return WSQueryHelper.DoQueryNL(db, props, isC, isHive);
+        }
+
+        #endregion
+
+        #region LOG
+
+        public static WSQueryReturns GetMasterLogData(DataEntities db, DataSourceLoadOptions loadOptions) 
+        {
+            bool isC = false;
+            WSQueryProperties props = new WSQueryProperties();
+
+            props.Query = @"SELECT * FROM dbo.dim_master_job" + @"";
+
+            return WSQueryHelper.DoQueryNL(db, props, isC, false);
+        }
+
+        public static WSQueryReturns GetMasterLogDataDetail(DataEntities db, DataSourceLoadOptions loadOptions, string idJob)
+        {
+            bool isC = false;
+            WSQueryProperties props = new WSQueryProperties();
+
+            props.Query = @"SELECT 
+                                   a.job_id AS KodeJob,
+	                               a.seq_no AS UrutanProses,
+	                               a.proc_name AS NamaJob,
+	                               (CASE WHEN b.io_status = 'input' THEN b.data_id ELSE '' END) AS TblSrc,
+	                               (CASE WHEN b.io_status = 'output' THEN b.data_id ELSE '' END) AS TblDst,
+	                               a.script_location AS LokScript
+                              FROM dim_job_proc AS a 
+                                   LEFT JOIN dim_io_proc AS b
+	                               ON a.proc_id = b.proc_id
+                             WHERE a.job_id = '" + idJob + "'" + @"";
+
+            return WSQueryHelper.DoQueryNL(db, props, isC, false);
+        }
+
+        public static WSQueryReturns GetLogMonData(DataEntities db, DataSourceLoadOptions loadOptions, string logDate, string status)
+        {
+            bool isC = false;
+            string whereQuery = "1=1 ";
+            WSQueryProperties props = new WSQueryProperties();
+
+            if (logDate != null)
+            {
+                string ld = "'" + logDate.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND TglLog =  '" + ld + "'";
+            }
+
+            if (status != null)
+            {
+                string s = "'" + status.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND Status =  '" + s + "'";
+            }
+
+            props.Query = @"SELECT 
+                                   TglLog
+                                  ,KodeJob
+                                  ,NamaJob
+                                  ,PeriodeData
+                                  ,Mulai
+                                  ,Selesai
+                                  ,TotalWaktu
+                                  ,JumlahPenghapusan
+                                  ,JumlahInsertData
+                                  ,Status
+                                  ,Persentase
+                              FROM vw_LogMonitoringData
+                             WHERE " + whereQuery + @"";
+
+            return WSQueryHelper.DoQueryNL(db, props, isC, false);
+        }
+
+        public static WSQueryReturns GetLogMonDataDetails(DataEntities db, DataSourceLoadOptions loadOptions, string logDate, string periode, string jobID)
+        {
+            bool isC = false;
+            string whereQuery = "1=1 ";
+            WSQueryProperties props = new WSQueryProperties();
+
+            if (logDate != null)
+            {
+                string ld = "'" + logDate.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND CONVERT(DATE, a.start_time) =  " + ld;
+            }
+
+            if (periode != null)
+            {
+                string p = "'" + periode.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND a.periode =  " + p;
+            }
+
+            if (jobID != null)
+            {
+                string ji = "'" + jobID.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND b.job_id =  " + ji ;
+            }
+
+            props.Query = @"SELECT 
+                                   CONVERT(DATE, a.start_time) AS TglLog, 
+                                   b.job_id AS KodeJob, 
+	                               b.seq_no AS Urutan,
+	                               b.proc_name AS NamaJob,
+	                               a.start_time AS Mulai,
+	                               a.end_time AS Selesai,
+	                               NULL AS JumlahPenghapusan, a.file_rec AS JumlahInsertData,
+	                               a.flag_status AS Status,
+	                               a.status AS Keterangan
+                              FROM fct_log_process AS a
+                              JOIN dim_job_proc AS b
+                                ON a.proc_id = b.proc_id
+                              JOIN dim_master_job AS c
+                                ON b.job_id = c.job_id
+                             WHERE " + whereQuery + @"";
+
+            return WSQueryHelper.DoQueryNL(db, props, isC, false);
         }
 
         #endregion

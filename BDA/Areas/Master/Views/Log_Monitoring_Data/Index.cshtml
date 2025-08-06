@@ -72,31 +72,81 @@
             });
     }
 
-    function redirDetail() {}
+    function redirDetail(e) {
+        var logDate = e.row.data.log_date;
+        var periode = e.row.data.log_periode;
+        var jobID = e.row.data.log_kode;
+
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("GetGridDataDetails", "Log_Monitoring_Data")",
+            data: { paramLogDate: logDate, paramPeriode: periode, paramJobId: jobID },
+            dataType: "json",
+            type: "POST",
+        }).done(function (resp) {
+            $("#popup").dxPopup({
+                visible: true,
+                title: "Detil",
+                showCloseButton: true,
+                height: 400,
+                contentTemplate: function (contentElement) {
+                    const detailGrid = $("<div>").appendTo(contentElement);
+                    detailGrid.dxDataGrid({
+                        dataSource: resp.data,
+                        columns: [
+                            { dataField: "log_date", caption: "Tanggal Log" },
+                            { dataField: "log_kode", caption: "Kode Job" },
+                            { dataField: "log_seq", caption: "Urutan ProseJob" },
+                            { dataField: "log_nama", caption: "Nama Job" },
+                            { dataField: "log_start", caption: "Mulai" },
+                            { dataField: "log_end", caption: "Selesai" },
+                            { dataField: "log_delete_cnt", caption: "Jumlah Penghapusan" },
+                            { dataField: "log_insert_cnt", caption: "Jumlah Insert Data" },
+                            { dataField: "log_status", caption: "Status" },
+                            { dataField: "log_desc", caption: "Keterangan" },
+                        ],
+                        showBorders: true
+                    });
+                }
+            });
+        });
+    }
 
     function redirDelete() {}
 
-    function gridOnBeforeSend(method, ajaxOptions) {
-        var tempstartDate = $("#startDate").dxDateBox("instance").option('value');
-        var tempendDate = $("#endDate").dxDateBox("instance").option('value');
-        var startDate = null;
-        var endDate = null;
+    function onSelectionChanged(e) {
+        if (e.addedItems && e.addedItems.length > 0) {
+            // Get the input element of the ComboBox
+            var inputElement = e.component.$element().find("input").first();
 
-        if (tempstartDate > tempendDate) {
-            swal({ type: 'error', title: 'Validasi', text: 'Periksa Kembali Tanggal Inputan' });
+            // Clear the search text
+            if (inputElement.length) {
+                inputElement.val("");
+            }
         }
-
-        if (tempstartDate != null) {
-            startDate = tempstartDate.getFullYear() + '-' + (tempstartDate.getMonth() + 1) + '-' + tempstartDate.getDate();
-        }
-        if (tempendDate != null) {
-            endDate = tempendDate.getFullYear() + '-' + (tempendDate.getMonth() + 1) + '-' + tempendDate.getDate();
-        }
-
-        ajaxOptions.data.paramStartDate = startDate;
-        ajaxOptions.data.paramEndDate = endDate;
-
     }
+
+    // function gridOnBeforeSend(method, ajaxOptions) {
+    //     var tempstartDate = $("#startDate").dxDateBox("instance").option('value');
+    //     var tempendDate = $("#endDate").dxDateBox("instance").option('value');
+    //     var startDate = null;
+    //     var endDate = null;
+
+    //     if (tempstartDate > tempendDate) {
+    //         swal({ type: 'error', title: 'Validasi', text: 'Periksa Kembali Tanggal Inputan' });
+    //     }
+
+    //     if (tempstartDate != null) {
+    //         startDate = tempstartDate.getFullYear() + '-' + (tempstartDate.getMonth() + 1) + '-' + tempstartDate.getDate();
+    //     }
+    //     if (tempendDate != null) {
+    //         endDate = tempendDate.getFullYear() + '-' + (tempendDate.getMonth() + 1) + '-' + tempendDate.getDate();
+    //     }
+
+    //     ajaxOptions.data.paramStartDate = startDate;
+    //     ajaxOptions.data.paramEndDate = endDate;
+
+    // }
 </script>
 
 
@@ -111,7 +161,31 @@
                             .Name("logDate")
                             .Width("100%").Value(DateTime.Now).DisplayFormat("dd MMM yyyy"))
                 </div>
+
+                @{
+                    var status = new[] {
+                                    new { Text = "(All)", Value = "" },
+                                    new { Text = "Initialization/Running", Value = "1" },
+                                    new { Text = "Finish - Success", Value = "2" },
+                                    new { Text = "Error", Value = "3" },
+                                    new { Text = "Others", Value = "4" }
+                                  };
+                }
+
                 <div class="col-lg-4 form-group">
+                    <label>Status</label>
+                    @(Html.DevExtreme().SelectBox()
+                        .ID("status")
+                        .DataSource(status)
+                        .SearchEnabled(true)
+                        .ValueExpr("Value")
+                        .DisplayExpr("Text")
+                        .Value("")
+                        .OnSelectionChanged("onSelectionChanged")
+                        .Width("100%")
+                        .Placeholder("(ALL)"))
+                </div>
+@*                 <div class="col-lg-4 form-group">
                     <label>Tanggal Mulai</label>
                     @(Html.DevExtreme().DateBox()
                             .ID("startDate")
@@ -124,7 +198,7 @@
                             .ID("endDate")
                             .Name("endDate")
                             .Width("100%").Value(DateTime.Now).DisplayFormat("dd MMM yyyy"))
-                </div>
+                </div> *@
             </div>
 
             <div class="float-left">
@@ -150,16 +224,9 @@
 
         @(Html.DevExtreme().DataGrid()
             .ID("grid1")
-            .DataSource(@* d => d.Mvc()
+            .DataSource(d => d.Mvc()
                 .Controller("Log_Monitoring_Data")
                 .LoadAction("GetGridData")
-                .OnBeforeSend("gridOnBeforeSend")
-                .Key("log_id") *@
-            new [] {
-                    new { log_date = "15 Mei 2025 13:12:11", log_kode = "PS01", log_nama = "Summary Cluster MKBD",
-                          log_periode = "20240101", log_start = "15 Mei 2025 13:12:00", log_end = "15 Mei 2025 17:00:00", log_total_waktu = "04:12:00",
-                          log_delete_cnt = 200, log_insert_cnt = 400000, log_status = "F", log_percentage = "100%" }
-                }
             )
             .RemoteOperations(true)
             .Export(e => e.AllowExportSelectedData(true).Texts(q => q.ExportTo("Ekspor")))
@@ -167,7 +234,7 @@
             .Columns(columns =>
             {
 
-                columns.Add().DataField("log_date").Caption("Tanggal Log").Width("10%").DataType(GridColumnDataType.DateTime).Format("dd MMM yyyy HH:mm:ss").SortOrder(SortOrder.Desc);
+                columns.Add().DataField("log_date").Caption("Tanggal Log").Width("10%").DataType(GridColumnDataType.DateTime).Format("dd MMM yyyy").SortOrder(SortOrder.Desc);
                 columns.Add().DataField("log_kode").Caption("Kode Job").Width("20%");
                 columns.Add().DataField("log_nama").Caption("Nama Job").Width("20%");
                 columns.Add().DataField("log_periode").Caption("Periode").Width("10%");
@@ -190,8 +257,6 @@
                                     .Icon("trash")
                                     .OnClick("redirDelete");
                             });
-                columns.Add().DataField("log_id").Visible(false);
-
             })
             .FilterRow(f => f.Visible(true))
             //.AllowColumnResizing(true)
@@ -212,6 +277,15 @@
              )
         )
 
+    </div>
+    <div id="popup">
+        @* <div class="float-right">
+            @if (ViewBag.Export)
+            {
+                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:exportToEx();"><span class="image fa fa-file-excel"></span> Export Excel</a>
+                <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:exportToPDF();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+            }
+        </div> *@
     </div>
 </div>
 
