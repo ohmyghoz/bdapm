@@ -5,6 +5,7 @@
     var pe = ViewBag.pe;
     var periode = ViewBag.periode;
     var sid = ViewBag.sid;
+    var tradeid = ViewBag.tradeid;
     var maxItems = db.GetSetting("LimitFilterLJK");
 }
 @section RightToolbar {
@@ -30,7 +31,7 @@
                         <input type="button" id="btnDetailBI" class="btn btn-danger" value="Detail Basis Investor" onclick="location.href='@Url.Action("Detail", "BasisInvestor")?pe=@ViewBag.pe&periode=@ViewBag.periode'" />
                     </div>&nbsp;&nbsp;
                     <div class="form-group">
-                        <input type="button" id="btnSumTxSID" class="btn btn-danger" value="Summary Transaction SID"  />
+                        <input type="button" id="btnSumTxSID" class="btn btn-danger" value="Summary Transaction SID" onclick="location.href='@Url.Action("SumTxSID", "BasisInvestor")?pe=@ViewBag.pe&periode=@ViewBag.periode&sid=@ViewBag.sid&tradeid=@ViewBag.tradeid'" />
                     </div>&nbsp;&nbsp;
                 </div>
                 <div class="row">
@@ -40,7 +41,7 @@
                         @(Html.DevExtreme().DateBox()
                             .ID("Periode")
                             .Disabled(true)
-                            .DisplayFormat("dd MMM yyyy")
+                            .DisplayFormat("MMM yyyy")
                             .Value(periode)
                             .Max(DateTime.Now)
                             .Width("100%"))
@@ -66,27 +67,19 @@
 
                     <div class="col-lg-2 form-group">
                         <label>SID@*<span class="mandatory">*</span>*@</label>
-                        @(Html.DevExtreme().SelectBox()
+                        @(Html.DevExtreme().TextBox()
                             .ID("SID")
-                            //.DataSource(new[] { "(All)", "SID1", "SID2", "SID3" })
-                            .DataSource(new [] { sid })
-                            .SearchEnabled(true)
-                            .OnSelectionChanged("onSelectionChanged")
-                            .Disabled(false)
+                            .Disabled(true)
                             .Value(sid)
                             .Width("100%"))
                     </div>
 
                     <div class="col-lg-2 form-group">
                         <label>Investor Code@*<span class="mandatory">*</span>*@</label>
-                        @(Html.DevExtreme().SelectBox()
+                        @(Html.DevExtreme().TextBox()
                             .ID("InvstCode")
-                            //.DataSource(new[] { "(All)", "A", "B", "C" })
-                            .DataSource(new[] { sid })
-                            .SearchEnabled(true)
-                            .Disabled(false)
-                            .Value(sid)
-                            .OnSelectionChanged("onSelectionChanged")
+                            .Disabled(true)
+                            .Value(tradeid)
                             .Width("100%"))
                     </div>
 
@@ -519,7 +512,8 @@
         if (res.status === "valid") {
             var pe = '@ViewBag.pe';
             var periode = '@ViewBag.periode';
-            var sid = '@ViewBag.sid';
+            var sid = $("#SID").dxTextBox("instance").option('value');
+            var tradeid = $("#InvstCode").dxTextBox("instance").option('value');
 
             var seccode = $("#SecCode").dxSelectBox("instance").option("value");
             var market = $("#Market").dxSelectBox("instance").option("value");
@@ -559,7 +553,7 @@
                     data: {
                         periodeAwal: periode,
                         namaPE: pe,
-                        invCode: sid,
+                        invCode: tradeid,
                         trxSys: market,
                         secCode: seccode
                     },
@@ -635,7 +629,7 @@
                     data: {
                         periodeAwal: periode,
                         namaPE: pe,
-                        sid: sid,
+                        tradeId: tradeid,
                         trxSys: market,
                         secCode: seccode
                     },
@@ -704,65 +698,6 @@
 
             loadTRX();
             loadSRE();
-
-            
-@*             var dsTRX = DevExpress.data.AspNet.createStore({
-                loadUrl: '@Url.Action("GetGridDetailTRX", "BasisInvestor")',
-                loadMode: "processed",
-                loadParams: {
-                    periodeAwal: periode,
-                    namaPE: pe,
-                    invCode: sid,
-                    trxSys: market,
-                    secCode: seccode
-                }
-            });
- *@
-            
-
-            @* dsTRX.load().done(function () {
-                pgTRX.refresh();
-            }).fail(function (error) {
-                console.error("Failed to load data: ", error);
-            });
- *@
-
-
-            @* var gridtrx = $("#gridtrx").dxDataGrid("instance"); *@
-@*             var gridsre = $("#gridsre").dxDataGrid("instance"); *@
-
-            @* gridtrx.beginCustomLoading('Loading...'); *@
-@*             gridsre.beginCustomLoading('Loading...'); *@
-
-            @* var dsTRX = DevExpress.data.AspNet.createStore({
-                loadUrl: '@Url.Action("GetGridDetailTRX", "BasisInvestor")',
-                loadMode: "processed",
-                loadParams: {
-                    periodeAwal: periode,
-                    namaPE: pe,
-                    invCode: sid,
-                    trxSys: market,
-                    secCode: seccode
-                }
-            });
-
-            gridtrx.option('dataSource', dsTRX);
-            gridtrx.endCustomLoading(); *@
-
-           @*  var dsSRE = DevExpress.data.AspNet.createStore({
-                loadUrl: '@Url.Action("GetGridDetailSRE", "BasisInvestor")',
-                loadMode: "processed",
-                loadParams: {
-                    periodeAwal: periode,
-                    namaPE: pe,
-                    sid: sid,
-                    trxSys: market,
-                    secCode: seccode
-                }
-            });
-
-            gridsre.option('dataSource', dsSRE);
-            gridsre.endCustomLoading(); *@
         }
     }
 
