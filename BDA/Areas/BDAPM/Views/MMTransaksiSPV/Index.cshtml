@@ -89,7 +89,7 @@
 
                 <div class="row">
 
-                    <div class="col-lg-2 form-group">
+                    <div class="col-lg-3 form-group">
                         <label>
                             Source Name
                         </label>
@@ -108,7 +108,7 @@
                             .Width("100%"))
                     </div>
 
-                    <div class="col-lg-2 form-group">
+                    <div class="col-lg-3 form-group">
                         <label>Target Name</label>
                         @(Html.DevExtreme().TagBox()
                             .ID("targetnameid")
@@ -125,8 +125,8 @@
                             .Width("100%"))
                     </div>
 
-                    <div class="col-lg-2 form-group">
-                        <label>Report Type</label>
+                    <div class="col-lg-3 form-group">
+                        <label>Report Type Code</label>
                         @(Html.DevExtreme().TagBox()
                             .ID("reporttypeid")
                             .DataSource(d => d.Mvc()
@@ -142,26 +142,7 @@
                             .Width("100%"))
                     </div>
 
-                    <div class="col-lg-4 form-group">
-                        <label>
-                            Bond Late Completeness Status Code
-                        </label>
-                        @(Html.DevExtreme().TagBox()
-                            .ID("bondlateid")
-                            .DataSource(d => d.Mvc()
-                            .Controller("MMTransaksiSPV")
-                            .LoadAction("GetBondLateID")
-                            .Key("value"))
-                            .ValueExpr("value")
-                            .DisplayExpr("text")
-                            .ShowSelectionControls(true)
-                            .MaxDisplayedTags(3)
-                            .SearchEnabled(true)
-                            .ShowClearButton(true)
-                            .Width("100%"))
-                    </div>
-
-                    <div class="col-lg-2 form-group">
+                    <div class="col-lg-3 form-group">
                         <label>
                             Bond Report Status
                         </label>
@@ -332,7 +313,6 @@
         let sourcenameid = $("#sourcenameid").dxTagBox("instance").option("value");
         let targetnameid = $("#targetnameid").dxTagBox("instance").option("value");
         let reporttypeid = $("#reporttypeid").dxTagBox("instance").option("value");
-        let bondlateid = $("#bondlateid").dxTagBox("instance").option("value");
         let bondreportid = $("#bondreportid").dxTagBox("instance").option("value");
 
         let periodeAwal = null;
@@ -361,7 +341,6 @@
         let sourcenameid = $("#sourcenameid").dxTagBox("instance").option("value");
         let targetnameid = $("#targetnameid").dxTagBox("instance").option("value");
         let reporttypeid = $("#reporttypeid").dxTagBox("instance").option("value");
-        let bondlateid = $("#bondlateid").dxTagBox("instance").option("value");
         let bondreportid = $("#bondreportid").dxTagBox("instance").option("value");
 
        let periodeAwal = null;
@@ -382,7 +361,6 @@
         ajaxOptions.data.sourcenameid = JSON.stringify(sourcenameid);
         ajaxOptions.data.targetnameid = JSON.stringify(targetnameid);
         ajaxOptions.data.reporttypeid = JSON.stringify(reporttypeid);
-        ajaxOptions.data.bondlateid = JSON.stringify(bondlateid);
         ajaxOptions.data.bondreportid = JSON.stringify(bondreportid);
     }
 

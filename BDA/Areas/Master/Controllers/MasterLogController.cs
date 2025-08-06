@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BDA.DataModel;
 using BDA.Helper;
+using DevExpress.Xpo.DB.Helpers;
 using DevExtreme.AspNet.Data;
 using DevExtreme.AspNet.Mvc;
 using Microsoft.AspNetCore.Hosting;
@@ -66,35 +67,40 @@ namespace BDA.Areas.Master.Controllers
             return View();
         }
 
-        public object GetGridData(DataSourceLoadOptions loadOptions, string paramStartDate, string paramEndDate, string paramMenu)
+        public object GetGridData(DataSourceLoadOptions loadOptions)
         {
-            DateTime startDate = Convert.ToDateTime(paramStartDate);
-            DateTime endDate = Convert.ToDateTime(paramEndDate);
+            List<LogMasterData> data = db.DimMasterJobs
+                                        .Select((item, index) => new LogMasterData
+                                        { 
+                                            log_no = index + 1,
+                                            log_kode = item.JobId,
+                                            log_nama = item.JobName,
+                                            log_waktu = item.Scheduler
+                                        }).ToList();
 
-            if (paramEndDate == null)
-            {
-                endDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 23, 59, 59);
-            }
-            else
-            {
-                endDate = new DateTime(endDate.Year, endDate.Month, endDate.Day, 23, 59, 59);
-            }
 
-            if (paramMenu != null)
-            {
-                var query = from q in db.AuditTrail
-                            where q.AuditDate >= startDate && q.AuditDate <= endDate && paramMenu.Contains(q.AuditMenu)
-                            select new { q.AuditCause, q.AuditMenu, q.AuditDate, q.AuditDebtorName, q.AuditErrMsg, q.AuditId, q.AuditIpAddress, q.AuditUser, q.AuditPrevUrl, q.AuditUrl, q.AuditTipe };
-                return DataSourceLoader.Load(query.ToList(), loadOptions);
-            }
-            else
-            {
-                var query = from q in db.AuditTrail
-                            where q.AuditDate >= startDate && q.AuditDate <= endDate
-                            select new { q.AuditCause, q.AuditMenu, q.AuditDate, q.AuditDebtorName, q.AuditErrMsg, q.AuditId, q.AuditIpAddress, q.AuditUser, q.AuditPrevUrl, q.AuditUrl, q.AuditTipe };
-                return DataSourceLoader.Load(query.ToList(), loadOptions);
-            }
 
+            return DataSourceLoader.Load(data, loadOptions);
+        }
+
+        public object GetGridDataDetails(DataSourceLoadOptions loadOptions, string paramID)
+        {
+            string id = paramID;
+            List<DimJobProc> datas = db.DimJobProcs.Where(x => x.JobId.Equals(id)).ToList();
+            List<LogMasterDataDetail> data = datas
+                                        .Select((item, index) => new LogMasterDataDetail
+                                        {
+                                            log_kode = item.JobId,
+                                            log_seq = item.SeqNo,
+                                            log_job = item.ProcName,
+                                            log_table_src = "",
+                                            log_table_dst = "",
+                                            log_script = item.ScriptLocation
+                                        }).ToList();
+
+
+
+            return DataSourceLoader.Load(datas, loadOptions);
         }
 
         public IActionResult GetRefModul(DataSourceLoadOptions loadOptions)
@@ -105,6 +111,26 @@ namespace BDA.Areas.Master.Controllers
                 .OrderBy(x => x.ModUrut)
                 .ToList();
             return Content(JsonConvert.SerializeObject(DataSourceLoader.Load(list, loadOptions)), "application/json");
+        }
+
+        public class LogMasterData
+        {
+            public int log_no { get; set; }
+            public string log_kode { get; set; }
+            public string log_nama { get; set; }
+            public string log_waktu { get; set; }
+
+        }
+
+        public class LogMasterDataDetail
+        {
+            public string log_kode { get; set; }
+            public int log_seq { get; set; }
+            public string log_job { get; set; }
+            public string log_table_src { get; set;}
+            public string log_table_dst { get; set; }
+            public string log_script { get; set; }
+
         }
 
     }

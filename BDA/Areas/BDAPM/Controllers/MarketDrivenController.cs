@@ -22,6 +22,7 @@ using System.Configuration;
 using BDA.Areas.BDAPM.Models;
 using BDA.Helper;
 using System.Xml.Linq;
+using System.Globalization;
 
 namespace BDA.Controllers
 {
@@ -72,23 +73,100 @@ namespace BDA.Controllers
         }
 
         [HttpPost]
-        public PartialViewResult _LeadersAndLaggardsData(string selectedDate, int? topN)
+        public PartialViewResult _LeadersAndLaggardsData(string selectedDate, int? topN, string periodType, string endDate = null)
         {
             var pageModel = new LeadersAndLaggardsPageViewModel();
 
-            if (string.IsNullOrEmpty(selectedDate))
+            try
             {
-                return PartialView("_LeadersAndLaggardsData", pageModel);
+                // Validasi input dasar
+                if (string.IsNullOrEmpty(selectedDate))
+                {
+                    ViewBag.ErrorMessage = "Please select a valid date.";
+                    return PartialView("_LeadersAndLaggardsData", pageModel);
+                }
+
+                if (string.IsNullOrEmpty(periodType))
+                {
+                    ViewBag.ErrorMessage = "Please select a period type.";
+                    return PartialView("_LeadersAndLaggardsData", pageModel);
+                }
+
+                // Validasi format tanggal berdasarkan tipe periode
+                bool isValidFormat = false;
+                if (periodType == "Daily" || periodType == "Custom Date")
+                {
+                    isValidFormat = selectedDate.Length == 8 && int.TryParse(selectedDate, out _);
+                    if (periodType == "Custom Date")
+                    {
+                        isValidFormat = isValidFormat && !string.IsNullOrEmpty(endDate) && endDate.Length == 8 && int.TryParse(endDate, out _);
+                    }
+                }
+                else if (periodType == "Monthly")
+                {
+                    isValidFormat = selectedDate.Length == 6 && int.TryParse(selectedDate, out _);
+                }
+
+                if (!isValidFormat)
+                {
+                    ViewBag.ErrorMessage = $"Invalid date format for {periodType} period. Please select a valid date.";
+                    return PartialView("_LeadersAndLaggardsData", pageModel);
+                }
+
+                int topCount = topN ?? 10;
+                if (topCount <= 0 || topCount > 500)
+                {
+                    topCount = 10;
+                }
+
+                var userId = HttpContext.User.Identity.Name ?? "Anonymous";
+                db.InsertAuditTrail("Leaders_Laggards_Data_Request",
+                    $"User {userId} requested leaders/laggards data for {periodType} period, date {selectedDate}" + (endDate != null ? $" to {endDate}" : "") + $", top {topCount}",
+                    "LeadersAndLaggards");
+
+                // Pemanggilan metode helper sesuai dengan tipe periode
+                if (periodType == "Custom Date")
+                {
+                    pageModel.Leaders = WSQueryPS.GetLeadersOrLaggardsCustomDate(db, selectedDate, endDate, topCount, true);
+                    pageModel.Laggards = WSQueryPS.GetLeadersOrLaggardsCustomDate(db, selectedDate, endDate, topCount, false);
+                }
+                else
+                {
+                    pageModel.Leaders = WSQueryPS.GetLeadersOrLaggards(db, true, selectedDate, topCount, periodType);
+                    pageModel.Laggards = WSQueryPS.GetLeadersOrLaggards(db, false, selectedDate, topCount, periodType);
+                }
+
+                if (!pageModel.Leaders.Any() && !pageModel.Laggards.Any())
+                {
+                    ViewBag.InfoMessage = $"No data available for the selected {periodType.ToLower()}";
+                }
+                else
+                {
+                    for (int i = 0; i < pageModel.Leaders.Count; i++)
+                    {
+                        pageModel.Leaders[i].Sequence = i + 1;
+                    }
+
+                    for (int i = 0; i < pageModel.Laggards.Count; i++)
+                    {
+                        pageModel.Laggards[i].Sequence = i + 1;
+                    }
+                }
             }
-
-            int topCount = topN ?? 10;
-
-            // Call the new helper method from WSQueryPS for both lists
-            pageModel.Leaders = WSQueryPS.GetLeadersOrLaggards(db, true, selectedDate, topCount); // true = Gainers
-            pageModel.Laggards = WSQueryPS.GetLeadersOrLaggards(db, false, selectedDate, topCount); // false = Losers
+            catch (SqlException sqlEx)
+            {
+                System.Diagnostics.Debug.WriteLine($"SQL Error in _LeadersAndLaggardsData: {sqlEx.Message}");
+                ViewBag.ErrorMessage = "Database connection error. Please try again later.";
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in _LeadersAndLaggardsData: {ex.Message}");
+                ViewBag.ErrorMessage = "An unexpected error occurred. Please try again later.";
+            }
 
             return PartialView("_LeadersAndLaggardsData", pageModel);
         }
+
 
 
         public IActionResult GainersVsLosers()
@@ -108,26 +186,135 @@ namespace BDA.Controllers
 
 
         [HttpPost]
-        public PartialViewResult _GetGainersAndLosersData(string selectedDate, int? topN)
+        public PartialViewResult _GetGainersAndLosersData(string selectedDate, int? topN, string periodType, string endDate = null)
         {
             var pageModel = new GainersAndLosersPageViewModel();
 
-            if (string.IsNullOrEmpty(selectedDate))
+            try
             {
-                return PartialView("_GainersAndLosersData", pageModel);
+                // Input validation
+                if (string.IsNullOrEmpty(selectedDate))
+                {
+                    ViewBag.ErrorMessage = "Please select a valid date.";
+                    return PartialView("_GainersAndLosersData", pageModel);
+                }
+
+                if (string.IsNullOrEmpty(periodType))
+                {
+                    ViewBag.ErrorMessage = "Please select a period type.";
+                    return PartialView("_GainersAndLosersData", pageModel);
+                }
+
+                // Validate date format based on period type
+                bool isValidFormat = false;
+                if (periodType == "Daily" || periodType == "Custom Date")
+                {
+                    // Should be YYYYMMDD (8 digits)
+                    isValidFormat = selectedDate.Length == 8 && int.TryParse(selectedDate, out _);
+                    if (periodType == "Custom Date")
+                    {
+                        // endDate must also be valid
+                        isValidFormat = isValidFormat && !string.IsNullOrEmpty(endDate) && endDate.Length == 8 && int.TryParse(endDate, out _);
+                    }
+                }
+                else if (periodType == "Monthly")
+                {
+                    // Should be YYYYMM (6 digits)
+                    isValidFormat = selectedDate.Length == 6 && int.TryParse(selectedDate, out _);
+                }
+
+                if (!isValidFormat)
+                {
+                    ViewBag.ErrorMessage = $"Invalid date format for {periodType} period. Please select a valid date.";
+                    return PartialView("_GainersAndLosersData", pageModel);
+                }
+
+                int topCount = topN ?? 10;
+                if (topCount <= 0 || topCount > 500)
+                {
+                    topCount = 10; // Default fallback
+                }
+
+                var userId = HttpContext.User.Identity.Name ?? "Anonymous";
+                db.InsertAuditTrail("Gainers_Losers_Data_Request",
+                    $"User {userId} requested gainers/losers data for {periodType} period, date {selectedDate}" + (endDate != null ? $" to {endDate}" : "") + $", top {topCount}",
+                    "GainersVsLosers");
+
+                // Call the helper methods
+                if (periodType == "Custom Date")
+                {
+                    pageModel.Gainers = WSQueryPS.GetGainersOrLosersCustomDate(db, selectedDate, endDate, topCount, true);
+                    pageModel.Losers = WSQueryPS.GetGainersOrLosersCustomDate(db, selectedDate, endDate, topCount, false);
+                }
+                else
+                {
+                    pageModel.Gainers = WSQueryPS.GetGainersOrLosers(db, true, selectedDate, topCount, periodType);
+                    pageModel.Losers = WSQueryPS.GetGainersOrLosers(db, false, selectedDate, topCount, periodType);
+                }
+
+                if (!pageModel.Gainers.Any() && !pageModel.Losers.Any())
+                {
+                    ViewBag.InfoMessage = $"No data available for the selected {periodType.ToLower()}";
+                }
+                else
+                {
+                    for (int i = 0; i < pageModel.Gainers.Count; i++)
+                    {
+                        pageModel.Gainers[i].Sequence = i + 1;
+                    }
+
+                    for (int i = 0; i < pageModel.Losers.Count; i++)
+                    {
+                        pageModel.Losers[i].Sequence = i + 1;
+                    }
+                }
             }
-
-            int topCount = topN ?? 10;
-
-            // Call the new helper method from WSQueryPS for both lists
-            pageModel.Gainers = WSQueryPS.GetGainersOrLosers(db, true, selectedDate, topCount); // true = Gainers
-            pageModel.Losers = WSQueryPS.GetGainersOrLosers(db, false, selectedDate, topCount); // false = Losers
+            catch (SqlException sqlEx)
+            {
+                System.Diagnostics.Debug.WriteLine($"SQL Error in _GetGainersAndLosersData: {sqlEx.Message}");
+                ViewBag.ErrorMessage = "Database connection error. Please try again later.";
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in _GetGainersAndLosersData: {ex.Message}");
+                ViewBag.ErrorMessage = "An unexpected error occurred. Please try again later.";
+            }
 
             return PartialView("_GainersAndLosersData", pageModel);
         }
 
-        // I've created a private helper method to avoid duplicating the database logic
-        
+      
+
+        private string FormatDateForDisplay(string dateString, string periodType)
+        {
+            try
+            {
+                if (periodType == "Monthly" && dateString.Length == 6)
+                {
+                    // Format YYYYMM as MM/YYYY
+                    if (DateTime.TryParseExact(dateString + "01", "yyyyMMdd", null, DateTimeStyles.None, out DateTime date))
+                    {
+                        return date.ToString("MM/yyyy");
+                    }
+                }
+                else if ((periodType == "Daily" || periodType == "Custom Date") && dateString.Length == 8)
+                {
+                    // Format YYYYMMDD as DD/MM/YYYY
+                    if (DateTime.TryParseExact(dateString, "yyyyMMdd", null, DateTimeStyles.None, out DateTime date))
+                    {
+                        return date.ToString("dd/MM/yyyy");
+                    }
+                }
+            }
+            catch
+            {
+                // If parsing fails, return original string
+            }
+            return dateString;
+        }
+
+
+
 
         public IActionResult PerkembanganTransaksiNG()
         {

@@ -6154,7 +6154,7 @@ namespace BDA.Helper
             if (periode != null)
             {
                 string periodes = "'" + periode.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery += " AND pperiode in (" + periodes.Replace("-", "") + ")";
+                whereQuery += " AND yearmonth in (" + periodes.Replace("-", "") + ")";
             }
 
             if (pe != null)
@@ -6189,200 +6189,6 @@ namespace BDA.Helper
             return whereQuery;
         }
 
-        public static WSQueryReturns GetPS07TotalClientsQuery(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string invType, string invOrigin, string inRange, string market, bool isHive = true)
-        {
-            bool isC = false;
-            var whereQuery = "1=1";
-            isHive = true;
-
-            whereQuery += PS07Filters(periode, pe, invType, invOrigin, inRange, market);
-
-            var props = new WSQueryProperties();
-            if (isHive == true)
-            {
-                props.Query = @"
-                SELECT COUNT(tradeid) AS total_clients FROM pasarmodal.basis_investor_pe WHERE " + whereQuery + @"";
-            }
-
-            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
-        }
-
-        public static WSQueryReturns GetPS07ActiveClientQuery(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string invType, string invOrigin, string inRange, string market, bool isHive = true)
-        {
-            bool isC = false;
-            var whereQuery = "investortransactionfreq > 0";
-            isHive = true;
-
-            whereQuery += PS07Filters(periode, pe, invType, invOrigin, inRange, market);
-
-            var props = new WSQueryProperties();
-            if (isHive == true)
-            {
-                props.Query = @"
-                SELECT COUNT(1) AS active_clients FROM pasarmodal.basis_investor_pe WHERE " + whereQuery + @"";
-            }
-
-            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
-        }
-
-        public static WSQueryReturns GetPS07TrxFreqQuery(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string invType, string invOrigin, string inRange, string market, bool isHive = true)
-        {
-            bool isC = false;
-            var whereQuery = "1=1";
-            isHive = true;
-
-            whereQuery += PS07Filters(periode, pe, invType, invOrigin, inRange, market);
-
-            var props = new WSQueryProperties();
-            if (isHive == true)
-            {
-                props.Query = props.Query = @"
-                SELECT SUM(investortransactionfreq) AS trx_freq FROM pasarmodal.basis_investor_pe WHERE " + whereQuery + @"";
-            }
-
-            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
-        }
-
-        public static WSQueryReturns GetPS07TradedValueQuery(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string invType, string invOrigin, string inRange, string market, bool isHive = true)
-        {
-            bool isC = false;
-            var whereQuery = "1=1";
-            isHive = true;
-
-            whereQuery += PS07Filters(periode, pe, invType, invOrigin, inRange, market);
-
-            var props = new WSQueryProperties();
-            if (isHive == true)
-            {
-                props.Query = @"
-                SELECT SUM(investortotalvalue) AS traded_value FROM pasarmodal.basis_investor_pe WHERE " + whereQuery + @"";
-            }
-
-            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
-        }
-
-        public static WSQueryReturns GetPS07ClientLiquidAmtQuery(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string invType, string invOrigin, string inRange, string market, bool isHive = true)
-        {
-            bool isC = false;
-            var whereQuery = "1=1";
-            isHive = true;
-
-            whereQuery += PS07Filters(periode, pe, invType, invOrigin, inRange, market);
-
-            var props = new WSQueryProperties();
-            if (isHive == true)
-            {
-                props.Query = @"
-                SELECT SUM(portofolio_amount) AS client_liquid_amt FROM pasarmodal.basis_investor_pe WHERE " + whereQuery + @"";
-            }
-
-            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
-        }
-
-        public static WSQueryReturns GetPS07Segments(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string invType, string invOrigin, string inRange, string market, string segment, bool isHive = true)
-        {
-            bool isC = false;
-            var whereQuery = "basis_investor_1 = " + "'" + segment + "'";
-            isHive = true;
-
-            whereQuery += PS07Filters(periode, pe, invType, invOrigin, inRange, market);
-
-            var props = new WSQueryProperties();
-            if (isHive == true)
-            {
-                props.Query = @"SELECT SUM(investortransactionfreq) AS intrxfreq, COUNT(tradeid) AS ttlcli FROM pasarmodal.basis_investor_pe WHERE " + whereQuery + @"";
-            }
-
-            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
-        }
-
-        public static WSQueryReturns GetPS07PieChartsRFM(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string invType, string invOrigin, string inRange, string market, int type, string r, string f, string m, bool isHive = true)
-        {
-            bool isC = false;
-            var whereQuery = "1=1";
-            isHive = true;
-
-            whereQuery += PS07Filters(periode, pe, invType, invOrigin, inRange, market);
-
-            if (r != null)
-            {
-                string rr = "'" + r.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery += " AND r in (" + rr + ")";
-            }
-
-            if (f != null)
-            {
-                string ff = "'" + f.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery += " AND f in (" + ff + ")";
-            }
-
-            if (m != null)
-            {
-                string mm = "'" + m.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery += " AND m in (" + mm + ")";
-            }
-
-            var props = new WSQueryProperties();
-            if (isHive == true)
-            {
-                if (type == 1)
-                {
-                    props.Query = @"SELECT COUNT(tradeid) AS result FROM pasarmodal.basis_investor_pe WHERE " + whereQuery + @"";
-                }
-                else
-                {
-                    props.Query = @"SELECT SUM(investortotalvalue) AS result FROM pasarmodal.basis_investor_pe WHERE " + whereQuery + @"";
-                }
-                
-            }
-
-            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
-        }
-
-        public static WSQueryReturns GetPS07PieChartInv(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string invType, string invOrigin, string inRange, string market, int type, bool isHive = true)
-        {
-            bool isC = false;
-            var whereQuery = "1=1";
-            isHive = true;
-
-            whereQuery += PS07Filters(periode, pe, invType, invOrigin, inRange, market);
-
-            var props = new WSQueryProperties();
-            if (isHive == true)
-            {
-                if (type == 1)
-                {
-                    props.Query = @"SELECT COUNT(tradeid) AS result FROM pasarmodal.basis_investor_pe WHERE " + whereQuery + @"";
-                }
-                else
-                {
-                    props.Query = @"SELECT SUM(investortotalvalue) AS result FROM pasarmodal.basis_investor_pe WHERE " + whereQuery + @"";
-                }
-
-            }
-
-            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
-        }
-
-        public static WSQueryReturns GetPS07Scatter(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string invType, string invOrigin, string inRange, string market, bool isHive = true)
-        {
-            bool isC = false;
-            var whereQuery = "1=1";
-            isHive = true;
-
-            whereQuery += PS07Filters(periode, pe, invType, invOrigin, inRange, market);
-
-            var props = new WSQueryProperties();
-            if (isHive == true)
-            {
-                props.Query = @"SELECT basis_investor_1 AS basis_investor, (LOG(COUNT(sid)) / LOG(10)) AS log10_sid,  PERCENTILE(CAST(investorlasttransactionindays as BIGINT), 0.5) AS med_inv_days,  PERCENTILE(CAST(investortotalvalue as BIGINT), 0.5) / 1000000 AS med_inv_tot_val FROM pasarmodal.basis_investor_pe
- WHERE " + whereQuery + " GROUP BY basis_investor_1 ORDER BY basis_investor_1 ASC" + @"";
-
-            }
-
-            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
-        }
-
         public static WSQueryReturns GetPS07ALL(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string invType, string invOrigin, string inRange, string market, bool isHive = true)
         {
             bool isC = false;
@@ -6394,7 +6200,7 @@ namespace BDA.Helper
             var props = new WSQueryProperties();
             if (isHive == true)
             {
-                props.Query = @"SELECT pperiode, exchangemembercode, investor_type, investor_origin, inputrange, market, basis_investor_1, tradeid, investortransactionfreq, investortotalvalue, portofolio_amount, basis_investor_1, sid, investorlasttransactionindays, investortotalvalue, r, f, m FROM pasarmodal.basis_investor_pe WHERE " + whereQuery + @"";
+                props.Query = @"SELECT yearmonth, exchangemembercode, investor_type, investor_origin, inputrange, market, basis_investor_1, tradeid, investortransactionfreq, investortotalvalue, portofolio_amount, basis_investor_1, sid, investorlasttransactionindays, investortotalvalue, r, f, m FROM pasarmodal.basis_investor_pe WHERE " + whereQuery + @"";
 
             }
 
@@ -6410,7 +6216,7 @@ namespace BDA.Helper
             if (periode != null)
             {
                 string periodes = "'" + periode.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery += " AND pperiode in (" + periodes.Replace("-", "") + ")";
+                whereQuery += " AND yearmonth in (" + periodes.Replace("-", "") + ")";
             }
 
             if (pe != null)
@@ -6470,7 +6276,7 @@ namespace BDA.Helper
             var props = new WSQueryProperties();
             if (isHive == true)
             {
-                props.Query = @"SELECT sid, full_name AS fullname, new_sre AS newsre, investorlasttransactionindays AS invlasttrxindays, investortransactionfreq AS invtrxfreq, investortotalvalue AS invtotalval FROM pasarmodal.basis_investor_pe WHERE " + whereQuery + @"";
+                props.Query = @"SELECT tradeid, sid, full_name AS fullname, new_sre AS newsre, investorlasttransactionindays AS invlasttrxindays, investortransactionfreq AS invtrxfreq, investortotalvalue AS invtotalval FROM pasarmodal.basis_investor_pe WHERE " + whereQuery + @"";
 
             }
 
@@ -6487,7 +6293,7 @@ namespace BDA.Helper
             if (periode != null)
             {
                 string periodes = "'" + periode.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery += " AND pperiode in (" + periodes.Replace("-", "") + ")";
+                whereQuery += " AND yearmonth in (" + periodes.Replace("-", "") + ")";
             }
 
             if (pe != null)
@@ -6533,7 +6339,7 @@ namespace BDA.Helper
             if (periode != null)
             {
                 string periodes = "'" + periode.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery += " AND pperiode in (" + periodes.Replace("-", "") + ")";
+                whereQuery += " AND yearmonth in (" + periodes.Replace("-", "") + ")";
             }
 
             if (pe != null)
@@ -6570,17 +6376,16 @@ namespace BDA.Helper
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
         }
 
-        public static WSQueryReturns GetPS07CGridSRE(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string sid, string trxSys, string secCode, bool isHive = true)
+        public static WSQueryReturns GetPS07CGridSRE(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string tradeId, string trxSys, string secCode, bool isHive = true)
         {
             bool isC = false;
             var whereQuery = "1=1";
-            //var groupByQuery = " GROUP BY pe, sid, securityphysicaltypecode, settlementaccountownertypecode, settlementaccounttypecode, accountbalancestatuscode";
             isHive = true;
 
             if (periode != null)
             {
                 string periodes = "'" + periode.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery += " AND pperiode in (" + periodes.Replace("-", "") + ")";
+                whereQuery += " AND yearmonth in (" + periodes.Replace("-", "") + ")";
             }
 
             if (pe != null)
@@ -6589,10 +6394,10 @@ namespace BDA.Helper
                 whereQuery += " AND pe in (" + namaPEs + ")";
             }
 
-            if (sid != null)
+            if (tradeId != null)
             {
-                string s = "'" + sid.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery += " AND sid = " + s;
+                string ti = "'" + tradeId.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+                whereQuery += " AND tradeid = " + ti;
             }
 
             if (trxSys != null)
@@ -6610,7 +6415,6 @@ namespace BDA.Helper
             var props = new WSQueryProperties();
             if (isHive == true)
             {
-                //props.Query = @"SELECT pe, sid, securityphysicaltypecode AS secphytcode, settlementaccountownertypecode AS stlactowntcode, settlementaccounttypecode AS stlacttcode, accountbalancestatuscode AS actblcstscode, SUM(portfolioamount) AS portoamount, SUM(portfolioquantity) AS portoqty FROM pasarmodal.basis_investor_detail_sre WHERE " + whereQuery + groupByQuery + @"";
                 props.Query = @"SELECT pe, sid, securityphysicaltypecode AS secphytcode, settlementaccountownertypecode AS stlactowntcode, settlementaccounttypecode AS stlacttcode, accountbalancestatuscode AS actblcstscode, portfolioamount AS portoamount, portfolioquantity AS portoqty FROM pasarmodal.basis_investor_detail_sre WHERE " + whereQuery + @"";
             }
 
@@ -6673,6 +6477,90 @@ namespace BDA.Helper
             return WSQueryHelper.DoQueryNL(db, props, isC, isHive);
         }
 
+        public static WSQueryReturns GetBDAPMNegara(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1 AND Stsrc='A' " + "";
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                //if (tableName == "dimsecurities")
+                //{
+                //    props.Query = @"
+                //        SELECT securitycode, securityname, status from pasarmodal." + tableName + @"
+                //        WHERE " + whereQuery + @"";
+                //}
+            }
+            else
+            {
+                if (tableName == "MasterNegara")
+                {
+                    props.Query = @"
+                        SELECT NamaNegara from dbo." + tableName + @"
+                        WHERE " + whereQuery + @"";
+                }
+            }
+
+            return WSQueryHelper.DoQueryNL(db, props, isC, isHive);
+        }
+
+        public static WSQueryReturns GetBDAPMProvinsi(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1 AND Stsrc='A' " + "";
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                //if (tableName == "dimsecurities")
+                //{
+                //    props.Query = @"
+                //        SELECT securitycode, securityname, status from pasarmodal." + tableName + @"
+                //        WHERE " + whereQuery + @"";
+                //}
+            }
+            else
+            {
+                if (tableName == "MasterPropinsi")
+                {
+                    props.Query = @"
+                        SELECT RefPropinsiNama from dbo." + tableName + @"
+                        WHERE " + whereQuery + @"";
+                }
+            }
+
+            return WSQueryHelper.DoQueryNL(db, props, isC, isHive);
+        }
+
+        public static WSQueryReturns GetBDAPMKota(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, bool isHive = false)
+        {
+            bool isC = false;
+            var whereQuery = "1=1 AND Stsrc='A' " + "";
+
+            var props = new WSQueryProperties();
+            if (isHive == true)
+            {
+                //if (tableName == "dimsecurities")
+                //{
+                //    props.Query = @"
+                //        SELECT securitycode, securityname, status from pasarmodal." + tableName + @"
+                //        WHERE " + whereQuery + @"";
+                //}
+            }
+            else
+            {
+                if (tableName == "MasterKota2")
+                {
+                    props.Query = @"
+                        SELECT NamaKota from dbo." + tableName + @"
+                        WHERE " + whereQuery + @"";
+                }
+            }
+
+            return WSQueryHelper.DoQueryNL(db, props, isC, isHive);
+        }
+
         #endregion
 
         #region MM01
@@ -6698,7 +6586,7 @@ namespace BDA.Helper
                 if (tableName == "mrkt_mnpltn_prtn_rcgntn")
                 {
                     props.Query = @"
-                        SELECT sourcetradeid from pasarmodal." + tableName + @"
+                        SELECT distinct sourcetradeid from pasarmodal." + tableName + @"
                         WHERE " + whereQuery + @" 
                         group by sourcetradeid";
                 }
@@ -6738,8 +6626,8 @@ namespace BDA.Helper
                 if (tableName == "mrkt_mnpltn_prtn_rcgntn")
                 {
                     props.Query = @"
-                        SELECT bondissuertypecode from pasarmodal." + tableName + @"
-                        WHERE " + whereQuery + @" 
+                        SELECT distinct bondissuertypecode from pasarmodal." + tableName + @"
+                        WHERE " + whereQuery + @"
                         group by bondissuertypecode";
                 }
             }
@@ -6748,7 +6636,7 @@ namespace BDA.Helper
                 if (tableName == "mrkt_mnpltn_prtn_rcgntn")
                 {
                     props.Query = @"
-                        SELECT bondissuertypecode from pasarmodal." + tableName + @"
+                        SELECT distinct bondissuertypecode from pasarmodal." + tableName + @"
                         WHERE " + whereQuery + @"
                         group by bondissuertypecode";
                 }
@@ -6778,7 +6666,7 @@ namespace BDA.Helper
                 if (tableName == "mrkt_mnpltn_prtn_rcgntn")
                 {
                     props.Query = @"
-                        SELECT sourcename from pasarmodal." + tableName + @"
+                        SELECT distinct sourcename from pasarmodal." + tableName + @"
                         WHERE " + whereQuery + @" 
                         group by sourcename";
                 }
@@ -6788,7 +6676,7 @@ namespace BDA.Helper
                 if (tableName == "mrkt_mnpltn_prtn_rcgntn")
                 {
                     props.Query = @"
-                        SELECT sourcename from pasarmodal." + tableName + @"
+                        SELECT distinct sourcename from pasarmodal." + tableName + @"
                         WHERE " + whereQuery + @"
                         group by sourcename";
                 }
@@ -6818,7 +6706,7 @@ namespace BDA.Helper
                 if (tableName == "mrkt_mnpltn_prtn_rcgntn")
                 {
                     props.Query = @"
-                        SELECT targetname from pasarmodal." + tableName + @"
+                        SELECT distinct targetname from pasarmodal." + tableName + @"
                         WHERE " + whereQuery + @" 
                         group by targetname";
                 }
@@ -6828,7 +6716,7 @@ namespace BDA.Helper
                 if (tableName == "mrkt_mnpltn_prtn_rcgntn")
                 {
                     props.Query = @"
-                        SELECT targetname from pasarmodal." + tableName + @"
+                        SELECT distinct targetname from pasarmodal." + tableName + @"
                         WHERE " + whereQuery + @"
                         group by targetname";
                 }
@@ -6858,7 +6746,7 @@ namespace BDA.Helper
                 if (tableName == "mrkt_mnpltn_prtn_rcgntn")
                 {
                     props.Query = @"
-                        SELECT reporttypecode from pasarmodal." + tableName + @"
+                        SELECT distinct reporttypecode from pasarmodal." + tableName + @"
                         WHERE " + whereQuery + @" 
                         group by reporttypecode";
                 }
@@ -6868,7 +6756,7 @@ namespace BDA.Helper
                 if (tableName == "mrkt_mnpltn_prtn_rcgntn")
                 {
                     props.Query = @"
-                        SELECT reporttypecode from pasarmodal." + tableName + @"
+                        SELECT distinct reporttypecode from pasarmodal." + tableName + @"
                         WHERE " + whereQuery + @"
                         group by reporttypecode";
                 }
@@ -6898,7 +6786,7 @@ namespace BDA.Helper
                 if (tableName == "mrkt_mnpltn_prtn_rcgntn")
                 {
                     props.Query = @"
-                        SELECT bondreportstatuscode from pasarmodal." + tableName + @"
+                        SELECT distinct bondreportstatuscode from pasarmodal." + tableName + @"
                         WHERE " + whereQuery + @" 
                         group by bondreportstatuscode";
                 }
@@ -6908,7 +6796,7 @@ namespace BDA.Helper
                 if (tableName == "mrkt_mnpltn_prtn_rcgntn")
                 {
                     props.Query = @"
-                        SELECT bondreportstatuscode from pasarmodal." + tableName + @"
+                        SELECT distinct bondreportstatuscode from pasarmodal." + tableName + @"
                         WHERE " + whereQuery + @"
                         group by bondreportstatuscode";
                 }
@@ -6938,7 +6826,7 @@ namespace BDA.Helper
                 if (tableName == "mrkt_mnpltn_prtn_rcgntn")
                 {
                     props.Query = @"
-                        SELECT bondreportstatuscode from pasarmodal." + tableName + @"
+                        SELECT distinct bondreportstatuscode from pasarmodal." + tableName + @"
                         WHERE " + whereQuery + @" 
                         group by bondreportstatuscode";
                 }
@@ -6948,7 +6836,7 @@ namespace BDA.Helper
                 if (tableName == "mrkt_mnpltn_prtn_rcgntn")
                 {
                     props.Query = @"
-                        SELECT bondreportstatuscode from pasarmodal." + tableName + @"
+                        SELECT distinct bondreportstatuscode from pasarmodal." + tableName + @"
                         WHERE " + whereQuery + @"
                         group by bondreportstatuscode";
                 }
@@ -6958,7 +6846,7 @@ namespace BDA.Helper
         }
         public static WSQueryReturns GetBDAPMMMTransaksiSPVQuery(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string stringPeriodeAwal, string stringPeriodeAkhir, 
             string stringcaseid, string stringtradeid, string stringbondtypecode, string stringsourcenameid, string stringtargetnameid, 
-            string stringreporttypeid, string stringbondlateid, string stringbondreportid, bool isHive = false)
+            string stringreporttypeid, string stringbondreportid, bool isHive = false)
         {
             bool isC = false;
             var whereQuery = "1=1";
@@ -7016,12 +6904,6 @@ namespace BDA.Helper
             {
                 stringreporttypeid = "'" + stringreporttypeid.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
                 whereQuery = whereQuery += " AND reporttypecode in (" + stringreporttypeid + ")";
-            }
-
-            if (stringbondlateid != null)
-            {
-                stringbondlateid = "'" + stringbondlateid.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery = whereQuery += " AND reporttypecode in (" + stringbondlateid + ")";
             }
 
             if (stringbondreportid != null)

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BDA.DataModel;
 using BDA.Helper;
+using DevExpress.Xpo.DB.Helpers;
 using DevExtreme.AspNet.Data;
 using DevExtreme.AspNet.Mvc;
 using Microsoft.AspNetCore.Hosting;
@@ -67,7 +68,7 @@ namespace BDA.Areas.Master.Controllers
             return View();
         }
 
-        public object GetGridData(DataSourceLoadOptions loadOptions, string paramStartDate, string paramEndDate, string paramMenu) 
+        public object GetGridData(DataSourceLoadOptions loadOptions, string paramStartDate, string paramEndDate, string paramMenu, string paramSatker, string paramUserID) 
         {
             DateTime startDate = Convert.ToDateTime(paramStartDate);
             DateTime endDate = Convert.ToDateTime(paramEndDate);
@@ -81,21 +82,41 @@ namespace BDA.Areas.Master.Controllers
                 endDate = new DateTime(endDate.Year, endDate.Month, endDate.Day, 23, 59, 59);
             }
 
+            List<AuditTrail> data = db.AuditTrail.Where(x => x.AuditDate >= startDate && x.AuditDate <= endDate).ToList();
+
             if (paramMenu != null)
             {
-                var query = from q in db.AuditTrail
-                            where q.AuditDate >= startDate && q.AuditDate <= endDate && paramMenu.Contains(q.AuditMenu)
-                            select new { q.AuditCause, q.AuditMenu, q.AuditDate, q.AuditDebtorName, q.AuditErrMsg, q.AuditId, q.AuditIpAddress, q.AuditUser, q.AuditPrevUrl, q.AuditUrl, q.AuditTipe };
-                return DataSourceLoader.Load(query.ToList(), loadOptions);
+                data = data.Where(x => paramMenu.Contains(x.AuditMenu)).ToList();
             }
-            else
+
+            if (paramUserID != null) 
+            { 
+                data = data.Where(x => x.AuditUser.Equals(paramUserID)).ToList();
+            }
+
+            if (paramSatker != null) 
             {
-                var query = from q in db.AuditTrail
-                            where q.AuditDate >= startDate && q.AuditDate <= endDate
-                            select new { q.AuditCause, q.AuditMenu, q.AuditDate, q.AuditDebtorName, q.AuditErrMsg, q.AuditId, q.AuditIpAddress, q.AuditUser, q.AuditPrevUrl, q.AuditUrl, q.AuditTipe };
-                return DataSourceLoader.Load(query.ToList(), loadOptions);
+                data = data.Where(x => x.AuditSatker.Equals(paramSatker)).ToList();
             }
-            
+
+            List<LogAksesData> datas = (from x in data
+                                       select new LogAksesData
+                                       { 
+                                           ID = x.AuditId.ToString(),
+                                           AuditDate = x.AuditDate,
+                                           AuditIpAddress = x.AuditIpAddress,
+                                           AuditNIP = x.AuditNip,
+                                           AuditUser = x.AuditUser,
+                                           AuditSatker = x.AuditSatker,
+                                           AuditCause = x.AuditCause,
+                                           AuditMenu = x.AuditMenu,
+                                           AuditUrl = x.AuditUrl,
+                                           AuditIn = x.AuditDataIn,
+                                           AuditOut = x.AuditDataOut,
+                                           AuditDesc = x.AuditDesc
+                                       }).ToList();
+
+            return DataSourceLoader.Load(datas, loadOptions);
         }
         
         public IActionResult GetRefModul(DataSourceLoadOptions loadOptions)
@@ -106,6 +127,23 @@ namespace BDA.Areas.Master.Controllers
                 .OrderBy(x => x.ModUrut)
                 .ToList();
             return Content(JsonConvert.SerializeObject(DataSourceLoader.Load(list, loadOptions)), "application/json");
+        }
+
+        public class LogAksesData
+        {
+            public string ID { get; set; }
+            public DateTime AuditDate { get; set; }
+            public string AuditIpAddress { get; set; }
+            public string AuditNIP { get; set; }
+            public string AuditUser { get; set; }
+            public string AuditSatker { get; set; }
+            public string AuditCause { get; set; }
+            public string AuditMenu { get; set; }
+            public string AuditUrl { get; set; }
+            public string AuditIn {  get; set; }
+            public string AuditOut { get; set; }
+            public string AuditDesc { get; set; }
+
         }
 
     }

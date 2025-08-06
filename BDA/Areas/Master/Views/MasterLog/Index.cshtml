@@ -87,107 +87,78 @@
         });
 
     }
+    
+    function redirDetail(e) {
+        var kode = e.row.data.log_kode;
 
-    function gridOnBeforeSend(method, ajaxOptions) {
-        var tempstartDate = $("#startDate").dxDateBox("instance").option('value');
-        var tempendDate = $("#endDate").dxDateBox("instance").option('value');
-        var menu = $("#menu").dxDropDownBox("instance").option('text');
-        var startDate = null;
-        var endDate = null;
-
-        if (tempstartDate > tempendDate) {
-            swal({ type: 'error', title: 'Validasi', text: 'Periksa Kembali Tanggal Inputan' });
-        }
-
-        if (tempstartDate != null) {
-            startDate = tempstartDate.getFullYear() + '-' + (tempstartDate.getMonth() + 1) + '-' + tempstartDate.getDate();
-        }
-        if (tempendDate != null) {
-            endDate = tempendDate.getFullYear() + '-' + (tempendDate.getMonth() + 1) + '-' + tempendDate.getDate();
-        }
-
-        ajaxOptions.data.paramMenu = menu?.toString();
-        ajaxOptions.data.paramStartDate = startDate;
-        ajaxOptions.data.paramEndDate = endDate;
-
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("ExportPDF", "BasisInvestor")",
+            data: {paramID: kode},
+            dataType: "json",
+            type: "POST",
+        }).done(function (resp) {
+            $("#popup").dxPopup({
+                visible: true,
+                title: "Detil",
+                showCloseButton: true,
+                height: 400,
+                contentTemplate: function (contentElement) {
+                    const detailGrid = $("<div>").appendTo(contentElement);
+                    detailGrid.dxDataGrid({
+                        dataSource: resp,
+                        columns: [
+                            { dataField: "log_kode", caption: "Kode Job" },
+                            { dataField: "log_seq", caption: "Urutan Proses" },
+                            { dataField: "log_job", caption: "Nama Job" },
+                            { dataField: "log_table_src", caption: "Nama Tabel Sumber" },
+                            { dataField: "log_table_dst", caption: "Nama Tabel Target" },
+                            { dataField: "log_script", caption: "Lokasi Script" },
+                        ],
+                        showBorders: true
+                    });
+                }
+            });
+        });
     }
+
+    function redirDelete() {}
+
+    // function gridOnBeforeSend(method, ajaxOptions) {
+    //     var tempstartDate = $("#startDate").dxDateBox("instance").option('value');
+    //     var tempendDate = $("#endDate").dxDateBox("instance").option('value');
+    //     var menu = $("#menu").dxDropDownBox("instance").option('text');
+    //     var startDate = null;
+    //     var endDate = null;
+
+    //     if (tempstartDate > tempendDate) {
+    //         swal({ type: 'error', title: 'Validasi', text: 'Periksa Kembali Tanggal Inputan' });
+    //     }
+
+    //     if (tempstartDate != null) {
+    //         startDate = tempstartDate.getFullYear() + '-' + (tempstartDate.getMonth() + 1) + '-' + tempstartDate.getDate();
+    //     }
+    //     if (tempendDate != null) {
+    //         endDate = tempendDate.getFullYear() + '-' + (tempendDate.getMonth() + 1) + '-' + tempendDate.getDate();
+    //     }
+
+    //     ajaxOptions.data.paramMenu = menu?.toString();
+    //     ajaxOptions.data.paramStartDate = startDate;
+    //     ajaxOptions.data.paramEndDate = endDate;
+
+    // }
 </script>
 
 
 <div class="card card-default">
     <div class="row filter-panel" style="padding-top:0px;">
         <div class="card-body">
-            <div class="row">
-                <div class="col-lg-6 form-group">
-                    <label>Tanggal Mulai</label>
-                    @(Html.DevExtreme().DateBox()
-                        .ID("startDate")
-                        .Name("startDate")
-                        .Width("100%").Value(DateTime.Now).DisplayFormat("dd MMM yyyy"))
-                </div>
-                <div class="col-lg-6 form-group">
-                    <label>Tanggal Selesai</label>
-                    @(Html.DevExtreme().DateBox()
-                        .ID("endDate")
-                        .Name("endDate")
-                        .Width("100%").Value(DateTime.Now).DisplayFormat("dd MMM yyyy"))
-                </div>
-                <div class="col-lg-6 form-group">
-                    <label>Menu</label>
-                    @(Html.DevExtreme().DropDownBox()
-                        .ID("menu")
-                        .DataSource(d => d.Mvc()
-                        .Controller("MasterLog")
-                        .LoadAction("GetRefModul")
-                        .Key("ModId"))
-                        .ValueExpr("ModId")
-                        .DisplayExpr("ModKode")
-                        .Placeholder("Select...")
-                        .ShowClearButton(true)
-                        .OnValueChanged("treeBox_valueChanged")
-                        .ContentTemplate(new TemplateName("EmbeddedTreeViewSingle")))
-                </div>
-                @using (Html.DevExtreme().NamedTemplate("EmbeddedTreeViewSingle"))
-                {
-                    @(Html.DevExtreme().TreeView()
-                        .ID("tree")
-                        .DataSource(new JS(@"component.getDataSource()"))
-                        .KeyExpr("ModId")
-                        .ParentIdExpr("ParentModId")
-                        .DisplayExpr("ModKode")
-                        .DataStructure(TreeViewDataStructure.Plain)
-                        .SelectionMode(NavSelectionMode.Multiple)
-                        .ShowCheckBoxesMode(TreeViewCheckBoxMode.Normal)
-                        .SelectNodesRecursive(true)
-                        .SelectByClick(true)
-                        .Height(235)
-                        .OnItemSelectionChanged(@<text>
-                    function(args) {
-                    component.option("value", args.component.getSelectedNodeKeys());
-                    }
-                </text>)
-                        .OnContentReady(@<text>
-                    function(args) {
-                    syncTreeViewSelection(args.component, component.option("value"));
-                    }
-                </text>)
-                        )
-                }
-            </div>
-
-            <div class="float-left">
-                @(Html.DevExtreme().Button().Type(ButtonType.Default).Text("Cari").OnClick(@<text>
-                    function () {
-                    $("#grid1").dxDataGrid("instance").getDataSource().reload();
-                    }
-                </text>))
-            </div>
-
+            
             <div class="float-right">
                 @if (ViewBag.Export)
                 {
-                    <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:exportToEx();"><span class="image fa fa-file-excel"></span> Export Excel</a>
-                    <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:exportToPDF();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
+                    <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:exportToPDF();"><span class="image fa fa-download"></span> Download Template</a>
+                    <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:exportToEx();"><span class="image fa fa-upload"></span> Upload</a>
                 }
             </div>
         </div>
@@ -202,24 +173,28 @@
             .DataSource(d => d.Mvc()
             .Controller("MasterLog")
             .LoadAction("GetGridData")
-            .OnBeforeSend("gridOnBeforeSend")
-            .Key("AuditId")
+            //.OnBeforeSend("gridOnBeforeSend")
+            .Key("log_kode")
             )
             .RemoteOperations(true)
             .Export(e => e.AllowExportSelectedData(true).Texts(q => q.ExportTo("Ekspor")))
             .Width("100%")
             .Columns(columns =>
             {
+                columns.Add().DataField("log_no").Caption("No").Width("10%");
+                columns.Add().DataField("log_kode").Caption("Kode Job").Width("20%");
+                columns.Add().DataField("log_nama").Caption("Nama Sequence").Width("20%");
+                columns.Add().DataField("log_waktu").Caption("Waktu Scheduler").Width("10%");
+                columns.Add().Type(GridCommandColumnType.Buttons).Caption("Aksi").Buttons(b =>
+                            {
+                                b.Add().Hint("Detail")
+                                    .Icon("activefolder")
+                                    .OnClick("redirDetail");
 
-                columns.Add().DataField("AuditDate").Width("150px").Caption("Tanggal").DataType(GridColumnDataType.DateTime).Format("dd MMM yyyy HH:mm:ss").SortIndex(0).SortOrder(SortOrder.Desc).Alignment(HorizontalAlignment.Left);
-                columns.Add().DataField("AuditCause").Width("250px").Caption("Aksi");
-                columns.Add().DataField("AuditTipe").Width("250px").Caption("Tipe");
-                columns.Add().DataField("AuditMenu").Width("250px").Caption("Menu");
-                columns.Add().DataField("AuditUser").Width("150px").Caption("User ID");
-                columns.Add().DataField("AuditIpAddress").Width("120px").Caption("IP Address");
-                //columns.Add().DataField("AuditPrevUrl").Width("200px").Caption("URL Halaman Sebelumnya");
-                columns.Add().DataField("AuditUrl").Width("200px").Caption("URL Halaman");
-
+                                b.Add().Hint("Delete")
+                                    .Icon("trash")
+                                    .OnClick("redirDelete");
+                            });
             })
             .FilterRow(f => f.Visible(true))
             //.AllowColumnResizing(true)
@@ -241,6 +216,18 @@
             )
 
     </div>
+    <div id="popup"></div>
 </div>
+
+<style type="text/css">
+    .mandatory {
+        background-color: red !important;
+    }
+
+    .dx-datagrid-headers {
+        background-color: #a01905;
+        color: #ffffff;
+    }
+</style>
 
 

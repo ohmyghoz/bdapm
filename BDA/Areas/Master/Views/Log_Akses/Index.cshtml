@@ -92,6 +92,8 @@
         var tempstartDate = $("#startDate").dxDateBox("instance").option('value');
         var tempendDate = $("#endDate").dxDateBox("instance").option('value');
         var menu = $("#menu").dxDropDownBox("instance").option('text');
+        var satker = $("#satker").dxTextBox("instance").option('value');
+        var userID = $("#userID").dxTextBox("instance").option('value');
         var startDate = null;
         var endDate = null;
 
@@ -107,6 +109,8 @@
         }
 
         ajaxOptions.data.paramMenu = menu?.toString();
+        ajaxOptions.data.paramSatker = satker?.toString();
+        ajaxOptions.data.paramUserID = userID?.toString();
         ajaxOptions.data.paramStartDate = startDate;
         ajaxOptions.data.paramEndDate = endDate;
 
@@ -131,6 +135,20 @@
                             .ID("endDate")
                             .Name("endDate")
                             .Width("100%").Value(DateTime.Now).DisplayFormat("dd MMM yyyy"))
+                </div>
+                 <div class="col-lg-6 form-group">
+                    <label>Satuan Kerja</label>
+                    @(Html.DevExtreme().TextBox()
+                            .ID("satker")
+                            .Name("satker")
+                            .Width("100%"))
+                </div>
+                 <div class="col-lg-6 form-group">
+                    <label>User ID</label>
+                    @(Html.DevExtreme().TextBox()
+                            .ID("userID")
+                            .Name("userID")
+                            .Width("100%"))
                 </div>
                 <div class="col-lg-6 form-group">
                     <label>Menu</label>
@@ -202,7 +220,18 @@
                 .Controller("Log_Akses")
                 .LoadAction("GetGridData")
                 .OnBeforeSend("gridOnBeforeSend")
-                .Key("AuditId")
+                .Key("ID")
+                @* new [] {
+                    new { AuditDate = "11 Mei 2025 22:21:20", AuditIpAddress = "127.0.0.1", AuditNIP = "01234",
+                          AuditUser = "admin", AuditSatker = "DPDS", AuditCause = "LOGIN", AuditMenu = "Home", AuditUrl = "localhost/login",
+                          AuditIn = "-", AuditOut = "-", AuditDesc = "" },
+                    new { AuditDate = "11 Mei 2025 22:21:20", AuditIpAddress = "127.0.0.1", AuditNIP = "01234",
+                          AuditUser = "admin", AuditSatker = "DPDS", AuditCause = "VIEW", AuditMenu = "MKBD",  AuditUrl = "localhost/MKBD",
+                          AuditIn = "Periode: 20240101, SID: 12345", AuditOut = "4000", AuditDesc = "Lihat Menu MKBD" },
+                    new { AuditDate = "11 Mei 2025 22:21:20", AuditIpAddress = "127.0.0.1", AuditNIP = "01234",
+                          AuditUser = "admin", AuditSatker = "DPDS", AuditCause = "DOWNLOAD", AuditMenu = "MKBD", AuditUrl = "localhost/MKBD",
+                          AuditIn = "Periode: 20240101, SID: 12345", AuditOut = "4000", AuditDesc = "" },
+                } *@
             )
             .RemoteOperations(true)
             .Export(e => e.AllowExportSelectedData(true).Texts(q => q.ExportTo("Ekspor")))
@@ -211,13 +240,27 @@
             {
 
                 columns.Add().DataField("AuditDate").Width("150px").Caption("Tanggal").DataType(GridColumnDataType.DateTime).Format("dd MMM yyyy HH:mm:ss").SortIndex(0).SortOrder(SortOrder.Desc).Alignment(HorizontalAlignment.Left);
-                columns.Add().DataField("AuditCause").Width("250px").Caption("Aksi");
-                columns.Add().DataField("AuditTipe").Width("250px").Caption("Tipe");
-                columns.Add().DataField("AuditMenu").Width("250px").Caption("Menu");
-                columns.Add().DataField("AuditUser").Width("150px").Caption("User ID");
                 columns.Add().DataField("AuditIpAddress").Width("120px").Caption("IP Address");
-                //columns.Add().DataField("AuditPrevUrl").Width("200px").Caption("URL Halaman Sebelumnya");
+                columns.Add().DataField("AuditNIP").Width("150px").Caption("NIP");
+                columns.Add().DataField("AuditUser").Width("150px").Caption("User ID");
+                columns.Add().DataField("AuditSatker").Width("150px").Caption("Satuan Kerja");
+
+                columns.Add().DataField("AuditCause").Width("250px").Caption("Kegiatan");
+                columns.Add().DataField("AuditMenu").Width("250px").Caption("Menu");
                 columns.Add().DataField("AuditUrl").Width("200px").Caption("URL Halaman");
+
+                columns.Add().DataField("AuditIn").Width("200px").Caption("Input Parameter");
+                columns.Add().DataField("AuditOut").Width("200px").Caption("Output Parameter");
+                columns.Add().DataField("AuditDesc").Width("200px").Caption("Keterangan");
+
+                columns.Add().DataField("ID").Visible(false);
+
+                //columns.Add().DataField("AuditTipe").Width("250px").Caption("Tipe");
+
+                //columns.Add().DataField("AuditUser").Width("150px").Caption("User ID");
+
+                //columns.Add().DataField("AuditPrevUrl").Width("200px").Caption("URL Halaman Sebelumnya");
+                
 
             })
             .FilterRow(f => f.Visible(true))
@@ -243,3 +286,13 @@
 </div>
 
 
+<style type="text/css">
+    .mandatory {
+        background-color: red !important;
+    }
+
+    .dx-datagrid-headers {
+        background-color: #a01905;
+        color: #ffffff;
+    }
+</style>

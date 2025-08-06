@@ -65,7 +65,7 @@ namespace BDA.Controllers
 
             return View();
         }
-        public IActionResult SumTxSID(string pe, string periode, string sid)
+        public IActionResult SumTxSID(string pe, string periode, string sid, string tradeid)
         {
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
             var currentNode = mdl.GetCurrentNode();
@@ -78,6 +78,7 @@ namespace BDA.Controllers
             ViewBag.pe = pe;
             ViewBag.periode = periode;
             ViewBag.sid = sid;
+            ViewBag.tradeid = tradeid;
 
             return View();
         }
@@ -94,614 +95,6 @@ namespace BDA.Controllers
         }
 
         #region PS07
-        public object GetCardTotalClients(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE, string invType, string invOrigin, string inRange, string market)
-        {
-            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
-            TempData.Clear(); //membersihkan data filtering
-
-            string stringPeriodeAwal = null;
-            string stringNamaPE = null;
-            string stringInvType = null;
-            string stringInvOrigin = null;
-            string stringInRange = null;
-            string stringMarket = null;
-
-            string reportId = "ps_basis_inv_pe"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
-
-            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
-
-            stringPeriodeAwal = Convert.ToDateTime(DateTime.Now).ToString("yyyy-MM-dd");
-            TempData["pawal"] = stringPeriodeAwal;
-
-            if (periodeAwal != null)
-            {
-                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
-                TempData["pawal"] = stringPeriodeAwal;
-            }
-
-            if (namaPE != null)
-            {
-                stringNamaPE = namaPE;
-                //string result = stringNamaPE.Replace("\",\"", "");
-                TempData["pe"] = stringNamaPE;
-            }
-
-            if (invType != null)
-            {
-                stringInvType = invType;
-                TempData["invType"] = stringInvType;
-            }
-
-            if (invOrigin != null)
-            {
-                stringInvOrigin = invOrigin;
-                TempData["invOrigin"] = stringInvOrigin;
-            }
-
-            if (inRange != null)
-            {
-                stringInRange = inRange;
-                TempData["inRange"] = stringInRange;
-            }
-
-            if (market != null)
-            {
-                stringMarket = market;
-                TempData["market"] = stringMarket;
-
-            }
-
-            db.Database.CommandTimeout = 420;
-            var result = Helper.WSQueryStore.GetPS07TotalClientsQuery(db, loadOptions, stringPeriodeAwal, stringNamaPE, stringInvType, stringInvOrigin, stringInRange, stringMarket, cekHive);
-
-            return JsonConvert.SerializeObject(result);
-        }
-
-        public object GetCardActiveClient(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE, string invType, string invOrigin, string inRange, string market)
-        {
-            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
-            TempData.Clear(); //membersihkan data filtering
-
-            string stringPeriodeAwal = null;
-            string stringNamaPE = null;
-            string stringInvType = null;
-            string stringInvOrigin = null;
-            string stringInRange = null;
-            string stringMarket = null;
-
-            string reportId = "ps_basis_inv_pe"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
-
-            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
-
-            stringPeriodeAwal = Convert.ToDateTime(DateTime.Now).ToString("yyyy-MM-dd");
-            TempData["pawal"] = stringPeriodeAwal;
-
-            if (periodeAwal != null)
-            {
-                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
-                TempData["pawal"] = stringPeriodeAwal;
-            }
-
-            if (namaPE != null)
-            {
-                stringNamaPE = namaPE;
-                //string result = stringNamaPE.Replace("\",\"", "");
-                TempData["pe"] = stringNamaPE;
-            }
-
-            if (invType != null)
-            {
-                stringInvType = invType;
-                TempData["invType"] = stringInvType;
-            }
-
-            if (invOrigin != null)
-            {
-                stringInvOrigin = invOrigin;
-                TempData["invOrigin"] = stringInvOrigin;
-            }
-
-            if (inRange != null)
-            {
-                stringInRange = inRange;
-                TempData["inRange"] = stringInRange;
-            }
-
-            if (market != null)
-            {
-                stringMarket = market;
-                TempData["market"] = stringMarket;
-
-            }
-
-            db.Database.CommandTimeout = 420;
-            var result = Helper.WSQueryStore.GetPS07ActiveClientQuery(db, loadOptions, stringPeriodeAwal, stringNamaPE, stringInvType, stringInvOrigin, stringInRange, stringMarket, cekHive);
-
-            return JsonConvert.SerializeObject(result);
-        }
-
-        public object GetCardTrxFreq(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE, string invType, string invOrigin, string inRange, string market)
-        {
-            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
-            TempData.Clear(); //membersihkan data filtering
-
-            string stringPeriodeAwal = null;
-            string stringNamaPE = null;
-            string stringInvType = null;
-            string stringInvOrigin = null;
-            string stringInRange = null;
-            string stringMarket = null;
-            string reportId = "ps_basis_inv_pe"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
-
-            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
-
-            stringPeriodeAwal = Convert.ToDateTime(DateTime.Now).ToString("yyyy-MM-dd");
-            TempData["pawal"] = stringPeriodeAwal;
-
-            if (periodeAwal != null)
-            {
-                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
-                TempData["pawal"] = stringPeriodeAwal;
-            }
-
-            if (namaPE != null)
-            {
-                stringNamaPE = namaPE;
-                //string result = stringNamaPE.Replace("\",\"", "");
-                TempData["pe"] = stringNamaPE;
-            }
-
-            if (invType != null)
-            {
-                stringInvType = invType;
-                TempData["invType"] = stringInvType;
-            }
-
-            if (invOrigin != null)
-            {
-                stringInvOrigin = invOrigin;
-                TempData["invOrigin"] = stringInvOrigin;
-            }
-
-            if (inRange != null)
-            {
-                stringInRange = inRange;
-                TempData["inRange"] = stringInRange;
-            }
-
-            if (market != null)
-            {
-                stringMarket = market;
-                TempData["market"] = stringMarket;
-
-            }
-
-            db.Database.CommandTimeout = 420;
-            var result = Helper.WSQueryStore.GetPS07TrxFreqQuery(db, loadOptions, stringPeriodeAwal, stringNamaPE, stringInvType, stringInvOrigin, stringInRange, stringMarket, cekHive);
-
-            return JsonConvert.SerializeObject(result);
-        }
-
-        public object GetCardtradedValue(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE, string invType, string invOrigin, string inRange, string market)
-        {
-            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
-            TempData.Clear(); //membersihkan data filtering
-
-            string stringPeriodeAwal = null;
-            string stringNamaPE = null;
-            string stringInvType = null;
-            string stringInvOrigin = null;
-            string stringInRange = null;
-            string stringMarket = null;
-            string reportId = "ps_basis_inv_pe"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
-
-            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
-
-            stringPeriodeAwal = Convert.ToDateTime(DateTime.Now).ToString("yyyy-MM-dd");
-            TempData["pawal"] = stringPeriodeAwal;
-
-            if (periodeAwal != null)
-            {
-                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
-                TempData["pawal"] = stringPeriodeAwal;
-            }
-
-            if (namaPE != null)
-            {
-                stringNamaPE = namaPE;
-                //string result = stringNamaPE.Replace("\",\"", "");
-                TempData["pe"] = stringNamaPE;
-            }
-
-            if (invType != null)
-            {
-                stringInvType = invType;
-                TempData["invType"] = stringInvType;
-            }
-
-            if (invOrigin != null)
-            {
-                stringInvOrigin = invOrigin;
-                TempData["invOrigin"] = stringInvOrigin;
-            }
-
-            if (inRange != null)
-            {
-                stringInRange = inRange;
-                TempData["inRange"] = stringInRange;
-            }
-
-            if (market != null)
-            {
-                stringMarket = market;
-                TempData["market"] = stringMarket;
-
-            }
-
-            db.Database.CommandTimeout = 420;
-            var result = Helper.WSQueryStore.GetPS07TradedValueQuery(db, loadOptions, stringPeriodeAwal, stringNamaPE, stringInvType, stringInvOrigin, stringInRange, stringMarket, cekHive);
-
-            return JsonConvert.SerializeObject(result);
-        }
-
-        public object GetCardClientLiquidAmt(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE, string invType, string invOrigin, string inRange, string market)
-        {
-            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
-            TempData.Clear(); //membersihkan data filtering
-
-            string stringPeriodeAwal = null;
-            string stringNamaPE = null;
-            string stringInvType = null;
-            string stringInvOrigin = null;
-            string stringInRange = null;
-            string stringMarket = null;
-            string reportId = "ps_basis_inv_pe"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
-
-            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
-
-            stringPeriodeAwal = Convert.ToDateTime(DateTime.Now).ToString("yyyy-MM-dd");
-            TempData["pawal"] = stringPeriodeAwal;
-
-            if (periodeAwal != null)
-            {
-                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
-                TempData["pawal"] = stringPeriodeAwal;
-            }
-
-            if (namaPE != null)
-            {
-                stringNamaPE = namaPE;
-                //string result = stringNamaPE.Replace("\",\"", "");
-                TempData["pe"] = stringNamaPE;
-            }
-
-            if (invType != null)
-            {
-                stringInvType = invType;
-                TempData["invType"] = stringInvType;
-            }
-
-            if (invOrigin != null)
-            {
-                stringInvOrigin = invOrigin;
-                TempData["invOrigin"] = stringInvOrigin;
-            }
-
-            if (inRange != null)
-            {
-                stringInRange = inRange;
-                TempData["inRange"] = stringInRange;
-            }
-
-            if (market != null)
-            {
-                stringMarket = market;
-                TempData["market"] = stringMarket;
-
-            }
-
-            db.Database.CommandTimeout = 420;
-            var result = Helper.WSQueryStore.GetPS07ClientLiquidAmtQuery(db, loadOptions, stringPeriodeAwal, stringNamaPE, stringInvType, stringInvOrigin, stringInRange, stringMarket, cekHive);
-
-            return JsonConvert.SerializeObject(result);
-        }
-
-        public object GetBarChartSegments(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE, string invType, string invOrigin, string inRange, string market, string segment)
-        {
-            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
-            TempData.Clear(); //membersihkan data filtering
-
-            string stringPeriodeAwal = null;
-            string stringNamaPE = null;
-            string stringInvType = null;
-            string stringInvOrigin = null;
-            string stringInRange = null;
-            string stringMarket = null;
-            string stringSegment = null;
-            string reportId = "ps_basis_inv_pe"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
-
-            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
-
-            stringPeriodeAwal = Convert.ToDateTime(DateTime.Now).ToString("yyyy-MM-dd");
-            TempData["pawal"] = stringPeriodeAwal;
-
-            if (periodeAwal != null)
-            {
-                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
-                TempData["pawal"] = stringPeriodeAwal;
-            }
-
-            if (namaPE != null)
-            {
-                stringNamaPE = namaPE;
-                //string result = stringNamaPE.Replace("\",\"", "");
-                TempData["pe"] = stringNamaPE;
-            }
-
-            if (invType != null)
-            {
-                stringInvType = invType;
-                TempData["invType"] = stringInvType;
-            }
-
-            if (invOrigin != null)
-            {
-                stringInvOrigin = invOrigin;
-                TempData["invOrigin"] = stringInvOrigin;
-            }
-
-            if (inRange != null)
-            {
-                stringInRange = inRange;
-                TempData["inRange"] = stringInRange;
-            }
-
-            if (market != null)
-            {
-                stringMarket = market;
-                TempData["market"] = stringMarket;
-
-            }
-
-            if (segment != null)
-            {
-                stringSegment = segment;
-                TempData["segment"] = stringSegment;
-
-            }
-
-            db.Database.CommandTimeout = 420;
-            var result = Helper.WSQueryStore.GetPS07Segments(db, loadOptions, stringPeriodeAwal, stringNamaPE, stringInvType, stringInvOrigin, stringInRange, stringMarket, stringSegment, cekHive);
-
-            return JsonConvert.SerializeObject(result);
-        }
-
-        public object GetPieChartsRFM(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE, string invType, string invOrigin, string inRange, string market, int type, string r, string f, string m)
-        {
-            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
-            TempData.Clear(); //membersihkan data filtering
-
-            string stringPeriodeAwal = null;
-            string stringNamaPE = null;
-            string stringInvType = null;
-            string stringInvOrigin = null;
-            string stringInRange = null;
-            string stringMarket = null;
-            int intType = 1;
-            string stringR = null;
-            string stringF = null;
-            string stringM = null;
-            string reportId = "ps_basis_inv_pe"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
-
-            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
-
-            stringPeriodeAwal = Convert.ToDateTime(DateTime.Now).ToString("yyyy-MM-dd");
-            TempData["pawal"] = stringPeriodeAwal;
-
-            if (periodeAwal != null)
-            {
-                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
-                TempData["pawal"] = stringPeriodeAwal;
-            }
-
-            if (namaPE != null)
-            {
-                stringNamaPE = namaPE;
-                //string result = stringNamaPE.Replace("\",\"", "");
-                TempData["pe"] = stringNamaPE;
-            }
-
-            if (invType != null)
-            {
-                stringInvType = invType;
-                TempData["invType"] = stringInvType;
-            }
-
-            if (invOrigin != null)
-            {
-                stringInvOrigin = invOrigin;
-                TempData["invOrigin"] = stringInvOrigin;
-            }
-
-            if (inRange != null)
-            {
-                stringInRange = inRange;
-                TempData["inRange"] = stringInRange;
-            }
-
-            if (market != null)
-            {
-                stringMarket = market;
-                TempData["market"] = stringMarket;
-
-            }
-
-            if (type != 1)
-            {
-                intType = type;
-                TempData["type"] = intType;
-
-            }
-
-            if (r != null)
-            {
-                stringR = r;
-                TempData["r"] = stringR;
-
-            }
-
-            if (f != null)
-            {
-                stringF = f;
-                TempData["f"] = stringF;
-
-            }
-
-            if (m != null)
-            {
-                stringM = m;
-                TempData["m"] = stringM;
-
-            }
-
-            db.Database.CommandTimeout = 420;
-            var result = Helper.WSQueryStore.GetPS07PieChartsRFM(db, loadOptions, stringPeriodeAwal, stringNamaPE, stringInvType, stringInvOrigin, stringInRange, stringMarket, intType, stringR, stringF, stringM, cekHive);
-
-            return JsonConvert.SerializeObject(result);
-        }
-
-        public object GetPieChartInv(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE, string invType, string invOrigin, string inRange, string market, int type)
-        {
-            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
-            TempData.Clear(); //membersihkan data filtering
-
-            string stringPeriodeAwal = null;
-            string stringNamaPE = null;
-            string stringInvType = null;
-            string stringInvOrigin = null;
-            string stringInRange = null;
-            string stringMarket = null;
-            int intType = 1;
-            string reportId = "ps_basis_inv_pe"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
-
-            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
-
-            stringPeriodeAwal = Convert.ToDateTime(DateTime.Now).ToString("yyyy-MM-dd");
-            TempData["pawal"] = stringPeriodeAwal;
-
-            if (periodeAwal != null)
-            {
-                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
-                TempData["pawal"] = stringPeriodeAwal;
-            }
-
-            if (namaPE != null)
-            {
-                stringNamaPE = namaPE;
-                //string result = stringNamaPE.Replace("\",\"", "");
-                TempData["pe"] = stringNamaPE;
-            }
-
-            if (invType != null)
-            {
-                stringInvType = invType;
-                TempData["invType"] = stringInvType;
-            }
-
-            if (invOrigin != null)
-            {
-                stringInvOrigin = invOrigin;
-                TempData["invOrigin"] = stringInvOrigin;
-            }
-
-            if (inRange != null)
-            {
-                stringInRange = inRange;
-                TempData["inRange"] = stringInRange;
-            }
-
-            if (market != null)
-            {
-                stringMarket = market;
-                TempData["market"] = stringMarket;
-
-            }
-
-            if (type != 1)
-            {
-                intType = type;
-                TempData["type"] = intType;
-
-            }
-
-            db.Database.CommandTimeout = 420;
-            var result = Helper.WSQueryStore.GetPS07PieChartInv(db, loadOptions, stringPeriodeAwal, stringNamaPE, stringInvType, stringInvOrigin, stringInRange, stringMarket, intType, cekHive);
-
-            return JsonConvert.SerializeObject(result);
-        }
-
-        public object GetScatter(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE, string invType, string invOrigin, string inRange, string market)
-        {
-            var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
-            TempData.Clear(); //membersihkan data filtering
-
-            string stringPeriodeAwal = null;
-            string stringNamaPE = null;
-            string stringInvType = null;
-            string stringInvOrigin = null;
-            string stringInRange = null;
-            string stringMarket = null;
-            string reportId = "ps_basis_inv_pe"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
-
-            var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
-
-            stringPeriodeAwal = Convert.ToDateTime(DateTime.Now).ToString("yyyy-MM-dd");
-            TempData["pawal"] = stringPeriodeAwal;
-
-            if (periodeAwal != null)
-            {
-                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
-                TempData["pawal"] = stringPeriodeAwal;
-            }
-
-            if (namaPE != null)
-            {
-                stringNamaPE = namaPE;
-                //string result = stringNamaPE.Replace("\",\"", "");
-                TempData["pe"] = stringNamaPE;
-            }
-
-            if (invType != null)
-            {
-                stringInvType = invType;
-                TempData["invType"] = stringInvType;
-            }
-
-            if (invOrigin != null)
-            {
-                stringInvOrigin = invOrigin;
-                TempData["invOrigin"] = stringInvOrigin;
-            }
-
-            if (inRange != null)
-            {
-                stringInRange = inRange;
-                TempData["inRange"] = stringInRange;
-            }
-
-            if (market != null)
-            {
-                stringMarket = market;
-                TempData["market"] = stringMarket;
-
-            }
-
-            db.Database.CommandTimeout = 420;
-            var result = Helper.WSQueryStore.GetPS07Scatter(db, loadOptions, stringPeriodeAwal, stringNamaPE, stringInvType, stringInvOrigin, stringInRange, stringMarket, cekHive);
-
-            return JsonConvert.SerializeObject(result);
-        }
-
         public object GetDatasAll(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE, string invType, string invOrigin, string inRange, string market, int type)
         {
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
@@ -718,12 +111,12 @@ namespace BDA.Controllers
 
             var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
 
-            stringPeriodeAwal = Convert.ToDateTime(DateTime.Now).ToString("yyyy-MM-dd");
+            stringPeriodeAwal = Convert.ToDateTime(DateTime.Now).ToString("yyyy-MM");
             TempData["pawal"] = stringPeriodeAwal;
 
             if (periodeAwal != null)
             {
-                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
+                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM");
                 TempData["pawal"] = stringPeriodeAwal;
             }
 
@@ -947,12 +340,12 @@ namespace BDA.Controllers
 
             var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
 
-            stringPeriodeAwal = Convert.ToDateTime(DateTime.Now).ToString("yyyy-MM-dd");
+            stringPeriodeAwal = Convert.ToDateTime(DateTime.Now).ToString("yyyy-MM");
             TempData["pawal"] = stringPeriodeAwal;
 
             if (periodeAwal != null)
             {
-                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
+                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM");
                 TempData["pawal"] = stringPeriodeAwal;
             }
 
@@ -1051,12 +444,12 @@ namespace BDA.Controllers
 
             var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
 
-            stringPeriodeAwal = Convert.ToDateTime(DateTime.Now).ToString("yyyy-MM-dd");
+            stringPeriodeAwal = Convert.ToDateTime(DateTime.Now).ToString("yyyy-MM");
             TempData["pawal"] = stringPeriodeAwal;
 
             if (periodeAwal != null)
             {
-                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
+                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM");
                 TempData["pawal"] = stringPeriodeAwal;
             }
 
@@ -1091,26 +484,26 @@ namespace BDA.Controllers
             return JsonConvert.SerializeObject(result);
         }
 
-        public object GetGridDetailSRE(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE, string sid, string trxSys, string secCode)
+        public object GetGridDetailSRE(DataSourceLoadOptions loadOptions, string periodeAwal, string namaPE, string tradeId, string trxSys, string secCode)
         {
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
             TempData.Clear(); //membersihkan data filtering
 
             string stringPeriodeAwal = null;
             string stringNamaPE = null;
-            string stringSID = null;
+            string stringTradeId = null;
             string stringTrxSys = null;
             string stringSecCode = null;
             string reportId = "ps_basis_inv_pe"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
 
             var cekHive = Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
 
-            stringPeriodeAwal = Convert.ToDateTime(DateTime.Now).ToString("yyyy-MM-dd");
+            stringPeriodeAwal = Convert.ToDateTime(DateTime.Now).ToString("yyyy-MM");
             TempData["pawal"] = stringPeriodeAwal;
 
             if (periodeAwal != null)
             {
-                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM-dd");
+                stringPeriodeAwal = Convert.ToDateTime(periodeAwal).ToString("yyyy-MM");
                 TempData["pawal"] = stringPeriodeAwal;
             }
 
@@ -1120,10 +513,10 @@ namespace BDA.Controllers
                 TempData["pe"] = stringNamaPE;
             }
 
-            if (sid != null)
+            if (tradeId != null)
             {
-                stringSID = sid;
-                TempData["sid"] = stringSID;
+                stringTradeId = tradeId;
+                TempData["tradeId"] = stringTradeId;
             }
 
             if (trxSys != null)
@@ -1139,35 +532,7 @@ namespace BDA.Controllers
             }
 
             db.Database.CommandTimeout = 420;
-            var result = Helper.WSQueryStore.GetPS07CGridSRE(db, loadOptions, stringPeriodeAwal, stringNamaPE, stringSID, stringTrxSys, stringSecCode, cekHive);
-            //var processedData = (from row in result.data.AsEnumerable()
-            //                       group row by new
-            //                       {
-            //                           pe = row.Field<string>("pe"),
-            //                           sid = row.Field<string>("sid"),
-            //                           secphytcode = row.Field<string>("secphytcode"),
-            //                           stlactowntcode = row.Field<string>("stlactowntcode"),
-            //                           stlacttcode = row.Field<string>("stlacttcode"),
-            //                           actblcstscode = row.Field<string>("actblcstscode")
-            //                       } into g
-            //                       select new
-            //                       {
-            //                           pe = g.Key.pe,
-            //                           sid = g.Key.sid,
-            //                           secphytcode = g.Key.secphytcode,
-            //                           stlactowntcode = g.Key.stlactowntcode,
-            //                           stlacttcode = g.Key.stlacttcode,
-            //                           actblcstscode = g.Key.actblcstscode,
-            //                           portoamount = g.Sum(x => double.TryParse(x.Field<string>("portoamount"), out double valPA) ? valPA : 0d),
-            //                           portoqty = g.Sum(x => double.TryParse(x.Field<string>("portoqty"), out double valPQ) ? valPQ : 0d)
-            //                       });
-
-            //DataTable dt = new DataTable();
-            //dt = Helper.WSQueryStore.LINQResultToDataTable(processedData);
-
-            //var processedResult = new WSQueryReturns { data = dt, totalCount = dt.Rows.Count };
-
-            //return JsonConvert.SerializeObject(processedResult);
+            var result = Helper.WSQueryStore.GetPS07CGridSRE(db, loadOptions, stringPeriodeAwal, stringNamaPE, stringTradeId, stringTrxSys, stringSecCode, cekHive);
             return JsonConvert.SerializeObject(result);
         }
 
@@ -1516,6 +881,117 @@ namespace BDA.Controllers
             return Json(res);
         }
 
+        [HttpGet]
+        public object GetNamaNegara(DataSourceLoadOptions loadOptions)
+        {
+            var userId = HttpContext.User.Identity.Name;
+            string strSQL = db.appSettings.DataConnString;
+            var list = new List<NamaNegara>();
+
+            string reportId = "MasterNegara"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+            var cekHive = false; //Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+
+
+            var result = Helper.WSQueryStore.GetBDAPMNegara(db, loadOptions, reportId, cekHive);
+            var varDataList = (dynamic)null;
+
+            varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                           select new
+                           {
+                               NamaNegara = bs.Field<string>("NamaNegara").ToString(),
+                           }).OrderBy(bs => bs.NamaNegara).ToList();
+
+            DataTable dtList = new DataTable();
+            dtList = Helper.WSQueryStore.LINQResultToDataTable(varDataList);
+
+            if (dtList.Rows.Count > 0)
+            {
+                for (int i = 0; i < dtList.Rows.Count; i++)
+                {
+                    string var = dtList.Rows[i]["NamaNegara"].ToString();
+                    list.Add(new NamaNegara() { value = var, text = var });
+                }
+            }
+
+            var res = DataSourceLoader.Load(list, loadOptions);
+
+            return Json(res);
+        }
+
+        [HttpGet]
+        public object GetNamaProvinsi(DataSourceLoadOptions loadOptions)
+        {
+            var userId = HttpContext.User.Identity.Name;
+            string strSQL = db.appSettings.DataConnString;
+            var list = new List<NamaProvinsi>();
+
+            string reportId = "MasterPropinsi"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+            var cekHive = false; //Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+
+
+            var result = Helper.WSQueryStore.GetBDAPMProvinsi(db, loadOptions, reportId, cekHive);
+            var varDataList = (dynamic)null;
+
+            varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                           select new
+                           {
+                               RefPropinsiNama = bs.Field<string>("RefPropinsiNama").ToString(),
+                           }).OrderBy(bs => bs.RefPropinsiNama).ToList();
+
+            DataTable dtList = new DataTable();
+            dtList = Helper.WSQueryStore.LINQResultToDataTable(varDataList);
+
+            if (dtList.Rows.Count > 0)
+            {
+                for (int i = 0; i < dtList.Rows.Count; i++)
+                {
+                    string var = dtList.Rows[i]["RefPropinsiNama"].ToString();
+                    list.Add(new NamaProvinsi() { value = var, text = var });
+                }
+            }
+
+            var res = DataSourceLoader.Load(list, loadOptions);
+
+            return Json(res);
+        }
+
+        [HttpGet]
+        public object GetNamaKota(DataSourceLoadOptions loadOptions)
+        {
+            var userId = HttpContext.User.Identity.Name;
+            string strSQL = db.appSettings.DataConnString;
+            var list = new List<NamaKota>();
+
+            string reportId = "MasterKota2"; //definisikan dengan table yg sudah disesuaikan pada table BDA2_Table
+            var cekHive = false; //Helper.WSQueryStore.IsPeriodInHive(db, reportId); //pengecekan apakah dipanggil dari hive/sql
+
+
+            var result = Helper.WSQueryStore.GetBDAPMKota(db, loadOptions, reportId, cekHive);
+            var varDataList = (dynamic)null;
+
+            varDataList = (from bs in result.data.AsEnumerable() //lempar jadi linq untuk bisa di order by no urut
+                           select new
+                           {
+                               NamaKota = bs.Field<string>("NamaKota").ToString(),
+                           }).OrderBy(bs => bs.NamaKota).ToList();
+
+            DataTable dtList = new DataTable();
+            dtList = Helper.WSQueryStore.LINQResultToDataTable(varDataList);
+
+            if (dtList.Rows.Count > 0)
+            {
+                for (int i = 0; i < dtList.Rows.Count; i++)
+                {
+                    string var = dtList.Rows[i]["NamaKota"].ToString();
+                    list.Add(new NamaKota() { value = var, text = var });
+                }
+            }
+
+            var res = DataSourceLoader.Load(list, loadOptions);
+
+            return Json(res);
+        }
+
         public class NamaPE
         {
             public string value { get; set; }
@@ -1549,6 +1025,24 @@ namespace BDA.Controllers
 
             public DataTable scatterData { get; set; }
 
+        }
+
+        public class NamaNegara
+        {
+            public string value { get; set; }
+            public string text { get; set; }
+        }
+
+        public class NamaProvinsi 
+        {
+            public string value { get; set; }
+            public string text { get; set; }
+        }
+
+        public class NamaKota
+        {
+            public string value { get; set; }
+            public string text { get; set; }
         }
 
         [HttpPost]
