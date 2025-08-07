@@ -23,6 +23,7 @@ using BDA.Areas.BDAPM.Models;
 using BDA.Helper;
 using System.Xml.Linq;
 using System.Globalization;
+using BDA.Models;
 
 namespace BDA.Controllers
 {
@@ -1082,7 +1083,430 @@ namespace BDA.Controllers
             return Json(new { message, success = result }, new Newtonsoft.Json.JsonSerializerSettings());
         }
 
+        // Export Gainers to Excel
+        [HttpGet]
+        public IActionResult ExportGainersToExcel(string selectedDate, int topN, string periodType, string endDate = null)
+        {
+            try
+            {
+                // Check export permission
+              //  db.CheckPermission("Market Driven Export", BDA.DataModel.DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+
+                var userId = HttpContext.User.Identity.Name ?? "Anonymous";
+                db.InsertAuditTrail("Gainers_Export_Excel",
+                    $"User {userId} exported Gainers data to Excel - Period: {periodType}, Date: {selectedDate}, Top: {topN}",
+                    "GainersVsLosers");
+
+                List<GainerLoserViewModel> gainers;
+
+                // Get data based on period type
+                if (periodType == "Custom Date")
+                {
+                    gainers = WSQueryPS.GetGainersOrLosersCustomDate(db, selectedDate, endDate, topN, true);
+                }
+                else
+                {
+                    gainers = WSQueryPS.GetGainersOrLosers(db, true, selectedDate, topN, periodType);
+                }
+
+                // Create Excel workbook
+                var workbook = new Aspose.Cells.Workbook();
+                var worksheet = workbook.Worksheets[0];
+                worksheet.Name = "Top Gainers";
+
+                // Add headers
+                var headers = new string[] {
+            "Rank", "Security Code", "Security Name", "Change %", "Volume",
+            "Turnover", "Frequency", "Price", "Net Value", "Net Volume",
+            "Point", "Max Price", "Min Price"
+        };
+
+                for (int i = 0; i < headers.Length; i++)
+                {
+                    worksheet.Cells[0, i].PutValue(headers[i]);
+                    // Optional: Set header style if you have a helper
+                    // worksheet.Cells[0, i].SetStyle(GetHeaderStyle(workbook));
+                }
+
+                // Add data
+                for (int i = 0; i < gainers.Count; i++)
+                {
+                    var gainer = gainers[i];
+                    int row = i + 1;
+
+                    worksheet.Cells[row, 0].PutValue(i + 1);
+                    worksheet.Cells[row, 1].PutValue(gainer.SecurityCode);
+                    worksheet.Cells[row, 2].PutValue(gainer.SecurityName);
+                    worksheet.Cells[row, 3].PutValue((double)gainer.ChangePercentage);
+                    worksheet.Cells[row, 4].PutValue((long)gainer.Volume);
+                    worksheet.Cells[row, 5].PutValue((double)gainer.Turnover);
+                    worksheet.Cells[row, 6].PutValue(gainer.Freq);
+                    worksheet.Cells[row, 7].PutValue((double)gainer.Price);
+                    worksheet.Cells[row, 8].PutValue((double)gainer.NetValue);
+                    worksheet.Cells[row, 9].PutValue((double)gainer.NetVolume);
+                    worksheet.Cells[row, 10].PutValue((double)gainer.Point);
+                    worksheet.Cells[row, 11].PutValue((double)gainer.MaxPrice);
+                    worksheet.Cells[row, 12].PutValue((double)gainer.MinPrice);
+                }
+
+                // Auto-fit columns
+                worksheet.AutoFitColumns();
+
+                // Generate filename
+                string dateStr = selectedDate;
+                if (periodType == "Monthly" && selectedDate.Length == 6)
+                    dateStr = selectedDate;
+                if ((periodType == "Daily" || periodType == "Custom Date") && selectedDate.Length == 8)
+                    dateStr = selectedDate;
+
+                string filename = $"TopGainers_{dateStr}_{topN}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+
+                // Save to memory stream
+                var stream = new MemoryStream();
+                workbook.Save(stream, Aspose.Cells.SaveFormat.Xlsx);
+                stream.Position = 0;
+
+                return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in ExportGainersToExcel: {ex.Message}");
+                return BadRequest($"Error exporting to Excel: {ex.Message}");
+            }
+        }
+
+        // Export Gainers to PDF
+        [HttpGet]
+        public IActionResult ExportGainersToPDF(string selectedDate, int topN, string periodType, string endDate = null)
+        {
+            try
+            {
+                // Check export permission
+               // db.CheckPermission("Market Driven Export", BDA.DataModel.DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+
+                var userId = HttpContext.User.Identity.Name ?? "Anonymous";
+                db.InsertAuditTrail("Gainers_Export_PDF",
+                    $"User {userId} exported Gainers data to PDF - Period: {periodType}, Date: {selectedDate}, Top: {topN}",
+                    "GainersVsLosers");
+
+                List<GainerLoserViewModel> gainers;
+
+                // Get data based on period type
+                if (periodType == "Custom Date")
+                {
+                    gainers = WSQueryPS.GetGainersOrLosersCustomDate(db, selectedDate, endDate, topN, true);
+                }
+                else
+                {
+                    gainers = WSQueryPS.GetGainersOrLosers(db, true, selectedDate, topN, periodType);
+                }
+
+                // Create Excel workbook (will be converted to PDF)
+                var workbook = new Aspose.Cells.Workbook();
+                var worksheet = workbook.Worksheets[0];
+                worksheet.Name = "Top Gainers";
+
+                // Add title
+                worksheet.Cells.Merge(0, 0, 1, 13);
+                worksheet.Cells[0, 0].PutValue($"TOP GAINERS - {selectedDate} ({periodType})");
+                // Optional: Set title style if you have a helper
+
+                // Add headers
+                var headers = new string[] {
+            "Rank", "Security Code", "Security Name", "Change %", "Volume",
+            "Turnover", "Frequency", "Price", "Net Value", "Net Volume",
+            "Point", "Max Price", "Min Price"
+        };
+
+                for (int i = 0; i < headers.Length; i++)
+                {
+                    worksheet.Cells[1, i].PutValue(headers[i]);
+                    // Optional: Set header style if you have a helper
+                }
+
+                // Add data
+                for (int i = 0; i < gainers.Count; i++)
+                {
+                    var gainer = gainers[i];
+                    int row = i + 2;
+
+                    worksheet.Cells[row, 0].PutValue(i + 1);
+                    worksheet.Cells[row, 1].PutValue(gainer.SecurityCode);
+                    worksheet.Cells[row, 2].PutValue(gainer.SecurityName);
+                    worksheet.Cells[row, 3].PutValue((double)gainer.ChangePercentage);
+                    worksheet.Cells[row, 4].PutValue((long)gainer.Volume);
+                    worksheet.Cells[row, 5].PutValue((double)gainer.Turnover);
+                    worksheet.Cells[row, 6].PutValue(gainer.Freq);
+                    worksheet.Cells[row, 7].PutValue((double)gainer.Price);
+                    worksheet.Cells[row, 8].PutValue((double)gainer.NetValue);
+                    worksheet.Cells[row, 9].PutValue((double)gainer.NetVolume);
+                    worksheet.Cells[row, 10].PutValue((double)gainer.Point);
+                    worksheet.Cells[row, 11].PutValue((double)gainer.MaxPrice);
+                    worksheet.Cells[row, 12].PutValue((double)gainer.MinPrice);
+                }
+
+                // Auto-fit columns
+                worksheet.AutoFitColumns();
+
+                // Generate filename
+                string dateStr = selectedDate;
+                if (periodType == "Monthly" && selectedDate.Length == 6)
+                    dateStr = selectedDate;
+                if ((periodType == "Daily" || periodType == "Custom Date") && selectedDate.Length == 8)
+                    dateStr = selectedDate;
+
+                string filename = $"TopGainers_{dateStr}_{topN}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+
+                // Set PDF to landscape and narrow margins
+                worksheet.PageSetup.Orientation = Aspose.Cells.PageOrientationType.Landscape;
+                worksheet.PageSetup.LeftMargin = 0.25;
+                worksheet.PageSetup.RightMargin = 0.25;
+                worksheet.PageSetup.TopMargin = 0.25;
+                worksheet.PageSetup.BottomMargin = 0.25;
+
+                // Export to PDF
+                var stream = new MemoryStream();
+                workbook.Save(stream, Aspose.Cells.SaveFormat.Pdf);
+                stream.Position = 0;
+
+                return File(stream.ToArray(), "application/pdf", filename);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in ExportGainersToPDF: {ex.Message}");
+                return BadRequest($"Error exporting to PDF: {ex.Message}");
+            }
+        }
+
+        // Export Losers to Excel
+        [HttpGet]
+        public IActionResult ExportLosersToExcel(string selectedDate, int topN, string periodType, string endDate = null)
+        {
+            try
+            {
+                // Check export permission
+               // db.CheckPermission("Market Driven Export", BDA.DataModel.DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+
+                var userId = HttpContext.User.Identity.Name ?? "Anonymous";
+                db.InsertAuditTrail("Losers_Export_Excel",
+                    $"User {userId} exported Losers data to Excel - Period: {periodType}, Date: {selectedDate}, Top: {topN}",
+                    "GainersVsLosers");
+
+                List<GainerLoserViewModel> losers;
+
+                // Get data based on period type
+                if (periodType == "Custom Date")
+                {
+                    losers = WSQueryPS.GetGainersOrLosersCustomDate(db, selectedDate, endDate, topN, false);
+                }
+                else
+                {
+                    losers = WSQueryPS.GetGainersOrLosers(db, false, selectedDate, topN, periodType);
+                }
+
+                // Create Excel workbook
+                var workbook = new Aspose.Cells.Workbook();
+                var worksheet = workbook.Worksheets[0];
+                worksheet.Name = "Top Losers";
+
+                // Add headers
+                var headers = new string[] {
+            "Rank", "Security Code", "Security Name", "Change %", "Volume",
+            "Turnover", "Frequency", "Price", "Net Value", "Net Volume",
+            "Point", "Max Price", "Min Price"
+        };
+
+                for (int i = 0; i < headers.Length; i++)
+                {
+                    worksheet.Cells[0, i].PutValue(headers[i]);
+                    // Optional: Set header style if you have a helper
+                    // worksheet.Cells[0, i].SetStyle(GetHeaderStyle(workbook));
+                }
+
+                // Add data
+                for (int i = 0; i < losers.Count; i++)
+                {
+                    var loser = losers[i];
+                    int row = i + 1;
+
+                    worksheet.Cells[row, 0].PutValue(i + 1);
+                    worksheet.Cells[row, 1].PutValue(loser.SecurityCode);
+                    worksheet.Cells[row, 2].PutValue(loser.SecurityName);
+                    worksheet.Cells[row, 3].PutValue((double)loser.ChangePercentage);
+                    worksheet.Cells[row, 4].PutValue((long)loser.Volume);
+                    worksheet.Cells[row, 5].PutValue((double)loser.Turnover);
+                    worksheet.Cells[row, 6].PutValue(loser.Freq);
+                    worksheet.Cells[row, 7].PutValue((double)loser.Price);
+                    worksheet.Cells[row, 8].PutValue((double)loser.NetValue);
+                    worksheet.Cells[row, 9].PutValue((double)loser.NetVolume);
+                    worksheet.Cells[row, 10].PutValue((double)loser.Point);
+                    worksheet.Cells[row, 11].PutValue((double)loser.MaxPrice);
+                    worksheet.Cells[row, 12].PutValue((double)loser.MinPrice);
+                }
+
+                // Auto-fit columns
+                worksheet.AutoFitColumns();
+
+                // Generate filename
+                string dateStr = selectedDate;
+                if (periodType == "Monthly" && selectedDate.Length == 6)
+                    dateStr = selectedDate;
+                if ((periodType == "Daily" || periodType == "Custom Date") && selectedDate.Length == 8)
+                    dateStr = selectedDate;
+
+                string filename = $"TopLosers_{dateStr}_{topN}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+
+                // Save to memory stream
+                var stream = new MemoryStream();
+                workbook.Save(stream, Aspose.Cells.SaveFormat.Xlsx);
+                stream.Position = 0;
+
+                return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in ExportLosersToExcel: {ex.Message}");
+                return BadRequest($"Error exporting to Excel: {ex.Message}");
+            }
+        }
+
+        // Export Losers to PDF
+        [HttpGet]
+        public IActionResult ExportLosersToPDF(string selectedDate, int topN, string periodType, string endDate = null)
+        {
+            try
+            {
+                // Check export permission
+               // db.CheckPermission("Market Driven Export", BDA.DataModel.DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+
+                var userId = HttpContext.User.Identity.Name ?? "Anonymous";
+                db.InsertAuditTrail("Losers_Export_PDF",
+                    $"User {userId} exported Losers data to PDF - Period: {periodType}, Date: {selectedDate}, Top: {topN}",
+                    "GainersVsLosers");
+
+                List<GainerLoserViewModel> losers;
+
+                // Get data based on period type
+                if (periodType == "Custom Date")
+                {
+                    losers = WSQueryPS.GetGainersOrLosersCustomDate(db, selectedDate, endDate, topN, false);
+                }
+                else
+                {
+                    losers = WSQueryPS.GetGainersOrLosers(db, false, selectedDate, topN, periodType);
+                }
+
+                // Create Excel workbook (will be converted to PDF)
+                var workbook = new Aspose.Cells.Workbook();
+                var worksheet = workbook.Worksheets[0];
+                worksheet.Name = "Top Losers";
+
+                // Add title
+                worksheet.Cells.Merge(0, 0, 1, 13);
+                worksheet.Cells[0, 0].PutValue($"TOP LOSERS - {selectedDate} ({periodType})");
+                // Optional: Set title style if you have a helper
+
+                // Add headers
+                var headers = new string[] {
+            "Rank", "Security Code", "Security Name", "Change %", "Volume",
+            "Turnover", "Frequency", "Price", "Net Value", "Net Volume",
+            "Point", "Max Price", "Min Price"
+        };
+
+                for (int i = 0; i < headers.Length; i++)
+                {
+                    worksheet.Cells[1, i].PutValue(headers[i]);
+                    // Optional: Set header style if you have a helper
+                }
+
+                // Add data
+                for (int i = 0; i < losers.Count; i++)
+                {
+                    var loser = losers[i];
+                    int row = i + 2;
+
+                    worksheet.Cells[row, 0].PutValue(i + 1);
+                    worksheet.Cells[row, 1].PutValue(loser.SecurityCode);
+                    worksheet.Cells[row, 2].PutValue(loser.SecurityName);
+                    worksheet.Cells[row, 3].PutValue((double)loser.ChangePercentage);
+                    worksheet.Cells[row, 4].PutValue((long)loser.Volume);
+                    worksheet.Cells[row, 5].PutValue((double)loser.Turnover);
+                    worksheet.Cells[row, 6].PutValue(loser.Freq);
+                    worksheet.Cells[row, 7].PutValue((double)loser.Price);
+                    worksheet.Cells[row, 8].PutValue((double)loser.NetValue);
+                    worksheet.Cells[row, 9].PutValue((double)loser.NetVolume);
+                    worksheet.Cells[row, 10].PutValue((double)loser.Point);
+                    worksheet.Cells[row, 11].PutValue((double)loser.MaxPrice);
+                    worksheet.Cells[row, 12].PutValue((double)loser.MinPrice);
+                }
+
+                // Auto-fit columns
+                worksheet.AutoFitColumns();
+
+                // Generate filename
+                string dateStr = selectedDate;
+                if (periodType == "Monthly" && selectedDate.Length == 6)
+                    dateStr = selectedDate;
+                if ((periodType == "Daily" || periodType == "Custom Date") && selectedDate.Length == 8)
+                    dateStr = selectedDate;
+
+                string filename = $"TopLosers_{dateStr}_{topN}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+
+                // Set PDF to landscape and narrow margins
+                worksheet.PageSetup.Orientation = Aspose.Cells.PageOrientationType.Landscape;
+                worksheet.PageSetup.LeftMargin = 0.25;
+                worksheet.PageSetup.RightMargin = 0.25;
+                worksheet.PageSetup.TopMargin = 0.25;
+                worksheet.PageSetup.BottomMargin = 0.25;
+
+                // Export to PDF
+                var stream = new MemoryStream();
+                workbook.Save(stream, Aspose.Cells.SaveFormat.Pdf);
+                stream.Position = 0;
+
+                return File(stream.ToArray(), "application/pdf", filename);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in ExportLosersToPDF: {ex.Message}");
+                return BadRequest($"Error exporting to PDF: {ex.Message}");
+            }
+        }
+
+
+        // Helper method for Excel header styling (place inside MarketDrivenController)
+        private static Aspose.Cells.Style GetHeaderStyle(Aspose.Cells.Workbook workbook)
+        {
+            var style = workbook.CreateStyle();
+            style.Font.IsBold = true;
+            style.ForegroundColor = System.Drawing.Color.LightGray;
+            style.Pattern = Aspose.Cells.BackgroundType.Solid;
+            return style;
+        }
+
+        // Helper for PDF title style (optional, for PDF export)
+        private static Aspose.Cells.Style GetTitleStyle(Aspose.Cells.Workbook workbook)
+        {
+            var style = workbook.CreateStyle();
+            style.Font.IsBold = true;
+            style.Font.Size = 16;
+            style.HorizontalAlignment = Aspose.Cells.TextAlignmentType.Center;
+            return style;
+        }
+
+        // Helper for filename formatting
+        private string FormatDateForFilename(string dateString, string periodType)
+        {
+            if (periodType == "Monthly" && dateString.Length == 6)
+                return dateString;
+            if ((periodType == "Daily" || periodType == "Custom Date") && dateString.Length == 8)
+                return dateString;
+            return dateString;
+        }
+
 
 
     }
+
+ 
 }

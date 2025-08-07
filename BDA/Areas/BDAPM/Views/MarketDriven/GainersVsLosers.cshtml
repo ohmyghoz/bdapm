@@ -16,7 +16,7 @@
         @*filter*@
         <div class="row filter-panel" style="padding-top:0px;">
             <div class="card-body">
-                <h1>GainersVsLosers</h1>
+                <h1>Gainers Vs Losers</h1>
                 <div class="row">
                     <div class="col-lg-3 form-group">
                         <label>Jenis Periode@*<span class="mandatory">*</span>*@</label>
@@ -27,7 +27,7 @@
                             .OnValueChanged("onPeriodChanged"))
                     </div>
 
-                </div> 
+                </div>
                 <div class="row">
                     <div class="col-lg-3 form-group" id="datepickday">
                         <label>Periode@*<span class="mandatory">*</span>*@</label>
@@ -121,7 +121,7 @@
         <br />
 
         <div id="gainerLoserContent"></div>
-        
+
     </div>
 
 
@@ -259,11 +259,11 @@
                     }
 
                     $('#gainerLoserContent').html(`
-                            <div class="alert alert-danger">
-                                <i class="fa fa-exclamation-triangle"></i> ${errorMessage}
-                                <br><small>Error Code: ${xhr.status}</small>
-                            </div>
-                        `);
+                                <div class="alert alert-danger">
+                                    <i class="fa fa-exclamation-triangle"></i> ${errorMessage}
+                                    <br><small>Error Code: ${xhr.status}</small>
+                                </div>
+                            `);
 
                     DevExpress.ui.notify(errorMessage, "error", 5000);
                 }
@@ -321,14 +321,14 @@
 
     window.showLoadingIndicator = function () {
         $('#gainerLoserContent').html(`
-                <div class="text-center p-5">
-                    <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
-                        <span class="sr-only">Loading...</span>
+                    <div class="text-center p-5">
+                        <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                        <h5 class="text-muted">Loading Gainers & Losers Data</h5>
+                        <p class="text-muted">Please wait...</p>
                     </div>
-                    <h5 class="text-muted">Loading Gainers & Losers Data</h5>
-                    <p class="text-muted">Please wait...</p>
-                </div>
-            `);
+                `);
     };
 
     window.hideLoadingIndicator = function () {
@@ -370,6 +370,163 @@
         }
     };
 
+    // Export functions for Gainers and Losers
+    window.exportGainersToExcel = function () {
+        try {
+            console.log("Exporting Gainers to Excel...");
+
+            // Get current filter parameters
+            var periodType = $("#Periodid").dxSelectBox("instance").option("value");
+            var selectedDate = null;
+            var endDate = null;
+
+            if (periodType === "Custom Date") {
+                selectedDate = window.formatDateYYYYMMDD($("#StartDateID").dxDateBox("instance").option("value"));
+                endDate = window.formatDateYYYYMMDD($("#EndDateID").dxDateBox("instance").option("value"));
+            } else {
+                selectedDate = window.getFormattedDateByPeriod(periodType);
+            }
+
+            var topN = $("#ItemsPerPageSelectBox").dxSelectBox("instance").option("value");
+            var topCount = topN === "All" ? 500 : (parseInt(topN) || 10);
+
+            // Build export URL
+            var exportUrl = '@Url.Action("ExportGainersToExcel", "MarketDriven")' +
+                '?selectedDate=' + encodeURIComponent(selectedDate) +
+                '&topN=' + topCount +
+                '&periodType=' + encodeURIComponent(periodType);
+
+            if (endDate) {
+                exportUrl += '&endDate=' + encodeURIComponent(endDate);
+            }
+
+            // Trigger download
+            window.open(exportUrl, '_blank');
+
+            DevExpress.ui.notify("Excel export started...", "success", 2000);
+        } catch (e) {
+            console.error("Error exporting Gainers to Excel:", e);
+            DevExpress.ui.notify("Error exporting to Excel: " + e.message, "error", 3000);
+        }
+    };
+
+    window.exportGainersToPDF = function () {
+        try {
+            console.log("Exporting Gainers to PDF...");
+
+            // Get current filter parameters
+            var periodType = $("#Periodid").dxSelectBox("instance").option("value");
+            var selectedDate = null;
+            var endDate = null;
+
+            if (periodType === "Custom Date") {
+                selectedDate = window.formatDateYYYYMMDD($("#StartDateID").dxDateBox("instance").option("value"));
+                endDate = window.formatDateYYYYMMDD($("#EndDateID").dxDateBox("instance").option("value"));
+            } else {
+                selectedDate = window.getFormattedDateByPeriod(periodType);
+            }
+
+            var topN = $("#ItemsPerPageSelectBox").dxSelectBox("instance").option("value");
+            var topCount = topN === "All" ? 500 : (parseInt(topN) || 10);
+
+            // Build export URL
+            var exportUrl = '@Url.Action("ExportGainersToPDF", "MarketDriven")' +
+                '?selectedDate=' + encodeURIComponent(selectedDate) +
+                '&topN=' + topCount +
+                '&periodType=' + encodeURIComponent(periodType);
+
+            if (endDate) {
+                exportUrl += '&endDate=' + encodeURIComponent(endDate);
+            }
+
+            // Trigger download
+            window.open(exportUrl, '_blank');
+
+            DevExpress.ui.notify("PDF export started...", "success", 2000);
+        } catch (e) {
+            console.error("Error exporting Gainers to PDF:", e);
+            DevExpress.ui.notify("Error exporting to PDF: " + e.message, "error", 3000);
+        }
+    };
+
+    window.exportLosersToExcel = function () {
+        try {
+            console.log("Exporting Losers to Excel...");
+
+            // Get current filter parameters
+            var periodType = $("#Periodid").dxSelectBox("instance").option("value");
+            var selectedDate = null;
+            var endDate = null;
+
+            if (periodType === "Custom Date") {
+                selectedDate = window.formatDateYYYYMMDD($("#StartDateID").dxDateBox("instance").option("value"));
+                endDate = window.formatDateYYYYMMDD($("#EndDateID").dxDateBox("instance").option("value"));
+            } else {
+                selectedDate = window.getFormattedDateByPeriod(periodType);
+            }
+
+            var topN = $("#ItemsPerPageSelectBox").dxSelectBox("instance").option("value");
+            var topCount = topN === "All" ? 500 : (parseInt(topN) || 10);
+
+            // Build export URL
+            var exportUrl = '@Url.Action("ExportLosersToExcel", "MarketDriven")' +
+                '?selectedDate=' + encodeURIComponent(selectedDate) +
+                '&topN=' + topCount +
+                '&periodType=' + encodeURIComponent(periodType);
+
+            if (endDate) {
+                exportUrl += '&endDate=' + encodeURIComponent(endDate);
+            }
+
+            // Trigger download
+            window.open(exportUrl, '_blank');
+
+            DevExpress.ui.notify("Excel export started...", "success", 2000);
+        } catch (e) {
+            console.error("Error exporting Losers to Excel:", e);
+            DevExpress.ui.notify("Error exporting to Excel: " + e.message, "error", 3000);
+        }
+    };
+
+    window.exportLosersToPDF = function () {
+        try {
+            console.log("Exporting Losers to PDF...");
+
+            // Get current filter parameters
+            var periodType = $("#Periodid").dxSelectBox("instance").option("value");
+            var selectedDate = null;
+            var endDate = null;
+
+            if (periodType === "Custom Date") {
+                selectedDate = window.formatDateYYYYMMDD($("#StartDateID").dxDateBox("instance").option("value"));
+                endDate = window.formatDateYYYYMMDD($("#EndDateID").dxDateBox("instance").option("value"));
+            } else {
+                selectedDate = window.getFormattedDateByPeriod(periodType);
+            }
+
+            var topN = $("#ItemsPerPageSelectBox").dxSelectBox("instance").option("value");
+            var topCount = topN === "All" ? 500 : (parseInt(topN) || 10);
+
+            // Build export URL
+            var exportUrl = '@Url.Action("ExportLosersToPDF", "MarketDriven")' +
+                '?selectedDate=' + encodeURIComponent(selectedDate) +
+                '&topN=' + topCount +
+                '&periodType=' + encodeURIComponent(periodType);
+
+            if (endDate) {
+                exportUrl += '&endDate=' + encodeURIComponent(endDate);
+            }
+
+            // Trigger download
+            window.open(exportUrl, '_blank');
+
+            DevExpress.ui.notify("PDF export started...", "success", 2000);
+        } catch (e) {
+            console.error("Error exporting Losers to PDF:", e);
+            DevExpress.ui.notify("Error exporting to PDF: " + e.message, "error", 3000);
+        }
+    };
+
     // Alternative global function definitions for DevExtreme compatibility
     function onButtonFilterClicked() {
         window.onButtonFilterClicked();
@@ -389,6 +546,22 @@
 
     function onPeriodChanged(e) {
         window.onPeriodChanged(e);
+    }
+
+    function exportGainersToExcel() {
+        window.exportGainersToExcel();
+    }
+
+    function exportGainersToPDF() {
+        window.exportGainersToPDF();
+    }
+
+    function exportLosersToExcel() {
+        window.exportLosersToExcel();
+    }
+
+    function exportLosersToPDF() {
+        window.exportLosersToPDF();
     }
 
     $(document).ready(function () {
@@ -483,7 +656,7 @@
         }
     });
 
-   
+
 
     function onSelectionChanged(e) {
         if (e.addedItems.length > 0) {
@@ -578,7 +751,7 @@
     }
 
     .gainer-details table {
-        width:300px;
+        width: 300px;
         font-size: 0.9em;
     }
 
@@ -589,7 +762,7 @@
 
     .gainer-details td {
         padding: 2px 0;
-        width:200px;
+        width: 200px;
     }
 
     .loser-details td {
@@ -597,36 +770,74 @@
         width: 200px;
     }
 
-        .gainer-details td:first-child {
-            width: 35%%;
-            color: #6c757d;
-            text-align:left;
+    .gainer-details td:first-child {
+        width: 35%%;
+        color: #6c757d;
+        text-align: left;
+    }
+
+    .gainer-details td:last-child {
+        text-align: right;
+        width: 150px;
+        color: #28a745; /* Green color */
+        font-weight: bold;
+    }
+
+    .loser-details td:first-child {
+        width: 35%;
+        color: #6c757d;
+    }
+
+    .loser-details td:last-child {
+        text-align: right;
+        width: 150px;
+        color: #dc3545; /* Red color */
+        font-weight: bold;
+    }
+
+    .export-buttons {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        z-index: 10;
+    }
+
+    .export-btn {
+        margin-left: 5px;
+        padding: 4px 8px;
+        font-size: 12px;
+        border-radius: 3px;
+        text-decoration: none;
+        color: white;
+        display: inline-block;
+    }
+
+    .export-excel {
+        background-color: #28a745;
+    }
+
+        .export-excel:hover {
+            background-color: #218838;
+            color: white;
+            text-decoration: none;
         }
 
-        .gainer-details td:last-child {
-            text-align: right;
-            width: 150px;
-            color: #28a745; /* Green color */
-            font-weight: bold;
+    .export-pdf {
+        background-color: #dc3545;
+    }
+
+        .export-pdf:hover {
+            background-color: #c82333;
+            color: white;
+            text-decoration: none;
         }
 
-        .loser-details td:first-child {
-            width: 35%;
-            color: #6c757d;
-        }
+    .section-container {
+        position: relative;
+        margin-bottom: 30px;
+    }
 
-        .loser-details td:last-child {
-            text-align: right;
-            width: 150px;
-            color: #dc3545; /* Red color */
-            font-weight: bold;
-        }
-
-
-   
     .mandatory {
         color: red;
     }
 </style>
-
-
