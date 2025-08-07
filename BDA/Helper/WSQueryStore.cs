@@ -5960,14 +5960,28 @@ namespace BDA.Helper
             //DataRow dr = WSQueryHelper.DoQuery(db, propsQuery, loadOptions, false, false).data.Rows[0];
 
             DataRow dr = ExecuteSimpleSQL(db.appSettings.DataConnString, sqlGetQuery).data.Rows[0];
-            string queryString = dr["queryString"].ToString();
-            queryString = queryString.Replace("@wherefilter", whereQuery).Replace("@whereperiode", periodWhereQuery);
 
+            var ordByQuery = "1";
+            if (loadOptions.Sort != null && loadOptions.Sort.Any())
+            {
+                ordByQuery = "";
+                foreach (var srt in loadOptions.Sort)
+                {
+                    if (ordByQuery != "") { ordByQuery += ", "; }
+                    ordByQuery += srt.Selector + " " + (srt.Desc == true ? "desc" : "asc");
+                }
+            }
+            else if (tableName == "ip_sid") ordByQuery = "valid_from desc";
+            else ordByQuery = "periode desc";
+
+            string queryString = dr["queryString"].ToString();
+            queryString = queryString.Replace("@wherefilter", whereQuery).Replace("@whereperiode", periodWhereQuery).Replace("@orderby", ordByQuery);
+            
             var props = new WSQueryProperties();
             props.Query = queryString;
 
-
-            return NonDecryptResults(WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive));
+            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
+            //return NonDecryptResults(WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive));
         }
 
         public static WSQueryReturns GetPMIPRelQuery(DataEntities db, DataSourceLoadOptions loadOptions, string tableName, string startPeriod, string endPeriod, 

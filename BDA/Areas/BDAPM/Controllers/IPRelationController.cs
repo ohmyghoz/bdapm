@@ -298,7 +298,7 @@ namespace BDA.Controllers
                     numericStyle.SetBorder(BorderType.LeftBorder, CellBorderType.Medium, Color.Black);
                     numericStyle.SetBorder(BorderType.RightBorder, CellBorderType.Medium, Color.Black);
 
-                    //apply format number
+                    //apply date number
                     Style dateStyle = workbook.CreateStyle();
                     dateStyle.Custom = "yyyy-mm-dd";                    
                     dateStyle.HorizontalAlignment = TextAlignmentType.Left;
@@ -327,8 +327,8 @@ namespace BDA.Controllers
                         if (cell.Type == CellValueType.IsNumeric)
                         {
                             var isDate = false;
-                            var cellCol = cell.Column;
-                            var cellTipe = cell.Type;
+                            //var cellCol = cell.Column;
+                            //var cellTipe = cell.Type;
                             if (cell.DateTimeValue.Year > 1990) isDate = true;
                             if (isDate)
                                 cell.SetStyle(dateStyle);

@@ -74,76 +74,94 @@
                         </td>
                     </tr>
                 </table>
+                <br />
+                <div style="padding-top:0px;">
+                    <div>
+                        <div class="row">
+                            <div style="padding-right:25px;padding-left:25px;width:100%;">
+                                <div class="row">
+                                    <h5 class="headerTable">Most Correction By Firm ID SCC</h5>
+                                </div>
 
-                <div class="row">
-                    <div class="col-lg-6">
-                        @(Html.DevExtreme().PieChart()
-                            .ID("pie-chartTypeOfInfo")
-                            .Title("Type Of Info")
-                            .Legend(l => l
-                            .HorizontalAlignment(HorizontalAlignment.Right)
-                            .VerticalAlignment(VerticalEdge.Top)
-                            .Margin(0))
-                            .Export(e => e.Enabled(true))
-                            .Series(s => s
-                            .Add()
-                            .ArgumentField("amended_info_type")
-                            .ValueField("total")
-                            .Label(l => l
-                            .Visible(true)
-                            .Font(f => f.Size(16))
-                            .Connector(c => c
-                            .Visible(true)
-                            .Width(0.5)
-                            )
-                            .Position(PieChartLabelPosition.Columns)
-                            .CustomizeText(@<text>
-                        function(arg) {
-                        return arg.valueText + " (" + arg.percentText + ")";
-                        }
-                    </text>)
-                            )
-                            )
-                            .DataSource(d => d.Mvc()
-                            .Controller("MMKoreksiTransaksi")
-                            .LoadAction("GetChartTypeInfo")
-                            .OnBeforeSend("onGridBeforeSend")))
-                    </div>
+                                <div class="row">
+                                    <div style="background-color:#1c1c44;width:48%;">
+                                        @(Html.DevExtreme().PieChart()
+                                            .ID("pie-chartTypeOfInfo")
+                                            .Title("Type Of Info")
+                                            .Legend(l => l
+                                            .HorizontalAlignment(HorizontalAlignment.Right)
+                                            .VerticalAlignment(VerticalEdge.Top)
+                                            .Margin(0))
+                                            .Export(e => e.Enabled(true))
+                                            .Series(s => s
+                                            .Add()
+                                            .ArgumentField("amended_info_type")
+                                            .ValueField("total")
+                                            .Label(l => l
+                                            .Visible(true)
+                                            .Font(f => f.Size(16))
+                                            .Connector(c => c
+                                            .Visible(true)
+                                            .Width(0.5)
+                                            )
+                                            .Position(PieChartLabelPosition.Columns)
+                                            .CustomizeText(@<text>
+                                        function(arg) {
+                                        return arg.valueText + " (" + arg.percentText + ")";
+                                        }
+                                    </text>)
+                                            )
+                                            )
+                                            .DataSource(d => d.Mvc()
+                                            .Controller("MMKoreksiTransaksi")
+                                            .LoadAction("GetChartTypeInfo")
+                                            .OnBeforeSend("onGridBeforeSend")))
+                                    </div>
 
-                    <div class="col-lg-6">
-                        @(Html.DevExtreme().PieChart()
-                            .ID("pie-chartTypeOfFirmID")
-                            .Title("Type Of Firm ID")
-                            .Legend(l => l
-                            .HorizontalAlignment(HorizontalAlignment.Right)
-                            .VerticalAlignment(VerticalEdge.Top)
-                            .Margin(0))
-                            .Export(e => e.Enabled(true))
-                            .Series(s => s
-                            .Add()
-                            .ArgumentField("type_firm_id")
-                            .ValueField("total")
-                            .Label(l => l
-                            .Visible(true)
-                            .Font(f => f.Size(16))
-                            .Connector(c => c
-                            .Visible(true)
-                            .Width(0.5)
-                            )
-                            .Position(PieChartLabelPosition.Columns)
-                            .CustomizeText(@<text>
-                        function(arg) {
-                        return arg.valueText + " (" + arg.percentText + ")";
-                        }
-                    </text>)
-                            )
-                            )
-                            .DataSource(d => d.Mvc()
-                            .Controller("MMKoreksiTransaksi")
-                            .LoadAction("GetChartTypeFirmID")
-                            .OnBeforeSend("onGridBeforeSend")))
-                    </div>
+                                    <div style="background-color:white;width:4%;">
+                                         </div>
+                                    <div style="background-color:#1c1c44;width:48%;">
+                                        @(Html.DevExtreme().PieChart()
+                                            .ID("pie-chartTypeOfFirmID")
+                                            .Title("Type Of Firm ID")
+                                            .Legend(l => l
+                                            .HorizontalAlignment(HorizontalAlignment.Right)
+                                            .VerticalAlignment(VerticalEdge.Top)
+                                            .Margin(0))
+                                            .Export(e => e.Enabled(true))
+                                            .Series(s => s
+                                            .Add()
+                                            .ArgumentField("type_firm_id")
+                                            .ValueField("total")
+                                            .Label(l => l
+                                            .Visible(true)
+                                            .Font(f => f.Size(16))
+                                            .Connector(c => c
+                                            .Visible(true)
+                                            .Width(0.5)
+                                            )
+                                            .Position(PieChartLabelPosition.Columns)
+                                            .CustomizeText(@<text>
+                                        function(arg) {
+                                        return arg.valueText + " (" + arg.percentText + ")";
+                                        }
+                                    </text>)
+                                            )
+                                            )
+                                            .DataSource(d => d.Mvc()
+                                            .Controller("MMKoreksiTransaksi")
+                                            .LoadAction("GetChartTypeFirmID")
+                                            .OnBeforeSend("onGridBeforeSend")))
+                                    </div>
+                                </div>
+
+
+                             </div>
+                         </div>
+                      </div>
                 </div>
+
+                
                 <br />
                 <br />
                 <div class="row">
@@ -585,5 +603,17 @@
 <style type="text/css">
     .mandatory {
         color: red;
+    }
+</style>
+<style>
+    .headerTable {
+        box-sizing: border-box;
+        background-color: #1c1c44;
+        padding: 10px;
+        margin: 0 auto;
+        display: block;
+        width: 100%;
+        color: #fdfdfd;
+        text-align: center;
     }
 </style>
