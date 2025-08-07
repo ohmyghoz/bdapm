@@ -1473,6 +1473,306 @@ namespace BDA.Controllers
             }
         }
 
+        // Export Leaders to Excel
+        [HttpGet]
+        public IActionResult ExportLeadersToExcel(string selectedDate, int topN, string periodType, string endDate = null)
+        {
+            try
+            {
+                // Fetch data for leaders (isLeader: true)
+                List<LeaderLaggardViewModel> leaders;
+                if (periodType == "Custom Date")
+                {
+                    leaders = WSQueryPS.GetLeadersOrLaggardsCustomDate(db, selectedDate, endDate, topN, true);
+                }
+                else
+                {
+                    leaders = WSQueryPS.GetLeadersOrLaggards(db, true, selectedDate, topN, periodType);
+                }
+
+                // Create Excel workbook
+                var workbook = new Aspose.Cells.Workbook();
+                var worksheet = workbook.Worksheets[0];
+                worksheet.Name = "Top Leaders";
+
+                // Add headers
+                var headers = new string[] {
+            "Rank", "Security Code", "Security Name", "Change %", "Volume",
+            "Turnover", "Frequency", "Price", "Net Value", "Net Volume",
+            "Point", "Max Price", "Min Price"
+        };
+
+                for (int i = 0; i < headers.Length; i++)
+                {
+                    worksheet.Cells[0, i].PutValue(headers[i]);
+                }
+
+                // Add data
+                for (int i = 0; i < leaders.Count; i++)
+                {
+                    var leader = leaders[i];
+                    int row = i + 1;
+
+                    worksheet.Cells[row, 0].PutValue(i + 1);
+                    worksheet.Cells[row, 1].PutValue(leader.SecurityCode);
+                    worksheet.Cells[row, 2].PutValue(leader.SecurityName);
+                    worksheet.Cells[row, 3].PutValue((double)leader.ChangePercentage);
+                    worksheet.Cells[row, 4].PutValue((long)leader.Volume);
+                    worksheet.Cells[row, 5].PutValue((double)leader.Turnover);
+                    worksheet.Cells[row, 6].PutValue(leader.Freq);
+                    worksheet.Cells[row, 7].PutValue((double)leader.Price);
+                    worksheet.Cells[row, 8].PutValue((double)leader.NetValue);
+                    worksheet.Cells[row, 9].PutValue((double)leader.NetVolume);
+                    worksheet.Cells[row, 10].PutValue((double)leader.Point);
+                    worksheet.Cells[row, 11].PutValue((double)leader.MaxPrice);
+                    worksheet.Cells[row, 12].PutValue((double)leader.MinPrice);
+                }
+
+                worksheet.AutoFitColumns();
+
+                string dateStr = selectedDate;
+                string filename = $"TopLeaders_{dateStr}_{topN}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+
+                var stream = new MemoryStream();
+                workbook.Save(stream, Aspose.Cells.SaveFormat.Xlsx);
+                stream.Position = 0;
+                return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error exporting to Excel: {ex.Message}");
+            }
+        }
+
+        // Export Leaders to PDF
+        [HttpGet]
+        public IActionResult ExportLeadersToPDF(string selectedDate, int topN, string periodType, string endDate = null)
+        {
+            try
+            {
+                // Fetch data for leaders (isLeader: true)
+                List<LeaderLaggardViewModel> leaders;
+                if (periodType == "Custom Date")
+                {
+                    leaders = WSQueryPS.GetLeadersOrLaggardsCustomDate(db, selectedDate, endDate, topN, true);
+                }
+                else
+                {
+                    leaders = WSQueryPS.GetLeadersOrLaggards(db, true, selectedDate, topN, periodType);
+                }
+
+                // Create Excel workbook (will be converted to PDF)
+                var workbook = new Aspose.Cells.Workbook();
+                var worksheet = workbook.Worksheets[0];
+                worksheet.Name = "Top Leaders";
+
+                worksheet.Cells.Merge(0, 0, 1, 13);
+                worksheet.Cells[0, 0].PutValue($"TOP LEADERS - {selectedDate} ({periodType})");
+
+                var headers = new string[] {
+            "Rank", "Security Code", "Security Name", "Change %", "Volume",
+            "Turnover", "Frequency", "Price", "Net Value", "Net Volume",
+            "Point", "Max Price", "Min Price"
+        };
+
+                for (int i = 0; i < headers.Length; i++)
+                {
+                    worksheet.Cells[1, i].PutValue(headers[i]);
+                }
+
+                for (int i = 0; i < leaders.Count; i++)
+                {
+                    var leader = leaders[i];
+                    int row = i + 2;
+
+                    worksheet.Cells[row, 0].PutValue(i + 1);
+                    worksheet.Cells[row, 1].PutValue(leader.SecurityCode);
+                    worksheet.Cells[row, 2].PutValue(leader.SecurityName);
+                    worksheet.Cells[row, 3].PutValue((double)leader.ChangePercentage);
+                    worksheet.Cells[row, 4].PutValue((long)leader.Volume);
+                    worksheet.Cells[row, 5].PutValue((double)leader.Turnover);
+                    worksheet.Cells[row, 6].PutValue(leader.Freq);
+                    worksheet.Cells[row, 7].PutValue((double)leader.Price);
+                    worksheet.Cells[row, 8].PutValue((double)leader.NetValue);
+                    worksheet.Cells[row, 9].PutValue((double)leader.NetVolume);
+                    worksheet.Cells[row, 10].PutValue((double)leader.Point);
+                    worksheet.Cells[row, 11].PutValue((double)leader.MaxPrice);
+                    worksheet.Cells[row, 12].PutValue((double)leader.MinPrice);
+                }
+
+                worksheet.AutoFitColumns();
+
+                // Landscape and narrow margins
+                worksheet.PageSetup.Orientation = Aspose.Cells.PageOrientationType.Landscape;
+                worksheet.PageSetup.LeftMargin = 0.25;
+                worksheet.PageSetup.RightMargin = 0.25;
+                worksheet.PageSetup.TopMargin = 0.25;
+                worksheet.PageSetup.BottomMargin = 0.25;
+
+                string dateStr = selectedDate;
+                string filename = $"TopLeaders_{dateStr}_{topN}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+
+                var stream = new MemoryStream();
+                workbook.Save(stream, Aspose.Cells.SaveFormat.Pdf);
+                stream.Position = 0;
+                return File(stream.ToArray(), "application/pdf", filename);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error exporting to PDF: {ex.Message}");
+            }
+        }
+
+        // Export Laggards to Excel
+        [HttpGet]
+        public IActionResult ExportLaggardsToExcel(string selectedDate, int topN, string periodType, string endDate = null)
+        {
+            try
+            {
+                // Fetch data for laggards (isLeader: false)
+                List<LeaderLaggardViewModel> laggards;
+                if (periodType == "Custom Date")
+                {
+                    laggards = WSQueryPS.GetLeadersOrLaggardsCustomDate(db, selectedDate, endDate, topN, false);
+                }
+                else
+                {
+                    laggards = WSQueryPS.GetLeadersOrLaggards(db, false, selectedDate, topN, periodType);
+                }
+
+                // Create Excel workbook
+                var workbook = new Aspose.Cells.Workbook();
+                var worksheet = workbook.Worksheets[0];
+                worksheet.Name = "Top Laggards";
+
+                // Add headers
+                var headers = new string[] {
+            "Rank", "Security Code", "Security Name", "Change %", "Volume",
+            "Turnover", "Frequency", "Price", "Net Value", "Net Volume",
+            "Point", "Max Price", "Min Price"
+        };
+
+                for (int i = 0; i < headers.Length; i++)
+                {
+                    worksheet.Cells[0, i].PutValue(headers[i]);
+                }
+
+                // Add data
+                for (int i = 0; i < laggards.Count; i++)
+                {
+                    var laggard = laggards[i];
+                    int row = i + 1;
+
+                    worksheet.Cells[row, 0].PutValue(i + 1);
+                    worksheet.Cells[row, 1].PutValue(laggard.SecurityCode);
+                    worksheet.Cells[row, 2].PutValue(laggard.SecurityName);
+                    worksheet.Cells[row, 3].PutValue((double)laggard.ChangePercentage);
+                    worksheet.Cells[row, 4].PutValue((long)laggard.Volume);
+                    worksheet.Cells[row, 5].PutValue((double)laggard.Turnover);
+                    worksheet.Cells[row, 6].PutValue(laggard.Freq);
+                    worksheet.Cells[row, 7].PutValue((double)laggard.Price);
+                    worksheet.Cells[row, 8].PutValue((double)laggard.NetValue);
+                    worksheet.Cells[row, 9].PutValue((double)laggard.NetVolume);
+                    worksheet.Cells[row, 10].PutValue((double)laggard.Point);
+                    worksheet.Cells[row, 11].PutValue((double)laggard.MaxPrice);
+                    worksheet.Cells[row, 12].PutValue((double)laggard.MinPrice);
+                }
+
+                worksheet.AutoFitColumns();
+
+                string dateStr = selectedDate;
+                string filename = $"TopLaggards_{dateStr}_{topN}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+
+                var stream = new MemoryStream();
+                workbook.Save(stream, Aspose.Cells.SaveFormat.Xlsx);
+                stream.Position = 0;
+                return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", filename);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error exporting to Excel: {ex.Message}");
+            }
+        }
+
+        // Export Laggards to PDF
+        [HttpGet]
+        public IActionResult ExportLaggardsToPDF(string selectedDate, int topN, string periodType, string endDate = null)
+        {
+            try
+            {
+                // Fetch data for laggards (isLeader: false)
+                List<LeaderLaggardViewModel> laggards;
+
+                if (periodType == "Custom Date")
+                {
+                    laggards = WSQueryPS.GetLeadersOrLaggardsCustomDate(db, selectedDate, endDate, topN, false);
+                }
+                else
+                {
+                    laggards = WSQueryPS.GetLeadersOrLaggards(db, false, selectedDate, topN, periodType);
+                }
+
+                // Create Excel workbook (will be converted to PDF)
+                var workbook = new Aspose.Cells.Workbook();
+                var worksheet = workbook.Worksheets[0];
+                worksheet.Name = "Top Laggards";
+
+                worksheet.Cells.Merge(0, 0, 1, 13);
+                worksheet.Cells[0, 0].PutValue($"TOP LAGGARDS - {selectedDate} ({periodType})");
+
+                var headers = new string[] {
+            "Rank", "Security Code", "Security Name", "Change %", "Volume",
+            "Turnover", "Frequency", "Price", "Net Value", "Net Volume",
+            "Point", "Max Price", "Min Price"
+        };
+
+                for (int i = 0; i < headers.Length; i++)
+                {
+                    worksheet.Cells[1, i].PutValue(headers[i]);
+                }
+
+                for (int i = 0; i < laggards.Count; i++)
+                {
+                    var laggard = laggards[i];
+                    int row = i + 2;
+
+                    worksheet.Cells[row, 0].PutValue(i + 1);
+                    worksheet.Cells[row, 1].PutValue(laggard.SecurityCode);
+                    worksheet.Cells[row, 2].PutValue(laggard.SecurityName);
+                    worksheet.Cells[row, 3].PutValue((double)laggard.ChangePercentage);
+                    worksheet.Cells[row, 4].PutValue((long)laggard.Volume);
+                    worksheet.Cells[row, 5].PutValue((double)laggard.Turnover);
+                    worksheet.Cells[row, 6].PutValue(laggard.Freq);
+                    worksheet.Cells[row, 7].PutValue((double)laggard.Price);
+                    worksheet.Cells[row, 8].PutValue((double)laggard.NetValue);
+                    worksheet.Cells[row, 9].PutValue((double)laggard.NetVolume);
+                    worksheet.Cells[row, 10].PutValue((double)laggard.Point);
+                    worksheet.Cells[row, 11].PutValue((double)laggard.MaxPrice);
+                    worksheet.Cells[row, 12].PutValue((double)laggard.MinPrice);
+                }
+
+                worksheet.AutoFitColumns();
+
+                // Landscape and narrow margins
+                worksheet.PageSetup.Orientation = Aspose.Cells.PageOrientationType.Landscape;
+                worksheet.PageSetup.LeftMargin = 0.25;
+                worksheet.PageSetup.RightMargin = 0.25;
+                worksheet.PageSetup.TopMargin = 0.25;
+                worksheet.PageSetup.BottomMargin = 0.25;
+
+                string dateStr = selectedDate;
+                string filename = $"TopLaggards_{dateStr}_{topN}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+
+                var stream = new MemoryStream();
+                workbook.Save(stream, Aspose.Cells.SaveFormat.Pdf);
+                stream.Position = 0;
+                return File(stream.ToArray(), "application/pdf", filename);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error exporting to PDF: {ex.Message}");
+            }
+        }
 
         // Helper method for Excel header styling (place inside MarketDrivenController)
         private static Aspose.Cells.Style GetHeaderStyle(Aspose.Cells.Workbook workbook)
