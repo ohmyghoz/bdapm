@@ -936,6 +936,502 @@ namespace BDA.Helper
             return new { data = list, totalCount = list.Count };
         }
 
+        public static WSQueryReturns GetInvestorGridData(DataEntities db, string filterDate, object loadOptions = null)
+        {
+            System.Diagnostics.Debug.WriteLine("=== WSQueryPS INVESTOR GRID DEBUG START ===");
+            System.Diagnostics.Debug.WriteLine($"GetInvestorGridData received filterDate: '{filterDate}'");
+
+            try
+            {
+                // Base SQL query for investor data
+                string sqlQuery = @"
+            SELECT 
+                investorcode,
+                cpinvestorcode,
+                SUM(ISNULL(value, 0)) as value,
+                SUM(ISNULL(quantity, 0)) as quantity
+            FROM BDAPM.pasarmodal.market_driven_validasi_data_tra
+            WHERE tradedatesk = @filterDate
+            GROUP BY investorcode, cpinvestorcode
+            ORDER BY value DESC, quantity DESC";
+
+                System.Diagnostics.Debug.WriteLine($"Investor Grid SQL Query: {sqlQuery}");
+                System.Diagnostics.Debug.WriteLine($"Filter Date Parameter: {filterDate}");
+
+                DataTable dt = new DataTable();
+                string connString = db.appSettings.DataConnString;
+
+                using (var conn = new System.Data.SqlClient.SqlConnection(connString))
+                {
+                    using (var cmd = new System.Data.SqlClient.SqlCommand(sqlQuery, conn))
+                    {
+                        cmd.CommandTimeout = 300;
+
+                        // Convert string to int for the parameter
+                        if (int.TryParse(filterDate, out int dateAsInt))
+                        {
+                            cmd.Parameters.AddWithValue("@filterDate", dateAsInt);
+                        }
+                        else
+                        {
+                            throw new ArgumentException($"Invalid date format: {filterDate}");
+                        }
+
+                        var adapter = new System.Data.SqlClient.SqlDataAdapter(cmd);
+                        adapter.Fill(dt);
+                    }
+                }
+
+                System.Diagnostics.Debug.WriteLine($"Investor grid result rows: {dt.Rows.Count}");
+
+                if (dt.Rows.Count > 0)
+                {
+                    System.Diagnostics.Debug.WriteLine("=== INVESTOR GRID SAMPLE DATA ===");
+                    var firstRow = dt.Rows[0];
+                    foreach (DataColumn column in dt.Columns)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"  {column.ColumnName}: {firstRow[column.ColumnName]}");
+                    }
+                }
+
+                return new WSQueryReturns
+                {
+                    data = dt,
+                };
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Investor Grid WSQuery Error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
+
+                return new WSQueryReturns
+                {
+                    data = new DataTable(),
+                };
+            }
+        }
+
+        // Additional method with transaction type filtering
+        public static WSQueryReturns GetInvestorGridDataWithTransactionType(DataEntities db, string filterDate, string transactionCode = null, object loadOptions = null)
+        {
+            System.Diagnostics.Debug.WriteLine("=== WSQueryPS INVESTOR GRID WITH TRANSACTION DEBUG START ===");
+            System.Diagnostics.Debug.WriteLine($"GetInvestorGridDataWithTransactionType received filterDate: '{filterDate}', transactionCode: '{transactionCode}'");
+
+            try
+            {
+                string whereClause = "tradedatesk = @filterDate";
+
+                // Add transaction type filter if provided
+                if (!string.IsNullOrEmpty(transactionCode))
+                {
+                    whereClause += " AND transactiontypecode = @transactionCode";
+                }
+
+                string sqlQuery = $@"
+            SELECT 
+                investorcode,
+                cpinvestorcode,
+                SUM(ISNULL(value, 0)) as value,
+                SUM(ISNULL(quantity, 0)) as quantity
+            FROM BDAPM.pasarmodal.market_driven_validasi_data_tra
+            WHERE {whereClause}
+            GROUP BY investorcode, cpinvestorcode
+            ORDER BY value DESC, quantity DESC";
+
+                System.Diagnostics.Debug.WriteLine($"Investor Grid SQL Query with Transaction: {sqlQuery}");
+                System.Diagnostics.Debug.WriteLine($"Parameters: filterDate={filterDate}, transactionCode={transactionCode}");
+
+                DataTable dt = new DataTable();
+                string connString = db.appSettings.DataConnString;
+
+                using (var conn = new System.Data.SqlClient.SqlConnection(connString))
+                {
+                    using (var cmd = new System.Data.SqlClient.SqlCommand(sqlQuery, conn))
+                    {
+                        cmd.CommandTimeout = 300;
+
+                        // Add parameters
+                        if (int.TryParse(filterDate, out int dateAsInt))
+                        {
+                            cmd.Parameters.AddWithValue("@filterDate", dateAsInt);
+                        }
+                        else
+                        {
+                            throw new ArgumentException($"Invalid date format: {filterDate}");
+                        }
+
+                        if (!string.IsNullOrEmpty(transactionCode))
+                        {
+                            cmd.Parameters.AddWithValue("@transactionCode", transactionCode);
+                        }
+
+                        var adapter = new System.Data.SqlClient.SqlDataAdapter(cmd);
+                        adapter.Fill(dt);
+                    }
+                }
+
+                System.Diagnostics.Debug.WriteLine($"Investor grid with transaction result rows: {dt.Rows.Count}");
+
+                return new WSQueryReturns
+                {
+                    data = dt,
+                };
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Investor Grid with Transaction WSQuery Error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
+
+                return new WSQueryReturns
+                {
+                    data = new DataTable(),
+                };
+            }
+        }
+
+        public static WSQueryReturns GetSecurityGridData(DataEntities db, string filterDate, string transactionCode = null, object loadOptions = null)
+        {
+            System.Diagnostics.Debug.WriteLine("=== WSQueryPS SECURITY GRID DEBUG START ===");
+            System.Diagnostics.Debug.WriteLine($"GetSecurityGridData received filterDate: '{filterDate}', transactionCode: '{transactionCode}'");
+
+            try
+            {
+                // Build WHERE clause with optional transaction type filter
+                string whereClause = "tradedatesk = @filterDate";
+
+                if (!string.IsNullOrEmpty(transactionCode))
+                {
+                    whereClause += " AND transactiontypecode = @transactionCode";
+                }
+
+                // SQL query for security data with frequency count
+                string sqlQuery = $@"
+            SELECT 
+                securitycode,
+                SUM(ISNULL(value, 0)) as value,
+                SUM(ISNULL(quantity, 0)) as quantity,
+                COUNT(securitycode) as frequency
+            FROM BDAPM.pasarmodal.market_driven_validasi_data_tra
+            WHERE {whereClause}
+            GROUP BY securitycode
+            ORDER BY value DESC, quantity DESC, frequency DESC";
+
+                System.Diagnostics.Debug.WriteLine($"Security Grid SQL Query: {sqlQuery}");
+                System.Diagnostics.Debug.WriteLine($"Parameters: filterDate={filterDate}, transactionCode={transactionCode}");
+
+                DataTable dt = new DataTable();
+                string connString = db.appSettings.DataConnString;
+
+                using (var conn = new System.Data.SqlClient.SqlConnection(connString))
+                {
+                    using (var cmd = new System.Data.SqlClient.SqlCommand(sqlQuery, conn))
+                    {
+                        cmd.CommandTimeout = 300;
+
+                        // Add filter date parameter
+                        if (int.TryParse(filterDate, out int dateAsInt))
+                        {
+                            cmd.Parameters.AddWithValue("@filterDate", dateAsInt);
+                        }
+                        else
+                        {
+                            throw new ArgumentException($"Invalid date format: {filterDate}");
+                        }
+
+                        // Add transaction code parameter if provided
+                        if (!string.IsNullOrEmpty(transactionCode))
+                        {
+                            cmd.Parameters.AddWithValue("@transactionCode", transactionCode);
+                        }
+
+                        var adapter = new System.Data.SqlClient.SqlDataAdapter(cmd);
+                        adapter.Fill(dt);
+                    }
+                }
+
+                System.Diagnostics.Debug.WriteLine($"Security grid result rows: {dt.Rows.Count}");
+
+                if (dt.Rows.Count > 0)
+                {
+                    System.Diagnostics.Debug.WriteLine("=== SECURITY GRID SAMPLE DATA ===");
+                    var firstRow = dt.Rows[0];
+                    foreach (DataColumn column in dt.Columns)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"  {column.ColumnName}: {firstRow[column.ColumnName]}");
+                    }
+                }
+
+                return new WSQueryReturns
+                {
+                    data = dt,
+                };
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Security Grid WSQuery Error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
+
+                return new WSQueryReturns
+                {
+                    data = new DataTable(),
+                };
+            }
+        }
+
+        // Additional method for more detailed security analysis
+        public static WSQueryReturns GetSecurityGridDataDetailed(DataEntities db, string filterDate, string transactionCode = null, int topCount = 0)
+        {
+            System.Diagnostics.Debug.WriteLine("=== WSQueryPS SECURITY GRID DETAILED DEBUG START ===");
+            System.Diagnostics.Debug.WriteLine($"GetSecurityGridDataDetailed received filterDate: '{filterDate}', transactionCode: '{transactionCode}', topCount: {topCount}");
+
+            try
+            {
+                // Build WHERE clause
+                string whereClause = "tradedatesk = @filterDate";
+
+                if (!string.IsNullOrEmpty(transactionCode))
+                {
+                    whereClause += " AND transactiontypecode = @transactionCode";
+                }
+
+                // Add TOP clause if specified
+                string topClause = topCount > 0 ? $"TOP {topCount}" : "";
+
+                // More detailed SQL query with additional metrics
+                string sqlQuery = $@"
+            SELECT {topClause}
+                securitycode,
+                SUM(ISNULL(value, 0)) as value,
+                SUM(ISNULL(quantity, 0)) as quantity,
+                COUNT(securitycode) as frequency,
+                AVG(CAST(ISNULL(value, 0) AS DECIMAL(18,2))) as avg_value,
+                MAX(ISNULL(value, 0)) as max_value,
+                MIN(ISNULL(value, 0)) as min_value
+            FROM BDAPM.pasarmodal.market_driven_validasi_data_tra
+            WHERE {whereClause}
+            GROUP BY securitycode
+            ORDER BY value DESC, quantity DESC, frequency DESC";
+
+                System.Diagnostics.Debug.WriteLine($"Security Grid Detailed SQL Query: {sqlQuery}");
+
+                DataTable dt = new DataTable();
+                string connString = db.appSettings.DataConnString;
+
+                using (var conn = new System.Data.SqlClient.SqlConnection(connString))
+                {
+                    using (var cmd = new System.Data.SqlClient.SqlCommand(sqlQuery, conn))
+                    {
+                        cmd.CommandTimeout = 300;
+
+                        // Add parameters
+                        if (int.TryParse(filterDate, out int dateAsInt))
+                        {
+                            cmd.Parameters.AddWithValue("@filterDate", dateAsInt);
+                        }
+                        else
+                        {
+                            throw new ArgumentException($"Invalid date format: {filterDate}");
+                        }
+
+                        if (!string.IsNullOrEmpty(transactionCode))
+                        {
+                            cmd.Parameters.AddWithValue("@transactionCode", transactionCode);
+                        }
+
+                        var adapter = new System.Data.SqlClient.SqlDataAdapter(cmd);
+                        adapter.Fill(dt);
+                    }
+                }
+
+                System.Diagnostics.Debug.WriteLine($"Security grid detailed result rows: {dt.Rows.Count}");
+
+                return new WSQueryReturns
+                {
+                    data = dt,
+                };
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Security Grid Detailed WSQuery Error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
+
+                return new WSQueryReturns
+                {
+                    data = new DataTable(),
+                };
+            }
+        }
+
+        public static WSQueryReturns GetCPInvestorGridData(DataEntities db, string filterDate, string transactionCode = null, object loadOptions = null)
+        {
+            System.Diagnostics.Debug.WriteLine("=== WSQueryPS CP INVESTOR GRID DEBUG START ===");
+            System.Diagnostics.Debug.WriteLine($"GetCPInvestorGridData received filterDate: '{filterDate}', transactionCode: '{transactionCode}'");
+
+            try
+            {
+                // Build WHERE clause with optional transaction type filter
+                string whereClause = "tradedatesk = @filterDate";
+
+                if (!string.IsNullOrEmpty(transactionCode))
+                {
+                    whereClause += " AND transactiontypecode = @transactionCode";
+                }
+
+                // SQL query for CP Investor data
+                string sqlQuery = $@"
+            SELECT 
+                cpinvestorcode,
+                SUM(ISNULL(value, 0)) as value,
+                SUM(ISNULL(quantity, 0)) as quantity
+            FROM BDAPM.pasarmodal.market_driven_validasi_data_tra
+            WHERE {whereClause}
+            GROUP BY cpinvestorcode
+            ORDER BY value DESC, quantity DESC";
+
+                System.Diagnostics.Debug.WriteLine($"CP Investor Grid SQL Query: {sqlQuery}");
+                System.Diagnostics.Debug.WriteLine($"Parameters: filterDate={filterDate}, transactionCode={transactionCode}");
+
+                DataTable dt = new DataTable();
+                string connString = db.appSettings.DataConnString;
+
+                using (var conn = new System.Data.SqlClient.SqlConnection(connString))
+                {
+                    using (var cmd = new System.Data.SqlClient.SqlCommand(sqlQuery, conn))
+                    {
+                        cmd.CommandTimeout = 300;
+
+                        // Add filter date parameter
+                        if (int.TryParse(filterDate, out int dateAsInt))
+                        {
+                            cmd.Parameters.AddWithValue("@filterDate", dateAsInt);
+                        }
+                        else
+                        {
+                            throw new ArgumentException($"Invalid date format: {filterDate}");
+                        }
+
+                        // Add transaction code parameter if provided
+                        if (!string.IsNullOrEmpty(transactionCode))
+                        {
+                            cmd.Parameters.AddWithValue("@transactionCode", transactionCode);
+                        }
+
+                        var adapter = new System.Data.SqlClient.SqlDataAdapter(cmd);
+                        adapter.Fill(dt);
+                    }
+                }
+
+                System.Diagnostics.Debug.WriteLine($"CP Investor grid result rows: {dt.Rows.Count}");
+
+                if (dt.Rows.Count > 0)
+                {
+                    System.Diagnostics.Debug.WriteLine("=== CP INVESTOR GRID SAMPLE DATA ===");
+                    var firstRow = dt.Rows[0];
+                    foreach (DataColumn column in dt.Columns)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"  {column.ColumnName}: {firstRow[column.ColumnName]}");
+                    }
+                }
+
+                return new WSQueryReturns
+                {
+                    data = dt,
+                };
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"CP Investor Grid WSQuery Error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
+
+                return new WSQueryReturns
+                {
+                    data = new DataTable(),
+                };
+            }
+        }
+
+        // Additional method with frequency count and detailed analysis
+        public static WSQueryReturns GetCPInvestorGridDataWithFrequency(DataEntities db, string filterDate, string transactionCode = null, object loadOptions = null)
+        {
+            System.Diagnostics.Debug.WriteLine("=== WSQueryPS CP INVESTOR GRID WITH FREQUENCY DEBUG START ===");
+            System.Diagnostics.Debug.WriteLine($"GetCPInvestorGridDataWithFrequency received filterDate: '{filterDate}', transactionCode: '{transactionCode}'");
+
+            try
+            {
+                // Build WHERE clause with optional transaction type filter
+                string whereClause = "tradedatesk = @filterDate";
+
+                if (!string.IsNullOrEmpty(transactionCode))
+                {
+                    whereClause += " AND transactiontypecode = @transactionCode";
+                }
+
+                // SQL query for CP Investor data with additional metrics
+                string sqlQuery = $@"
+            SELECT 
+                cpinvestorcode,
+                SUM(ISNULL(value, 0)) as value,
+                SUM(ISNULL(quantity, 0)) as quantity,
+                COUNT(cpinvestorcode) as frequency,
+                AVG(CAST(ISNULL(value, 0) AS DECIMAL(18,2))) as avg_value_per_transaction,
+                COUNT(DISTINCT securitycode) as unique_securities_traded
+            FROM BDAPM.pasarmodal.market_driven_validasi_data_tra
+            WHERE {whereClause}
+            GROUP BY cpinvestorcode
+            ORDER BY value DESC, quantity DESC, frequency DESC";
+
+                System.Diagnostics.Debug.WriteLine($"CP Investor Grid with Frequency SQL Query: {sqlQuery}");
+                System.Diagnostics.Debug.WriteLine($"Parameters: filterDate={filterDate}, transactionCode={transactionCode}");
+
+                DataTable dt = new DataTable();
+                string connString = db.appSettings.DataConnString;
+
+                using (var conn = new System.Data.SqlClient.SqlConnection(connString))
+                {
+                    using (var cmd = new System.Data.SqlClient.SqlCommand(sqlQuery, conn))
+                    {
+                        cmd.CommandTimeout = 300;
+
+                        // Add filter date parameter
+                        if (int.TryParse(filterDate, out int dateAsInt))
+                        {
+                            cmd.Parameters.AddWithValue("@filterDate", dateAsInt);
+                        }
+                        else
+                        {
+                            throw new ArgumentException($"Invalid date format: {filterDate}");
+                        }
+
+                        // Add transaction code parameter if provided
+                        if (!string.IsNullOrEmpty(transactionCode))
+                        {
+                            cmd.Parameters.AddWithValue("@transactionCode", transactionCode);
+                        }
+
+                        var adapter = new System.Data.SqlClient.SqlDataAdapter(cmd);
+                        adapter.Fill(dt);
+                    }
+                }
+
+                System.Diagnostics.Debug.WriteLine($"CP Investor grid with frequency result rows: {dt.Rows.Count}");
+
+                return new WSQueryReturns
+                {
+                    data = dt,
+                };
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"CP Investor Grid with Frequency WSQuery Error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
+
+                return new WSQueryReturns
+                {
+                    data = new DataTable(),
+                };
+            }
+        }
+
         public static List<GainerLoserViewModel> GetGainersOrLosers(DataEntities db, bool isGainer, string selectedDate, int topN, string periodType = "Daily")
         {
             var list = new List<GainerLoserViewModel>();
@@ -1787,15 +2283,30 @@ ORDER BY {orderByClause};
             try
             {
                 string whereClause = "1=1";
+                List<SqlParameter> parameters = new List<SqlParameter>();
 
-                // Build WHERE clause based on date parameters
+                // Build WHERE clause based on date parameters - FIX THE PRIORITY ORDER
                 if (!string.IsNullOrEmpty(singleDate))
                 {
-                    whereClause += " AND calendarsk = " + singleDate;
+                    whereClause += " AND calendarsk = @singleDate";
+                    parameters.Add(new SqlParameter("@singleDate", int.Parse(singleDate)));
+                    System.Diagnostics.Debug.WriteLine($"Using single date filter: {singleDate}");
                 }
                 else if (!string.IsNullOrEmpty(startDate) && !string.IsNullOrEmpty(endDate))
                 {
-                    whereClause += " AND calendarsk >= " + startDate + " AND calendarsk <= " + endDate;
+                    whereClause += " AND calendarsk >= @startDate AND calendarsk <= @endDate";
+                    parameters.Add(new SqlParameter("@startDate", int.Parse(startDate)));
+                    parameters.Add(new SqlParameter("@endDate", int.Parse(endDate)));
+                    System.Diagnostics.Debug.WriteLine($"Using date range filter: {startDate} to {endDate}");
+                }
+                else
+                {
+                    // FIX: Don't return default data if no proper dates provided
+                    System.Diagnostics.Debug.WriteLine("ERROR: No valid date parameters provided");
+                    return new WSQueryReturns
+                    {
+                        data = new DataTable(),
+                    };
                 }
 
                 // Determine value field based on chart type
@@ -1828,6 +2339,7 @@ ORDER BY {orderByClause};
 
                 System.Diagnostics.Debug.WriteLine("=== CHART SQL QUERY ===");
                 System.Diagnostics.Debug.WriteLine(sqlQuery);
+                System.Diagnostics.Debug.WriteLine($"Parameters: {string.Join(", ", parameters.Select(p => $"{p.ParameterName}={p.Value}"))}");
 
                 DataTable dt = new DataTable();
                 string connString = db.appSettings.DataConnString;
@@ -1837,17 +2349,31 @@ ORDER BY {orderByClause};
                     using (var cmd = new System.Data.SqlClient.SqlCommand(sqlQuery, conn))
                     {
                         cmd.CommandTimeout = 300;
+
+                        // Add parameters to command
+                        foreach (var param in parameters)
+                        {
+                            cmd.Parameters.Add(param);
+                        }
+
                         var adapter = new System.Data.SqlClient.SqlDataAdapter(cmd);
                         adapter.Fill(dt);
                     }
                 }
 
-                System.Diagnostics.Debug.WriteLine($"Chart data rows: {dt.Rows.Count}");
+                System.Diagnostics.Debug.WriteLine($"Chart data rows returned: {dt.Rows.Count}");
+
+                // Debug: Show date range of returned data
+                if (dt.Rows.Count > 0)
+                {
+                    var firstDate = dt.Rows[0]["calendarsk"];
+                    var lastDate = dt.Rows[dt.Rows.Count - 1]["calendarsk"];
+                    System.Diagnostics.Debug.WriteLine($"Date range in results: {firstDate} to {lastDate}");
+                }
 
                 return new WSQueryReturns
                 {
                     data = dt,
-                  
                 };
             }
             catch (Exception ex)
@@ -1858,7 +2384,6 @@ ORDER BY {orderByClause};
                 return new WSQueryReturns
                 {
                     data = new DataTable(),
-            
                 };
             }
         }
