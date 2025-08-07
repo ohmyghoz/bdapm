@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using BDA.DataModel;
 using BDA.Helper;
+using BDA.Helper.FW;
 using DevExpress.Xpo.DB.Helpers;
 using DevExtreme.AspNet.Data;
 using DevExtreme.AspNet.Mvc;
@@ -11,6 +13,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using static BDA.Controllers.MMTransaksiSPVController;
 
 namespace BDA.Areas.Master.Controllers
 {
@@ -69,38 +72,50 @@ namespace BDA.Areas.Master.Controllers
 
         public object GetGridData(DataSourceLoadOptions loadOptions)
         {
-            List<LogMasterData> data = db.DimMasterJobs
-                                        .Select((item, index) => new LogMasterData
-                                        { 
-                                            log_no = index + 1,
-                                            log_kode = item.JobId,
-                                            log_nama = item.JobName,
-                                            log_waktu = item.Scheduler
-                                        }).ToList();
+            List<LogMasterData> data = new List<LogMasterData>();
 
+            WSQueryReturns result = Helper.WSQueryStore.GetMasterLogData(db, loadOptions);
 
+            if (result.data.Rows.Count > 0)
+            {
+                for (int i = 0; i < result.data.Rows.Count; i++)
+                {
+                    data.Add(new LogMasterData() 
+                    { 
+                        log_no = i+1, 
+                        log_kode = result.data.Rows[i]["job_id"].ToString(), 
+                        log_nama = result.data.Rows[i]["job_name"].ToString(), 
+                        log_waktu = result.data.Rows[i]["scheduler"].ToString() 
+                    });
+                }
+            }
 
             return DataSourceLoader.Load(data, loadOptions);
         }
 
         public object GetGridDataDetails(DataSourceLoadOptions loadOptions, string paramID)
         {
-            string id = paramID;
-            List<DimJobProc> datas = db.DimJobProcs.Where(x => x.JobId.Equals(id)).ToList();
-            List<LogMasterDataDetail> data = datas
-                                        .Select((item, index) => new LogMasterDataDetail
-                                        {
-                                            log_kode = item.JobId,
-                                            log_seq = item.SeqNo,
-                                            log_job = item.ProcName,
-                                            log_table_src = "",
-                                            log_table_dst = "",
-                                            log_script = item.ScriptLocation
-                                        }).ToList();
+            List<LogMasterDataDetail> data = new List<LogMasterDataDetail>();
 
+            WSQueryReturns result = Helper.WSQueryStore.GetMasterLogDataDetail(db, loadOptions, paramID);
 
+            if (result.data.Rows.Count > 0)
+            {
+                for (int i = 0; i < result.data.Rows.Count; i++)
+                {
+                    data.Add(new LogMasterDataDetail() 
+                    { 
+                        log_kode = result.data.Rows[i]["KodeJob"].ToString(), 
+                        log_seq = result.data.Rows[i]["UrutanProses"].ToString(), 
+                        log_job = result.data.Rows[i]["NamaJob"].ToString(),
+                        log_table_src = result.data.Rows[i]["TblSrc"].ToString(),
+                        log_table_dst = result.data.Rows[i]["TblDst"].ToString(),
+                        log_script = result.data.Rows[i]["LokScript"].ToString(),
+                    });
+                }
+            }
 
-            return DataSourceLoader.Load(datas, loadOptions);
+            return DataSourceLoader.Load(data, loadOptions);
         }
 
         public IActionResult GetRefModul(DataSourceLoadOptions loadOptions)
@@ -125,7 +140,7 @@ namespace BDA.Areas.Master.Controllers
         public class LogMasterDataDetail
         {
             public string log_kode { get; set; }
-            public int log_seq { get; set; }
+            public string log_seq { get; set; }
             public string log_job { get; set; }
             public string log_table_src { get; set;}
             public string log_table_dst { get; set; }

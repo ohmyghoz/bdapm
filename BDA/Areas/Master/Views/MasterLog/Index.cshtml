@@ -93,7 +93,7 @@
 
         $.ajax({
             type: "POST",
-            url: "@Url.Action("ExportPDF", "BasisInvestor")",
+            url: "@Url.Action("GetGridDataDetails", "MasterLog")",
             data: {paramID: kode},
             dataType: "json",
             type: "POST",
@@ -106,7 +106,7 @@
                 contentTemplate: function (contentElement) {
                     const detailGrid = $("<div>").appendTo(contentElement);
                     detailGrid.dxDataGrid({
-                        dataSource: resp,
+                        dataSource: resp.data,
                         columns: [
                             { dataField: "log_kode", caption: "Kode Job" },
                             { dataField: "log_seq", caption: "Urutan Proses" },
@@ -124,29 +124,6 @@
 
     function redirDelete() {}
 
-    // function gridOnBeforeSend(method, ajaxOptions) {
-    //     var tempstartDate = $("#startDate").dxDateBox("instance").option('value');
-    //     var tempendDate = $("#endDate").dxDateBox("instance").option('value');
-    //     var menu = $("#menu").dxDropDownBox("instance").option('text');
-    //     var startDate = null;
-    //     var endDate = null;
-
-    //     if (tempstartDate > tempendDate) {
-    //         swal({ type: 'error', title: 'Validasi', text: 'Periksa Kembali Tanggal Inputan' });
-    //     }
-
-    //     if (tempstartDate != null) {
-    //         startDate = tempstartDate.getFullYear() + '-' + (tempstartDate.getMonth() + 1) + '-' + tempstartDate.getDate();
-    //     }
-    //     if (tempendDate != null) {
-    //         endDate = tempendDate.getFullYear() + '-' + (tempendDate.getMonth() + 1) + '-' + tempendDate.getDate();
-    //     }
-
-    //     ajaxOptions.data.paramMenu = menu?.toString();
-    //     ajaxOptions.data.paramStartDate = startDate;
-    //     ajaxOptions.data.paramEndDate = endDate;
-
-    // }
 </script>
 
 

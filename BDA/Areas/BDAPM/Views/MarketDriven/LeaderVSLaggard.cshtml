@@ -107,13 +107,7 @@
                         .ValidationGroup("Filter"))
                 </div>
 
-                @*                 <div class="float-right">
-            @if (ViewBag.Export)
-            {
-            <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToExcel();"><span class="image fa fa-file-excel"></span> Export Excel</a>
-            <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:ExportToPdf2();"><span class="image fa fa-file-pdf"></span> Export PDF</a>
-            }
-            </div> *@
+           
             </div>
         </div>
         <div class="row">
@@ -344,7 +338,6 @@
         const selectedValue = e.value;
         const datepickdayDiv = document.getElementById("datepickday");
         const datepickmonthDiv = document.getElementById("datepickmonth");
-        const asingDiv = document.getElementById("asingDiv");
         const starttimeDiv = document.getElementById("starttime")
         const endtimeDiv = document.getElementById("endtime")
         const startdateDiv = document.getElementById("startdate")
@@ -375,14 +368,207 @@
         }
     }
 
+    // Export functions for Leaders vs Laggards
+
+    window.exportLeadersToExcel = function () {
+        try {
+            console.log("Exporting Leaders to Excel...");
+            var periodType = $("#Periodid").dxSelectBox("instance").option("value");
+            var selectedDate = null;
+            var endDate = null;
+
+            if (periodType === "Custom Date") {
+                selectedDate = window.formatDateYYYYMMDD($("#StartDateID").dxDateBox("instance").option("value"));
+                endDate = window.formatDateYYYYMMDD($("#EndDateID").dxDateBox("instance").option("value"));
+            } else {
+                selectedDate = window.getFormattedDateByPeriod(periodType);
+            }
+
+            var topN = $("#ItemsPerPageSelectBox").dxSelectBox("instance").option("value");
+            var topCount = topN === "All" ? 500 : (parseInt(topN) || 10);
+
+            var exportUrl = '@Url.Action("ExportLeadersToExcel", "MarketDriven")' +
+                '?selectedDate=' + encodeURIComponent(selectedDate) +
+                '&topN=' + topCount +
+                '&periodType=' + encodeURIComponent(periodType);
+
+            if (endDate) {
+                exportUrl += '&endDate=' + encodeURIComponent(endDate);
+            }
+
+            window.open(exportUrl, '_blank');
+            DevExpress.ui.notify("Excel export started...", "success", 2000);
+        } catch (e) {
+            console.error("Error exporting Leaders to Excel:", e);
+            DevExpress.ui.notify("Error exporting to Excel: " + e.message, "error", 3000);
+        }
+    };
+
+    window.exportLeadersToPDF = function () {
+        try {
+            console.log("Exporting Leaders to PDF...");
+            var periodType = $("#Periodid").dxSelectBox("instance").option("value");
+            var selectedDate = null;
+            var endDate = null;
+
+            if (periodType === "Custom Date") {
+                selectedDate = window.formatDateYYYYMMDD($("#StartDateID").dxDateBox("instance").option("value"));
+                endDate = window.formatDateYYYYMMDD($("#EndDateID").dxDateBox("instance").option("value"));
+            } else {
+                selectedDate = window.getFormattedDateByPeriod(periodType);
+            }
+
+            var topN = $("#ItemsPerPageSelectBox").dxSelectBox("instance").option("value");
+            var topCount = topN === "All" ? 500 : (parseInt(topN) || 10);
+
+            var exportUrl = '@Url.Action("ExportLeadersToPDF", "MarketDriven")' +
+                '?selectedDate=' + encodeURIComponent(selectedDate) +
+                '&topN=' + topCount +
+                '&periodType=' + encodeURIComponent(periodType);
+
+            if (endDate) {
+                exportUrl += '&endDate=' + encodeURIComponent(endDate);
+            }
+
+            window.open(exportUrl, '_blank');
+            DevExpress.ui.notify("PDF export started...", "success", 2000);
+        } catch (e) {
+            console.error("Error exporting Leaders to PDF:", e);
+            DevExpress.ui.notify("Error exporting to PDF: " + e.message, "error", 3000);
+        }
+    };
+
+    window.exportLaggardsToExcel = function () {
+        try {
+            console.log("Exporting Laggards to Excel...");
+            var periodType = $("#Periodid").dxSelectBox("instance").option("value");
+            var selectedDate = null;
+            var endDate = null;
+
+            if (periodType === "Custom Date") {
+                selectedDate = window.formatDateYYYYMMDD($("#StartDateID").dxDateBox("instance").option("value"));
+                endDate = window.formatDateYYYYMMDD($("#EndDateID").dxDateBox("instance").option("value"));
+            } else {
+                selectedDate = window.getFormattedDateByPeriod(periodType);
+            }
+
+            var topN = $("#ItemsPerPageSelectBox").dxSelectBox("instance").option("value");
+            var topCount = topN === "All" ? 500 : (parseInt(topN) || 10);
+
+            var exportUrl = '@Url.Action("ExportLaggardsToExcel", "MarketDriven")' +
+                '?selectedDate=' + encodeURIComponent(selectedDate) +
+                '&topN=' + topCount +
+                '&periodType=' + encodeURIComponent(periodType);
+
+            if (endDate) {
+                exportUrl += '&endDate=' + encodeURIComponent(endDate);
+            }
+
+            window.open(exportUrl, '_blank');
+            DevExpress.ui.notify("Excel export started...", "success", 2000);
+        } catch (e) {
+            console.error("Error exporting Laggards to Excel:", e);
+            DevExpress.ui.notify("Error exporting to Excel: " + e.message, "error", 3000);
+        }
+    };
+
+    window.exportLaggardsToPDF = function () {
+        try {
+            console.log("Exporting Laggards to PDF...");
+            var periodType = $("#Periodid").dxSelectBox("instance").option("value");
+            var selectedDate = null;
+            var endDate = null;
+
+            if (periodType === "Custom Date") {
+                selectedDate = window.formatDateYYYYMMDD($("#StartDateID").dxDateBox("instance").option("value"));
+                endDate = window.formatDateYYYYMMDD($("#EndDateID").dxDateBox("instance").option("value"));
+            } else {
+                selectedDate = window.getFormattedDateByPeriod(periodType);
+            }
+
+            var topN = $("#ItemsPerPageSelectBox").dxSelectBox("instance").option("value");
+            var topCount = topN === "All" ? 500 : (parseInt(topN) || 10);
+
+            var exportUrl = '@Url.Action("ExportLaggardsToPDF", "MarketDriven")' +
+                '?selectedDate=' + encodeURIComponent(selectedDate) +
+                '&topN=' + topCount +
+                '&periodType=' + encodeURIComponent(periodType);
+
+            if (endDate) {
+                exportUrl += '&endDate=' + encodeURIComponent(endDate);
+            }
+
+            window.open(exportUrl, '_blank');
+            DevExpress.ui.notify("PDF export started...", "success", 2000);
+        } catch (e) {
+            console.error("Error exporting Laggards to PDF:", e);
+            DevExpress.ui.notify("Error exporting to PDF: " + e.message, "error", 3000);
+        }
+    };
+
+
     $(document).ready(function () {
-        // Hide the confirmation and asing divs initially
-        document.getElementById("starttime").style.display = "none";
-        document.getElementById("endtime").style.display = "none";
-        document.getElementById("datepickday").style.display = "none";
-        document.getElementById("datepickmonth").style.display = "none";
-        document.getElementById("startdate").style.display = "none";
-        document.getElementById("enddate").style.display = "none";
+
+        console.log("Document ready - initializing...");
+
+
+
+        try {
+
+            // Hide all date divs initially
+
+            document.getElementById("starttime").style.display = "none";
+
+            document.getElementById("endtime").style.display = "none";
+
+            document.getElementById("datepickday").style.display = "none";
+
+            document.getElementById("datepickmonth").style.display = "none";
+
+            document.getElementById("startdate").style.display = "none";
+
+            document.getElementById("enddate").style.display = "none";
+
+
+
+            // Set default values (wait for DevExtreme to initialize)
+
+            setTimeout(function () {
+
+                try {
+
+                    $("#Periodid").dxSelectBox("instance").option("value", "Daily");
+
+                    $("#ItemsPerPageSelectBox").dxSelectBox("instance").option("value", "10");
+
+                    $("#DatepickdID").dxDateBox("instance").option("value", new Date());
+
+
+
+                    // Trigger the period change to show the correct date picker
+
+                    onPeriodChanged({ value: "Daily" });
+
+
+
+                    console.log("Initialization complete");
+
+                } catch (e) {
+
+                    console.error("Error in delayed initialization:", e);
+
+                }
+
+            }, 500);
+
+
+
+        } catch (e) {
+
+            console.error("Error in document ready:", e);
+
+        }
+
     });
 
     $(function () {
@@ -430,13 +616,13 @@
                 type: "POST",
                 success: function (data) {
                     if (data.success == true) {
-                        //alert(data.message);
-    @* waitingDialog.hide(); *@
+
+  
                             $('#ModalSimpanPenggunaanData').modal('hide');
                         return "Saving Success !";
                     }
                     else if (data.success == false) {
-    @*  waitingDialog.hide(); *@
+   
                             alert(data.message);
                         $('#ModalSimpanPenggunaanData').modal('hide');
                         return "Saving Failed !";
@@ -446,55 +632,6 @@
         }
     });
 
-    function ExportToPdf() {
-        $.ajax({
-            type: "POST",
-            url: "@Url.Action("LogExportIndex", "MaxMinOverdue")",
-            success: function (response) {
-                if (response.result == "Success") {
-                    const doc = new jsPDF({
-                        orientation: "landscape",
-                        unit: "cm",
-                        format: [21, 60]
-                    });
-                    var dataGrid = $("#grid1").dxDataGrid("instance");
-                    var fileName = "MaxMinOverdue_" + new Date().toISOString().slice(0, 10) + ".pdf";
-                    doc.setFontSize("6")
-                    //var keys = $("#grid1").dxDataGrid("getSelectedRowsData")
-                    //console.log(keys)
-                    DevExpress.pdfExporter.exportDataGrid({
-                        jsPDFDocument: doc,
-                        component: dataGrid,
-                        keepColumnWidths: true
-                        //selectedRowsOnly: true
-                    }).then(function () {
-                        doc.save(fileName);
-                    });
-                }
-            }
-        });
-    }
-
-    function ExportToPdf2() {
-        var dataGrid = $("#grid1").dxDataGrid("instance");
-        dataGrid.option("onExporting", function (e) { });
-        dataGrid.option("onFileSaving", function (e) {
-            var fd = new FormData();
-            fd.append("file", e.data);
-            $.ajax({
-                type: "POST",
-                url: "@Url.Action("ExportPDF", "SegmentationSummaryClusterMKBD")",
-                data: fd,
-                processData: false,
-                contentType: false
-            }).done(function (data) {
-                window.location = "@Url.Action("File", "SegmentationSummaryClusterMKBD")"
-            });
-            e.cancel = true;
-        });
-
-        dataGrid.exportToExcel();
-    }
 
     function onSelectionChanged(e) {
         if (e.addedItems.length > 0) {

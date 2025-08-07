@@ -4,12 +4,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using BDA.DataModel;
 using BDA.Helper;
+using BDA.Helper.FW;
 using DevExtreme.AspNet.Data;
 using DevExtreme.AspNet.Mvc;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using static BDA.Areas.Master.Controllers.MasterLogController;
 
 namespace BDA.Areas.Master.Controllers
 {
@@ -67,54 +70,115 @@ namespace BDA.Areas.Master.Controllers
             return View();
         }
 
-        public object GetGridData(DataSourceLoadOptions loadOptions, string paramStartDate, string paramEndDate)
+        public object GetGridData(DataSourceLoadOptions loadOptions, string paramLogDate, string paramStatus)
         {
-            DateTime startDate = Convert.ToDateTime(paramStartDate);
-            DateTime endDate = Convert.ToDateTime(paramEndDate);
+            List<LogMonData> data = new List<LogMonData>();
 
-            if (paramEndDate == null)
-            {
-                endDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 23, 59, 59);
+            if (paramLogDate != null) {
+                string logDate = DateTime.Parse(paramLogDate).ToString("yyyy-MM-dd");
+                paramLogDate = logDate;
             }
-            else
+            
+
+            WSQueryReturns result = Helper.WSQueryStore.GetLogMonData(db, loadOptions, paramLogDate, paramStatus);
+
+            if (result.data.Rows.Count > 0)
             {
-                endDate = new DateTime(endDate.Year, endDate.Month, endDate.Day, 23, 59, 59);
+                for (int i = 0; i < result.data.Rows.Count; i++)
+                {
+                    data.Add(new LogMonData()
+                    {
+                        log_date = result.data.Rows[i]["TglLog"].ToString().IsNullOrEmpty() ? result.data.Rows[i]["TglLog"].ToString() : DateTime.Parse(result.data.Rows[i]["TglLog"].ToString()).ToString("dd MMMM yyyy"),
+                        log_kode = result.data.Rows[i]["KodeJob"].ToString(),
+                        log_nama = result.data.Rows[i]["NamaJob"].ToString(),
+                        log_periode = result.data.Rows[i]["PeriodeData"].ToString(),
+                        log_start = result.data.Rows[i]["Mulai"].ToString().IsNullOrEmpty() ? result.data.Rows[i]["Mulai"].ToString() : DateTime.Parse(result.data.Rows[i]["Mulai"].ToString()).ToString("dd MMMM yyyy HH:mm:ss"),
+                        log_end = result.data.Rows[i]["Selesai"].ToString().IsNullOrEmpty() ? result.data.Rows[i]["Selesai"].ToString() : DateTime.Parse(result.data.Rows[i]["Selesai"].ToString()).ToString("dd MMMM yyyy HH:mm:ss"),
+                        log_total_waktu = result.data.Rows[i]["TotalWaktu"].ToString().IsNullOrEmpty() ? result.data.Rows[i]["TotalWaktu"].ToString() : DateTime.Parse(result.data.Rows[i]["TotalWaktu"].ToString()).ToString("HH:mm:ss"),
+                        log_delete_cnt = result.data.Rows[i]["JumlahPenghapusan"].ToString(),
+                        log_insert_cnt = result.data.Rows[i]["JumlahInsertData"].ToString(),
+                        log_status = int.Parse(result.data.Rows[i]["Status"].ToString()),
+                        log_percentage = result.data.Rows[i]["Persentase"].ToString(),
+                    });
+                }
             }
-            var query = from q in db.Log_ETL
-                        where q.log_date >= startDate && q.log_date <= endDate
-                        select new { q.log_date, q.log_delete_cnt, q.log_end, q.log_id, q.log_insert_cnt, q.log_periode, q.log_start, q.log_tipe, q.log_status, q.log_errmessage };
-            return DataSourceLoader.Load(query, loadOptions);
+
+            return DataSourceLoader.Load(data, loadOptions);
+
+        }
+
+        public object GetGridDataDetails(DataSourceLoadOptions loadOptions, string paramLogDate, string paramPeriode, string paramJobId)
+        {
+            List<LogMonDataDetail> data = new List<LogMonDataDetail>();
+
+            if (paramLogDate != null)
+            {
+                string logDate = DateTime.Parse(paramLogDate).ToString("yyyy-MM-dd");
+                paramLogDate = logDate;
+            }
+
+            WSQueryReturns result = Helper.WSQueryStore.GetLogMonDataDetails(db, loadOptions, paramLogDate, paramPeriode, paramJobId);
+
+            if (result.data.Rows.Count > 0)
+            {
+                for (int i = 0; i < result.data.Rows.Count; i++)
+                {
+                    data.Add(new LogMonDataDetail()
+                    {
+                        log_date = result.data.Rows[i]["TglLog"].ToString().IsNullOrEmpty() ? result.data.Rows[i]["TglLog"].ToString() : DateTime.Parse(result.data.Rows[i]["TglLog"].ToString()).ToString("dd MMMM yyyy"),
+                        log_kode = result.data.Rows[i]["KodeJob"].ToString(),
+                        log_seq = result.data.Rows[i]["Urutan"].ToString(),
+                        log_nama = result.data.Rows[i]["NamaJob"].ToString(),
+                        log_start = result.data.Rows[i]["Mulai"].ToString().IsNullOrEmpty() ? result.data.Rows[i]["Mulai"].ToString() : DateTime.Parse(result.data.Rows[i]["Mulai"].ToString()).ToString("dd MMMM yyyy HH:mm:ss"),
+                        log_end = result.data.Rows[i]["Selesai"].ToString().IsNullOrEmpty() ? result.data.Rows[i]["Selesai"].ToString() : DateTime.Parse(result.data.Rows[i]["Selesai"].ToString()).ToString("dd MMMM yyyy HH:mm:ss"),
+                        log_delete_cnt = result.data.Rows[i]["JumlahPenghapusan"].ToString(),
+                        log_insert_cnt = result.data.Rows[i]["JumlahInsertData"].ToString(),
+                        log_status = int.Parse(result.data.Rows[i]["Status"].ToString()),
+                        log_desc = result.data.Rows[i]["Keterangan"].ToString()
+                    });
+                }
+            }
+
+            return DataSourceLoader.Load(data, loadOptions);
         }
 
         public class LogMonData
         {
-            public DateTime log_date { get; set; }
+            public string log_date { get; set; }
             public string log_kode { get; set; }
             public string log_nama { get; set; }
             public string log_periode { get; set; }
-            public DateTime log_start { get; set; }
-            public DateTime log_end { get; set; }
+            public string log_start { get; set; }
+            public string log_end { get; set; }
             public string log_total_waktu { get; set; }
-            public int log_delete_cnt { get; set; }
-            public int log_insert_cnt { get; set; }
-            public string log_status { get; set; }
-            public double log_percentage { get; set; }
+            public string log_delete_cnt { get; set; }
+            public string log_insert_cnt { get; set; }
+            public int log_status { get; set; }
+            public string log_percentage { get; set; }
 
         }
 
         public class LogMonDataDetail
         {
-            public DateTime log_date { get; set; }
+            public string log_date { get; set; }
             public string log_kode { get; set; }
-            public int log_seq { get; set; }
+            public string log_seq { get; set; }
             public string log_nama { get; set; }
-            public DateTime log_start { get; set; }
-            public DateTime log_end { get; set; }
-            public int log_delete_cnt { get; set; }
-            public int log_insert_cnt { get; set; }
-            public string log_status { get; set; }
+            public string log_start { get; set; }
+            public string log_end { get; set; }
+            public string log_delete_cnt { get; set; }
+            public string log_insert_cnt { get; set; }
+            public int log_status { get; set; }
             public string log_desc { get; set; }
         }
+
+        private static readonly Dictionary<int, string> enumStatus = new() 
+        {
+            { 1, "Initialization/Running" },
+            { 2, "Finish - Success" },
+            { 3, "Error" },
+            { 4, "Others" }
+        };
 
     }
 }

@@ -7,8 +7,16 @@
 <div class="row">
     <div class="col-md-6">
         <div class="card">
-            <div class="card-header" style="background-color: #28a745;">
-                <h1 class="card-title" style="color:white; font-weight:bold">Leaders</h1>
+            <div class="card-header" style="background-color: #28a745; position:relative;">
+                <h1 class="card-title" style="color:white; font-weight:bold; display:inline-block;">Leaders</h1>
+                <div style="position: absolute; right: 20px; top: 18px;">
+                    <a href="javascript:exportLeadersToExcel();" class="btn btn-success btn-sm" title="Export Leaders to Excel">
+                        <i class="fa fa-file-excel"></i> Excel
+                    </a>
+                    <a href="javascript:exportLeadersToPDF();" class="btn btn-danger btn-sm" title="Export Leaders to PDF">
+                        <i class="fa fa-file-pdf"></i> PDF
+                    </a>
+                </div>
             </div>
             <div class="card-body" style="padding: 0;">
                 @{
@@ -76,15 +84,30 @@
     <div class="col-md-6">
 
         <div class="card">
-            <div class="card-header" style="background-color: #dc3545;">
-                <h1 class="card-title" style="color:white; font-weight:bold">Laggards</h1>
+            <div class="card-header" style="background-color: #dc3545; position:relative;">
+                <h1 class="card-title" style="color:white; font-weight:bold; display:inline-block;">Laggards</h1>
+                <div style="position: absolute; right: 20px; top: 18px;">
+
+                    <a href="javascript:exportLaggardsToExcel();" class="btn btn-success btn-sm" title="Export Laggards to Excel">
+
+                        <i class="fa fa-file-excel"></i> Excel
+
+                    </a>
+
+                    <a href="javascript:exportLaggardsToPDF();" class="btn btn-danger btn-sm" title="Export Laggards to PDF">
+
+                        <i class="fa fa-file-pdf"></i> PDF
+
+                    </a>
+
+                </div>
             </div>
             <div class="card-body" style="padding: 0;">
                 @{
                     sequenceCounter = 1;
                 }
 
-                @* 2. Loop over the Gainers list *@
+            
                 @foreach (BDA.Models.LeaderLaggardViewModel item in Model.Laggards)
                 {
                     <div class="gainer-item">
