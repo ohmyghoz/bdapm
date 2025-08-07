@@ -242,6 +242,15 @@ namespace BDA.Controllers
                     numericStyle.SetBorder(BorderType.LeftBorder, CellBorderType.Medium, Color.Black);
                     numericStyle.SetBorder(BorderType.RightBorder, CellBorderType.Medium, Color.Black);
 
+                    //apply date number
+                    Style dateStyle = workbook.CreateStyle();
+                    dateStyle.Custom = "yyyy-mm-dd";
+                    dateStyle.HorizontalAlignment = TextAlignmentType.Left;
+                    dateStyle.SetBorder(BorderType.TopBorder, CellBorderType.Medium, Color.Black);
+                    dateStyle.SetBorder(BorderType.BottomBorder, CellBorderType.Medium, Color.Black);
+                    dateStyle.SetBorder(BorderType.LeftBorder, CellBorderType.Medium, Color.Black);
+                    dateStyle.SetBorder(BorderType.RightBorder, CellBorderType.Medium, Color.Black);
+
                     StyleFlag numericFlag = new StyleFlag();
                     numericFlag.NumberFormat = true;
                     numericFlag.HorizontalAlignment = true;
@@ -251,7 +260,11 @@ namespace BDA.Controllers
                     {
                         if (cell.Type == CellValueType.IsNumeric)
                         {
-                            cell.SetStyle(numericStyle);
+                            var isDate = false;
+                            
+                            if (cell.DateTimeValue.Year > 1990) isDate = true;
+                            if (isDate) cell.SetStyle(dateStyle);
+                            else cell.SetStyle(numericStyle);
                         }
                     }
 
@@ -382,9 +395,9 @@ namespace BDA.Controllers
                 if (passport != null) {
                     passport = passport.Replace("-", "").Replace(" ", "");
                 }
-                loadOptions.RequireTotalCount = false;
+                //loadOptions.RequireTotalCount = false;
                 var result = Helper.WSQueryStore.GetPMIPQuery(db, loadOptions, reportId, SID, tradeId, namaSID, namaLike, nomorKTP, nomorNPWP, passport, sistem, businessReg, stringStartPeriode, stringEndPeriode, chk100, cekHive);
-                loadOptions.RequireTotalCount = true;
+                //loadOptions.RequireTotalCount = true;
                 return JsonConvert.SerializeObject(result);
 
                 

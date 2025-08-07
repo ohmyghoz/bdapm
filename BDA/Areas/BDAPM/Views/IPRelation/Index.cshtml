@@ -178,6 +178,12 @@
                         .OnClick("onButtonFilterClicked")
                         .ValidationGroup("Filter")
                         )
+                    @(Html.DevExtreme().Button()
+                        .ID("Cancel")
+                        .Type(ButtonType.Default)
+                        .Text("Cancel")
+                        .OnClick("onButtonCancelClicked")                        
+                        )
                 </div>
 
 
@@ -510,6 +516,10 @@
         }
 
         resetFilter[mdl][idFilter] = 0;
+    }
+
+    function onButtonCancelClicked(e) {
+        window.open("../../../Website/Default", "_self");
     }
 
     function onButtonFilterClicked(e) {
