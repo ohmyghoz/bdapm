@@ -6474,7 +6474,7 @@ namespace BDA.Helper
             var props = new WSQueryProperties();
             if (isHive == true)
             {
-                if (tableName == "dimsecurities")
+                if (tableName == "dim_securities")
                 {
                     props.Query = @"
                         SELECT securitycode, securityname, status from pasarmodal." + tableName + @"

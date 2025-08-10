@@ -264,7 +264,7 @@
                             {
                                 b.Add().Hint("Summary Transaction SID")
                                     .Icon("detailslayout")
-                                    .OnClick("redirDetail");
+                                    .OnClick("function(e) {e.event.preventDefault(); redirDetail(e);}");
                             });
                         })
                     .ColumnResizingMode(ColumnResizingMode.Widget)
@@ -392,7 +392,8 @@
     function redirDetail(e) {
         sid = e.row.data.sid;
         tradeid = e.row.data.tradeid;
-        window.open('@Url.Action("SumTxSID", "BasisInvestor")?pe=' + PE + '&periode=' + periode + '&sid=' + sid + '&tradeid=' + tradeid);
+        var url = '@Url.Action("SumTxSID", "BasisInvestor")?pe=' + PE + '&periode=' + periode + '&sid=' + sid + '&tradeid=' + tradeid;
+        window.open(url, '"_blank"');
     }
 
     function onButtonFilterClicked(e) {
