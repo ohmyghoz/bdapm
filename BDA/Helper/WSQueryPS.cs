@@ -15,6 +15,7 @@ using System.Data.SqlClient;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 
 namespace BDA.Helper
 {
@@ -884,56 +885,217 @@ namespace BDA.Helper
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, true);
         }
-        public static object GetMarketDrivenData(DataEntities db, DataSourceLoadOptions loadOptions, string selectedDate)
+        // REWRITE: Support Daily, Monthly, and Custom Date, plus all filters from the view
+        // REWRITE: fix invalid table name + keep detailed SQL and parameter logging
+        // REWRITE: fix table name; return a plain array the PivotGrid can consume; keep detailed debug
+        public static List<Dictionary<string, object>> GetMarketDrivenData(
+            DataEntities db,
+            DataSourceLoadOptions loadOptions,
+            string periodType,
+            string selectedDate,
+            string selectedMonth,
+            string startDate,
+            string endDate,
+            string startTime,
+            string endTime,
+            string[] confirmation,
+            string[] lokalAsing,
+            string[] countryInvestor,
+            string[] typeInvestor,
+            string[] market,
+            string[] abCodes,
+            int? topN
+        )
         {
-            // If no date is selected, return an empty result.
-            if (string.IsNullOrEmpty(selectedDate))
+            System.Diagnostics.Debug.WriteLine("=== WSQueryPS.GetMarketDrivenData START ===");
+            System.Diagnostics.Debug.WriteLine($"periodType={periodType}, selectedDate={selectedDate}, selectedMonth={selectedMonth}, startDate={startDate}, endDate={endDate}");
+            System.Diagnostics.Debug.WriteLine($"startTime={startTime}, endTime={endTime}, topN={topN}");
+            System.Diagnostics.Debug.WriteLine($"confirmation=[{(confirmation == null ? "" : string.Join(",", confirmation))}]");
+            System.Diagnostics.Debug.WriteLine($"lokalAsing=[{(lokalAsing == null ? "" : string.Join(",", lokalAsing))}]");
+            System.Diagnostics.Debug.WriteLine($"countryInvestor=[{(countryInvestor == null ? "" : string.Join(",", countryInvestor))}]");
+            System.Diagnostics.Debug.WriteLine($"typeInvestor=[{(typeInvestor == null ? "" : string.Join(",", typeInvestor))}]");
+            System.Diagnostics.Debug.WriteLine($"market=[{(market == null ? "" : string.Join(",", market))}]");
+            System.Diagnostics.Debug.WriteLine($"abCodes=[{(abCodes == null ? "" : string.Join(",", abCodes))}]");
+
+            var list = new List<Dictionary<string, object>>();
+
+            try
             {
-                return new { data = new object[0], totalCount = 0 };
-            }
+                var tableName = "BDAPM.pasarmodal.market_driven_validasi_data_tra"; // FIXED
+                System.Diagnostics.Debug.WriteLine($"Target table: {tableName}");
 
-            string dateForQuery = selectedDate.Replace("-", "");
+                if (string.IsNullOrWhiteSpace(periodType))
+                {
+                    System.Diagnostics.Debug.WriteLine("[WS] Empty periodType -> return empty.");
+                    return list;
+                }
 
-            string sqlQuery = $@"
-        SELECT 
-           CONVERT(VARCHAR(10), CONVERT(DATE, CAST(tradedatesk AS VARCHAR(8))), 105) AS TransactionDates,
-            sid_ori, cpinvestorcode, securitycode, investorcode, quantity, value
-        FROM pasarmodal.market_driven_validasi_data_tra
-        WHERE tradedatesk = @tradedate";
+                var useTop = topN.HasValue && topN.Value > 0;
+                var topClause = useTop ? $"TOP {topN.Value}" : string.Empty;
 
-            DataTable dt = new DataTable();
-            string connString = db.appSettings.DataConnString;
+                var sql = new System.Text.StringBuilder();
+                sql.AppendLine($@"
+            SELECT {topClause}
+                CONVERT(VARCHAR(10), CONVERT(DATE, CAST(tradedatesk AS VARCHAR(8))), 103) AS TransactionDates,
+                sid_ori,
+                cpinvestorcode,
+                securitycode,
+                investorcode,
+                CAST(quantity AS BIGINT) AS quantity,
+                CAST(value  AS BIGINT) AS value
+            FROM {tableName} WITH (NOLOCK)
+            WHERE 1=1");
 
-            using (SqlConnection conn = new SqlConnection(connString))
-            {
-                using (SqlCommand cmd = new SqlCommand(sqlQuery, conn))
+                var parameters = new List<SqlParameter>();
+
+                // Period filter branches
+                if (string.Equals(periodType, "Daily", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (int.TryParse(selectedDate, out var dly))
+                    {
+                        sql.AppendLine("  AND tradedatesk = @tradedate");
+                        parameters.Add(new SqlParameter("@tradedate", dly));
+                        System.Diagnostics.Debug.WriteLine($"[WS] Daily: tradedatesk = {dly}");
+
+                        int? sh = null, eh = null;
+                        if (!string.IsNullOrWhiteSpace(startTime) && int.TryParse(startTime.Split(':')[0], out var shh)) sh = shh;
+                        if (!string.IsNullOrWhiteSpace(endTime) && int.TryParse(endTime.Split(':')[0], out var ehh)) eh = ehh;
+                        if (sh.HasValue && !eh.HasValue) eh = sh;
+                        if (!sh.HasValue && eh.HasValue) sh = eh;
+
+                        if (sh.HasValue && eh.HasValue)
+                        {
+                            sql.AppendLine("  AND tradinghourcode BETWEEN @startHour AND @endHour");
+                            parameters.Add(new SqlParameter("@startHour", sh.Value));
+                            parameters.Add(new SqlParameter("@endHour", eh.Value));
+                            System.Diagnostics.Debug.WriteLine($"[WS] Time window: tradinghourcode BETWEEN {sh.Value} AND {eh.Value}");
+                        }
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine("[WS] Invalid Daily selectedDate -> empty.");
+                        return list;
+                    }
+                }
+                else if (string.Equals(periodType, "Monthly", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (int.TryParse(selectedMonth, out var mon))
+                    {
+                        sql.AppendLine("  AND p_month = @pmonth");
+                        parameters.Add(new SqlParameter("@pmonth", mon));
+                        System.Diagnostics.Debug.WriteLine($"[WS] Monthly: p_month = {mon}");
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine("[WS] Invalid Monthly selectedMonth -> empty.");
+                        return list;
+                    }
+                }
+                else if (string.Equals(periodType, "Custom Date", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (int.TryParse(startDate, out var sdt) && int.TryParse(endDate, out var edt))
+                    {
+                        sql.AppendLine("  AND tradedatesk BETWEEN @startdate AND @enddate");
+                        parameters.Add(new SqlParameter("@startdate", sdt));
+                        parameters.Add(new SqlParameter("@enddate", edt));
+                        System.Diagnostics.Debug.WriteLine($"[WS] Custom: tradedatesk BETWEEN {sdt} AND {edt}");
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine("[WS] Invalid Custom Date range -> empty.");
+                        return list;
+                    }
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"[WS] Unknown periodType '{periodType}' -> empty.");
+                    return list;
+                }
+
+                // Helper to add IN clauses
+                void AddInClause(string caption, string column, IEnumerable<string> values, string paramPrefix)
+                {
+                    var vals = values?.Where(v => !string.IsNullOrWhiteSpace(v)).Distinct().ToList();
+                    System.Diagnostics.Debug.WriteLine($"[WS] Filter '{caption}': {(vals == null ? "null" : string.Join(",", vals))}");
+                    if (vals == null || vals.Count == 0) return;
+
+                    var paramNames = new List<string>();
+                    for (int i = 0; i < vals.Count; i++)
+                    {
+                        var pname = $"@{paramPrefix}{i}";
+                        paramNames.Add(pname);
+                        parameters.Add(new SqlParameter(pname, vals[i]));
+                    }
+                    sql.AppendLine($"  AND {column} IN ({string.Join(",", paramNames)})");
+                    System.Diagnostics.Debug.WriteLine($"[WS] Applied IN on {column} ({vals.Count} values)");
+                }
+
+                AddInClause("Confirmation", "transactiontypecode", confirmation, "conf");
+                AddInClause("Lokal/Asing", "lokal_asing_sid", lokalAsing, "lasg");
+                AddInClause("Country Investor", "countryinvestor", countryInvestor, "ctry");
+                AddInClause("Type Investor", "typeinvestor", typeInvestor, "tinv");
+                AddInClause("Market", "transactionboardcode", market, "mkt");
+                AddInClause("AB Codes", "exchangemembercode", abCodes, "ab");
+
+                sql.AppendLine("ORDER BY tradedatesk, tradeno");
+
+                System.Diagnostics.Debug.WriteLine("=== WS FINAL SQL (Validasi Data) ===");
+                System.Diagnostics.Debug.WriteLine(sql.ToString());
+                if (parameters.Count > 0)
+                {
+                    System.Diagnostics.Debug.WriteLine("--- WS SQL Parameters ---");
+                    foreach (var p in parameters)
+                        System.Diagnostics.Debug.WriteLine($"{p.ParameterName} = {p.Value} ({p.Value?.GetType().Name ?? "null"})");
+                    System.Diagnostics.Debug.WriteLine("-------------------------");
+                }
+
+                var dt = new DataTable();
+                using (var conn = new SqlConnection(db.appSettings.DataConnString))
+                using (var cmd = new SqlCommand(sql.ToString(), conn))
+                using (var adp = new SqlDataAdapter(cmd))
                 {
                     cmd.CommandTimeout = 300;
-                    int dateAsInt = Int32.Parse(dateForQuery);
-                    cmd.Parameters.AddWithValue("@tradedate", dateAsInt);
+                    foreach (var p in parameters) cmd.Parameters.Add(p);
 
-                    SqlDataAdapter adapter = new SqlDataAdapter(cmd);
-                    adapter.Fill(dt);
+                    conn.Open();
+                    System.Diagnostics.Debug.WriteLine("[WS] Executing SQL...");
+                    var sw = System.Diagnostics.Stopwatch.StartNew();
+                    adp.Fill(dt);
+                    sw.Stop();
+                    System.Diagnostics.Debug.WriteLine($"[WS] SQL done in {sw.ElapsedMilliseconds} ms. Rows: {dt.Rows.Count}");
                 }
-            }
 
-            // --- THIS IS THE NEW PART ---
-
-            // Manually convert the DataTable to a List of Dictionaries
-            var list = new List<Dictionary<string, object>>();
-            foreach (DataRow row in dt.Rows)
-            {
-                var dict = new Dictionary<string, object>();
-                foreach (DataColumn col in dt.Columns)
+                if (dt.Rows.Count > 0)
                 {
-                    dict[col.ColumnName] = row[col];
+                    var firstRow = dt.Rows[0];
+                    System.Diagnostics.Debug.WriteLine("=== WS SAMPLE ROW (first) ===");
+                    foreach (DataColumn c in dt.Columns)
+                        System.Diagnostics.Debug.WriteLine($"  {c.ColumnName}: {firstRow[c]}");
                 }
-                list.Add(dict);
-            }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("[WS] No data returned for the given filters/period.");
+                }
 
-            // Return the raw data in a structure DevExtreme understands.
-            // We are deliberately IGNORING the 'loadOptions' for this test.
-            return new { data = list, totalCount = list.Count };
+                // Convert to plain array for PivotGrid consumption
+                foreach (DataRow row in dt.Rows)
+                {
+                    var dict = new Dictionary<string, object>(dt.Columns.Count, StringComparer.OrdinalIgnoreCase);
+                    foreach (DataColumn col in dt.Columns)
+                        dict[col.ColumnName] = row[col];
+                    list.Add(dict);
+                }
+
+                System.Diagnostics.Debug.WriteLine($"=== WSQueryPS.GetMarketDrivenData END (count={list.Count}) ===");
+                return list;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("=== WSQueryPS.GetMarketDrivenData ERROR ===");
+                System.Diagnostics.Debug.WriteLine($"Message: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack  : {ex.StackTrace}");
+                return list;
+            }
         }
 
         public static WSQueryReturns GetInvestorGridData(DataEntities db, string filterDate, object loadOptions = null)

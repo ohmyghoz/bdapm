@@ -13,7 +13,6 @@
     @Html.AntiForgeryToken()
 
     <div class="card card-default">
-        @*filter*@
         <div class="row filter-panel" style="padding-top:0px;">
             <div class="card-body">
                 <h1>Validasi Data Transaksi</h1>
@@ -26,11 +25,11 @@
                             .Width("100%")
                             .OnValueChanged("onPeriodChanged"))
                     </div>
-
                 </div>
+
                 <div class="row">
                     <div class="col-lg-3 form-group" id="datepickday">
-                        <label>Periode@*<span class="mandatory">*</span>*@</label>
+                        <label>Periode</label>
                         @(Html.DevExtreme().DateBox()
                             .ID("DatepickdID")
                             .Type(DateBoxType.Date)
@@ -38,7 +37,7 @@
                             .Width("100%"))
                     </div>
                     <div class="col-lg-3 form-group" id="datepickmonth">
-                        <label>Periode@*<span class="mandatory">*</span>*@</label>
+                        <label>Periode</label>
                         @(Html.DevExtreme().DateBox()
                             .ID("datePickM")
                             .Type(DateBoxType.Date)
@@ -49,7 +48,7 @@
                             .Width("100%"))
                     </div>
                     <div class="col-lg-3 form-group" id="starttime">
-                        <label>Start Time@*<span class="mandatory">*</span>*@</label>
+                        <label>Start Time</label>
                         @(Html.DevExtreme().SelectBox()
                             .ID("StartTime")
                             .DataSource(Enumerable.Range(9, 9).Select(h => new { Value = h.ToString("D2") + ":00", Text = h.ToString("D2") + ":00" }))
@@ -57,10 +56,9 @@
                             .DisplayExpr("Text")
                             .SearchEnabled(true)
                             .Width("100%"))
-
                     </div>
                     <div class="col-lg-3 form-group" id="endtime">
-                        <label>End Time@*<span class="mandatory">*</span>*@</label>
+                        <label>End Time</label>
                         @(Html.DevExtreme().SelectBox()
                             .ID("EndTime")
                             .DataSource(Enumerable.Range(9, 9).Select(h => new { Value = h.ToString("D2") + ":00", Text = h.ToString("D2") + ":00" }))
@@ -68,10 +66,9 @@
                             .DisplayExpr("Text")
                             .SearchEnabled(true)
                             .Width("100%"))
-
                     </div>
                     <div class="col-lg-3 form-group" id="startdate">
-                        <label>Start Date@*<span class="mandatory">*</span>*@</label>
+                        <label>Start Date</label>
                         @(Html.DevExtreme().DateBox()
                             .ID("StartDateID")
                             .Type(DateBoxType.Date)
@@ -79,18 +76,24 @@
                             .Width("100%"))
                     </div>
                     <div class="col-lg-3 form-group" id="enddate">
-                        <label>End Date@*<span class="mandatory">*</span>*@</label>
+                        <label>End Date</label>
                         @(Html.DevExtreme().DateBox()
                             .ID("EndDateID")
                             .Type(DateBoxType.Date)
                             .DisplayFormat("dd/MM/yyyy")
                             .Width("100%"))
                     </div>
+
                     <div class="col-lg-3 form-group">
-                        <label>Confirmation@*<span class="mandatory">*</span>*@</label>
+                        <label>Confirmation</label>
                         @(Html.DevExtreme().TagBox()
                             .ID("Confirmationid")
-                            .DataSource(new[] { "True", "False" })
+                            .DataSource(new[] {
+                    new { Value = "B", Text = "Buy" },
+                    new { Value = "S", Text = "Sell" }
+                    })
+                            .ValueExpr("Value")
+                            .DisplayExpr("Text")
                             .ShowSelectionControls(true)
                             .MaxDisplayedTags(3)
                             .SearchEnabled(true)
@@ -98,10 +101,15 @@
                             .Width("100%"))
                     </div>
                     <div class="col-lg-3 form-group">
-                        <label>Lokal/Asing@*<span class="mandatory">*</span>*@</label>
+                        <label>Lokal/Asing</label>
                         @(Html.DevExtreme().TagBox()
                             .ID("LokalAsingid")
-                            .DataSource(new[] { "Lokal", "Asing" })
+                            .DataSource(new[] {
+                    new { Value = "L", Text = "Lokal" },
+                    new { Value = "A", Text = "Asing" }
+                    })
+                            .ValueExpr("Value")
+                            .DisplayExpr("Text")
                             .ShowSelectionControls(true)
                             .MaxDisplayedTags(3)
                             .SearchEnabled(true)
@@ -109,7 +117,7 @@
                             .Width("100%"))
                     </div>
                     <div class="col-lg-3 form-group">
-                        <label>Domestik/Foreign@*<span class="mandatory">*</span>*@</label>
+                        <label>Domestik/Foreign</label>
                         @(Html.DevExtreme().TagBox()
                             .ID("DomestikForeignid")
                             .DataSource(new[] { "Domestik", "Foreign" })
@@ -119,64 +127,65 @@
                             .OnSelectionChanged("onSelectionChanged")
                             .Width("100%"))
                     </div>
-                    <div class="col-lg-3 form-group" id="endtime">
-                        <label>Country Investor@*<span class="mandatory">*</span>*@</label>
+                    <div class="col-lg-3 form-group" id="countryInvestorDiv">
+                        <label>Country Investor</label>
                         @(Html.DevExtreme().TagBox()
                             .ID("CountryInvestorid")
                             .DataSource(new[] {
-                    "Indonesia",
-                    "Philippines",
-                    "Singapore",
-                    "Japan",
-                    "Other",
-                    "Hong Kong",
-                    "British Virgin Islands",
-                    "Malaysia",
-                    "Australia"
+                    "Indonesia","Philippines","Singapore","Japan","Other",
+                    "Hong Kong","British Virgin Islands","Malaysia","Australia"
                     })
+                            .ValueExpr("this")
+                            .DisplayExpr("this")
                             .ShowSelectionControls(true)
                             .MaxDisplayedTags(3)
                             .SearchEnabled(true)
                             .OnSelectionChanged("onSelectionChanged")
                             .Width("100%"))
-
                     </div>
                     <div class="col-lg-3 form-group">
-                        <label>Type Investor@*<span class="mandatory">*</span>*@</label>
+                        <label>Type Investor</label>
                         @(Html.DevExtreme().TagBox()
-                            .ID("TypeInvestorid")
-                            .DataSource(new[] { "IB", "OT", "PF", "ID", "SC", "FD", "CP", "IS" })
-                            .ShowSelectionControls(true)
-                            .MaxDisplayedTags(3)
-                            .SearchEnabled(true)
-                            .OnSelectionChanged("onSelectionChanged")
-                            .Width("100%"))
+                        .ID("TypeInvestorid")
+                        .DataSource(new[] { "IB", "OT", "PF", "ID", "SC", "FD", "CP", "IS" })
+                        .ValueExpr("this")
+                        .DisplayExpr("this")
+                        .ShowSelectionControls(true)
+                        .MaxDisplayedTags(3)
+                        .SearchEnabled(true)
+                        .OnSelectionChanged("onSelectionChanged")
+                        .Width("100%"))
                     </div>
 
                     <div class="col-lg-3 form-group">
-                        <label>AB Code@*<span class="mandatory">*</span>*@</label>
+                        <label>AB Code</label>
                         @(Html.DevExtreme().TagBox()
                             .ID("ABcodeid")
                             .DataSource(new[] {
-                    "NI", "MK", "IU", "DR", "PD", "MI", "SS", "MU", "IF", "AI", "OK", "II",
-                    "EP", "BQ", "PS", "KI", "YU", "SQ", "RS", "BF", "LG", "GA", "LS", "IN",
-                    "BZ", "IH", "FS", "XA", "GR", "EL", "AT", "CC", "PC", "AR", "PK", "FZ",
-                    "RB", "BS", "OD", "DH", "YP", "ID", "TP", "TX", "YB", "HP", "AO", "RO",
-                    "ES", "RG", "IP", "XC", "CP", "ZR", "SH", "HD", "PO", "CD", "AN", "YJ",
-                    "DP", "MG", "IT", "SA", "AG", "AD", "DX", "KS", "TF", "PG", "KK", "ZP",
-                    "LH", "AP", "AZ", "RF"
+                    "NI","MK","IU","DR","PD","MI","SS","MU","IF","AI","OK","II",
+                    "EP","BQ","PS","KI","YU","SQ","RS","BF","LG","GA","LS","IN",
+                    "BZ","IH","FS","XA","GR","EL","AT","CC","PC","AR","PK","FZ",
+                    "RB","BS","OD","DH","YP","ID","TP","TX","YB","HP","AO","RO",
+                    "ES","RG","IP","XC","CP","ZR","SH","HD","PO","CD","AN","YJ",
+                    "DP","MG","IT","SA","AG","AD","DX","KS","TF","PG","KK","ZP",
+                    "LH","AP","AZ","RF"
                     })
+                            .ValueExpr("this")
+                            .DisplayExpr("this")
                             .ShowSelectionControls(true)
                             .MaxDisplayedTags(3)
                             .SearchEnabled(true)
                             .OnSelectionChanged("onSelectionChanged")
                             .Width("100%"))
+
                     </div>
                     <div class="col-lg-3 form-group">
-                        <label>Market@*<span class="mandatory">*</span>*@</label>
+                        <label>Market</label>
                         @(Html.DevExtreme().TagBox()
                             .ID("Marketid")
                             .DataSource(new[] { "TN", "NG", "RG" })
+                            .ValueExpr("this")
+                            .DisplayExpr("this")
                             .ShowSelectionControls(true)
                             .MaxDisplayedTags(3)
                             .SearchEnabled(true)
@@ -184,18 +193,26 @@
                             .Width("100%"))
                     </div>
 
-
                     <div class="col-lg-3 form-group" id="topDiv">
-                        <label>Top@*<span class="mandatory">*</span>*@</label>
+                        <label>Top</label>
                         @(Html.DevExtreme().SelectBox()
                             .ID("itemsPerPage")
-                            .DataSource(new[] { "10", "25", "50", "100", "150", "200", "All" })
-                            .ValueExpr("this")
-                            .DisplayExpr("this")
+                            .DataSource(new[] {
+                    new { Value = 10, Text = "10" },
+                    new { Value = 25, Text = "25" },
+                    new { Value = 50, Text = "50" },
+                    new { Value = 100, Text = "100" },
+                    new { Value = 150, Text = "150" },
+                    new { Value = 200, Text = "200" },
+                    new { Value = 0, Text = "All" }
+                    })
+                            .ValueExpr("Value")
+                            .DisplayExpr("Text")
+                            .Value(10)
                             .Width("100%"))
                     </div>
-
                 </div>
+
                 <div class="float-left">
                     @(Html.DevExtreme().Button()
                         .ID("Filter")
@@ -204,68 +221,10 @@
                         .OnClick("onButtonFilterClicked")
                         .ValidationGroup("Filter"))
                 </div>
-
-
             </div>
         </div>
     </div>
-    <div class="row">
-        @*<div class="card-body">
-    @(Html.DevExtreme().DataGrid()
-    .ID("gridValidasiData")
-    .DataSource(d => d.Mvc()
-    .Controller("MarketDriven") // Targets the correct controller
-    .LoadAction("GetMarketData") // Calls the new data action
-    .Area("BDAPM")
-    .LoadParams(new { selectedDate = new JS("getFilterDate") })
-    )
-    .RemoteOperations(false) // Set to false as data is loaded into a list first
-    .Paging(p => p.PageSize(20))
-    .Pager(p =>
-    {
-    p.ShowPageSizeSelector(true);
-    p.AllowedPageSizes(new[] { 10, 20, 50 });
-    p.ShowInfo(true);
-    })
-    .FilterRow(f => f.Visible(true))
-    .HeaderFilter(h => h.Visible(true))
-    .ColumnAutoWidth(true)
-    .AllowColumnResizing(true)
-    .ShowBorders(true)
-    .Scrolling(s => s.Mode(GridScrollingMode.Standard))
-    .Columns(columns =>
-    {
-    columns.Add()
-    .DataField("TransactionDates")
-    .Caption("Transaction Date");
 
-    columns.Add()
-    .DataField("sid_ori")
-    .Caption("SID");
-
-    columns.Add()
-    .DataField("cpinvestorcode")
-    .Caption("SID Name");
-
-    columns.Add()
-    .DataField("investorcode")
-    .Caption("Investor Code");
-
-    columns.Add()
-    .DataField("securitycode")
-    .Caption("Security Code");
-
-    columns.Add()
-    .DataField("value")
-    .Caption("Value");
-
-    columns.Add()
-    .DataField("quantity")
-    .Caption("Quantity");
-    })
-    )
-    </div>*@
-    </div>
     <div class="card-body">
         @(Html.DevExtreme().PivotGrid()
             .ID("pivotgrid")
@@ -284,67 +243,30 @@
             .Visible(true)
             )
             .DataSource(d => d
-            .Store(s => s.Mvc() // Create a Store and use .Mvc() on the Store builder
+            .Store(s => s.Mvc()
             .Controller("MarketDriven")
             .LoadAction("GetMarketData")
             .Area("BDAPM")
-            .LoadParams(new { selectedDate = new JS("getFilterDate") })
+
+            // IMPORTANT: Force GET so it hits the [HttpGet] action
+            .LoadMethod("GET")
+
+            // IMPORTANT: Attach all filter params into the request
+            .OnBeforeSend("dxBeforeSendAddFilters")
             )
             .Fields(f =>
             {
-                f.Add()
-                .Caption("Transaction Date")
-                .DataField("TransactionDates")
-                .Expanded(true)
-                .Width(200)
-                .Area(PivotGridArea.Row);
-
-                f.Add()
-                .Caption("SID")
-                .DataField("sid_ori")
-                .Expanded(true)
-                .Width(200)
-                .Area(PivotGridArea.Row);
-
-                f.Add()
-                .Caption("SID Name")
-                .DataField("cpinvestorcode")
-                .Width(200)
-                .Expanded(true)
-                .Area(PivotGridArea.Row);
-
-                f.Add()
-                .Caption("Investor Code")
-                .DataField("investorcode")
-                .Width(200)
-                .Expanded(true)
-                .Area(PivotGridArea.Row);
-
-                f.Add()
-                .Caption("Security Code")
-                .DataField("securitycode")
-                .Width(200)
-                .Expanded(true)
-                .Area(PivotGridArea.Row);
-
-                f.Add()
-                .Caption("Quantity")
-                .DataField("quantity")
-                .Width(50)
-                .SummaryType(SummaryType.Sum).Format("#,##0")
-                .Area(PivotGridArea.Data);
-
-                f.Add()
-                .Caption("Value")
-                .DataField("value")
-                .Width(50)
-                .SummaryType(SummaryType.Sum).Format("#,##0")
-                .Area(PivotGridArea.Data);
+                f.Add().Caption("Transaction Date").DataField("TransactionDates").Expanded(true).Width(200).Area(PivotGridArea.Row);
+                f.Add().Caption("SID").DataField("sid_ori").Expanded(true).Width(200).Area(PivotGridArea.Row);
+                f.Add().Caption("SID Name").DataField("cpinvestorcode").Width(200).Expanded(true).Area(PivotGridArea.Row);
+                f.Add().Caption("Investor Code").DataField("investorcode").Width(200).Expanded(true).Area(PivotGridArea.Row);
+                f.Add().Caption("Security Code").DataField("securitycode").Width(200).Expanded(true).Area(PivotGridArea.Row);
+                f.Add().Caption("Quantity").DataField("quantity").Width(50).SummaryType(SummaryType.Sum).Format("#,##0").Area(PivotGridArea.Data);
+                f.Add().Caption("Value").DataField("value").Width(50).SummaryType(SummaryType.Sum).Format("#,##0").Area(PivotGridArea.Data);
             })
             )
             )
     </div>
-
 
     <!-- The Modal  Detail-->
     <div class="modal fade" id="ModalSimpanPenggunaanData" tabindex="-1" role="document" aria-hidden="true" data-backdrop="static" data-keyboard="false">
@@ -354,8 +276,7 @@
                     <h4 class="modal-title" style="text-align:left">
                         <font color="white">Pilih Penggunaan Data</font>
                     </h4>
-                </div><!--Modal Header-->
-                <!-- Modal body -->
+                </div>
                 <div class="modal-body">
                     <form id="StrukturFormDetail" method="POST" action="" class="form-horizontal row-border">
                         <div class="row" style="padding: 0 10px 0 10px;">
@@ -374,74 +295,96 @@
                         </div>
                     </form>
                 </div>
-                <!-- Modal footer -->
                 <div class="modal-footer">
                     <button type="button" id="btnSavePenggunaanData" class="btn btn-primary" data-bs-dismiss="modal"><i class='fa fa-save'></i> Save</button>
                 </div>
             </div>
         </div>
     </div>
-    <!-- The Modal  Detail-->
 }
 
-
-
 <script>
+    // DevExtreme PDF utils already present in your file
     window.jsPDF = window.jspdf.jsPDF;
     applyPlugin(window.jsPDF);
-</script>
 
-<script>
+    function pad2(n) { return ('0' + n).slice(-2); }
+    function formatDateToYYYYMMDD(dateObj) {
+        if (!dateObj) return null;
+        return '' + dateObj.getFullYear() + pad2(dateObj.getMonth() + 1) + pad2(dateObj.getDate());
+    }
+    function formatMonthToYYYYMM(dateObj) {
+        if (!dateObj) return null;
+        return '' + dateObj.getFullYear() + pad2(dateObj.getMonth() + 1);
+    }
+
+    function getFilterParams() {
+        var periodType = $("#Periodid").dxSelectBox("instance")?.option("value") || null;
+
+        var dailyDate = $("#DatepickdID").dxDateBox("instance")?.option("value") || null;
+        var monthlyDate = $("#datePickM").dxDateBox("instance")?.option("value") || null;
+        var startDate = $("#StartDateID").dxDateBox("instance")?.option("value") || null;
+        var endDate = $("#EndDateID").dxDateBox("instance")?.option("value") || null;
+
+        var params = {
+            periodType: periodType,
+            selectedDate: dailyDate ? formatDateToYYYYMMDD(dailyDate) : null,
+            selectedMonth: monthlyDate ? formatMonthToYYYYMM(monthlyDate) : null,
+            startDate: startDate ? formatDateToYYYYMMDD(startDate) : null,
+            endDate: endDate ? formatDateToYYYYMMDD(endDate) : null,
+            startTime: $("#StartTime").dxSelectBox("instance")?.option("value") || null,
+            endTime: $("#EndTime").dxSelectBox("instance")?.option("value") || null,
+            confirmation: $("#Confirmationid").dxTagBox("instance")?.option("value") || [],
+            lokalAsing: $("#LokalAsingid").dxTagBox("instance")?.option("value") || [],
+            countryInvestor: $("#CountryInvestorid").dxTagBox("instance")?.option("value") || [],
+            typeInvestor: $("#TypeInvestorid").dxTagBox("instance")?.option("value") || [],
+            market: $("#Marketid").dxTagBox("instance")?.option("value") || [],
+            abCodes: $("#ABcodeid").dxTagBox("instance")?.option("value") || [],
+            topN: $("#itemsPerPage").dxSelectBox("instance")?.option("value") ?? 10,
+            _ts: Date.now() // prevent caching
+        };
+
+        console.log("[getFilterParams] Built params:", params);
+        return params;
+    }
+
+    // IMPORTANT: attach params on every load + prevent caching + proper array serialization
+    function dxBeforeSendAddFilters(method, ajaxOptions) {
+        var p = getFilterParams();
+
+        // Make jQuery serialize arrays as key=val1&key=val2 (no [] suffix)
+        ajaxOptions.traditional = true;
+        ajaxOptions.cache = false;
+
+        // Merge our params into outgoing request
+        ajaxOptions.data = ajaxOptions.data || {};
+        Object.assign(ajaxOptions.data, p);
+
+        // Ensure GET to match controller signature
+        ajaxOptions.method = "GET";
+
+        console.log("[dxBeforeSendAddFilters] method:", method, " url:", ajaxOptions.url, " data:", ajaxOptions.data);
+    }
+
+    // 1) Refresh parameters every click: reload the pivot grid data source so OnBeforeSend runs and sends current params
     function onButtonFilterClicked() {
-        // Find the DataGrid instance
-        var dataGridInstance = $("#gridValidasiData").data("dxDataGrid");
-        // If it exists, refresh it
-        if (dataGridInstance) {
-            dataGridInstance.refresh();
-        }
-
-        // Find the PivotGrid instance
         var pivotGridInstance = $("#pivotgrid").data("dxPivotGrid");
-        // If it exists, reload its data source
         if (pivotGridInstance) {
+            console.log("[onButtonFilterClicked] Reloading pivot with params:", getFilterParams());
+            // Force a new load so OnBeforeSend picks up latest values
             pivotGridInstance.getDataSource().reload();
         }
     }
 
-    function getFilterDate() {
-        var dateBox = $("#DatepickdID").dxDateBox("instance");
-        var dateValue = dateBox.option("value");
 
-        console.log("Original DateBox Value:", dateValue);
-
-        if (!dateValue) {
-            return null;
-        }
-
-        // Format the date directly to 'yyyymmdd'
-        var year = dateValue.getFullYear();
-        var month = ('0' + (dateValue.getMonth() + 1)).slice(-2);
-        var day = ('0' + dateValue.getDate()).slice(-2);
-
-        // This now creates the yyyymmdd string directly
-        var formattedString = year + month + day;
-
-        console.log("Formatted String Sent to Server:", formattedString);
-
-        return formattedString;
-    }
-</script>
-
-<script>
     function onPeriodChanged(e) {
         const selectedValue = e.value;
         const datepickdayDiv = document.getElementById("datepickday");
         const datepickmonthDiv = document.getElementById("datepickmonth");
-        const asingDiv = document.getElementById("asingDiv");
-        const starttimeDiv = document.getElementById("starttime")
-        const endtimeDiv = document.getElementById("endtime")
-        const startdateDiv = document.getElementById("startdate")
-        const enddateDiv = document.getElementById("enddate")
+        const starttimeDiv = document.getElementById("starttime");
+        const endtimeDiv = document.getElementById("endtime");
+        const startdateDiv = document.getElementById("startdate");
+        const enddateDiv = document.getElementById("enddate");
 
         if (selectedValue === "Daily") {
             starttimeDiv.style.display = "block";
@@ -450,7 +393,6 @@
             datepickmonthDiv.style.display = "none";
             startdateDiv.style.display = "none";
             enddateDiv.style.display = "none";
-
         } else if (selectedValue === "Monthly") {
             datepickmonthDiv.style.display = "block";
             starttimeDiv.style.display = "none";
@@ -469,7 +411,7 @@
     }
 
     $(document).ready(function () {
-        // Hide the confirmation and asing divs initially
+        // Hide sections initially
         document.getElementById("starttime").style.display = "none";
         document.getElementById("endtime").style.display = "none";
         document.getElementById("datepickday").style.display = "none";
@@ -478,115 +420,11 @@
         document.getElementById("enddate").style.display = "none";
     });
 
-    $(function () {
-        const startDate = $("#PeriodeAwal").dxDateBox({
-            onValueChanged: function (e) {
-                endDate.option("min", e.value);
-            }
-        }).dxDateBox("instance");
-
-        $("#PeriodeAwal").dxValidator({
-            validationGroup: "Filter",
-            validationRules: [{ type: "required", message: "[Tanggal] harus dipilih" }]
-        })
-    });
-
-    $(function () {
-        $("#penggunaandataid").dxValidator({
-            validationGroup: "Filter",
-            validationRules: [{ type: "required", message: "[Penggunaan Data] harus dipilih" }]
-        })
-    });
-
-
-    $(window).on('load', function () {
-        $("#ModalSimpanPenggunaanData").modal("show");
-    });
-
-    $("#btnSavePenggunaanData").click(function () {
-        let penggunaandataid = $("#penggunaandataid").dxSelectBox("instance").option("value");
-
-        if (penggunaandataid == null) {
-            alert("Silahkan Pilih Tujuan Penggunaan Data");
-            return false;
-        } else {
-            $.ajax({
-                url: '@Url.Action("SimpanPenggunaanDataVDT", "MarketDriven")',
-                data: { id: penggunaandataid },
-                dataType: "json",
-                type: "POST",
-                success: function (data) {
-                    if (data.success == true) {
-                        //alert(data.message);
-    @* waitingDialog.hide(); *@
-                            $('#ModalSimpanPenggunaanData').modal('hide');
-                        return "Saving Success !";
-                    }
-                    else if (data.success == false) {
-    @*  waitingDialog.hide(); *@
-                            alert(data.message);
-                        $('#ModalSimpanPenggunaanData').modal('hide');
-                        return "Saving Failed !";
-                    }
-                }
-            });
-        }
-    });
-
-
-
     function onSelectionChanged(e) {
         if (e.addedItems.length > 0) {
-            e.component.field().val(""); // Clears the search text. However, search filter is only applied to the widget after focus is lost in the input element
+            e.component.field().val("");
         }
     }
-
-
-
-    var waitingDialog = (function ($) {
-
-        // Creating modal dialog's DOM
-        var $dialog = $(
-            '<div class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">' +
-            '<div class="modal-dialog modal-m">' +
-            '<div class="modal-content">' +
-            '<div class="modal-header"><h3 style="margin:0;"></h3></div>' +
-            '<div class="modal-body">' +
-            '<div class="progress progress-striped active" style="margin-bottom:0;"><div class="progress-bar" style="width: 100%"></div></div>' +
-            '</div>' +
-            '</div></div></div>');
-
-        return {
-            show: function (message, options) {
-                // Assigning defaults
-                var settings = $.extend({
-                    dialogSize: 'm',
-                    progressType: ''
-                }, options);
-                if (typeof message === 'undefined') {
-                    message = 'Loading';
-                }
-                if (typeof options === 'undefined') {
-                    options = {};
-                }
-                // Configuring dialog
-                $dialog.find('.modal-dialog').attr('class', 'modal-dialog').addClass('modal-' + settings.dialogSize);
-                $dialog.find('.progress-bar').attr('class', 'progress-bar');
-                if (settings.progressType) {
-                    $dialog.find('.progress-bar').addClass('progress-bar-' + settings.progressType);
-                }
-                $dialog.find('h3').text(message);
-                // Opening dialog
-                $dialog.modal();
-            },
-            /**
-                * Closes dialog
-                */
-            hide: function () {
-                $dialog.modal('hide');
-            }
-        }
-    })(jQuery);
 
 </script>
 
@@ -595,5 +433,3 @@
         color: red;
     }
 </style>
-
-
