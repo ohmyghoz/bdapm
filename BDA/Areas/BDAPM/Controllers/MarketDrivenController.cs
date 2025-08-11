@@ -385,14 +385,90 @@ namespace BDA.Controllers
             return View();
 
         }
-
+        // REWRITE: Add detailed System.Diagnostics.Debug logging
+        // REWRITE (or ensure this version is in place): robust logging + fallback extraction from Request.Query
+        // REWRITE: return a plain array so PivotGrid can consume it directly.
+        // Also keep detailed debug already added in your previous version.
         [HttpGet]
-        public object GetMarketData(DataSourceLoadOptions loadOptions, string selectedDate) // Changed from DateTime?
+        public object GetMarketData(
+            DataSourceLoadOptions loadOptions,
+            string periodType = null,
+            string selectedDate = null,
+            string selectedMonth = null,
+            string startDate = null,
+            string endDate = null,
+            string startTime = null,
+            string endTime = null,
+            string[] confirmation = null,
+            string[] lokalAsing = null,
+            string[] countryInvestor = null,
+            string[] typeInvestor = null,
+            string[] market = null,
+            string[] abCodes = null,
+            int? topN = null
+        )
         {
-            // Pass the date STRING down to the data helper
-            var result = Helper.WSQueryPS.GetMarketDrivenData(db, loadOptions, selectedDate);
+            try
+            {
+                System.Diagnostics.Debug.WriteLine("=== MarketDrivenController.GetMarketData START ===");
+                System.Diagnostics.Debug.WriteLine($"Route: {Request?.Path.Value}");
+                System.Diagnostics.Debug.WriteLine($"Raw QueryString: {Request?.QueryString.Value}");
+                foreach (var kv in Request.Query)
+                    System.Diagnostics.Debug.WriteLine($"{kv.Key}=[{string.Join(",", kv.Value.ToArray())}]");
 
-            return Json(result);
+                // Fallback extraction (kept from your previous changes) ...
+                string Q(string key) => Request.Query.TryGetValue(key, out var v) ? v.ToString() : null;
+                string[] QA(string key)
+                    => Request.Query.TryGetValue(key, out var v) && v.Count > 0 ? v.ToArray()
+                     : (Request.Query.TryGetValue(key + "[]", out var v2) && v2.Count > 0 ? v2.ToArray() : null);
+
+                periodType = string.IsNullOrWhiteSpace(periodType) ? Q("periodType") : periodType;
+                selectedDate = string.IsNullOrWhiteSpace(selectedDate) ? Q("selectedDate") : selectedDate;
+                selectedMonth = string.IsNullOrWhiteSpace(selectedMonth) ? Q("selectedMonth") : selectedMonth;
+                startDate = string.IsNullOrWhiteSpace(startDate) ? Q("startDate") : startDate;
+                endDate = string.IsNullOrWhiteSpace(endDate) ? Q("endDate") : endDate;
+                startTime = string.IsNullOrWhiteSpace(startTime) ? Q("startTime") : startTime;
+                endTime = string.IsNullOrWhiteSpace(endTime) ? Q("endTime") : endTime;
+                confirmation ??= QA("confirmation");
+                lokalAsing ??= QA("lokalAsing");
+                countryInvestor ??= QA("countryInvestor");
+                typeInvestor ??= QA("typeInvestor");
+                market ??= QA("market");
+                abCodes ??= QA("abCodes");
+                if (!topN.HasValue && int.TryParse(Q("topN"), out var t)) topN = t;
+
+                System.Diagnostics.Debug.WriteLine("--- Effective Parameters ---");
+                System.Diagnostics.Debug.WriteLine($"periodType={periodType}, selectedDate={selectedDate}, selectedMonth={selectedMonth}, startDate={startDate}, endDate={endDate}");
+                System.Diagnostics.Debug.WriteLine($"startTime={startTime}, endTime={endTime}, topN={topN}");
+                System.Diagnostics.Debug.WriteLine($"confirmation=[{(confirmation == null ? "" : string.Join(",", confirmation))}]");
+                System.Diagnostics.Debug.WriteLine($"lokalAsing=[{(lokalAsing == null ? "" : string.Join(",", lokalAsing))}]");
+                System.Diagnostics.Debug.WriteLine($"countryInvestor=[{(countryInvestor == null ? "" : string.Join(",", countryInvestor))}]");
+                System.Diagnostics.Debug.WriteLine($"typeInvestor=[{(typeInvestor == null ? "" : string.Join(",", typeInvestor))}]");
+                System.Diagnostics.Debug.WriteLine($"market=[{(market == null ? "" : string.Join(",", market))}]");
+                System.Diagnostics.Debug.WriteLine($"abCodes=[{(abCodes == null ? "" : string.Join(",", abCodes))}]");
+
+                // IMPORTANT: return a flat array for PivotGrid
+                var dataArray = Helper.WSQueryPS.GetMarketDrivenData(
+                    db, loadOptions,
+                    periodType, selectedDate, selectedMonth, startDate, endDate,
+                    startTime, endTime, confirmation, lokalAsing, countryInvestor,
+                    typeInvestor, market, abCodes, topN
+                );
+
+                // dataArray should be a List<Dictionary<...>>
+                var count = (dataArray as System.Collections.ICollection)?.Count ?? -1;
+                System.Diagnostics.Debug.WriteLine($"=== MarketDrivenController.GetMarketData RESULT: count={count} ===");
+                System.Diagnostics.Debug.WriteLine("=== MarketDrivenController.GetMarketData END ===");
+
+                return Json(dataArray); // plain array, no wrapper object
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("=== MarketDrivenController.GetMarketData ERROR ===");
+                System.Diagnostics.Debug.WriteLine($"Message: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack  : {ex.StackTrace}");
+                return Json(Array.Empty<object>()); // return empty array to PivotGrid
+            }
         }
 
         [HttpGet]
@@ -901,11 +977,18 @@ namespace BDA.Controllers
                 System.Diagnostics.Debug.WriteLine("=== CONTROLLER CHART DEBUG ===");
                 System.Diagnostics.Debug.WriteLine($"Controller Chart - Type: {chartType}, Single: {singleDate}, Start: {startDate}, End: {endDate}");
 
-                // Call WSQueryPS method (for first version - direct SQL)
-                var result = Helper.WSQueryPS.GetMarketChartData(db, chartType, startDate, endDate, singleDate);
+                // Validate that we have proper date parameters
+                bool hasSingleDate = !string.IsNullOrEmpty(singleDate);
+                bool hasDateRange = !string.IsNullOrEmpty(startDate) && !string.IsNullOrEmpty(endDate);
 
-                // OR if using second version with loadOptions:
-                // var result = Helper.WSQueryPS.GetMarketChartData(db, chartType, startDate, endDate, singleDate, null);
+                if (!hasSingleDate && !hasDateRange)
+                {
+                    System.Diagnostics.Debug.WriteLine("Controller Chart - ERROR: No valid date parameters provided");
+                    return Json(new { error = "No valid date parameters provided", data = new List<object>() });
+                }
+
+                // Call WSQueryPS method
+                var result = Helper.WSQueryPS.GetMarketChartData(db, chartType, startDate, endDate, singleDate);
 
                 // Check if we have valid data
                 bool hasData = result?.data != null && result.data.Rows != null && result.data.Rows.Count > 0;
@@ -926,6 +1009,15 @@ namespace BDA.Controllers
                     }
 
                     System.Diagnostics.Debug.WriteLine($"Controller Chart - Returning {chartData.Count} data points");
+
+                    // Debug: Show first and last dates
+                    if (chartData.Count > 0)
+                    {
+                        var firstPoint = chartData.First() as dynamic;
+                        var lastPoint = chartData.Last() as dynamic;
+                        System.Diagnostics.Debug.WriteLine($"Controller Chart - Date range: {firstPoint.date} to {lastPoint.date}");
+                    }
+
                     return Json(chartData);
                 }
                 else
@@ -938,7 +1030,7 @@ namespace BDA.Controllers
             {
                 System.Diagnostics.Debug.WriteLine($"Controller Chart error: {ex.Message}");
                 System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
-                return Json(new List<object>());
+                return Json(new { error = ex.Message, data = new List<object>() });
             }
         }
 
@@ -1771,6 +1863,219 @@ namespace BDA.Controllers
             catch (Exception ex)
             {
                 return BadRequest($"Error exporting to PDF: {ex.Message}");
+            }
+        }
+
+        [HttpGet]
+        public object GetInvestorGridData(DataSourceLoadOptions loadOptions)
+        {
+            try
+            {
+                System.Diagnostics.Debug.WriteLine("=== INVESTOR GRID DATA DEBUG ===");
+                System.Diagnostics.Debug.WriteLine($"GetInvestorGridData called with loadOptions");
+
+                // Get filter date from session or request parameters
+                string filterDate = Request.Query["filterDate"].FirstOrDefault() ??
+                                   HttpContext.Session.GetString("CurrentFilterDate");
+
+                System.Diagnostics.Debug.WriteLine($"Filter date for investor grid: {filterDate}");
+
+                if (string.IsNullOrEmpty(filterDate))
+                {
+                    // Return empty result if no filter date
+                    return DataSourceLoader.Load(new List<object>(), loadOptions);
+                }
+
+                // Call WSQueryPS method to get data
+                var result = Helper.WSQueryPS.GetInvestorGridData(db, filterDate, loadOptions);
+
+                if (result?.data != null && result.data.Rows.Count > 0)
+                {
+                    // Convert DataTable to List for DevExtreme
+                    var gridData = new List<object>();
+                    int rowId = 1;
+
+                    foreach (DataRow row in result.data.Rows)
+                    {
+                        gridData.Add(new
+                        {
+                            rowid = rowId++,
+                            investorcode = row["investorcode"]?.ToString() ?? "",
+                            cpinvestorcode = row["cpinvestorcode"]?.ToString() ?? "",
+                            value = Convert.ToDecimal(row["value"] ?? 0),
+                            quantity = Convert.ToDecimal(row["quantity"] ?? 0)
+                        });
+                    }
+
+                    System.Diagnostics.Debug.WriteLine($"Returning {gridData.Count} investor records");
+
+                    // Apply DevExtreme operations (sorting, paging, filtering)
+                    return DataSourceLoader.Load(gridData, loadOptions);
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("No investor data found");
+                    return DataSourceLoader.Load(new List<object>(), loadOptions);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in GetInvestorGridData: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+
+                return DataSourceLoader.Load(new List<object>(), loadOptions);
+            }
+        }
+        [HttpGet]
+        public object GetSecurityGridData(DataSourceLoadOptions loadOptions)
+        {
+            try
+            {
+                System.Diagnostics.Debug.WriteLine("=== SECURITY GRID DATA DEBUG ===");
+                System.Diagnostics.Debug.WriteLine($"GetSecurityGridData called with loadOptions");
+
+                // Get filter date from session or request parameters
+                string filterDate = Request.Query["filterDate"].FirstOrDefault() ??
+                                   HttpContext.Session.GetString("CurrentFilterDate");
+
+                // Get transaction code from session if available
+                string transactionCode = Request.Query["transactionCode"].FirstOrDefault() ??
+                                        HttpContext.Session.GetString("CurrentTransactionCode");
+
+                System.Diagnostics.Debug.WriteLine($"Filter date for security grid: {filterDate}");
+                System.Diagnostics.Debug.WriteLine($"Transaction code for security grid: {transactionCode}");
+
+                if (string.IsNullOrEmpty(filterDate))
+                {
+                    // Return empty result if no filter date
+                    return DataSourceLoader.Load(new List<object>(), loadOptions);
+                }
+
+                // Call WSQueryPS method to get security data
+                var result = Helper.WSQueryPS.GetSecurityGridData(db, filterDate, transactionCode, loadOptions);
+
+                if (result?.data != null && result.data.Rows.Count > 0)
+                {
+                    // Convert DataTable to List for DevExtreme
+                    var gridData = new List<object>();
+                    int rowId = 1;
+
+                    foreach (DataRow row in result.data.Rows)
+                    {
+                        gridData.Add(new
+                        {
+                            rowid = rowId++,
+                            securitycode = row["securitycode"]?.ToString() ?? "",
+                            value = Convert.ToDecimal(row["value"] ?? 0),
+                            quantity = Convert.ToDecimal(row["quantity"] ?? 0),
+                            frequency = Convert.ToInt32(row["frequency"] ?? 0)
+                        });
+                    }
+
+                    System.Diagnostics.Debug.WriteLine($"Returning {gridData.Count} security records");
+
+                    // Apply DevExtreme operations (sorting, paging, filtering)
+                    return DataSourceLoader.Load(gridData, loadOptions);
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("No security data found");
+                    return DataSourceLoader.Load(new List<object>(), loadOptions);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in GetSecurityGridData: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+
+                return DataSourceLoader.Load(new List<object>(), loadOptions);
+            }
+        }
+
+        // Helper method to set filter date for grids
+        [HttpPost]
+        public JsonResult SetGridFilterDate(string filterDate, string transactionCode = null)
+        {
+            try
+            {
+                // Store filter parameters in session for grid data methods
+                HttpContext.Session.SetString("CurrentFilterDate", filterDate);
+                if (!string.IsNullOrEmpty(transactionCode))
+                {
+                    HttpContext.Session.SetString("CurrentTransactionCode", transactionCode);
+                }
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        public object GetCPInvestorGridData(DataSourceLoadOptions loadOptions)
+        {
+            try
+            {
+                System.Diagnostics.Debug.WriteLine("=== CP INVESTOR GRID DATA DEBUG ===");
+                System.Diagnostics.Debug.WriteLine($"GetCPInvestorGridData called with loadOptions");
+
+                // Get filter date from session or request parameters
+                string filterDate = Request.Query["filterDate"].FirstOrDefault() ??
+                                   HttpContext.Session.GetString("CurrentFilterDate");
+
+                // Get transaction code from session if available
+                string transactionCode = Request.Query["transactionCode"].FirstOrDefault() ??
+                                        HttpContext.Session.GetString("CurrentTransactionCode");
+
+                System.Diagnostics.Debug.WriteLine($"Filter date for CP Investor grid: {filterDate}");
+                System.Diagnostics.Debug.WriteLine($"Transaction code for CP Investor grid: {transactionCode}");
+
+                if (string.IsNullOrEmpty(filterDate))
+                {
+                    // Return empty result if no filter date
+                    return DataSourceLoader.Load(new List<object>(), loadOptions);
+                }
+
+                // Call WSQueryPS method to get CP Investor data
+                var result = Helper.WSQueryPS.GetCPInvestorGridData(db, filterDate, transactionCode, loadOptions);
+
+                if (result?.data != null && result.data.Rows.Count > 0)
+                {
+                    // Convert DataTable to List for DevExtreme
+                    var gridData = new List<object>();
+                    int rowId = 1;
+
+                    foreach (DataRow row in result.data.Rows)
+                    {
+                        gridData.Add(new
+                        {
+                            rowid = rowId++,
+                            cpinvestorcode = row["cpinvestorcode"]?.ToString() ?? "",
+                            cptradeid = row["cpinvestorcode"]?.ToString() ?? "", // Same as cpinvestorcode as per your requirement
+                            value = Convert.ToDecimal(row["value"] ?? 0),
+                            quantity = Convert.ToDecimal(row["quantity"] ?? 0)
+                        });
+                    }
+
+                    System.Diagnostics.Debug.WriteLine($"Returning {gridData.Count} CP Investor records");
+
+                    // Apply DevExtreme operations (sorting, paging, filtering)
+                    return DataSourceLoader.Load(gridData, loadOptions);
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("No CP Investor data found");
+                    return DataSourceLoader.Load(new List<object>(), loadOptions);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in GetCPInvestorGridData: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+
+                return DataSourceLoader.Load(new List<object>(), loadOptions);
             }
         }
 

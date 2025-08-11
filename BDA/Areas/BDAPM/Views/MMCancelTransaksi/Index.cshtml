@@ -23,38 +23,38 @@
                     <div class="col-lg-4 form-group">
                         <label>Periode Awal<span class="mandatory">*</span></label>
                         @(Html.DevExtreme().DateBox()
-                            .ID("PeriodeAwal")
-                            .DisplayFormat("dd MMM yyyy")
-                            .Value(DateTime.Now)
-                            .Max(DateTime.Now)
-                            .Width("100%"))
+                                .ID("PeriodeAwal")
+                                .DisplayFormat("dd MMM yyyy")
+                                .Value(DateTime.Now)
+                                .Max(DateTime.Now)
+                                .Width("100%"))
                     </div>
 
                     <div class="col-lg-4 form-group">
                         <label>Periode Akhir<span class="mandatory">*</span></label>
                         @(Html.DevExtreme().DateBox()
-                            .ID("PeriodeAkhir")
-                            .DisplayFormat("dd MMM yyyy")
-                            .Value(DateTime.Now)
-                            .Min(DateTime.Now)
-                            .Width("100%"))
+                                .ID("PeriodeAkhir")
+                                .DisplayFormat("dd MMM yyyy")
+                                .Value(DateTime.Now)
+                                .Min(DateTime.Now)
+                                .Width("100%"))
                     </div>
 
                     <div class="col-lg-4 form-group">
                         <label>Bond Type</label>
                         @(Html.DevExtreme().TagBox()
-                            .ID("BondTypeid")
-                            .DataSource(d => d.Mvc()
-                            .Controller("MMCancelTransaksi")
-                            .LoadAction("GetBondTypes")
-                            .Key("value"))
-                            .ValueExpr("value")
-                            .DisplayExpr("text")
-                            .ShowSelectionControls(true)
-                            .MaxDisplayedTags(3)
-                            .SearchEnabled(true)
-                            .ShowClearButton(true)
-                            .Width("100%"))
+                                .ID("BondTypeid")
+                                .DataSource(d => d.Mvc()
+                                .Controller("MMCancelTransaksi")
+                                .LoadAction("GetBondTypes")
+                                .Key("value"))
+                                .ValueExpr("value")
+                                .DisplayExpr("text")
+                                .ShowSelectionControls(true)
+                                .MaxDisplayedTags(3)
+                                .SearchEnabled(true)
+                                .ShowClearButton(true)
+                                .Width("100%"))
                     </div>
 
                 </div>
@@ -64,20 +64,20 @@
                         <td>
                             <div class="float-left">
                                 @(Html.DevExtreme().Button()
-                                    .ID("Filter")
-                                    .Type(ButtonType.Default)
-                                    .Text("Tampilkan")
-                                    .OnClick("onButtonFilterClicked")
-                                    .ValidationGroup("Filter"))
+                                        .ID("Filter")
+                                        .Type(ButtonType.Default)
+                                        .Text("Tampilkan")
+                                        .OnClick("onButtonFilterClicked")
+                                        .ValidationGroup("Filter"))
                             </div>
                         </td>
                         <td>
                             <div class="float-left">
                                 @(Html.DevExtreme().Button()
-                                    .ID("Filters")
-                                    .Type(ButtonType.Success)
-                                    .Text("Cancel")
-                                    .OnClick("onButtonFilterClickedCancel"))
+                                        .ID("Filters")
+                                        .Type(ButtonType.Success)
+                                        .Text("Cancel")
+                                        .OnClick("onButtonFilterClickedCancel"))
                             </div>
                         </td>
                     </tr>
@@ -86,26 +86,26 @@
                 <div class="row">
                     <div class="col-lg-12">
                         @(Html.DevExtreme().Chart()
-                            .ID("bar-chartnumbercancellation")
-                            .Title("Number Of Cancellation")
-                            .ArgumentAxis(o => o.Color("#767676").Label(l => l.Font(f => f.Color("#767676")).OverlappingBehavior(OverlappingBehavior.Rotate).RotationAngle(-45).WordWrap(VizWordWrap.None)))
-                            .Rotated(false)
-                            .Export(e => e.Enabled(true))
-                            .Series(s => s
-                            .Add()
-                            .ArgumentField("bulan")
-                            .ValueField("total")
-                            .Name("Bulan")
-                            .Type(SeriesType.Bar)
-                            .Label(l => l
-                            .Visible(true)
-                            .Format(f => f
-                            .Type(Format.FixedPoint)
-                            .Precision(0))))
-                            .DataSource(d => d.Mvc()
-                            .Controller("MMCancelTransaksi")
-                            .LoadAction("GetBarChartNumberCancellation")
-                            .OnBeforeSend("onGridBeforeSend")))
+                                .ID("bar-chartnumbercancellation")
+                                .Title("Number Of Cancellation")
+                                .ArgumentAxis(o => o.Color("#767676").Label(l => l.Font(f => f.Color("#767676")).OverlappingBehavior(OverlappingBehavior.Rotate).RotationAngle(-45).WordWrap(VizWordWrap.None)))
+                                .Rotated(false)
+                                .Export(e => e.Enabled(true))
+                                .Series(s => s
+                                .Add()
+                                .ArgumentField("bulan")
+                                .ValueField("total")
+                                .Name("Bulan")
+                                .Type(SeriesType.Bar)
+                                .Label(l => l
+                                .Visible(true)
+                                .Format(f => f
+                                .Type(Format.FixedPoint)
+                                .Precision(0))))
+                                .DataSource(d => d.Mvc()
+                                .Controller("MMCancelTransaksi")
+                                .LoadAction("GetBarChartNumberCancellation")
+                                .OnBeforeSend("onGridBeforeSend")))
                     </div>
                 </div>
                 <br />
@@ -113,86 +113,87 @@
                 <div class="row">
                     <div class="col-lg-12">
                         @(Html.DevExtreme().PieChart()
-                            .ID("pie-chartbondtype")
-                            .Title("Bond Type")
-                            .Legend(l => l
-                            .HorizontalAlignment(HorizontalAlignment.Right)
-                            .VerticalAlignment(VerticalEdge.Top)
-                            .Margin(0))
-                            .Export(e => e.Enabled(true))
-                            .Series(s => s
-                            .Add()
-                            .ArgumentField("bondissuertypecode")
-                            .ValueField("total")
-                            .Label(l => l
-                            .Visible(true)
-                            .Font(f => f.Size(16))
-                            .Connector(c => c
-                            .Visible(true)
-                            .Width(0.5)
-                            )
-                            .Position(PieChartLabelPosition.Columns)
-                            .CustomizeText(@<text>
+                                .ID("pie-chartbondtype")
+                                .Title("Bond Type")
+                                .Legend(l => l
+                                .HorizontalAlignment(HorizontalAlignment.Right)
+                                .VerticalAlignment(VerticalEdge.Top)
+                                .Margin(0))
+                                .Export(e => e.Enabled(true))
+                                .Series(s => s
+                                .Add()
+                                .ArgumentField("bondissuertypecode")
+                                .ValueField("total")
+                                .Label(l => l
+                                .Visible(true)
+                                .Font(f => f.Size(16))
+                                .Connector(c => c
+                                .Visible(true)
+                                .Width(0.5)
+                                )
+                                .Position(PieChartLabelPosition.Columns)
+                                .CustomizeText(@<text>
                         function(arg) {
                         return arg.valueText + " (" + arg.percentText + ")";
                         }
                     </text>)
-                            )
-                            )
-                            .DataSource(d => d.Mvc()
-                            .Controller("MMCancelTransaksi")
-                            .LoadAction("GetChartBondType")
-                            .OnBeforeSend("onGridBeforeSend")))
+                                )
+                                )
+                                .DataSource(d => d.Mvc()
+                                .Controller("MMCancelTransaksi")
+                                .LoadAction("GetChartBondType")
+                                .OnBeforeSend("onGridBeforeSend")))
                     </div>
                 </div>
                 <br />
                 <br />
                 <div class="row">
                     <div class="col-lg-12">
-                       @*  <h3 style="text-align:center">
-                            <font color="black">Top 10 Partisipan Yang Melakukan Cancel Berdasarkan Frekuensi Periode @Html.Raw(ViewBag.monthyearawalxx) @ViewData["monthyearawal"] @monthyearawal - @monthyearakhir </font>
+                        @*  <h3 style="text-align:center">
+                            <font color="black">Top 10 Partisipan Yang Melakukan Cancel Berdasarkan Frekuensi Periode @Html.Raw(ViewBag.monthyearawalxx) @ViewData["monthyearawal"] @monthyearawal - @monthyearakhir </font> 
+                           <font color="black">Top 10 Partisipan Yang Melakukan Cancel Berdasarkan Frekuensi Periode @monthyearawal - @monthyearakhir </font>
                         </h3> *@
                         @(Html.DevExtreme().Chart()
-                            .ID("bar-chartJumlahTop10Market")
-                            .Palette(VizPalette.Bright)
-                            .CommonSeriesSettings(s => s
-                            .ArgumentField("buyerfirmcode")
-                            .Type(SeriesType.StackedBar))
-                            .Series(s =>
-                            {
-                                s.Add().ValueField("DOUBLE_REPORT").Name("DOUBLE REPORT");
-                                s.Add().ValueField("NETWORK_CONNECTION").Name("NETWORK CONNECTION");
-                                s.Add().ValueField("OTHERS").Name("OTHERS");
-                                s.Add().ValueField("TRADE_CANCEL").Name("TRADE CANCEL");
-                                s.Add().ValueField("WRONG_INPUT").Name("WRONG INPUT");
-                            })
-                            .Legend(l => l
-                            .VerticalAlignment(VerticalEdge.Bottom)
-                            .HorizontalAlignment(HorizontalAlignment.Center)
-                            .ItemTextPosition(Position.Top)
-                            )
-                            .ValueAxis(a => a
-                            .Add()
-                            .Position(Position.Left)
-                            )
-                            .Title("Top 10 Partisipan Yang Melakukan Cancel Berdasarkan Frekuensi")
-                            .Export(e => e.Enabled(true))
-                            .Tooltip(t => t
-                            .Enabled(true)
-                            .Location(ChartTooltipLocation.Edge)
-                            .CustomizeTooltip(@<text>
+                                .ID("bar-chartJumlahTop10Market")
+                                .Palette(VizPalette.Bright)
+                                .CommonSeriesSettings(s => s
+                                .ArgumentField("buyerfirmcode")
+                                .Type(SeriesType.StackedBar))
+                                .Series(s =>
+                                {
+                                    s.Add().ValueField("DOUBLE_REPORT").Name("DOUBLE REPORT");
+                                    s.Add().ValueField("NETWORK_CONNECTION").Name("NETWORK CONNECTION");
+                                    s.Add().ValueField("OTHERS").Name("OTHERS");
+                                    s.Add().ValueField("TRADE_CANCEL").Name("TRADE CANCEL");
+                                    s.Add().ValueField("WRONG_INPUT").Name("WRONG INPUT");
+                                })
+                                .Legend(l => l
+                                .VerticalAlignment(VerticalEdge.Bottom)
+                                .HorizontalAlignment(HorizontalAlignment.Center)
+                                .ItemTextPosition(Position.Top)
+                                )
+                                .ValueAxis(a => a
+                                .Add()
+                                .Position(Position.Left)
+                                )
+                                .Title("Top 10 Partisipan Yang Melakukan Cancel Berdasarkan Frekuensi")
+                                .Export(e => e.Enabled(true))
+                                .Tooltip(t => t
+                                .Enabled(true)
+                                .Location(ChartTooltipLocation.Edge)
+                                .CustomizeTooltip(@<text>
                         function(arg) {
                         return {
                         text: arg.seriesName + " " + arg.valueText
                         };
                         }
                     </text>)
-                            )
-                            .DataSource(d => d.Mvc()
-                            .Controller("MMCancelTransaksi")
-                            .LoadAction("GetBarChartTop10CancelMarket")
-                            .OnBeforeSend("onGridBeforeSend"))
-                            )
+                                )
+                                .DataSource(d => d.Mvc()
+                                .Controller("MMCancelTransaksi")
+                                .LoadAction("GetBarChartTop10CancelMarket")
+                                .OnBeforeSend("onGridBeforeSend"))
+                                )
                     </div>
                 </div>
                 <br />
@@ -200,79 +201,93 @@
                 <div class="row">
                     <div class="col-lg-6">
                         @(Html.DevExtreme().Chart()
-                            .ID("bar-chartcanceledbonds")
-                            .Title("Top 15 Canceled/Sukuk")
-                            .ArgumentAxis(o => o.Color("#767676").Label(l => l.Font(f => f.Color("#767676")).OverlappingBehavior(OverlappingBehavior.Rotate).RotationAngle(-45).WordWrap(VizWordWrap.None)))
-                            .Rotated(false)
-                            .Export(e => e.Enabled(true))
-                            .Series(s => s
-                            .Add()
-                            .ArgumentField("bondcode")
-                            .ValueField("total")
-                            .Name("Bonds/Sukuk")
-                            .Type(SeriesType.Bar)
-                            .Color("#64a0fb")
-                            .Label(l => l
-                            .Visible(true)
-                            .Format(f => f
-                            .Type(Format.FixedPoint)
-                            .Precision(0))))
-                            .DataSource(d => d.Mvc()
-                            .Controller("MMCancelTransaksi")
-                            .LoadAction("GetBarChartCanceledBonds")
-                            .OnBeforeSend("onGridBeforeSend")))
+                                .ID("bar-chartcanceledbonds")
+                                .Title("Top 15 Canceled/Sukuk")
+                                .ArgumentAxis(o => o.Color("#767676").Label(l => l.Font(f => f.Color("#767676")).OverlappingBehavior(OverlappingBehavior.Rotate).RotationAngle(-45).WordWrap(VizWordWrap.None)))
+                                .Rotated(false)
+                                .Export(e => e.Enabled(true))
+                                .Series(s => s
+                                .Add()
+                                .ArgumentField("bondcode")
+                                .ValueField("total")
+                                .Name("Bonds/Sukuk")
+                                .Type(SeriesType.Bar)
+                                .Color("#64a0fb")
+                                .Label(l => l
+                                .Visible(true)
+                                .Format(f => f
+                                .Type(Format.FixedPoint)
+                                .Precision(0))))
+                                .DataSource(d => d.Mvc()
+                                .Controller("MMCancelTransaksi")
+                                .LoadAction("GetBarChartCanceledBonds")
+                                .OnBeforeSend("onGridBeforeSend")))
                     </div>
                     <div class="col-lg-6">
                         @(Html.DevExtreme().Chart()
-                            .ID("bar-chartreasoncanceledbonds")
-                            .Title("Reason For Cancellation")
-                            .ArgumentAxis(o => o.Color("#767676").Label(l => l.Font(f => f.Color("#767676")).OverlappingBehavior(OverlappingBehavior.Rotate).RotationAngle(-45).WordWrap(VizWordWrap.None)))
-                            .Rotated(false)
-                            .Export(e => e.Enabled(true))
-                            .Series(s => s
-                            .Add()
-                            .ArgumentField("tradereason")
-                            .ValueField("total")
-                            .Name("Reason For Cancellation")
-                            .Type(SeriesType.Bar)
-                            .Color("#64a0fb")
-                            .Label(l => l
-                            .Visible(true)
-                            .Format(f => f
-                            .Type(Format.FixedPoint)
-                            .Precision(0))))
-                            .DataSource(d => d.Mvc()
-                            .Controller("MMCancelTransaksi")
-                            .LoadAction("GetBarChartReasonCanceledBonds")
-                            .OnBeforeSend("onGridBeforeSend")))
+                                .ID("bar-chartreasoncanceledbonds")
+                                .Title("Reason For Cancellation")
+                                .ArgumentAxis(o => o.Color("#767676").Label(l => l.Font(f => f.Color("#767676")).OverlappingBehavior(OverlappingBehavior.Rotate).RotationAngle(-45).WordWrap(VizWordWrap.None)))
+                                .Rotated(false)
+                                .Export(e => e.Enabled(true))
+                                .Series(s => s
+                                .Add()
+                                .ArgumentField("tradereason")
+                                .ValueField("total")
+                                .Name("Reason For Cancellation")
+                                .Type(SeriesType.Bar)
+                                .Color("#64a0fb")
+                                .Label(l => l
+                                .Visible(true)
+                                .Format(f => f
+                                .Type(Format.FixedPoint)
+                                .Precision(0))))
+                                .DataSource(d => d.Mvc()
+                                .Controller("MMCancelTransaksi")
+                                .LoadAction("GetBarChartReasonCanceledBonds")
+                                .OnBeforeSend("onGridBeforeSend")))
                     </div>
                 </div>
                 <br />
                 <br />
                 <div class="row">
-                    <div class="col-lg-12">
-                        @(Html.DevExtreme().Chart()
-                            .ID("bar-chartdatecanceledbonds")
-                            .Title("Date Of Cancellation")
-                            .ArgumentAxis(o => o.Color("#767676").Label(l => l.Font(f => f.Color("#767676")).OverlappingBehavior(OverlappingBehavior.Rotate).RotationAngle(-45).WordWrap(VizWordWrap.None)))
-                            .Rotated(false)
-                            .Export(e => e.Enabled(true))
-                            .Series(s => s
-                            .Add()
-                            .ArgumentField("entrydate")
-                            .ValueField("total")
-                            .Name("Date")
-                            .Type(SeriesType.Bar)
-                            .Color("#64a0fb")
-                            .Label(l => l
-                            .Visible(true)
-                            .Format(f => f
-                            .Type(Format.FixedPoint)
-                            .Precision(0))))
-                            .DataSource(d => d.Mvc()
-                            .Controller("MMCancelTransaksi")
+                    <div class="col-lg-12" style="background-color:#1c1c44;">
+                        @(
+                        Html.DevExtreme().Chart()
+                                .ID("bar-chartdatecanceledbonds")
+                                .Title(t => t
+                                .Text("Date Of Cancellation")
+                                .Font(f => f
+                                .Color("#ffffff")))
+                                .ValueAxis(a =>
+                                {
+                                a.Add()
+                                .Label(x => x.Format(Format.Decimal))
+                                .Color("#ffffff");
+                                })
+                                .Legend(l => l
+                                .Font(f => f.Color("#3e99fa")))
+                                .ArgumentAxis(o => o.Color("#ffffff").Label(l => l.Font(f => f.Color("#3e99fa")).OverlappingBehavior(OverlappingBehavior.Rotate).RotationAngle(-65).WordWrap(VizWordWrap.None)))
+                                .Rotated(false)
+                                .Export(e => e.Enabled(true))
+                                .Series(s => s
+                                .Add()
+                                .ArgumentField("entrydate")
+                                .ValueField("total")
+                                .Name("Date")
+                                .Type(SeriesType.Bar)
+                                .Color("#fa974b")
+                                .Label(l => l
+                                .Font(f => f.Color("#ffffff"))
+                                .Visible(true)
+                                .Format(f => f
+                                .Type(Format.FixedPoint)
+                                .Precision(0))))
+                                .DataSource(d => d.Mvc()
+                                .Controller("MMCancelTransaksi")
                             .LoadAction("GetBarChartDateCanceledBonds")
-                            .OnBeforeSend("onGridBeforeSend")))
+                            .OnBeforeSend("onGridBeforeSend"))
+                    )
                     </div>
                 </div>
             </div>

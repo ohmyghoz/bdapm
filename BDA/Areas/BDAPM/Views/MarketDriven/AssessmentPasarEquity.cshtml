@@ -348,7 +348,10 @@
                         <div id="gridInv" style="display: none;">
                             @(Html.DevExtreme().DataGrid()
                                 .ID("gridInvestor")
-                                .DataSource(d => d.StaticJson().Url("/tempData/md_validasi.json")
+                                .DataSource(d => d.Mvc()
+                                .Controller("MarketDriven")
+                                .LoadAction("GetInvestorGridData")
+                                .Key("rowid")
                                 )
                                 .KeyExpr("rowid")
                                 .RemoteOperations(true)
@@ -356,12 +359,17 @@
                                 .AllowColumnResizing(true)
                                 .Columns(columns =>
                                 {
-                                    columns.Add().DataField("rowid").Visible(false); 
+                                    columns.Add().DataField("rowid").Visible(false);
                                     columns.Add().DataField("investorcode").Caption("Investor Code");
                                     columns.Add().DataField("cpinvestorcode").Caption("Trade ID");
-                                    columns.Add().DataField("value").Caption("Value").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
-                                    columns.Add().DataField("quantity").Caption("Volume").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
-
+                                    columns.Add().DataField("value").Caption("Value")
+                                    .Alignment(HorizontalAlignment.Right)
+                                    .DataType(GridColumnDataType.Number)
+                                    .Format(",##0");
+                                    columns.Add().DataField("quantity").Caption("Volume")
+                                    .Alignment(HorizontalAlignment.Right)
+                                    .DataType(GridColumnDataType.Number)
+                                    .Format(",##0");
                                 })
                                 .FilterRow(f => f.Visible(false))
                                 .ShowBorders(true)
@@ -374,7 +382,8 @@
                                 .Pager(p =>
                                 {
                                     p.ShowInfo(true);
-                                }))
+                                })
+                                )
                                 </div>
                     </div>
                 </div>
@@ -390,7 +399,10 @@
                         <div id="gridSec" style="display: none;">
                             @(Html.DevExtreme().DataGrid()
                                 .ID("gridSecurity")
-                                .DataSource(d => d.StaticJson().Url("/tempData/md_validasi.json")
+                                .DataSource(d => d.Mvc()
+                                .Controller("MarketDriven")
+                                .LoadAction("GetSecurityGridData")
+                                .Key("rowid")
                                 )
                                 .KeyExpr("rowid")
                                 .RemoteOperations(true)
@@ -398,12 +410,20 @@
                                 .AllowColumnResizing(true)
                                 .Columns(columns =>
                                 {
-                                    columns.Add().DataField("rowid").Visible(false); 
-                                    columns.Add().DataField("securitycode").Caption("Security Code");  
-                                    columns.Add().DataField("value").Caption("Value").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
-                                    columns.Add().DataField("quantity").Caption("Volume").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
-                                    columns.Add().DataField("quantity").Caption("Frequency").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
-
+                                    columns.Add().DataField("rowid").Visible(false);
+                                    columns.Add().DataField("securitycode").Caption("Security Code");
+                                    columns.Add().DataField("value").Caption("Value")
+                                    .Alignment(HorizontalAlignment.Right)
+                                    .DataType(GridColumnDataType.Number)
+                                    .Format(",##0");
+                                    columns.Add().DataField("quantity").Caption("Volume")
+                                    .Alignment(HorizontalAlignment.Right)
+                                    .DataType(GridColumnDataType.Number)
+                                    .Format(",##0");
+                                    columns.Add().DataField("frequency").Caption("Frequency")
+                                    .Alignment(HorizontalAlignment.Right)
+                                    .DataType(GridColumnDataType.Number)
+                                    .Format(",##0");
                                 })
                                 .FilterRow(f => f.Visible(false))
                                 .ShowBorders(true)
@@ -416,7 +436,8 @@
                                 .Pager(p =>
                                 {
                                     p.ShowInfo(true);
-                                }))
+                                })
+                                )
                                 </div>
                     </div>
                 </div>
@@ -434,7 +455,10 @@
                         <div id="gridCPInv" style="display: none;">
                             @(Html.DevExtreme().DataGrid()
                                 .ID("gridCPInv")
-                                .DataSource(d => d.StaticJson().Url("/tempData/md_validasi.json")
+                                .DataSource(d => d.Mvc()
+                                .Controller("MarketDriven")
+                                .LoadAction("GetCPInvestorGridData")
+                                .Key("rowid")
                                 )
                                 .KeyExpr("rowid")
                                 .RemoteOperations(true)
@@ -442,12 +466,17 @@
                                 .AllowColumnResizing(true)
                                 .Columns(columns =>
                                 {
-                                    columns.Add().DataField("rowid").Visible(false); 
+                                    columns.Add().DataField("rowid").Visible(false);
                                     columns.Add().DataField("cpinvestorcode").Caption("CP Investor Code");
-                                    columns.Add().DataField("cpinvestorcode").Caption("CP Trade ID");
-                                    columns.Add().DataField("value").Caption("Value").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
-                                    columns.Add().DataField("quantity").Caption("Volume").Alignment(HorizontalAlignment.Right).DataType(GridColumnDataType.Number).Format(",##0");
-
+                                    columns.Add().DataField("cptradeid").Caption("CP Trade ID");
+                                    columns.Add().DataField("value").Caption("Value")
+                                    .Alignment(HorizontalAlignment.Right)
+                                    .DataType(GridColumnDataType.Number)
+                                    .Format(",##0");
+                                    columns.Add().DataField("quantity").Caption("Volume")
+                                    .Alignment(HorizontalAlignment.Right)
+                                    .DataType(GridColumnDataType.Number)
+                                    .Format(",##0");
                                 })
                                 .FilterRow(f => f.Visible(false))
                                 .ShowBorders(true)
@@ -460,7 +489,8 @@
                                 .Pager(p =>
                                 {
                                     p.ShowInfo(true);
-                                }))
+                                })
+                                )
                                 </div>
                     </div>
                 </div>
@@ -527,62 +557,7 @@
 </script>
 
 <script>
-    // Function to refresh chart data
-    function refreshChartData(chartType) {
-        try {
-            // Get current filter values
-            var dayDate = $("#datePickdID").dxDateBox("instance")?.option("value");
-            var monthDate = $("#DatepickmID").dxDateBox("instance")?.option("value");
-            var startDate = $("#StartDateID").dxDateBox("instance")?.option("value");
-            var endDate = $("#EndDateID").dxDateBox("instance")?.option("value");
-
-            console.log("Refreshing chart data for:", chartType);
-
-            // Build URL parameters
-            var params = "?chartType=" + encodeURIComponent(chartType || "Value");
-
-            if (dayDate) {
-                params += "&singleDate=" + dateToYYYYMMDD(dayDate);
-            } else if (monthDate) {
-                var year = monthDate.getFullYear();
-                var month = monthDate.getMonth();
-                var firstDay = new Date(year, month, 1);
-                var lastDay = new Date(year, month + 1, 0);
-
-                params += "&startDate=" + dateToYYYYMMDD(firstDay);
-                params += "&endDate=" + dateToYYYYMMDD(lastDay);
-            } else if (startDate && endDate) {
-                params += "&startDate=" + dateToYYYYMMDD(startDate);
-                params += "&endDate=" + dateToYYYYMMDD(endDate);
-            }
-
-            // Build the full URL
-            var baseUrl = '@Url.Action("GetMarketChartData", "MarketDriven")';
-            var chartUrl = baseUrl + params;
-            console.log("Chart URL:", chartUrl);
-
-            // Use AJAX to get data and then update chart
-            $.ajax({
-                url: chartUrl,
-                type: 'GET',
-                dataType: 'json'
-            }).done(function (data) {
-                console.log("Chart data received:", data);
-
-                // Update chart data source
-                var chart = $("#marketDataChart").dxChart("instance");
-                if (chart) {
-                    chart.option("dataSource", data);
-                }
-            }).fail(function (xhr, status, error) {
-                console.error("Error loading chart data:", error);
-                console.error("Response:", xhr.responseText);
-            });
-
-        } catch (error) {
-            console.error("Error refreshing chart data:", error);
-        }
-    }
+   
 
     // Chart type selection handler
     function onChartTypeSelectionChanged(e) {
@@ -610,80 +585,48 @@
                     break;
             }
 
-            // Fix: Update title properly
+            // Update title and series name
             chart.option("title", { text: chartTitle });
-            // Fix: Update series name properly
             chart.option("series[0].name", seriesName);
 
-            // Refresh data with current filters
-            refreshChartData(selectedType);
-        }
-    }
-
-    // Function to refresh chart data
-    function refreshChartData(chartType) {
-        try {
-            // Get current filter values
+            // **FIX: Get current date parameters and refresh chart**
+            var periodType = $("#Periodid").dxSelectBox("instance")?.option("value");
             var dayDate = $("#datePickdID").dxDateBox("instance")?.option("value");
             var monthDate = $("#DatepickmID").dxDateBox("instance")?.option("value");
             var startDate = $("#StartDateID").dxDateBox("instance")?.option("value");
             var endDate = $("#EndDateID").dxDateBox("instance")?.option("value");
 
-            console.log("Refreshing chart data for:", chartType);
-            console.log("Filter dates:", { dayDate, monthDate, startDate, endDate });
+            var chartSingleDate = null;
+            var chartStartDate = null;
+            var chartEndDate = null;
 
-            // Build URL parameters
-            var params = "?chartType=" + encodeURIComponent(chartType || "Value");
-
-            if (dayDate) {
-                params += "&singleDate=" + dateToYYYYMMDD(dayDate);
-            } else if (monthDate) {
-                var year = monthDate.getFullYear();
-                var month = monthDate.getMonth();
-                var firstDay = new Date(year, month, 1);
-                var lastDay = new Date(year, month + 1, 0);
-
-                params += "&startDate=" + dateToYYYYMMDD(firstDay);
-                params += "&endDate=" + dateToYYYYMMDD(lastDay);
+            // Determine current date parameters
+            if (periodType === "Daily" && dayDate) {
+                chartSingleDate = dateToYYYYMMDD(dayDate).toString();
+            } else if (periodType === "Monthly" && monthDate) {
+                var firstDayOfMonth = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
+                var lastDayOfMonth = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
+                chartStartDate = dateToYYYYMMDD(firstDayOfMonth).toString();
+                chartEndDate = dateToYYYYMMDD(lastDayOfMonth).toString();
+            } else if (periodType === "Custom Date" && startDate && endDate) {
+                chartStartDate = dateToYYYYMMDD(startDate).toString();
+                chartEndDate = dateToYYYYMMDD(endDate).toString();
+            } else if (dayDate) {
+                chartSingleDate = dateToYYYYMMDD(dayDate).toString();
             } else if (startDate && endDate) {
-                params += "&startDate=" + dateToYYYYMMDD(startDate);
-                params += "&endDate=" + dateToYYYYMMDD(endDate);
+                chartStartDate = dateToYYYYMMDD(startDate).toString();
+                chartEndDate = dateToYYYYMMDD(endDate).toString();
             }
 
-            // Build the full URL
-            var baseUrl = '@Url.Action("GetMarketChartData", "MarketDriven")';
-            var chartUrl = baseUrl + params;
-            console.log("Chart URL:", chartUrl);
-
-            // Use AJAX to get data and then update chart
-            $.ajax({
-                url: chartUrl,
-                type: 'GET',
-                dataType: 'json'
-            }).done(function (data) {
-                console.log("Chart data received:", data.length, "points");
-
-                // Update chart data source
-                var chart = $("#marketDataChart").dxChart("instance");
-                if (chart) {
-                    chart.option("dataSource", data);
-                    console.log("Chart data updated successfully");
-                }
-            }).fail(function (xhr, status, error) {
-                console.error("Error loading chart data:", error);
-                console.error("Response:", xhr.responseText);
-
-                // Show empty chart on error
-                var chart = $("#marketDataChart").dxChart("instance");
-                if (chart) {
-                    chart.option("dataSource", []);
-                }
-            });
-
-        } catch (error) {
-            console.error("Error refreshing chart data:", error);
+            // Refresh chart with current date parameters
+            if (chartSingleDate || (chartStartDate && chartEndDate)) {
+                refreshChartData(selectedType, chartSingleDate, chartStartDate, chartEndDate);
+            } else {
+                console.warn("No date parameters available for chart refresh");
+            }
         }
     }
+
 
 
     $(document).ready(function () {
@@ -747,38 +690,82 @@
         console.log("onButtonFilterClicked triggered");
 
         // Get filter values
+        var periodType = $("#Periodid").dxSelectBox("instance")?.option("value"); // Add this line to get period type
         var dayDate = $("#datePickdID").dxDateBox("instance")?.option("value");
         var monthDate = $("#DatepickmID").dxDateBox("instance")?.option("value");
         var startDate = $("#StartDateID").dxDateBox("instance")?.option("value");
         var endDate = $("#EndDateID").dxDateBox("instance")?.option("value");
         var buySell = $("#Buysellid").dxSelectBox("instance")?.option("value");
 
-        console.log("Date values:", { dayDate, monthDate, startDate, endDate, buySell });
+        console.log("=== BUTTON FILTER DEBUG ===");
+        console.log("Period Type:", periodType);
+        console.log("Day Date:", dayDate);
+        console.log("Month Date:", monthDate);
+        console.log("Start Date:", startDate);
+        console.log("End Date:", endDate);
+        console.log("Buy/Sell:", buySell);
 
         var filterDateInt = null;
         var displayDate = "";
+        var chartSingleDate = null;
+        var chartStartDate = null;
+        var chartEndDate = null;
 
-        // Determine which date to use based on priority: dayDate > monthDate > startDate
-        if (dayDate) {
+        // Determine which date to use based on period type and available dates
+        if (periodType === "Daily" && dayDate) {
+            // Daily mode - use single date
             filterDateInt = dateToYYYYMMDD(dayDate);
             displayDate = formatDateToDDMMYYYY(dayDate);
-            console.log("Using dayDate:", filterDateInt);
-        } else if (monthDate) {
-            // Get first day of the selected month
-            var firstDayOfMonth = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
-            filterDateInt = dateToYYYYMMDD(firstDayOfMonth);
-            displayDate = formatDateToDDMMYYYY(firstDayOfMonth);
-            console.log("Using first day of monthDate:", filterDateInt);
-        } else if (startDate) {
-            filterDateInt = dateToYYYYMMDD(startDate);
-            displayDate = formatDateToDDMMYYYY(startDate);
-            console.log("Using startDate:", filterDateInt);
-        }
+            chartSingleDate = filterDateInt.toString();
+            console.log("Using Daily mode with single date:", chartSingleDate);
 
-        if (!filterDateInt) {
-            alert("Please select a date in one of the date fields");
+        } else if (periodType === "Monthly" && monthDate) {
+            // Monthly mode - use first day of month for summary, full month range for chart
+            var firstDayOfMonth = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
+            var lastDayOfMonth = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
+
+            filterDateInt = dateToYYYYMMDD(firstDayOfMonth);
+            displayDate = formatDateToDDMMYYYY(firstDayOfMonth) + " - " + formatDateToDDMMYYYY(lastDayOfMonth);
+
+            // For chart, use date range
+            chartStartDate = dateToYYYYMMDD(firstDayOfMonth).toString();
+            chartEndDate = dateToYYYYMMDD(lastDayOfMonth).toString();
+            console.log("Using Monthly mode with date range:", chartStartDate, "to", chartEndDate);
+
+        } else if (periodType === "Custom Date" && startDate && endDate) {
+            // Custom date range mode
+            filterDateInt = dateToYYYYMMDD(startDate);
+            displayDate = formatDateToDDMMYYYY(startDate) + " - " + formatDateToDDMMYYYY(endDate);
+
+            // For chart, use date range
+            chartStartDate = dateToYYYYMMDD(startDate).toString();
+            chartEndDate = dateToYYYYMMDD(endDate).toString();
+            console.log("Using Custom Date range mode:", chartStartDate, "to", chartEndDate);
+
+        } else if (dayDate) {
+            // Fallback: if no period type but dayDate exists
+            filterDateInt = dateToYYYYMMDD(dayDate);
+            displayDate = formatDateToDDMMYYYY(dayDate);
+            chartSingleDate = filterDateInt.toString();
+            console.log("Fallback to single date:", chartSingleDate);
+
+        } else if (startDate && endDate) {
+            // Fallback: if no period type but date range exists
+            filterDateInt = dateToYYYYMMDD(startDate);
+            displayDate = formatDateToDDMMYYYY(startDate) + " - " + formatDateToDDMMYYYY(endDate);
+            chartStartDate = dateToYYYYMMDD(startDate).toString();
+            chartEndDate = dateToYYYYMMDD(endDate).toString();
+            console.log("Fallback to date range:", chartStartDate, "to", chartEndDate);
+
+        } else {
+            alert("Please select a period type and fill in the required date fields");
             return;
         }
+
+        console.log("=== CHART PARAMETERS ===");
+        console.log("Chart Single Date:", chartSingleDate);
+        console.log("Chart Start Date:", chartStartDate);
+        console.log("Chart End Date:", chartEndDate);
 
         // Convert buySell to transaction code
         var transactionCode = null;
@@ -788,26 +775,124 @@
             transactionCode = "S";
         }
 
-        console.log("Transaction code:", transactionCode);
-        console.log("Filter date integer:", filterDateInt);
+        // Set filter date for grids via AJAX call
+        $.ajax({
+            url: '@Url.Action("SetGridFilterDate", "MarketDriven")',
+            type: 'POST',
+            data: {
+                filterDate: filterDateInt.toString(),
+                transactionCode: transactionCode
+            },
+            dataType: 'json'
+        }).done(function (response) {
+            if (response.success) {
+                console.log("Filter date set successfully");
 
-        // Load summary data for cards FIRST
+                // Refresh all three grids
+                var gridInv = $("#gridInvestor").dxDataGrid("instance");
+                if (gridInv) {
+                    gridInv.refresh();
+                    console.log("Investor grid refreshed");
+                }
+
+                var gridSec = $("#gridSecurity").dxDataGrid("instance");
+                if (gridSec) {
+                    gridSec.refresh();
+                    console.log("Security grid refreshed");
+                }
+
+                var gridCPInv = $("#gridCPInv").dxDataGrid("instance");
+                if (gridCPInv) {
+                    gridCPInv.refresh();
+                    console.log("CP Investor grid refreshed");
+                }
+            }
+        }).fail(function (xhr, status, error) {
+            console.error("Error setting filter date:", error);
+        });
+
+        // Load summary data for cards
         loadSummaryData(filterDateInt.toString(), displayDate);
 
-        // Setup filters for grids and charts with safety checks
-        setupGridFilters(filterDateInt, transactionCode, startDate, endDate);
-
+        // Refresh chart data with proper parameters
         var currentChartType = $("#ChartType").dxSelectBox("instance")?.option("value") || "Value";
-        refreshChartData(currentChartType);
 
-        // Show the chart section
-        $("#marketDataChart").closest(".card").show();
-
-        // Then refresh chart data
-        refreshChartData(currentChartType);
+        // **FIX: Pass the correct date parameters to refreshChartData**
+        refreshChartData(currentChartType, chartSingleDate, chartStartDate, chartEndDate);
 
         // Show all components
         showAllComponents();
+        $("#marketDataChart").closest(".card").show();
+    }
+
+    // New helper function for single date grid filtering
+    function setupGridFiltersForSingleDate(filterDateInt, buySell) {
+        var filterconditions = ["tradedatesk", "=", filterDateInt];
+
+        var transactionCode = null;
+        if (buySell === "Buy") {
+            transactionCode = "B";
+        } else if (buySell === "Sell") {
+            transactionCode = "S";
+        }
+
+        if (transactionCode) {
+            filterconditions = [filterconditions, "and", ["transactiontypecode", "=", transactionCode]];
+        }
+
+        applyGridFilters(filterconditions);
+    }
+
+    // New helper function for date range grid filtering
+    function setupGridFiltersForDateRange(startDate, endDate, buySell) {
+        var startDateInt = dateToYYYYMMDD(startDate);
+        var endDateInt = dateToYYYYMMDD(endDate);
+
+        var filterconditions = [
+            ["tradedatesk", ">=", startDateInt],
+            "and",
+            ["tradedatesk", "<=", endDateInt]
+        ];
+
+        var transactionCode = null;
+        if (buySell === "Buy") {
+            transactionCode = "B";
+        } else if (buySell === "Sell") {
+            transactionCode = "S";
+        }
+
+        if (transactionCode) {
+            filterconditions = [filterconditions, "and", ["transactiontypecode", "=", transactionCode]];
+        }
+
+        applyGridFilters(filterconditions);
+    }
+
+    // Helper function to apply filters to all grids
+    function applyGridFilters(filterconditions) {
+        console.log("Applying grid filters:", filterconditions);
+
+        try {
+            var gridInv = $("#gridInvestor").dxDataGrid("instance");
+            if (gridInv) {
+                gridInv.filter(filterconditions);
+                gridInv.refresh();
+            }
+
+            var gridSec = $("#gridSecurity").dxDataGrid("instance");
+            if (gridSec) {
+                gridSec.filter(filterconditions);
+                gridSec.refresh();
+            }
+
+            var gridCPInv = $("#gridCPInv").dxDataGrid("instance");
+            if (gridCPInv) {
+                gridCPInv.filter(filterconditions);
+                gridCPInv.refresh();
+            }
+        } catch (error) {
+            console.error("Error applying grid filters:", error);
+        }
     }
 
     // Helper function to load summary data for cards
@@ -848,6 +933,79 @@
             console.error("Response:", xhr.responseText);
             alert("Error loading summary data: " + error);
         });
+    }
+
+    // Updated chart refresh functions
+    function refreshChartDataForSingle(chartType, singleDateInt) {
+        var singleDateStr = singleDateInt.toString();
+        refreshChartData(chartType, singleDateStr, null, null);
+    }
+
+    function refreshChartDataForRange(chartType, startDate, endDate) {
+        var startDateStr = dateToYYYYMMDD(startDate).toString();
+        var endDateStr = dateToYYYYMMDD(endDate).toString();
+        refreshChartData(chartType, null, startDateStr, endDateStr);
+    }
+
+    // Updated refreshChartData function to handle both modes
+    function refreshChartData(chartType, singleDate = null, startDate = null, endDate = null) {
+        try {
+            console.log("=== CHART REFRESH DEBUG ===");
+            console.log("Chart Type:", chartType);
+            console.log("Single Date:", singleDate);
+            console.log("Start Date:", startDate);
+            console.log("End Date:", endDate);
+
+            var params = "?chartType=" + encodeURIComponent(chartType || "Value");
+
+            if (singleDate) {
+                params += "&singleDate=" + singleDate;
+                console.log("Using single date mode");
+            } else if (startDate && endDate) {
+                params += "&startDate=" + startDate;
+                params += "&endDate=" + endDate;
+                console.log("Using date range mode");
+            } else {
+                console.error("ERROR: No valid date parameters for chart");
+                return;
+            }
+
+            var baseUrl = '@Url.Action("GetMarketChartData", "MarketDriven")';
+            var chartUrl = baseUrl + params;
+            console.log("Chart URL:", chartUrl);
+
+            $.ajax({
+                url: chartUrl,
+                type: 'GET',
+                dataType: 'json'
+            }).done(function (data) {
+                console.log("Chart data received:", data);
+                console.log("Data points count:", Array.isArray(data) ? data.length : 'Not an array');
+
+                // Check if data has error
+                if (data.error) {
+                    console.error("Chart data error:", data.error);
+                    return;
+                }
+
+                var chart = $("#marketDataChart").dxChart("instance");
+                if (chart) {
+                    chart.option("dataSource", Array.isArray(data) ? data : []);
+                    console.log("Chart updated successfully");
+                }
+            }).fail(function (xhr, status, error) {
+                console.error("Error loading chart data:", error);
+                console.error("Response:", xhr.responseText);
+
+                var chart = $("#marketDataChart").dxChart("instance");
+                if (chart) {
+                    chart.option("dataSource", []);
+                }
+            });
+
+        } catch (error) {
+            console.error("Error refreshing chart data:", error);
+        }
     }
 
     // Helper function to setup grid and chart filters with safety checks
@@ -1072,26 +1230,7 @@
         });
     }
 
-    function ExportToPdf2() {
-        var dataGrid = $("#grid1").dxDataGrid("instance");
-        dataGrid.option("onExporting", function (e) { });
-        dataGrid.option("onFileSaving", function (e) {
-            var fd = new FormData();
-            fd.append("file", e.data);
-            $.ajax({
-                type: "POST",
-                url: "@Url.Action("ExportPDF", "SegmentationSummaryClusterMKBD")",
-                data: fd,
-                processData: false,
-                contentType: false
-            }).done(function (data) {
-                window.location = "@Url.Action("File", "SegmentationSummaryClusterMKBD")"
-            });
-            e.cancel = true;
-        });
-
-        dataGrid.exportToExcel();
-    }
+    
 
     function onSelectionChanged(e) {
         if (e.addedItems.length > 0) {
@@ -1144,38 +1283,64 @@
         });
     }
 
-     function exportGridToPDF2() {
+    function exportGridToExcel2() {
+        var dataGrid = $("#gridSecurity").dxDataGrid("instance");
+        if (dataGrid) {
+            dataGrid.exportToExcel(false); // 'false' means export all data, not just selected rows
+        } else {
+            console.error("Security grid not found");
+        }
+    }
+
+    function exportGridToPDF2() {
         const doc = new jsPDF();
 
         // Get the DataGrid instance
         const dataGrid = $("#gridSecurity").dxDataGrid("instance");
 
-        // Export DataGrid to PDF
-        DevExpress.pdfExporter.exportDataGrid({
-            jsPDFDocument: doc,
-            component: dataGrid,
-            keepColumnWidths: true
-        }).then(() => {
-            // Save the PDF with a given file name
-            doc.save('GridData.pdf');
-        });
+        if (dataGrid) {
+            // Export DataGrid to PDF
+            DevExpress.pdfExporter.exportDataGrid({
+                jsPDFDocument: doc,
+                component: dataGrid,
+                keepColumnWidths: true
+            }).then(() => {
+                // Save the PDF with a given file name
+                doc.save('SecurityGridData.pdf');
+            });
+        } else {
+            console.error("Security grid not found");
+        }
     }
 
-     function exportGridToPDF3() {
+    function exportGridToExcel3() {
+        var dataGrid = $("#gridCPInv").dxDataGrid("instance");
+        if (dataGrid) {
+            dataGrid.exportToExcel(false); // 'false' means export all data, not just selected rows
+        } else {
+            console.error("CP Investor grid not found");
+        }
+    }
+
+    function exportGridToPDF3() {
         const doc = new jsPDF();
 
         // Get the DataGrid instance
         const dataGrid = $("#gridCPInv").dxDataGrid("instance");
 
-        // Export DataGrid to PDF
-        DevExpress.pdfExporter.exportDataGrid({
-            jsPDFDocument: doc,
-            component: dataGrid,
-            keepColumnWidths: true
-        }).then(() => {
-            // Save the PDF with a given file name
-            doc.save('GridData.pdf');
-        });
+        if (dataGrid) {
+            // Export DataGrid to PDF
+            DevExpress.pdfExporter.exportDataGrid({
+                jsPDFDocument: doc,
+                component: dataGrid,
+                keepColumnWidths: true
+            }).then(() => {
+                // Save the PDF with a given file name
+                doc.save('CPInvestorGridData.pdf');
+            });
+        } else {
+            console.error("CP Investor grid not found");
+        }
     }
 
      function exportGridToExcel1() {
@@ -1183,15 +1348,7 @@
         dataGrid.exportToExcel(false); // 'false' means export all data, not just selected rows
     }
 
-     function exportGridToExcel1() {
-        var dataGrid = $("#gridSecurity").dxDataGrid("instance");
-        dataGrid.exportToExcel(false); // 'false' means export all data, not just selected rows
-    }
-
-     function exportGridToExcel1() {
-        var dataGrid = $("#gridCPInv").dxDataGrid("instance");
-        dataGrid.exportToExcel(false); // 'false' means export all data, not just selected rows
-    }
+  
 
     var waitingDialog = (function ($) {
 
