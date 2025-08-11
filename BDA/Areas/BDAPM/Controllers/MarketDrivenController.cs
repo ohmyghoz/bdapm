@@ -385,14 +385,90 @@ namespace BDA.Controllers
             return View();
 
         }
-
+        // REWRITE: Add detailed System.Diagnostics.Debug logging
+        // REWRITE (or ensure this version is in place): robust logging + fallback extraction from Request.Query
+        // REWRITE: return a plain array so PivotGrid can consume it directly.
+        // Also keep detailed debug already added in your previous version.
         [HttpGet]
-        public object GetMarketData(DataSourceLoadOptions loadOptions, string selectedDate) // Changed from DateTime?
+        public object GetMarketData(
+            DataSourceLoadOptions loadOptions,
+            string periodType = null,
+            string selectedDate = null,
+            string selectedMonth = null,
+            string startDate = null,
+            string endDate = null,
+            string startTime = null,
+            string endTime = null,
+            string[] confirmation = null,
+            string[] lokalAsing = null,
+            string[] countryInvestor = null,
+            string[] typeInvestor = null,
+            string[] market = null,
+            string[] abCodes = null,
+            int? topN = null
+        )
         {
-            // Pass the date STRING down to the data helper
-            var result = Helper.WSQueryPS.GetMarketDrivenData(db, loadOptions, selectedDate);
+            try
+            {
+                System.Diagnostics.Debug.WriteLine("=== MarketDrivenController.GetMarketData START ===");
+                System.Diagnostics.Debug.WriteLine($"Route: {Request?.Path.Value}");
+                System.Diagnostics.Debug.WriteLine($"Raw QueryString: {Request?.QueryString.Value}");
+                foreach (var kv in Request.Query)
+                    System.Diagnostics.Debug.WriteLine($"{kv.Key}=[{string.Join(",", kv.Value.ToArray())}]");
 
-            return Json(result);
+                // Fallback extraction (kept from your previous changes) ...
+                string Q(string key) => Request.Query.TryGetValue(key, out var v) ? v.ToString() : null;
+                string[] QA(string key)
+                    => Request.Query.TryGetValue(key, out var v) && v.Count > 0 ? v.ToArray()
+                     : (Request.Query.TryGetValue(key + "[]", out var v2) && v2.Count > 0 ? v2.ToArray() : null);
+
+                periodType = string.IsNullOrWhiteSpace(periodType) ? Q("periodType") : periodType;
+                selectedDate = string.IsNullOrWhiteSpace(selectedDate) ? Q("selectedDate") : selectedDate;
+                selectedMonth = string.IsNullOrWhiteSpace(selectedMonth) ? Q("selectedMonth") : selectedMonth;
+                startDate = string.IsNullOrWhiteSpace(startDate) ? Q("startDate") : startDate;
+                endDate = string.IsNullOrWhiteSpace(endDate) ? Q("endDate") : endDate;
+                startTime = string.IsNullOrWhiteSpace(startTime) ? Q("startTime") : startTime;
+                endTime = string.IsNullOrWhiteSpace(endTime) ? Q("endTime") : endTime;
+                confirmation ??= QA("confirmation");
+                lokalAsing ??= QA("lokalAsing");
+                countryInvestor ??= QA("countryInvestor");
+                typeInvestor ??= QA("typeInvestor");
+                market ??= QA("market");
+                abCodes ??= QA("abCodes");
+                if (!topN.HasValue && int.TryParse(Q("topN"), out var t)) topN = t;
+
+                System.Diagnostics.Debug.WriteLine("--- Effective Parameters ---");
+                System.Diagnostics.Debug.WriteLine($"periodType={periodType}, selectedDate={selectedDate}, selectedMonth={selectedMonth}, startDate={startDate}, endDate={endDate}");
+                System.Diagnostics.Debug.WriteLine($"startTime={startTime}, endTime={endTime}, topN={topN}");
+                System.Diagnostics.Debug.WriteLine($"confirmation=[{(confirmation == null ? "" : string.Join(",", confirmation))}]");
+                System.Diagnostics.Debug.WriteLine($"lokalAsing=[{(lokalAsing == null ? "" : string.Join(",", lokalAsing))}]");
+                System.Diagnostics.Debug.WriteLine($"countryInvestor=[{(countryInvestor == null ? "" : string.Join(",", countryInvestor))}]");
+                System.Diagnostics.Debug.WriteLine($"typeInvestor=[{(typeInvestor == null ? "" : string.Join(",", typeInvestor))}]");
+                System.Diagnostics.Debug.WriteLine($"market=[{(market == null ? "" : string.Join(",", market))}]");
+                System.Diagnostics.Debug.WriteLine($"abCodes=[{(abCodes == null ? "" : string.Join(",", abCodes))}]");
+
+                // IMPORTANT: return a flat array for PivotGrid
+                var dataArray = Helper.WSQueryPS.GetMarketDrivenData(
+                    db, loadOptions,
+                    periodType, selectedDate, selectedMonth, startDate, endDate,
+                    startTime, endTime, confirmation, lokalAsing, countryInvestor,
+                    typeInvestor, market, abCodes, topN
+                );
+
+                // dataArray should be a List<Dictionary<...>>
+                var count = (dataArray as System.Collections.ICollection)?.Count ?? -1;
+                System.Diagnostics.Debug.WriteLine($"=== MarketDrivenController.GetMarketData RESULT: count={count} ===");
+                System.Diagnostics.Debug.WriteLine("=== MarketDrivenController.GetMarketData END ===");
+
+                return Json(dataArray); // plain array, no wrapper object
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("=== MarketDrivenController.GetMarketData ERROR ===");
+                System.Diagnostics.Debug.WriteLine($"Message: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack  : {ex.StackTrace}");
+                return Json(Array.Empty<object>()); // return empty array to PivotGrid
+            }
         }
 
         [HttpGet]
