@@ -428,15 +428,23 @@ namespace BDA.Controllers
             bool chk100)
         {
             var userId = HttpContext.User.Identity.Name;
-            var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
-            var currentNode = mdl.GetCurrentNode();
-            string pageTitle = currentNode != null ? currentNode.Title : "";
+            //var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+            //var currentNode = mdl.GetCurrentNode();
+            string pageTitle = "";// currentNode != null ? currentNode.Title : "";
             string filterValue = "";
             bool valid = false;
-            if (reportId == "ip_rel_sid") filterValue = "sid=" + SID + ";trade=" + tradeId + ";nama=" + namaSID + ";namamirip=" + namaLike + ";kolom=" + kolomRel + ";nilai=" + nilaiRel + ";periode=" + startPeriode + " - " + endPeriode + ";";
-            else filterValue = "sid=" + SID + ";trade=" + tradeId + ";nama=" + namaSID + ";namamirip=" + namaLike + ";ktp=" + nomorKTP + ";npwp=" + nomorNPWP + ";periode=" + startPeriode + " - " + endPeriode + ";";
+            if (reportId == "ip_rel_sid")
+            {
+                filterValue = "sid=" + SID + ";trade=" + tradeId + ";nama=" + namaSID + ";namamirip=" + namaLike + ";kolom=" + kolomRel + ";nilai=" + nilaiRel + ";periode=" + startPeriode + " - " + endPeriode + ";";
+                pageTitle = "SID Keterkaitan";
+            }
+            else
+            {
+                filterValue = "sid=" + SID + ";trade=" + tradeId + ";nama=" + namaSID + ";namamirip=" + namaLike + ";ktp=" + nomorKTP + ";npwp=" + nomorNPWP + ";periode=" + startPeriode + " - " + endPeriode + ";";
+                pageTitle = (reportId == "ip_rel_transaction") ? "Transaksi Keterkaitan" : "Kepemilikan Keterkaitan";
+            }
             db.InsertAuditTrail("IP_Akses_Page", "user " + userId + " mengakases " + reportId + "; " + filterValue + "", pageTitle);
-
+            
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
             TempData.Clear();
 

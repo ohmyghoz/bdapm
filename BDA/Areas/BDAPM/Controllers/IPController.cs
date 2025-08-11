@@ -347,10 +347,13 @@ namespace BDA.Controllers
         public object GetGridData(DataSourceLoadOptions loadOptions, string reportId, string SID, string tradeId, string namaSID, string namaLike, string nomorKTP, string nomorNPWP, string passport, string sistem, string businessReg, string startPeriode, string endPeriode, bool chk100)
         {
             var userId = HttpContext.User.Identity.Name;
-            var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
-            var currentNode = mdl.GetCurrentNode();
-            string pageTitle = currentNode != null ? currentNode.Title : "";
+            //var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+            //var currentNode = mdl.GetCurrentNode();
+            string pageTitle = "";//currentNode != null ? currentNode.Title : "";
             string filterValue = "sid=" + SID + ";trade=" + tradeId + ";nama=" + namaSID + ";namamirip=" + namaLike + ";ktp=" + nomorKTP + ";npwp=" + nomorNPWP + ";passport=" + passport + ";sistem=" + sistem + ";breg=" + businessReg + ";periode=" + startPeriode + " - " + endPeriode + ";";
+            if (reportId == "ip_sid") pageTitle = "SID Profile";
+            else if (reportId == "ip_transaction") pageTitle = "Transaksi Profile";
+            else pageTitle = "Kepemilikan Profile";
             db.InsertAuditTrail("IP_Akses_Page", "user " + userId + " mengakases " + reportId + "; " + filterValue + "", pageTitle);
 
             var regex = new Regex(@"\Aip_relation");
