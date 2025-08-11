@@ -478,7 +478,6 @@ namespace BDA.Controllers
             }
 
             db.Database.CommandTimeout = 420;
-            //var result = Helper.WSQueryStore.GetPS07CGridTRX(db, loadOptions, stringPeriodeAwal, stringNamaPE, stringInvCode, stringTrxSys, stringSecCode, cekHive);
             var result = Helper.WSQueryStore.GetPS07CPGTRX(db, loadOptions, stringPeriodeAwal, stringNamaPE, stringInvCode, stringTrxSys, stringSecCode, cekHive);
 
             return JsonConvert.SerializeObject(result);

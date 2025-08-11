@@ -6300,53 +6300,6 @@ namespace BDA.Helper
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
         }
 
-        public static WSQueryReturns GetPS07CGridTRX(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string invCode, string trxSys, string secCode, bool isHive = true)
-        {
-            bool isC = false;
-            var whereQuery = "1=1";
-            var groupByQuery = " GROUP BY pe, investorcode, securitycode, transactionsystem";
-            isHive = true;
-
-            if (periode != null)
-            {
-                string periodes = "'" + periode.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery += " AND yearmonth in (" + periodes.Replace("-", "") + ")";
-            }
-
-            if (pe != null)
-            {
-                string namaPEs = "'" + pe.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery += " AND pe in (" + namaPEs + ")";
-            }
-
-            if (invCode != null)
-            {
-                string ic = "'" + invCode.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery += " AND investorcode = " + ic;
-            }
-
-            if (trxSys != null)
-            {
-                string ts = "'" + trxSys.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery += " AND transactionsystem in (" + ts + ")";
-            }
-
-            if (secCode != null)
-            {
-                string sc = "'" + secCode.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery += " AND securitycode in (" + sc + ")";
-            }
-
-            var props = new WSQueryProperties();
-            if (isHive == true)
-            {
-                props.Query = @"SELECT pe, investorcode AS sid, investorcode AS invcode, securitycode AS seccode, transactionsystem AS trxsys, SUM(total_transaction_frequency) AS ttltrxfreq, SUM(total_transaction_volume) AS ttltrxvol, SUM(total_transaction_value) AS ttltrxval FROM pasarmodal.basis_investor_detail_trx WHERE " + whereQuery + groupByQuery + @"";
-
-            }
-
-            return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
-        }
-
         public static WSQueryReturns GetPS07CPGTRX(DataEntities db, DataSourceLoadOptions loadOptions, string periode, string pe, string invCode, string trxSys, string secCode, bool isHive = true)
         {
             bool isC = false;
@@ -6356,13 +6309,13 @@ namespace BDA.Helper
             if (periode != null)
             {
                 string periodes = "'" + periode.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery += " AND yearmonth in (" + periodes.Replace("-", "") + ")";
+                whereQuery += " AND yearmonth = " + periodes.Replace("-", "");
             }
 
             if (pe != null)
             {
                 string namaPEs = "'" + pe.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery += " AND pe in (" + namaPEs + ")";
+                whereQuery += " AND pe = " + namaPEs;
             }
 
             if (invCode != null)
@@ -6374,13 +6327,13 @@ namespace BDA.Helper
             if (trxSys != null)
             {
                 string ts = "'" + trxSys.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery += " AND transactionsystem in (" + ts + ")";
+                whereQuery += " AND transactionsystem = " + ts;
             }
 
             if (secCode != null)
             {
                 string sc = "'" + secCode.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery += " AND securitycode in (" + sc + ")";
+                whereQuery += " AND securitycode = " + sc;
             }
 
             var props = new WSQueryProperties();
@@ -6402,13 +6355,13 @@ namespace BDA.Helper
             if (periode != null)
             {
                 string periodes = "'" + periode.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery += " AND yearmonth in (" + periodes.Replace("-", "") + ")";
+                whereQuery += " AND yearmonth = " + periodes.Replace("-", "");
             }
 
             if (pe != null)
             {
                 string namaPEs = "'" + pe.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery += " AND pe in (" + namaPEs + ")";
+                whereQuery += " AND pe = " + namaPEs;
             }
 
             if (tradeId != null)
@@ -6420,13 +6373,13 @@ namespace BDA.Helper
             if (trxSys != null)
             {
                 string ts = "'" + trxSys.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery += " AND transactionsystem in (" + ts + ")";
+                whereQuery += " AND transactionsystem = " + ts;
             }
 
             if (secCode != null)
             {
                 string sc = "'" + secCode.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery += " AND securitycode in (" + sc + ")";
+                whereQuery += " AND securitycode = " + sc;
             }
 
             var props = new WSQueryProperties();
