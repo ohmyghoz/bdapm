@@ -372,6 +372,8 @@ namespace BDA.Controllers
 
         }
 
+
+
         public IActionResult MDTest()
         {
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
