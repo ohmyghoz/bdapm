@@ -225,7 +225,28 @@
         </div>
     </div>
 
+    
+
     <div class="card-body">
+        @* Export toolbar (top-right) *@
+        <div class="d-flex justify-content-end align-items-center mb-2" style="gap:8px;">
+            @(Html.DevExtreme().Button()
+                .ID("btnExportExcel")
+                .Type(ButtonType.Success)
+                .Icon("exportxlsx")
+                .Text("Export Excel")
+                .OnClick("exportPivotToExcel")
+                )
+            @(Html.DevExtreme().Button()
+                .ID("btnExportPDF")
+                .Type(ButtonType.Danger)
+                .Icon("exportpdf")
+                .Text("Export PDF")
+                .OnClick("")
+                )
+        </div>
+
+
         @(Html.DevExtreme().PivotGrid()
             .ID("pivotgrid")
             .ShowRowGrandTotals(false)
@@ -376,6 +397,102 @@
         }
     }
 
+    // 1) FIXED Excel Export - Add proper headers
+    async function exportPivotToExcel() {
+        try {
+            var pivotGrid = $("#pivotgrid").dxPivotGrid("instance");
+            if (!pivotGrid) return;
+
+            var workbook = new ExcelJS.Workbook();
+            var worksheet = workbook.addWorksheet("Validasi Data Transaksi");
+
+            // Add title and headers manually
+            worksheet.mergeCells('A1:G1');
+            worksheet.getCell('A1').value = 'VALIDASI DATA TRANSAKSI';
+            worksheet.getCell('A1').font = { bold: true, size: 14 };
+            worksheet.getCell('A1').alignment = { horizontal: 'center' };
+
+            
+
+            // Add column headers in row 2
+            var headers = [
+                'Transaction Date',
+                'SID',
+                'SID Name',
+                'Investor Code',
+                'Security Code'
+ 
+            ];
+
+            headers.forEach((header, index) => {
+                var cell = worksheet.getCell(2, index + 1);
+                cell.value = header;
+                cell.font = { bold: true };
+                cell.fill = {
+                    type: 'pattern',
+                    pattern: 'solid',
+                    fgColor: { argb: 'FFE0E0E0' }
+                };
+            });
+
+            await DevExpress.excelExporter.exportPivotGrid({
+                component: pivotGrid,
+                worksheet: worksheet,
+                topLeftCell: 'A2',
+                customizeCell: function (options) {
+                    // Check if the cell is part of the pivot grid's column header area
+                    if (options.pivotCell && options.pivotCell.area === 'column') {
+                        // Set the cell's value to null to hide the column header content
+                        options.excelCell.value = null;
+                        return; // Exit for this cell, no further processing needed
+                    }
+
+                    // Your existing logic for formatting numeric data cells
+                    if (options.pivotCell && options.pivotCell.dataType === 'number') {
+                        if (options.pivotCell.text && options.pivotCell.text.includes(',')) {
+                            options.excelCell.numFmt = '#,##0';
+                        }
+                    }
+                }
+            });
+
+            // Auto-fit columns
+            worksheet.columns.forEach(function (column, index) {
+                if (index < headers.length) {
+                    var maxLength = Math.max(headers[index].length, 15);
+                    column.width = maxLength;
+                }
+            });
+
+            var buffer = await workbook.xlsx.writeBuffer();
+            var now = new Date();
+            var ts = now.getFullYear().toString()
+                + pad2(now.getMonth() + 1)
+                + pad2(now.getDate())
+                + "_"
+                + pad2(now.getHours())
+                + pad2(now.getMinutes())
+                + pad2(now.getSeconds());
+
+            saveAs(new Blob([buffer], { type: "application/octet-stream" }),
+                `ValidasiDataTransaksi_${ts}.xlsx`);
+
+            DevExpress.ui.notify("Excel file exported successfully!", "success", 3000);
+        } catch (e) {
+            console.error("Export Excel error:", e);
+            DevExpress.ui.notify("Gagal mengekspor ke Excel: " + e.message, "error", 3000);
+        }
+    }
+
+    
+
+    // Helper function to format numbers
+    function formatNumber(num) {
+        if (!num) return '0';
+        return Number(num).toLocaleString();
+    }
+
+  
 
     function onPeriodChanged(e) {
         const selectedValue = e.value;
