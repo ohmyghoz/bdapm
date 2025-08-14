@@ -2117,8 +2117,271 @@ namespace BDA.Controllers
                 return Json(new { success = false, error = ex.Message });
             }
         }
+        [HttpPost]
+        public IActionResult ExportValidasiDataTransaksiToPDF(
+        string periodType = null,
+        string selectedDate = null,
+        string selectedMonth = null,
+        string startDate = null,
+        string endDate = null,
+        string startTime = null,
+        string endTime = null,
+        string[] confirmation = null,
+        string[] lokalAsing = null,
+        string[] countryInvestor = null,
+        string[] typeInvestor = null,
+        string[] market = null,
+        string[] abCodes = null,
+        int? topN = null
+)
+        {
+            try
+            {
+                // Check export permission
+                //db.CheckPermission("Market Driven Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
 
-        
+                var userId = HttpContext.User.Identity.Name ?? "Anonymous";
+                db.InsertAuditTrail("ValidasiDataTransaksi_Export_PDF",
+                    $"User {userId} exported Validasi Data Transaksi to PDF - Period: {periodType}",
+                    "ValidasiDataTransaksi");
+
+                // Use the same approach as your existing GetMarketData method
+                var loadOptions = new DataSourceLoadOptions();
+
+                // Get data using the same method as the PivotGrid
+                var dataArray = Helper.WSQueryPS.GetMarketDrivenData(
+                    db, loadOptions,
+                    periodType, selectedDate, selectedMonth, startDate, endDate,
+                    startTime, endTime, confirmation, lokalAsing, countryInvestor,
+                    typeInvestor, market, abCodes, topN
+                );
+
+                // Convert to list for easier handling
+                var dataList = new List<Dictionary<string, object>>();
+
+                // Handle different possible return types from WSQueryPS.GetMarketDrivenData
+                if (dataArray is IEnumerable<Dictionary<string, object>> dictList)
+                {
+                    dataList = dictList.ToList();
+                }
+                else if (dataArray is IEnumerable<object> objList)
+                {
+                    // Convert objects to dictionaries using reflection
+                    foreach (var item in objList)
+                    {
+                        var dict = new Dictionary<string, object>();
+                        var properties = item.GetType().GetProperties();
+                        foreach (var prop in properties)
+                        {
+                            dict[prop.Name] = prop.GetValue(item);
+                        }
+                        dataList.Add(dict);
+                    }
+                }
+
+                if (!dataList.Any())
+                {
+                    return BadRequest("No data available for the selected filters.");
+                }
+
+                // Create Excel workbook (will be converted to PDF)
+                var workbook = new Aspose.Cells.Workbook();
+                var worksheet = workbook.Worksheets[0];
+                worksheet.Name = "Validasi Data Transaksi";
+
+                // Add title
+                worksheet.Cells.Merge(0, 0, 1, 7);
+                worksheet.Cells[0, 0].PutValue("VALIDASI DATA TRANSAKSI");
+                var titleStyle = workbook.CreateStyle();
+                titleStyle.Font.IsBold = true;
+                titleStyle.Font.Size = 12;
+                titleStyle.HorizontalAlignment = Aspose.Cells.TextAlignmentType.Center;
+                worksheet.Cells[0, 0].SetStyle(titleStyle);
+
+                // Add filter information
+                var filterInfo = BuildFilterInfoString(periodType, selectedDate, selectedMonth, startDate, endDate, startTime, endTime);
+                worksheet.Cells.Merge(1, 0, 1, 7);
+                worksheet.Cells[1, 0].PutValue($"Filter: {filterInfo}");
+                var filterStyle = workbook.CreateStyle();
+                filterStyle.Font.Size = 10;
+                filterStyle.HorizontalAlignment = Aspose.Cells.TextAlignmentType.Center;
+                worksheet.Cells[1, 0].SetStyle(filterStyle);
+
+                // Add export timestamp
+                worksheet.Cells.Merge(2, 0, 1, 7);
+                worksheet.Cells[2, 0].PutValue($"Exported on: {DateTime.Now:dd/MM/yyyy HH:mm:ss} by {userId}");
+                var timestampStyle = workbook.CreateStyle();
+                timestampStyle.Font.Size = 9;
+                timestampStyle.HorizontalAlignment = Aspose.Cells.TextAlignmentType.Center;
+                worksheet.Cells[2, 0].SetStyle(timestampStyle);
+
+                // Add headers
+                var headers = new string[] {
+            "Transaction Date", "SID", "SID Name", "Investor Code",
+            "Security Code", "Quantity", "Value"
+        };
+
+                var headerStyle = workbook.CreateStyle();
+                headerStyle.Font.IsBold = true;
+                headerStyle.ForegroundColor = System.Drawing.Color.LightGray;
+                headerStyle.Pattern = Aspose.Cells.BackgroundType.Solid;
+                headerStyle.Borders[Aspose.Cells.BorderType.TopBorder].LineStyle = Aspose.Cells.CellBorderType.Thin;
+                headerStyle.Borders[Aspose.Cells.BorderType.BottomBorder].LineStyle = Aspose.Cells.CellBorderType.Thin;
+                headerStyle.Borders[Aspose.Cells.BorderType.LeftBorder].LineStyle = Aspose.Cells.CellBorderType.Thin;
+                headerStyle.Borders[Aspose.Cells.BorderType.RightBorder].LineStyle = Aspose.Cells.CellBorderType.Thin;
+
+                for (int i = 0; i < headers.Length; i++)
+                {
+                    worksheet.Cells[3, i].PutValue(headers[i]);
+                    worksheet.Cells[3, i].SetStyle(headerStyle);
+                }
+
+                // Create data style
+                var dataStyle = workbook.CreateStyle();
+                dataStyle.Borders[Aspose.Cells.BorderType.TopBorder].LineStyle = Aspose.Cells.CellBorderType.Thin;
+                dataStyle.Borders[Aspose.Cells.BorderType.BottomBorder].LineStyle = Aspose.Cells.CellBorderType.Thin;
+                dataStyle.Borders[Aspose.Cells.BorderType.LeftBorder].LineStyle = Aspose.Cells.CellBorderType.Thin;
+                dataStyle.Borders[Aspose.Cells.BorderType.RightBorder].LineStyle = Aspose.Cells.CellBorderType.Thin;
+
+                // Create number style for quantity and value columns
+                var numberStyle = workbook.CreateStyle();
+                numberStyle.Custom = "#,##0";
+                numberStyle.Borders[Aspose.Cells.BorderType.TopBorder].LineStyle = Aspose.Cells.CellBorderType.Thin;
+                numberStyle.Borders[Aspose.Cells.BorderType.BottomBorder].LineStyle = Aspose.Cells.CellBorderType.Thin;
+                numberStyle.Borders[Aspose.Cells.BorderType.LeftBorder].LineStyle = Aspose.Cells.CellBorderType.Thin;
+                numberStyle.Borders[Aspose.Cells.BorderType.RightBorder].LineStyle = Aspose.Cells.CellBorderType.Thin;
+
+                // Add data
+                int rowIndex = 4;
+                foreach (var dataRow in dataList)
+                {
+                    // Transaction Date
+                    var transDate = GetFieldValue(dataRow, "TransactionDates") ?? GetFieldValue(dataRow, "transactiondates") ?? "";
+                    worksheet.Cells[rowIndex, 0].PutValue(transDate);
+                    worksheet.Cells[rowIndex, 0].SetStyle(dataStyle);
+
+                    // SID
+                    var sid = GetFieldValue(dataRow, "sid_ori") ?? GetFieldValue(dataRow, "SID_ori") ?? "";
+                    worksheet.Cells[rowIndex, 1].PutValue(sid);
+                    worksheet.Cells[rowIndex, 1].SetStyle(dataStyle);
+
+                    // SID Name
+                    var sidName = GetFieldValue(dataRow, "cpinvestorcode") ?? GetFieldValue(dataRow, "CPInvestorCode") ?? "";
+                    worksheet.Cells[rowIndex, 2].PutValue(sidName);
+                    worksheet.Cells[rowIndex, 2].SetStyle(dataStyle);
+
+                    // Investor Code
+                    var investorCode = GetFieldValue(dataRow, "investorcode") ?? GetFieldValue(dataRow, "InvestorCode") ?? "";
+                    worksheet.Cells[rowIndex, 3].PutValue(investorCode);
+                    worksheet.Cells[rowIndex, 3].SetStyle(dataStyle);
+
+                    // Security Code
+                    var securityCode = GetFieldValue(dataRow, "securitycode") ?? GetFieldValue(dataRow, "SecurityCode") ?? "";
+                    worksheet.Cells[rowIndex, 4].PutValue(securityCode);
+                    worksheet.Cells[rowIndex, 4].SetStyle(dataStyle);
+
+                    // Quantity - Apply number style
+                    var quantityValue = GetFieldValue(dataRow, "quantity") ?? GetFieldValue(dataRow, "Quantity");
+                    if (quantityValue != null && decimal.TryParse(quantityValue.ToString(), out decimal qty))
+                    {
+                        worksheet.Cells[rowIndex, 5].PutValue((double)qty);
+                    }
+                    else
+                    {
+                        worksheet.Cells[rowIndex, 5].PutValue(0);
+                    }
+                    worksheet.Cells[rowIndex, 5].SetStyle(numberStyle);
+
+                    // Value - Apply number style
+                    var valueValue = GetFieldValue(dataRow, "value") ?? GetFieldValue(dataRow, "Value");
+                    if (valueValue != null && decimal.TryParse(valueValue.ToString(), out decimal val))
+                    {
+                        worksheet.Cells[rowIndex, 6].PutValue((double)val);
+                    }
+                    else
+                    {
+                        worksheet.Cells[rowIndex, 6].PutValue(0);
+                    }
+                    worksheet.Cells[rowIndex, 6].SetStyle(numberStyle);
+
+                    rowIndex++;
+                }
+
+                // Auto-fit columns
+                worksheet.AutoFitColumns();
+
+                // Set minimum column widths
+                worksheet.Cells.SetColumnWidth(0, Math.Max(worksheet.Cells.GetColumnWidth(0), 15)); // Transaction Date
+                worksheet.Cells.SetColumnWidth(1, Math.Max(worksheet.Cells.GetColumnWidth(1), 10)); // SID
+                worksheet.Cells.SetColumnWidth(2, Math.Max(worksheet.Cells.GetColumnWidth(2), 15)); // SID Name
+                worksheet.Cells.SetColumnWidth(3, Math.Max(worksheet.Cells.GetColumnWidth(3), 12)); // Investor Code
+                worksheet.Cells.SetColumnWidth(4, Math.Max(worksheet.Cells.GetColumnWidth(4), 12)); // Security Code
+                worksheet.Cells.SetColumnWidth(5, Math.Max(worksheet.Cells.GetColumnWidth(5), 12)); // Quantity
+                worksheet.Cells.SetColumnWidth(6, Math.Max(worksheet.Cells.GetColumnWidth(6), 15)); // Value
+
+                // Set PDF settings
+                worksheet.PageSetup.Orientation = Aspose.Cells.PageOrientationType.Landscape;
+                worksheet.PageSetup.LeftMargin = 0.25;
+                worksheet.PageSetup.RightMargin = 0.25;
+                worksheet.PageSetup.TopMargin = 0.5;
+                worksheet.PageSetup.BottomMargin = 0.5;
+                worksheet.PageSetup.FitToPagesWide = 1;
+                worksheet.PageSetup.FitToPagesTall = 0; // Allow multiple pages vertically
+
+                // Generate filename
+                string dateStr = selectedDate ?? selectedMonth ?? DateTime.Now.ToString("yyyyMMdd");
+                string filename = $"ValidasiDataTransaksi_{dateStr}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+
+                // Export to PDF
+                var stream = new MemoryStream();
+                workbook.Save(stream, Aspose.Cells.SaveFormat.Pdf);
+                stream.Position = 0;
+
+                return File(stream.ToArray(), "application/pdf", filename);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in ExportValidasiDataTransaksiToPDF: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
+                return BadRequest($"Error exporting to PDF: {ex.Message}");
+            }
+        }
+
+        // Helper method to get field value with case-insensitive lookup
+        private object GetFieldValue(Dictionary<string, object> dataRow, string fieldName)
+        {
+            // Try exact match first
+            if (dataRow.ContainsKey(fieldName))
+                return dataRow[fieldName];
+
+            // Try case-insensitive match
+            var key = dataRow.Keys.FirstOrDefault(k => string.Equals(k, fieldName, StringComparison.OrdinalIgnoreCase));
+            return key != null ? dataRow[key] : null;
+        }
+
+        // Helper method to build filter information string
+        private string BuildFilterInfoString(string periodType, string selectedDate, string selectedMonth,
+            string startDate, string endDate, string startTime, string endTime)
+        {
+            var filters = new List<string>();
+
+            if (!string.IsNullOrEmpty(periodType))
+                filters.Add($"Period: {periodType}");
+
+            if (!string.IsNullOrEmpty(selectedDate))
+                filters.Add($"Date: {FormatDateForDisplay(selectedDate, "Daily")}");
+
+            if (!string.IsNullOrEmpty(selectedMonth))
+                filters.Add($"Month: {FormatDateForDisplay(selectedMonth, "Monthly")}");
+
+            if (!string.IsNullOrEmpty(startDate) && !string.IsNullOrEmpty(endDate))
+                filters.Add($"Period: {FormatDateForDisplay(startDate, "Daily")} - {FormatDateForDisplay(endDate, "Daily")}");
+
+            if (!string.IsNullOrEmpty(startTime) && !string.IsNullOrEmpty(endTime))
+                filters.Add($"Time: {startTime} - {endTime}");
+
+            return filters.Any() ? string.Join(", ", filters) : "All Data";
+        }
 
         // Helper method for Excel header styling (place inside MarketDrivenController)
         private static Aspose.Cells.Style GetHeaderStyle(Aspose.Cells.Workbook workbook)

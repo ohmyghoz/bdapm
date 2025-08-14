@@ -242,7 +242,7 @@
                 .Type(ButtonType.Danger)
                 .Icon("exportpdf")
                 .Text("Export PDF")
-                .OnClick("")
+                .OnClick("exportPivotToPDF")
                 )
         </div>
 
@@ -277,13 +277,13 @@
             )
             .Fields(f =>
             {
-                f.Add().Caption("Transaction Date").DataField("TransactionDates").Expanded(true).Width(200).Area(PivotGridArea.Row);
-                f.Add().Caption("SID").DataField("sid_ori").Expanded(true).Width(200).Area(PivotGridArea.Row);
-                f.Add().Caption("SID Name").DataField("cpinvestorcode").Width(200).Expanded(true).Area(PivotGridArea.Row);
-                f.Add().Caption("Investor Code").DataField("investorcode").Width(200).Expanded(true).Area(PivotGridArea.Row);
-                f.Add().Caption("Security Code").DataField("securitycode").Width(200).Expanded(true).Area(PivotGridArea.Row);
-                f.Add().Caption("Quantity").DataField("quantity").Width(50).SummaryType(SummaryType.Sum).Format("#,##0").Area(PivotGridArea.Data);
-                f.Add().Caption("Value").DataField("value").Width(50).SummaryType(SummaryType.Sum).Format("#,##0").Area(PivotGridArea.Data);
+                f.Add().Caption("Transaction Date").DataField("TransactionDates").Expanded(true).Area(PivotGridArea.Row);
+                f.Add().Caption("SID").DataField("sid_ori").Expanded(true).Area(PivotGridArea.Row);
+                f.Add().Caption("SID Name").DataField("cpinvestorcode").Expanded(true).Area(PivotGridArea.Row);
+                f.Add().Caption("Investor Code").DataField("investorcode").Expanded(true).Area(PivotGridArea.Row);
+                f.Add().Caption("Security Code").DataField("securitycode").Expanded(true).Area(PivotGridArea.Row);
+                f.Add().Caption("Quantity").DataField("quantity").SummaryType(SummaryType.Sum).Format("#,##0").Area(PivotGridArea.Data);
+                f.Add().Caption("Value").DataField("value").SummaryType(SummaryType.Sum).Format("#,##0").Area(PivotGridArea.Data);
             })
             )
             )
@@ -420,7 +420,9 @@
                 'SID',
                 'SID Name',
                 'Investor Code',
-                'Security Code'
+                'Security Code',
+                'Quantity',
+                'Value'
  
             ];
 
@@ -438,7 +440,7 @@
             await DevExpress.excelExporter.exportPivotGrid({
                 component: pivotGrid,
                 worksheet: worksheet,
-                topLeftCell: 'A2',
+                topLeftCell: 'A3',
                 customizeCell: function (options) {
                     // Check if the cell is part of the pivot grid's column header area
                     if (options.pivotCell && options.pivotCell.area === 'column') {
@@ -484,6 +486,73 @@
         }
     }
 
+    // Add this function to your existing JavaScript section
+    function exportPivotToPDF() {
+        try {
+            // Get current filter parameters
+            var params = getFilterParams();
+
+            // Show loading indicator
+            DevExpress.ui.notify("Exporting to PDF...", "info", 2000);
+
+            // Create form data
+            var formData = new FormData();
+            Object.keys(params).forEach(key => {
+                if (Array.isArray(params[key])) {
+                    params[key].forEach(val => formData.append(key + '[]', val));
+                } else if (params[key] !== null && params[key] !== undefined) {
+                    formData.append(key, params[key]);
+                }
+            });
+
+            // Make AJAX call to export
+            fetch('@Url.Action("ExportValidasiDataTransaksiToPDF", "MarketDriven", new { Area = "BDAPM" })', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Export failed');
+                    }
+                    return response.blob();
+                })
+                .then(blob => {
+                    // Create download link
+                    var url = window.URL.createObjectURL(blob);
+                    var a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+
+                    // Generate filename
+                    var now = new Date();
+                    var ts = now.getFullYear().toString() +
+                        pad2(now.getMonth() + 1) +
+                        pad2(now.getDate()) + "_" +
+                        pad2(now.getHours()) +
+                        pad2(now.getMinutes()) +
+                        pad2(now.getSeconds());
+
+                    a.download = `ValidasiDataTransaksi_${ts}.pdf`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+
+                    DevExpress.ui.notify("PDF exported successfully!", "success", 3000);
+                })
+                .catch(error => {
+                    console.error('Export error:', error);
+                    DevExpress.ui.notify("Failed to export PDF: " + error.message, "error", 3000);
+                });
+
+        } catch (e) {
+            console.error("Export PDF error:", e);
+            DevExpress.ui.notify("Failed to export PDF: " + e.message, "error", 3000);
+        }
+    }
     
 
     // Helper function to format numbers
