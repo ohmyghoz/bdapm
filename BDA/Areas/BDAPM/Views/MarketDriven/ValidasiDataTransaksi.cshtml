@@ -1,7 +1,7 @@
 ﻿@using DevExtreme.AspNet.Mvc
 @{
     Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
-    string reportId = "Validasi_Data_Transaksi";
+    string reportId = "Validasi Data Transaksi";
     var p = (string[])ViewBag.period;
     var maxItems = db.GetSetting("LimitFilterLJK");
 }
@@ -432,6 +432,8 @@
 
     $("#btnSavePenggunaanData").click(function () {
         let penggunaandataid = $("#penggunaandataid").dxSelectBox("instance").option("value");
+        let penggunaandataText = $("#penggunaandataid").dxSelectBox("instance").option("text");
+        let pageTitle = "@reportId";
 
         if (penggunaandataid == null) {
             alert("Silahkan Pilih Tujuan Penggunaan Data");
@@ -439,7 +441,11 @@
         } else {
             $.ajax({
                 url: '@Url.Action("SimpanPenggunaanData", "MarketDriven")',
-                data: { id: penggunaandataid },
+                data: {
+                    id: penggunaandataid,
+                    penggunaanData: penggunaandataText,
+                    reportTitle: pageTitle
+                },
                 dataType: "json",
                 type: "POST",
                 success: function (data) {

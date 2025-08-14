@@ -1,10 +1,11 @@
 ﻿@using DevExtreme.AspNet.Mvc
 @{
     Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
-    string reportId = "GainersVSLosers";
+    string reportId = "Gainers vs Losers";
     var p = (string[])ViewBag.period;
     var maxItems = db.GetSetting("LimitFilterLJK");
     int sequenceCounter = 1;
+
 }
 @inject BDA.DataModel.DataEntities db
 
@@ -631,6 +632,8 @@
 
     $("#btnSavePenggunaanData").click(function () {
         let penggunaandataid = $("#penggunaandataid").dxSelectBox("instance").option("value");
+        let penggunaandataText = $("#penggunaandataid").dxSelectBox("instance").option("text");
+        let pageTitle = "@reportId";
 
         if (penggunaandataid == null) {
             alert("Silahkan Pilih Tujuan Penggunaan Data");
@@ -638,7 +641,11 @@
         } else {
             $.ajax({
                 url: '@Url.Action("SimpanPenggunaanData", "MarketDriven")',
-                data: { id: penggunaandataid },
+                data: {
+                    id: penggunaandataid,
+                    penggunaanData: penggunaandataText,
+                    reportTitle: pageTitle
+                },
                 dataType: "json",
                 type: "POST",
                 success: function (data) {

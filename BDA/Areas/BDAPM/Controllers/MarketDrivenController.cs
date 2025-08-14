@@ -67,7 +67,7 @@ namespace BDA.Controllers
 
             db.CheckPermission("Market Driven View", DataEntities.PermissionMessageType.ThrowInvalidOperationException); //check permission nya view/lihat nya
             ViewBag.Export = db.CheckPermission("Market Driven Export", DataEntities.PermissionMessageType.NoMessage); //check permission export
-            db.InsertAuditTrail("Leader_vs_Laggard_Page", "Akses Page Leader vs Laggard", pageTitle); //simpan kedalam audit trail
+            db.InsertAuditTrail("Leader_vs_Laggard_Page", "Akses Page Leaders vs Laggards", pageTitle); //simpan kedalam audit trail
 
             return View();
 
@@ -178,7 +178,7 @@ namespace BDA.Controllers
 
             db.CheckPermission("Market Driven View", DataEntities.PermissionMessageType.ThrowInvalidOperationException); //check permission nya view/lihat nya
             ViewBag.Export = db.CheckPermission("Market Driven Export", DataEntities.PermissionMessageType.NoMessage); //check permission export
-            db.InsertAuditTrail("Gainers_vs_Lossers_Page", "Akses Page Gainers vs Lossers", pageTitle); //simpan kedalam audit trail
+            db.InsertAuditTrail("Gainers_vs_Lossers_Page", "Akses Page Gainers vs Losers", pageTitle); //simpan kedalam audit trail
 
             
             // 5. Pass the single page model (containing both lists) to the view
@@ -539,43 +539,29 @@ namespace BDA.Controllers
             return Json(new { message, success = result }, new Newtonsoft.Json.JsonSerializerSettings());
         }
 
-        public ActionResult SimpanPenggunaanData(string id)
+        [HttpPost]
+        public JsonResult SimpanPenggunaanData(string id, string penggunaanData, string reportTitle)
         {
             string message = "";
-            string Penggunaan_Data = "";
             bool result = true;
             var userId = HttpContext.User.Identity.Name;
 
-            var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
-            var currentNode = mdl.GetCurrentNode();
-            string pageTitle = currentNode != null ? currentNode.Title : "";
-            db.InsertAuditTrail("MarketDriven_Akses_Page", "user " + userId + " mengakses halaman Market Driven untuk digunakan sebagai " + Penggunaan_Data + "", pageTitle);
-
             try
             {
-                string strSQL = db.appSettings.DataConnString;
-                using (SqlConnection conn = new SqlConnection(strSQL))
-                {
-                    conn.Open();
-                    string strQuery = "Select * from MasterPenggunaanData where id=" + id + " order by id asc ";
-                    SqlDataAdapter da = new SqlDataAdapter(strQuery, conn);
-                    DataTable dt = new DataTable();
-                    da.Fill(dt);
-                    if (dt.Rows.Count > 0)
-                    {
-                        Penggunaan_Data = dt.Rows[0]["Penggunaan_Data"].ToString();
-                    }
-                    conn.Close();
-                    conn.Dispose();
-                }
+                // Use the parameters directly
+                db.InsertAuditTrail(
+                    "MarketDriven_Akses_Page",
+                    $"user {userId} mengakses halaman Market Driven untuk digunakan sebagai {penggunaanData}",
+                    reportTitle
+                );
                 result = true;
             }
             catch (Exception ex)
             {
-                string errMsg = ex.Message;
-                message = "Saving Failed !, " + " " + errMsg;
+                message = "Saving Failed! " + ex.Message;
                 result = false;
             }
+
             return Json(new { message, success = result }, new Newtonsoft.Json.JsonSerializerSettings());
         }
 
@@ -1574,6 +1560,15 @@ namespace BDA.Controllers
             try
             {
                 // Fetch data for leaders (isLeader: true)
+
+                var userId = HttpContext.User.Identity.Name ?? "Anonymous";
+
+                db.InsertAuditTrail("Leaders_Export_Excel",
+
+                    $"User {userId} exported Leaders data to Excel - Period: {periodType}, Date: {selectedDate}, Top: {topN}",
+
+                    "Leaders vs Laggards");
+
                 List<LeaderLaggardViewModel> leaders;
                 if (periodType == "Custom Date")
                 {
@@ -1645,6 +1640,14 @@ namespace BDA.Controllers
             try
             {
                 // Fetch data for leaders (isLeader: true)
+                var userId = HttpContext.User.Identity.Name ?? "Anonymous";
+
+                db.InsertAuditTrail("Leaders_Export_PDF",
+
+                   $"User {userId} exported Leaders data to PDF - Period: {periodType}, Date: {selectedDate}, Top: {topN}",
+
+                   "Leaders vs Laggards");
+
                 List<LeaderLaggardViewModel> leaders;
                 if (periodType == "Custom Date")
                 {
@@ -1724,6 +1727,15 @@ namespace BDA.Controllers
             try
             {
                 // Fetch data for laggards (isLeader: false)
+                var userId = HttpContext.User.Identity.Name ?? "Anonymous";
+
+                db.InsertAuditTrail("Laggards_Export_Excel",
+
+                    $"User {userId} exported Laggards data to Excel - Period: {periodType}, Date: {selectedDate}, Top: {topN}",
+
+                    "Leaders vs Laggards");
+
+
                 List<LeaderLaggardViewModel> laggards;
                 if (periodType == "Custom Date")
                 {
@@ -1795,6 +1807,14 @@ namespace BDA.Controllers
             try
             {
                 // Fetch data for laggards (isLeader: false)
+                var userId = HttpContext.User.Identity.Name ?? "Anonymous";
+
+                db.InsertAuditTrail("Laggards_Export_PDF",
+
+                    $"User {userId} exported Laggards data to PDF - Period: {periodType}, Date: {selectedDate}, Top: {topN}",
+
+                    "Leaders vs Laggards");
+
                 List<LeaderLaggardViewModel> laggards;
 
                 if (periodType == "Custom Date")
@@ -2078,6 +2098,23 @@ namespace BDA.Controllers
                 System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
 
                 return DataSourceLoader.Load(new List<object>(), loadOptions);
+            }
+        }
+
+        [HttpPost]
+        public JsonResult LogExportAuditTrail(string gridName, string exportType, string filterSummary)
+        {
+            try
+            {
+                var userId = User.Identity.Name ?? "Unknown";
+                string actionName = $"{gridName}_export_{exportType}";
+                string logMessage = $"User {userId} exported {gridName} to {exportType.ToUpper()} with filter: {filterSummary}";
+                db.InsertAuditTrail(actionName, logMessage, "Assessmen Pasar Equity");
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, error = ex.Message });
             }
         }
 
