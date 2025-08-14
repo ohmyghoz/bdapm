@@ -1596,7 +1596,25 @@
                 color: #28a745;
                 font-weight: bold;
             }
-
+    /* Responsive value styling for cardGrid1 - cardGrid4 */
+    #cardGrid1 #ihsgValue,
+    #cardGrid2 #marketCapValue,
+    #cardGrid3 #netValueValue,
+    #cardGrid4 #netVolumeValue {
+        font-size: clamp(1.2rem, 5vw, 2.8rem); /* Responsive font size */
+        text-align: center;
+        font-weight: bold;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        word-break: break-word;
+        white-space: normal;
+        overflow-wrap: break-word;
+        padding: 0 10px;
+        min-width: 0;
+        box-sizing: border-box;
+    }
     .negative-value {
         color: #dc3545 !important;
     }
