@@ -123,10 +123,10 @@ namespace BDA.DataModel
             try
             {
                 //1. Cek LDAP/Bukan
-                if (userName.Contains("corpojk\\") || userName.Contains("@corp.ojk.go.id") || userName.Contains("@ojk.go.id"))
+                if (userName.Contains("devojk\\") || userName.Contains("@corp.ojk.go.id") || userName.Contains("@ojk.go.id"))
                 //if (userName.Contains("corpws\\") | userName.Contains("@corp.winning-soft.com"))
                 {
-                    userName = userName.Replace("corpojk\\", "").Replace("@corp.ojk.go.id", "").Replace("@ojk.go.id", "");
+                    userName = userName.Replace("devojk\\", "").Replace("@corp.ojk.go.id", "").Replace("@ojk.go.id", "");
                     //userName = userName.Replace("corpws\\", "").Replace("@corp.winning-soft.com", "");
                     //cleanup login dari user untuk LDAP auth
 
@@ -154,6 +154,7 @@ namespace BDA.DataModel
                         else
                         {
                             errMsg = "User ID (" + userName + ") atau Password LDAP anda Salah.";
+                            c.InsertAuditTrail("Login", "Gagal Login", "Login",null,null,"","",userId);
                         }
                     }
                     
@@ -177,6 +178,7 @@ namespace BDA.DataModel
                             user = findUser.First();
                         }
                         errMsg = "User ID (" + userName + ")  atau Password anda Salah.";
+                        c.InsertAuditTrail("Login", "Gagal Login", "Login", null, null, "", "", userId);
                     }
                 }
 
@@ -198,6 +200,7 @@ namespace BDA.DataModel
                             user.UserBlockedDate = null;
                             //bersihkan waktu block date nya.
                             user.UserFailedLoginCount = 0;
+                            c.InsertAuditTrail("Login", "Gagal Login", "Login", null, null, "", "", userId);
                         }
                     }
                 }
@@ -253,6 +256,7 @@ namespace BDA.DataModel
                             int blockTime = c.GetSetting("UserFailedPasswordBlockTime");
                             var batasBlokir = user.UserBlockedDate.Value.AddMinutes(blockTime);
                             errMsg = "User ID (" + userName + ") anda diblokir sampai tgl : " + String.Format("{0:dd-MMM-yyyy HH:mm:ss}", batasBlokir);
+                            c.InsertAuditTrail("Login", "Gagal Login", "Login", null, null, "", "", userId);
                         }
                         else
                         {
@@ -263,6 +267,8 @@ namespace BDA.DataModel
                             else {
                                 errMsg = string.Format("User ID (" + userName + ") atau Password anda Salah. {0}/{1} kali sebelum anda diblokir selama {2} menit.", user.UserFailedLoginCount, c.GetSetting("UserMaxFailedPassword"), c.GetSetting("UserFailedPasswordBlockTime"));
                             }
+
+                            c.InsertAuditTrail("Login", "Gagal Login", "Login", null, null, "", "", userId);
                         }
                     }
 
