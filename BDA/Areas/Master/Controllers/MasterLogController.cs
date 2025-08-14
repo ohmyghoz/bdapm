@@ -129,7 +129,7 @@ namespace BDA.Areas.Master.Controllers
             return Content(JsonConvert.SerializeObject(DataSourceLoader.Load(list, loadOptions)), "application/json");
         }
 
-        public IActionResult LogExportTemplate()
+        public IActionResult LogExportTemplate(string msg)
         {
             try
             {
@@ -139,7 +139,7 @@ namespace BDA.Areas.Master.Controllers
                 string pageTitle = currentNode != null ? currentNode.Title : "";
 
                 db.CheckPermission("Master Log Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-                db.InsertAuditTrail("Export Master Log", "Export Data", pageTitle);
+                db.InsertAuditTrail("Export Master Log", msg, pageTitle);
                 return Json(new { result = "Success" });
             }
             catch (Exception ex)
@@ -209,14 +209,60 @@ namespace BDA.Areas.Master.Controllers
                 workbook.SaveAs(outputPath);
                 var fileByte = System.IO.File.ReadAllBytes(outputPath);
                 System.IO.File.Delete(outputPath);
-                //Response.Headers.Append("Content-Disposition", "attachment; filename=" + fileName);
+                LogExportTemplate("Export Template Master Log");
                 return File(fileByte, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
             }
 
         }
 
-        public IActionResult UploadTemplate() 
+        public IActionResult UploadTemplate(IFormFile file) 
         { 
+            List<MasterData> data = new List<MasterData>();
+            List<LogMasterDataDetail> dataDetail = new List<LogMasterDataDetail>();
+
+            using (var ms = new MemoryStream())
+            {
+                file.CopyTo(ms);
+
+                using (var workbook = new XLWorkbook(ms))
+                {
+                    var sheetData = workbook.Worksheet("Sheet1");
+                    var sheetDetail = workbook.Worksheet("Sheet2");
+                    var rowsData = sheetData.RowsUsed().Skip(1);
+                    var rowsDetail = sheetDetail.RowsUsed().Skip(1);
+
+                    foreach (var row in rowsData)
+                    {
+                        MasterData d = new MasterData
+                        {
+                            log_kode = row.Cell(1).GetText(),
+                            log_nama = row.Cell(2).GetText(), 
+                            log_waktu = row.Cell(3).GetText()
+                        };
+
+                        data.Add(d);
+                    }
+
+                    foreach (var row in rowsDetail)
+                    {
+                        LogMasterDataDetail d = new LogMasterDataDetail
+                        {
+                            log_kode = row.Cell(1).GetText(),
+                            log_seq = row.Cell(2).GetText(),
+                            log_job = row.Cell(3).GetText(),
+                            log_table_src = row.Cell(4).GetText(),
+                            log_table_dst = row.Cell(5).GetText(),
+                            log_script = row.Cell(6).GetText()
+                        };
+
+                        dataDetail.Add(d);
+                    }
+                }
+
+                db.Database.ExecuteSqlCommand("TRUNCATE TABLE dim_master_job");
+                
+
+            }
             throw new NotImplementedException(); 
         }
 
@@ -248,18 +294,6 @@ namespace BDA.Areas.Master.Controllers
             public string log_waktu { get; set; }
 
         }
-
-        //private static readonly Dictionary<string, string> mappingTemplate = new()
-        //{
-        //    { "Kode Job", "log_kode" },
-        //    { "Nama Sequence", "log_nama" },
-        //    { "Waktu Scheduler", "log_waktu" },
-        //    { "Urutan Proses", "log_seq" },
-        //    { "Nama Job", "log_job" },
-        //    { "Nama Tabel Sumber", "log_table_src" },
-        //    { "Nama Tabel Target", "log_table_dst" },
-        //    { "Lokasi Script", "log_script" }
-        //};
 
     }
 }

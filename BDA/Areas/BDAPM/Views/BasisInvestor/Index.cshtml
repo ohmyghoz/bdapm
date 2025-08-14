@@ -1303,24 +1303,24 @@
                         piechart6.hideLoadingIndicator();
 
                         var dataScatter = [{
-                            total1: Number(response.scatterData[0].med_inv_tot_val),
-                            total2: Number(response.scatterData[1].med_inv_tot_val),
-                            total3: Number(response.scatterData[2].med_inv_tot_val),
-                            total4: Number(response.scatterData[3].med_inv_tot_val),
-                            total5: Number(response.scatterData[4].med_inv_tot_val),
-                            total6: Number(response.scatterData[5].med_inv_tot_val),
-                            day1: Number(response.scatterData[0].med_inv_days),
-                            day2: Number(response.scatterData[1].med_inv_days),
-                            day3: Number(response.scatterData[2].med_inv_days),
-                            day4: Number(response.scatterData[3].med_inv_days),
-                            day5: Number(response.scatterData[4].med_inv_days),
-                            day6: Number(response.scatterData[5].med_inv_days),
-                            sid1: Number(response.scatterData[0].log10_sid),
-                            sid2: Number(response.scatterData[1].log10_sid),
-                            sid3: Number(response.scatterData[2].log10_sid),
-                            sid4: Number(response.scatterData[3].log10_sid),
-                            sid5: Number(response.scatterData[4].log10_sid),
-                            sid6: Number(response.scatterData[5].log10_sid)
+                            total1: Number(response.scatterData[0]?.med_inv_tot_val) || 0,
+                            total2: Number(response.scatterData[1]?.med_inv_tot_val) || 0,
+                            total3: Number(response.scatterData[2]?.med_inv_tot_val) || 0,
+                            total4: Number(response.scatterData[3]?.med_inv_tot_val) || 0,
+                            total5: Number(response.scatterData[4]?.med_inv_tot_val) || 0,
+                            total6: Number(response.scatterData[5]?.med_inv_tot_val) || 0,
+                            day1: Number(response.scatterData[0]?.med_inv_days) || 0,
+                            day2: Number(response.scatterData[1]?.med_inv_days) || 0,
+                            day3: Number(response.scatterData[2]?.med_inv_days) || 0,
+                            day4: Number(response.scatterData[3]?.med_inv_days) || 0,
+                            day5: Number(response.scatterData[4]?.med_inv_days) || 0,
+                            day6: Number(response.scatterData[5]?.med_inv_days) || 0,
+                            sid1: Number(response.scatterData[0]?.log10_sid) || 0,
+                            sid2: Number(response.scatterData[1]?.log10_sid) || 0,
+                            sid3: Number(response.scatterData[2]?.log10_sid) || 0,
+                            sid4: Number(response.scatterData[3]?.log10_sid) || 0,
+                            sid5: Number(response.scatterData[4]?.log10_sid) || 0,
+                            sid6: Number(response.scatterData[5]?.log10_sid) || 0
                         }];
 
                         scatterplot.option("dataSource", dataScatter);

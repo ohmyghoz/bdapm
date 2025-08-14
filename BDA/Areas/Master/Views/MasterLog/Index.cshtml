@@ -15,6 +15,24 @@
 
 <script type="text/javascript">
 
+    $(function () {
+        var uploader = $("#file-uploader").dxFileUploader({
+            multiple: false,
+            accept: ".xlsx, .xls",
+            uploadMode: "useForm",
+            uploadUrl: "@Url.Action("UploadTemplate", "MasterLog")",
+            onValueChanged: function (e) {
+                console.log("Files selected: ", e.value);
+            },
+            onUploadSuccess: function (e) {
+                alert("File uploaded and processed successfully!");
+            },
+            onUploadError: function (e) {
+                alert("Error uploading file: " + e.error);
+            }
+        }).dxFileUploader("instance");
+    });
+
     function syncTreeViewSelection(treeView, value) {
         if (!value) {
             treeView.unselectAll();
@@ -30,33 +48,8 @@
         }
     }
 
-    function exportToPDF() {
-        $.ajax({
-            type: "POST",
-            url: "@Url.Action("LogExport", "MasterLog")",
-            success: function (response) {
-                if (response.result == "Success") {
-                    const doc = new jsPDF({
-                        orientation: "landscape",
-                        unit: "cm",
-                        format: [21, 60]
-                    });
-                    var dataGrid = $("#grid1").dxDataGrid("instance");
-                    var fileName = "Master_Log_" + new Date().toISOString().slice(0, 10) + ".pdf";
-                    doc.setFontSize("6")
-                    //var keys = $("#grid1").dxDataGrid("getSelectedRowsData")
-                    //console.log(keys)
-                    DevExpress.pdfExporter.exportDataGrid({
-                        jsPDFDocument: doc,
-                        component: dataGrid,
-                        keepColumnWidths: true
-                        //selectedRowsOnly: true
-                    }).then(function () {
-                        doc.save(fileName);
-                    });
-                }
-            }
-        });
+    function Upload() {
+        $("#file-uploader").show();
     }
 
     function GetTemplate() {
@@ -140,8 +133,6 @@
         });
     }
 
-    function redirDelete() {}
-
 </script>
 
 
@@ -153,7 +144,7 @@
                 @if (ViewBag.Export)
                 {
                     <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:GetTemplate();"><span class="image fa fa-download"></span> Download Template</a>
-                    <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:exportToEx();"><span class="image fa fa-upload"></span> Upload</a>
+                    <a class="btn btn-light-primary font-weight-bolder btn-sm mr-2" href="javascript:Upload();"><span class="image fa fa-upload"></span> Upload</a>
                 }
             </div>
         </div>
@@ -185,10 +176,6 @@
                                 b.Add().Hint("Detail")
                                     .Icon("activefolder")
                                     .OnClick("redirDetail");
-
-                                b.Add().Hint("Delete")
-                                    .Icon("trash")
-                                    .OnClick("redirDelete");
                             });
             })
             .FilterRow(f => f.Visible(true))
@@ -212,6 +199,7 @@
 
     </div>
     <div id="popup"></div>
+    <div id="file-uploader" style="display: none;"></div>
 </div>
 
 <style type="text/css">
