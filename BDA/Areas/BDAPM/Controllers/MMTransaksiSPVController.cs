@@ -350,7 +350,7 @@ namespace BDA.Controllers
             if (periodeAkhir != null)
             {
                 stringPeriodeAkhir = Convert.ToDateTime(periodeAkhir).ToString("yyyy-MM-dd");
-                TempData["pakhir"] = stringPeriodeAwal;
+                TempData["pakhir"] = stringPeriodeAkhir;
             }
 
             if (strcaseid.Length > 0)
