@@ -87,7 +87,10 @@
                                     <div style="background-color:#1c1c44;width:48%;">
                                         @(Html.DevExtreme().PieChart()
                                             .ID("pie-chartTypeOfInfo")
-                                            .Title("Type Of Info")
+                                            .Title(t => t
+                                            .Text("Type Of Info")
+                                            .Font(f => f
+                                            .Color("#ffffff")))
                                             .Legend(l => l
                                             .HorizontalAlignment(HorizontalAlignment.Right)
                                             .VerticalAlignment(VerticalEdge.Top)
@@ -123,7 +126,10 @@
                                     <div style="background-color:#1c1c44;width:48%;">
                                         @(Html.DevExtreme().PieChart()
                                             .ID("pie-chartTypeOfFirmID")
-                                            .Title("Type Of Firm ID")
+                                            .Title(t => t
+                                            .Text("Type Of Firm ID")
+                                            .Font(f => f
+                                            .Color("#ffffff")))
                                             .Legend(l => l
                                             .HorizontalAlignment(HorizontalAlignment.Right)
                                             .VerticalAlignment(VerticalEdge.Top)
