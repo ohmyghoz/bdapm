@@ -1196,7 +1196,7 @@ namespace BDA.Controllers
 
                 // Add headers
                 var headers = new string[] {
-            "Rank", "Security Code", "Security Name", "Change %", "Volume",
+            "Rank", "Security Code", "Security Name", "% Change Price", "Volume",
             "Turnover", "Frequency", "Price", "Net Value", "Net Volume",
             "Point", "Max Price", "Min Price"
         };
@@ -1220,6 +1220,7 @@ namespace BDA.Controllers
                     worksheet.Cells[row, 3].PutValue((double)gainer.ChangePercentage);
                     worksheet.Cells[row, 4].PutValue((long)gainer.Volume);
                     worksheet.Cells[row, 5].PutValue((double)gainer.Turnover);
+                    worksheet.Cells[row, 5].SetStyle(new Aspose.Cells.Style { Custom = "#,##0.00" }); // <-- THIS FORMATS TO TWO DECIMALS
                     worksheet.Cells[row, 6].PutValue(gainer.Freq);
                     worksheet.Cells[row, 7].PutValue((double)gainer.Price);
                     worksheet.Cells[row, 8].PutValue((double)gainer.NetValue);
@@ -1293,7 +1294,7 @@ namespace BDA.Controllers
 
                 // Add headers
                 var headers = new string[] {
-            "Rank", "Security Code", "Security Name", "Change %", "Volume",
+            "Rank", "Security Code", "Security Name", "% Change Price", "Volume",
             "Turnover", "Frequency", "Price", "Net Value", "Net Volume",
             "Point", "Max Price", "Min Price"
         };
@@ -1316,6 +1317,7 @@ namespace BDA.Controllers
                     worksheet.Cells[row, 3].PutValue((double)gainer.ChangePercentage);
                     worksheet.Cells[row, 4].PutValue((long)gainer.Volume);
                     worksheet.Cells[row, 5].PutValue((double)gainer.Turnover);
+                    worksheet.Cells[row, 5].SetStyle(new Aspose.Cells.Style { Custom = "#,##0.00" }); // <-- THIS FORMATS TO TWO DECIMALS
                     worksheet.Cells[row, 6].PutValue(gainer.Freq);
                     worksheet.Cells[row, 7].PutValue((double)gainer.Price);
                     worksheet.Cells[row, 8].PutValue((double)gainer.NetValue);
@@ -1391,7 +1393,7 @@ namespace BDA.Controllers
 
                 // Add headers
                 var headers = new string[] {
-            "Rank", "Security Code", "Security Name", "Change %", "Volume",
+            "Rank", "Security Code", "Security Name", "% Change Price", "Volume",
             "Turnover", "Frequency", "Price", "Net Value", "Net Volume",
             "Point", "Max Price", "Min Price"
         };
@@ -1415,6 +1417,7 @@ namespace BDA.Controllers
                     worksheet.Cells[row, 3].PutValue((double)loser.ChangePercentage);
                     worksheet.Cells[row, 4].PutValue((long)loser.Volume);
                     worksheet.Cells[row, 5].PutValue((double)loser.Turnover);
+                    worksheet.Cells[row, 5].SetStyle(new Aspose.Cells.Style { Custom = "#,##0.00" }); // <-- THIS FORMATS TO TWO DECIMALS
                     worksheet.Cells[row, 6].PutValue(loser.Freq);
                     worksheet.Cells[row, 7].PutValue((double)loser.Price);
                     worksheet.Cells[row, 8].PutValue((double)loser.NetValue);
@@ -1488,7 +1491,7 @@ namespace BDA.Controllers
 
                 // Add headers
                 var headers = new string[] {
-            "Rank", "Security Code", "Security Name", "Change %", "Volume",
+            "Rank", "Security Code", "Security Name", "% Change Price", "Volume",
             "Turnover", "Frequency", "Price", "Net Value", "Net Volume",
             "Point", "Max Price", "Min Price"
         };
@@ -1511,6 +1514,7 @@ namespace BDA.Controllers
                     worksheet.Cells[row, 3].PutValue((double)loser.ChangePercentage);
                     worksheet.Cells[row, 4].PutValue((long)loser.Volume);
                     worksheet.Cells[row, 5].PutValue((double)loser.Turnover);
+                    worksheet.Cells[row, 5].SetStyle(new Aspose.Cells.Style { Custom = "#,##0.00" }); // <-- THIS FORMATS TO TWO DECIMALS
                     worksheet.Cells[row, 6].PutValue(loser.Freq);
                     worksheet.Cells[row, 7].PutValue((double)loser.Price);
                     worksheet.Cells[row, 8].PutValue((double)loser.NetValue);
@@ -1586,7 +1590,7 @@ namespace BDA.Controllers
 
                 // Add headers
                 var headers = new string[] {
-            "Rank", "Security Code", "Security Name", "Change %", "Volume",
+            "Rank", "Security Code", "Security Name", "% Change Price", "Volume",
             "Turnover", "Frequency", "Price", "Net Value", "Net Volume",
             "Point", "Max Price", "Min Price"
         };
@@ -1608,6 +1612,7 @@ namespace BDA.Controllers
                     worksheet.Cells[row, 3].PutValue((double)leader.ChangePercentage);
                     worksheet.Cells[row, 4].PutValue((long)leader.Volume);
                     worksheet.Cells[row, 5].PutValue((double)leader.Turnover);
+                    worksheet.Cells[row, 5].SetStyle(new Aspose.Cells.Style { Custom = "#,##0.00" }); // <-- THIS FORMATS TO TWO DECIMALS
                     worksheet.Cells[row, 6].PutValue(leader.Freq);
                     worksheet.Cells[row, 7].PutValue((double)leader.Price);
                     worksheet.Cells[row, 8].PutValue((double)leader.NetValue);
@@ -1667,7 +1672,7 @@ namespace BDA.Controllers
                 worksheet.Cells[0, 0].PutValue($"TOP LEADERS - {selectedDate} ({periodType})");
 
                 var headers = new string[] {
-            "Rank", "Security Code", "Security Name", "Change %", "Volume",
+            "Rank", "Security Code", "Security Name", "% Change Price", "Volume",
             "Turnover", "Frequency", "Price", "Net Value", "Net Volume",
             "Point", "Max Price", "Min Price"
         };
@@ -1688,6 +1693,7 @@ namespace BDA.Controllers
                     worksheet.Cells[row, 3].PutValue((double)leader.ChangePercentage);
                     worksheet.Cells[row, 4].PutValue((long)leader.Volume);
                     worksheet.Cells[row, 5].PutValue((double)leader.Turnover);
+                    worksheet.Cells[row, 5].SetStyle(new Aspose.Cells.Style { Custom = "#,##0.00" }); // <-- THIS FORMATS TO TWO DECIMALS
                     worksheet.Cells[row, 6].PutValue(leader.Freq);
                     worksheet.Cells[row, 7].PutValue((double)leader.Price);
                     worksheet.Cells[row, 8].PutValue((double)leader.NetValue);
@@ -1753,7 +1759,7 @@ namespace BDA.Controllers
 
                 // Add headers
                 var headers = new string[] {
-            "Rank", "Security Code", "Security Name", "Change %", "Volume",
+            "Rank", "Security Code", "Security Name", "% Change Price", "Volume",
             "Turnover", "Frequency", "Price", "Net Value", "Net Volume",
             "Point", "Max Price", "Min Price"
         };
@@ -1775,6 +1781,7 @@ namespace BDA.Controllers
                     worksheet.Cells[row, 3].PutValue((double)laggard.ChangePercentage);
                     worksheet.Cells[row, 4].PutValue((long)laggard.Volume);
                     worksheet.Cells[row, 5].PutValue((double)laggard.Turnover);
+                    worksheet.Cells[row, 5].SetStyle(new Aspose.Cells.Style { Custom = "#,##0.00" }); // <-- THIS FORMATS TO TWO DECIMALS
                     worksheet.Cells[row, 6].PutValue(laggard.Freq);
                     worksheet.Cells[row, 7].PutValue((double)laggard.Price);
                     worksheet.Cells[row, 8].PutValue((double)laggard.NetValue);
@@ -1835,7 +1842,7 @@ namespace BDA.Controllers
                 worksheet.Cells[0, 0].PutValue($"TOP LAGGARDS - {selectedDate} ({periodType})");
 
                 var headers = new string[] {
-            "Rank", "Security Code", "Security Name", "Change %", "Volume",
+            "Rank", "Security Code", "Security Name", "% Change Price", "Volume",
             "Turnover", "Frequency", "Price", "Net Value", "Net Volume",
             "Point", "Max Price", "Min Price"
         };
@@ -1856,6 +1863,7 @@ namespace BDA.Controllers
                     worksheet.Cells[row, 3].PutValue((double)laggard.ChangePercentage);
                     worksheet.Cells[row, 4].PutValue((long)laggard.Volume);
                     worksheet.Cells[row, 5].PutValue((double)laggard.Turnover);
+                    worksheet.Cells[row, 5].SetStyle(new Aspose.Cells.Style { Custom = "#,##0.00" }); // <-- THIS FORMATS TO TWO DECIMALS
                     worksheet.Cells[row, 6].PutValue(laggard.Freq);
                     worksheet.Cells[row, 7].PutValue((double)laggard.Price);
                     worksheet.Cells[row, 8].PutValue((double)laggard.NetValue);
