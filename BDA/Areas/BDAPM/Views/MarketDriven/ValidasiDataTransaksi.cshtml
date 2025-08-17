@@ -73,6 +73,8 @@
                             .ID("StartDateID")
                             .Type(DateBoxType.Date)
                             .DisplayFormat("dd/MM/yyyy")
+                            .Value(DateTime.Now)
+                            .Max(DateTime.Now)
                             .Width("100%"))
                     </div>
                     <div class="col-lg-3 form-group" id="enddate">
@@ -81,6 +83,8 @@
                             .ID("EndDateID")
                             .Type(DateBoxType.Date)
                             .DisplayFormat("dd/MM/yyyy")
+                            .Value(DateTime.Now)
+                            .Min(DateTime.Now)
                             .Width("100%"))
                     </div>
 
@@ -572,6 +576,14 @@
         const startdateDiv = document.getElementById("startdate");
         const enddateDiv = document.getElementById("enddate");
 
+        // Hide all first
+        datepickdayDiv.style.display = "none";
+        datepickmonthDiv.style.display = "none";
+        starttimeDiv.style.display = "none";
+        endtimeDiv.style.display = "none";
+        startdateDiv.style.display = "none";
+        enddateDiv.style.display = "none";
+
         if (selectedValue === "Daily") {
             starttimeDiv.style.display = "block";
             endtimeDiv.style.display = "block";
@@ -593,6 +605,29 @@
             datepickmonthDiv.style.display = "none";
             startdateDiv.style.display = "block";
             enddateDiv.style.display = "block";
+         
+        }
+
+        // Reset values when changing period type
+        $("#DatepickdID").dxDateBox("instance").option("value", null);
+        $("#datePickM").dxDateBox("instance").option("value", null);
+        $("#StartTime").dxSelectBox("instance").option("value", null);
+        $("#EndTime").dxSelectBox("instance").option("value", null);
+        $("#StartDateID").dxDateBox("instance").option("value", null);
+        $("#EndDateID").dxDateBox("instance").option("value", null);
+        $("#Confirmationid").dxTagBox("instance").option("value", []);
+        $("#LokalAsingid").dxTagBox("instance").option("value", []);
+        $("#CountryInvestorid").dxTagBox("instance").option("value", []);
+        $("#TypeInvestorid").dxTagBox("instance").option("value", []);
+        $("#ABcodeid").dxTagBox("instance").option("value", []);
+        $("#Marketid").dxTagBox("instance").option("value", []);
+        $("#itemsPerPage").dxSelectBox("instance").option("value", 10);
+
+        // Reset pivot grid data source
+        var pivotGrid = $("#pivotgrid").dxPivotGrid("instance");
+        if (pivotGrid) {
+            console.log("[onPeriodChanged] Resetting pivot grid data source");
+            pivotGrid.getDataSource().reload();
         }
     }
 
@@ -604,11 +639,41 @@
         document.getElementById("datepickmonth").style.display = "none";
         document.getElementById("startdate").style.display = "none";
         document.getElementById("enddate").style.display = "none";
+
+        // Attach valueChanged events for custom date boxes
+        $("#StartDateID").dxDateBox("instance")?.option("onValueChanged", onStartDateChanged);
+        $("#EndDateID").dxDateBox("instance")?.option("onValueChanged", onEndDateChanged);
     });
 
     function onSelectionChanged(e) {
         if (e.addedItems.length > 0) {
             e.component.field().val("");
+        }
+    }
+
+    function onStartDateChanged(e) {
+        // When start date is set, limit end date to >= start date
+        var startDateValue = e.value;
+        var endDateBox = $("#EndDateID").dxDateBox("instance");
+        if (startDateValue) {
+            endDateBox.option("min", startDateValue);
+            // If end date is earlier, reset it
+            var endDateValue = endDateBox.option("value");
+            if (endDateValue && endDateValue < startDateValue) {
+                endDateBox.option("value", null);
+            }
+        } else {
+            endDateBox.option("min", null);
+        }
+    }
+
+    function onEndDateChanged(e) {
+        // Optionally, you can add extra validation here if needed
+        var startDateValue = $("#StartDateID").dxDateBox("instance")?.option("value");
+        var endDateValue = e.value;
+        if (startDateValue && endDateValue && endDateValue < startDateValue) {
+            // Reset end date if invalid
+            $("#EndDateID").dxDateBox("instance").option("value", null);
         }
     }
 
