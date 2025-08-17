@@ -1223,7 +1223,7 @@ namespace BDA.Controllers
                     worksheet.Cells[row, 5].SetStyle(new Aspose.Cells.Style { Custom = "#,##0.00" }); // <-- THIS FORMATS TO TWO DECIMALS
                     worksheet.Cells[row, 6].PutValue(gainer.Freq);
                     worksheet.Cells[row, 7].PutValue((double)gainer.Price);
-                    worksheet.Cells[row, 8].PutValue((double)gainer.NetValue);
+                    worksheet.Cells[row, 8].PutValue(gainer.NetValue.ToString());
                     worksheet.Cells[row, 9].PutValue((double)gainer.NetVolume);
                     worksheet.Cells[row, 10].PutValue((double)gainer.Point);
                     worksheet.Cells[row, 11].PutValue((double)gainer.MaxPrice);
@@ -1320,7 +1320,7 @@ namespace BDA.Controllers
                     worksheet.Cells[row, 5].SetStyle(new Aspose.Cells.Style { Custom = "#,##0.00" }); // <-- THIS FORMATS TO TWO DECIMALS
                     worksheet.Cells[row, 6].PutValue(gainer.Freq);
                     worksheet.Cells[row, 7].PutValue((double)gainer.Price);
-                    worksheet.Cells[row, 8].PutValue((double)gainer.NetValue);
+                    worksheet.Cells[row, 8].PutValue(gainer.NetValue.ToString());
                     worksheet.Cells[row, 9].PutValue((double)gainer.NetVolume);
                     worksheet.Cells[row, 10].PutValue((double)gainer.Point);
                     worksheet.Cells[row, 11].PutValue((double)gainer.MaxPrice);
@@ -1420,7 +1420,7 @@ namespace BDA.Controllers
                     worksheet.Cells[row, 5].SetStyle(new Aspose.Cells.Style { Custom = "#,##0.00" }); // <-- THIS FORMATS TO TWO DECIMALS
                     worksheet.Cells[row, 6].PutValue(loser.Freq);
                     worksheet.Cells[row, 7].PutValue((double)loser.Price);
-                    worksheet.Cells[row, 8].PutValue((double)loser.NetValue);
+                    worksheet.Cells[row, 8].PutValue(loser.NetValue.ToString());
                     worksheet.Cells[row, 9].PutValue((double)loser.NetVolume);
                     worksheet.Cells[row, 10].PutValue((double)loser.Point);
                     worksheet.Cells[row, 11].PutValue((double)loser.MaxPrice);
@@ -1517,7 +1517,7 @@ namespace BDA.Controllers
                     worksheet.Cells[row, 5].SetStyle(new Aspose.Cells.Style { Custom = "#,##0.00" }); // <-- THIS FORMATS TO TWO DECIMALS
                     worksheet.Cells[row, 6].PutValue(loser.Freq);
                     worksheet.Cells[row, 7].PutValue((double)loser.Price);
-                    worksheet.Cells[row, 8].PutValue((double)loser.NetValue);
+                    worksheet.Cells[row, 8].PutValue(loser.NetValue.ToString());
                     worksheet.Cells[row, 9].PutValue((double)loser.NetVolume);
                     worksheet.Cells[row, 10].PutValue((double)loser.Point);
                     worksheet.Cells[row, 11].PutValue((double)loser.MaxPrice);
@@ -1615,7 +1615,7 @@ namespace BDA.Controllers
                     worksheet.Cells[row, 5].SetStyle(new Aspose.Cells.Style { Custom = "#,##0.00" }); // <-- THIS FORMATS TO TWO DECIMALS
                     worksheet.Cells[row, 6].PutValue(leader.Freq);
                     worksheet.Cells[row, 7].PutValue((double)leader.Price);
-                    worksheet.Cells[row, 8].PutValue((double)leader.NetValue);
+                    worksheet.Cells[row, 8].PutValue(leader.NetValue.ToString());
                     worksheet.Cells[row, 9].PutValue((double)leader.NetVolume);
                     worksheet.Cells[row, 10].PutValue((double)leader.Point);
                     worksheet.Cells[row, 11].PutValue((double)leader.MaxPrice);
@@ -1696,7 +1696,7 @@ namespace BDA.Controllers
                     worksheet.Cells[row, 5].SetStyle(new Aspose.Cells.Style { Custom = "#,##0.00" }); // <-- THIS FORMATS TO TWO DECIMALS
                     worksheet.Cells[row, 6].PutValue(leader.Freq);
                     worksheet.Cells[row, 7].PutValue((double)leader.Price);
-                    worksheet.Cells[row, 8].PutValue((double)leader.NetValue);
+                    worksheet.Cells[row, 8].PutValue(leader.NetValue.ToString());
                     worksheet.Cells[row, 9].PutValue((double)leader.NetVolume);
                     worksheet.Cells[row, 10].PutValue((double)leader.Point);
                     worksheet.Cells[row, 11].PutValue((double)leader.MaxPrice);
@@ -1784,7 +1784,7 @@ namespace BDA.Controllers
                     worksheet.Cells[row, 5].SetStyle(new Aspose.Cells.Style { Custom = "#,##0.00" }); // <-- THIS FORMATS TO TWO DECIMALS
                     worksheet.Cells[row, 6].PutValue(laggard.Freq);
                     worksheet.Cells[row, 7].PutValue((double)laggard.Price);
-                    worksheet.Cells[row, 8].PutValue((double)laggard.NetValue);
+                    worksheet.Cells[row, 8].PutValue(laggard.NetValue.ToString());
                     worksheet.Cells[row, 9].PutValue((double)laggard.NetVolume);
                     worksheet.Cells[row, 10].PutValue((double)laggard.Point);
                     worksheet.Cells[row, 11].PutValue((double)laggard.MaxPrice);
