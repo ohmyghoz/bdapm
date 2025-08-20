@@ -16,6 +16,8 @@ using Newtonsoft.Json;
 using ClosedXML.Excel;
 using System.IO;
 using System.Data.SqlClient;
+using DocumentFormat.OpenXml.Vml.Spreadsheet;
+using Microsoft.IdentityModel.Tokens;
 
 namespace BDA.Areas.Master.Controllers
 {
@@ -113,6 +115,7 @@ namespace BDA.Areas.Master.Controllers
                         log_table_src = result.data.Rows[i]["TblSrc"].ToString(),
                         log_table_dst = result.data.Rows[i]["TblDst"].ToString(),
                         log_script = result.data.Rows[i]["LokScript"].ToString(),
+                        log_proc_id = result.data.Rows[i]["ProcID"].ToString(),
                     });
                 }
             }
@@ -154,7 +157,7 @@ namespace BDA.Areas.Master.Controllers
             DataSourceLoadOptions loadOptions = new DataSourceLoadOptions();
             List<MasterData> data = new List<MasterData>();
             List<LogMasterDataDetail> dataDetail = new List<LogMasterDataDetail>();
-            string templateFile = "Template_MasterLog_BDAPM.xlsx";
+            string templateFile = "Template_MasterLog_BDAPMv2.xlsx";
             string templatePath = Path.Combine(_env.WebRootPath, "Template", templateFile);
             string outputPath = _env.WebRootPath;
 
@@ -189,6 +192,7 @@ namespace BDA.Areas.Master.Controllers
                             log_table_src = resultDetail.data.Rows[i]["TblSrc"].ToString(),
                             log_table_dst = resultDetail.data.Rows[i]["TblDst"].ToString(),
                             log_script = resultDetail.data.Rows[i]["LokScript"].ToString(),
+                            log_proc_id = resultDetail.data.Rows[i]["ProcID"].ToString(),
                         });
                     }
                 }
@@ -220,6 +224,7 @@ namespace BDA.Areas.Master.Controllers
         { 
             List<MasterData> data = new List<MasterData>();
             List<LogMasterDataDetail> dataDetail = new List<LogMasterDataDetail>();
+            bool isSuccess = false;
 
             if (file == null || file.Length == 0)
                 return BadRequest("No file uploaded.");
@@ -253,17 +258,16 @@ namespace BDA.Areas.Master.Controllers
                         {
                             log_kode = row.Cell(1).GetText(),
                             log_seq = row.Cell(2).GetText(),
-                            log_job = row.Cell(3).GetText(),
-                            log_table_src = row.Cell(4).GetText(),
-                            log_table_dst = row.Cell(5).GetText(),
-                            log_script = row.Cell(6).GetText()
+                            log_proc_id = row.Cell(3).GetText(),
+                            log_job = row.Cell(4).GetText(),
+                            log_table_src = row.Cell(5).GetText(),
+                            log_table_dst = row.Cell(6).GetText(),
+                            log_script = row.Cell(7).GetText()
                         };
 
                         dataDetail.Add(d);
                     }
                 }
-
-                db.Database.ExecuteSqlCommand("TRUNCATE TABLE dim_master_job");
 
                 DataTable dtMasterJob = new DataTable();
                 dtMasterJob.Columns.Add("job_id", typeof(string));
@@ -281,39 +285,110 @@ namespace BDA.Areas.Master.Controllers
                     dtMasterJob.Rows.Add(row);
                 }
 
+                DataTable dtJobProc = new DataTable();
+                dtJobProc.Columns.Add("proc_id", typeof(string));
+                dtJobProc.Columns.Add("proc_name", typeof(string));
+                dtJobProc.Columns.Add("job_id", typeof(string));
+                dtJobProc.Columns.Add("seq_no", typeof(string));
+                dtJobProc.Columns.Add("script_location", typeof(string));
+
+
+                var jobProc = dataDetail.GroupBy(dd => new { dd.log_kode, dd.log_seq, dd.log_job, dd.log_proc_id, dd.log_script })
+                              .Select(g => new 
+                              {
+                                  proc_id = g.Key.log_proc_id,
+                                  proc_name = g.Key.log_job,
+                                  job_id = g.Key.log_kode,
+                                  seq_no = g.Key.log_seq,
+                                  script_location = g.Key.log_script
+                              }).ToList();
+
+                foreach (var item in jobProc)
+                {
+                    var row = dtJobProc.NewRow();
+
+                    row["proc_id"] = item.proc_id;
+                    row["proc_name"] = item.proc_name;
+                    row["job_id"] = item.job_id;
+                    row["seq_no"] = item.seq_no;
+                    row["script_location"] = item.script_location;
+
+                    dtJobProc.Rows.Add(row);
+                }
+
+                DataTable dtIoProc = new DataTable();
+                dtIoProc.Columns.Add("proc_id", typeof(string));
+                dtIoProc.Columns.Add("data_id", typeof(string));
+                dtIoProc.Columns.Add("io_status", typeof(string));
+
+                var ioProc = dataDetail.Select(x => new
+                             { 
+                                proc_id = x.log_proc_id,
+                                data_id = x.log_table_src.IsNullOrEmpty() ? x.log_table_dst : x.log_table_src,
+                                io_status = x.log_table_src.IsNullOrEmpty() ? "output" : "input",
+                             }).ToList();
+
+                foreach (var item in ioProc) 
+                {
+                    var row = dtIoProc.NewRow();
+
+                    row["proc_id"] = item.proc_id;
+                    row["data_id"] = item.data_id;
+                    row["io_status"] = item.io_status;
+
+                    dtIoProc.Rows.Add(row);
+                }
+
                 var conn = (SqlConnection)db.Database.Connection;
-                bool mustClose = false;
 
-                if (conn.State != ConnectionState.Open)
-                {
-                    conn.Open();
-                    mustClose = true;
-                }
+                int dmj = uploadBulk(conn, "dim_master_job", dtMasterJob);
+                int djp = uploadBulk(conn, "dim_job_proc", dtJobProc);
+                int dip = uploadBulk(conn, "dim_io_proc", dtIoProc);
 
-                try
-                {
-                    using (var bulkCopy = new SqlBulkCopy(conn, SqlBulkCopyOptions.KeepIdentity, null))
-                    {
-                        bulkCopy.DestinationTableName = "[dim_master_job]";
-                        bulkCopy.EnableStreaming = true;
-                        bulkCopy.WriteToServer(dtMasterJob);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"Error in : {ex.Message}");
-                    System.Diagnostics.Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
-                    return StatusCode(500);
-                }
-                finally
-                {
-                    if (mustClose)
-                        conn.Close();
-                }
-
+                isSuccess = (dmj == 200) && (djp == 200) && (dip == 200);
             }
 
-            return Ok();
+            return isSuccess ? Ok() : StatusCode(500);
+        }
+
+        public int uploadBulk(SqlConnection conn, string dstTable, DataTable datas) 
+        {
+            int value = 500;
+            bool mustClose = false;
+
+            db.Database.ExecuteSqlCommand("TRUNCATE TABLE " + dstTable);
+
+            if (conn.State != ConnectionState.Open)
+            {
+                conn.Open();
+                mustClose = true;
+            }
+
+            try
+            {
+                using (var bulkCopy = new SqlBulkCopy(conn, SqlBulkCopyOptions.KeepIdentity, null))
+                {
+                    bulkCopy.DestinationTableName = "[" + dstTable + "]";
+                    bulkCopy.EnableStreaming = true;
+
+                    bulkCopy.WriteToServer(datas);
+                }
+
+                value = 200; 
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in Bulk Insert: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
+                value = 500; 
+            }
+            finally
+            {
+                if (mustClose)
+                    conn.Close();
+            }
+
+            return value;
         }
 
         public class LogMasterData
@@ -329,13 +404,12 @@ namespace BDA.Areas.Master.Controllers
         {
             public string log_kode { get; set; }
             public string log_seq { get; set; }
+            public string log_proc_id { get; set; }
             public string log_job { get; set; }
             public string log_table_src { get; set;}
             public string log_table_dst { get; set; }
             public string log_script { get; set; }
-
         }
-
 
         public class MasterData
         {

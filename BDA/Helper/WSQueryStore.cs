@@ -6560,7 +6560,8 @@ namespace BDA.Helper
 	                               a.proc_name AS NamaJob,
 	                               (CASE WHEN b.io_status = 'input' THEN b.data_id ELSE '' END) AS TblSrc,
 	                               (CASE WHEN b.io_status = 'output' THEN b.data_id ELSE '' END) AS TblDst,
-	                               a.script_location AS LokScript
+	                               a.script_location AS LokScript,
+                                   a.proc_id AS ProcID
                               FROM dim_job_proc AS a 
                                    LEFT JOIN dim_io_proc AS b
 	                               ON a.proc_id = b.proc_id
