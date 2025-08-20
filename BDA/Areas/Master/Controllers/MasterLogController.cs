@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using ClosedXML.Excel;
 using System.IO;
+using System.Data.SqlClient;
 
 namespace BDA.Areas.Master.Controllers
 {
@@ -220,6 +221,9 @@ namespace BDA.Areas.Master.Controllers
             List<MasterData> data = new List<MasterData>();
             List<LogMasterDataDetail> dataDetail = new List<LogMasterDataDetail>();
 
+            if (file == null || file.Length == 0)
+                return BadRequest("No file uploaded.");
+
             using (var ms = new MemoryStream())
             {
                 file.CopyTo(ms);
@@ -260,10 +264,56 @@ namespace BDA.Areas.Master.Controllers
                 }
 
                 db.Database.ExecuteSqlCommand("TRUNCATE TABLE dim_master_job");
-                
+
+                DataTable dtMasterJob = new DataTable();
+                dtMasterJob.Columns.Add("job_id", typeof(string));
+                dtMasterJob.Columns.Add("job_name", typeof(string));
+                dtMasterJob.Columns.Add("scheduler", typeof(string));
+
+                foreach (var item in data)
+                {
+                    var row = dtMasterJob.NewRow();
+
+                    row["job_id"] = item.log_kode;
+                    row["job_name"] = item.log_nama;
+                    row["scheduler"] = item.log_waktu;
+
+                    dtMasterJob.Rows.Add(row);
+                }
+
+                var conn = (SqlConnection)db.Database.Connection;
+                bool mustClose = false;
+
+                if (conn.State != ConnectionState.Open)
+                {
+                    conn.Open();
+                    mustClose = true;
+                }
+
+                try
+                {
+                    using (var bulkCopy = new SqlBulkCopy(conn, SqlBulkCopyOptions.KeepIdentity, null))
+                    {
+                        bulkCopy.DestinationTableName = "[dim_master_job]";
+                        bulkCopy.EnableStreaming = true;
+                        bulkCopy.WriteToServer(dtMasterJob);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Error in : {ex.Message}");
+                    System.Diagnostics.Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
+                    return StatusCode(500);
+                }
+                finally
+                {
+                    if (mustClose)
+                        conn.Close();
+                }
 
             }
-            throw new NotImplementedException(); 
+
+            return Ok();
         }
 
         public class LogMasterData

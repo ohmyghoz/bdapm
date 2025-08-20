@@ -16,21 +16,7 @@
 <script type="text/javascript">
 
     $(function () {
-        var uploader = $("#file-uploader").dxFileUploader({
-            multiple: false,
-            accept: ".xlsx, .xls",
-            uploadMode: "useForm",
-            uploadUrl: "@Url.Action("UploadTemplate", "MasterLog")",
-            onValueChanged: function (e) {
-                console.log("Files selected: ", e.value);
-            },
-            onUploadSuccess: function (e) {
-                alert("File uploaded and processed successfully!");
-            },
-            onUploadError: function (e) {
-                alert("Error uploading file: " + e.error);
-            }
-        }).dxFileUploader("instance");
+        
     });
 
     function syncTreeViewSelection(treeView, value) {
@@ -49,7 +35,42 @@
     }
 
     function Upload() {
-        $("#file-uploader").show();
+        var popupUpload = $("#uploadPopup").dxPopup({
+            width: 500,
+            height: 300,
+            title: "Upload File",
+            visible: false, 
+            deferRendering: false,
+            dragEnabled: true,
+            closeOnOutsideClick: true,
+            contentTemplate: function (contentElement) {
+                const uploader = $("<div>").appendTo(contentElement);
+                uploader.dxFileUploader({
+                    name: "file",
+                    multiple: false,
+                    accept: ".xlsx, .xls",
+                    uploadMode: "useButtons",
+                    uploadUrl: "@Url.Action("UploadTemplate", "MasterLog")",
+                    onValueChanged: function (e) {
+                        console.log("Files selected: ", e.value);
+                    },
+                    onUploaded: function (e) {
+                        alert("File uploaded and processed successfully!");
+                        location.href = '@Url.Action("Index", "MasterLog")'
+                    },
+                    onUploadError: function (e) {
+                        alert("Error uploading file: " + e.error);
+                    }
+                }).dxFileUploader("instance");
+
+                uploader.show();
+            }
+        }).dxPopup("instance");
+
+
+        popupUpload.show();
+        
+        //$("#file-uploader").show();
     }
 
     function GetTemplate() {
@@ -199,7 +220,7 @@
 
     </div>
     <div id="popup"></div>
-    <div id="file-uploader" style="display: none;"></div>
+    <div id="uploadPopup"></div>
 </div>
 
 <style type="text/css">

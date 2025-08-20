@@ -6350,7 +6350,7 @@ namespace BDA.Helper
         {
             bool isC = false;
             var whereQuery = "1=1";
-            isHive = true;
+            isHive = false;
 
             if (periode != null)
             {
@@ -6386,6 +6386,10 @@ namespace BDA.Helper
             if (isHive == true)
             {
                 props.Query = @"SELECT pe, sid, securityphysicaltypecode AS secphytcode, settlementaccountownertypecode AS stlactowntcode, settlementaccounttypecode AS stlacttcode, accountbalancestatuscode AS actblcstscode, portfolioamount AS portoamount, portfolioquantity AS portoqty FROM pasarmodal.basis_investor_detail_sre WHERE " + whereQuery + @"";
+            }
+            else
+            {
+                props.Query = @"SELECT pe, sid, securityphysicaltypecode AS secphytcode, settlementaccountownertypecode AS stlactowntcode, settlementaccounttypecode AS stlacttcode, accountbalancestatuscode AS actblcstscode, portfolioamount AS portoamount, portfolioquantity AS portoqty FROM dbo.pe_segmentation_detail_basis_investor_sre WHERE " + whereQuery + @"";
             }
 
             return WSQueryHelper.DoQuery(db, props, loadOptions, isC, isHive);
