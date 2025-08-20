@@ -143,7 +143,7 @@ namespace BDA.Areas.Master.Controllers
                 string pageTitle = currentNode != null ? currentNode.Title : "";
 
                 db.CheckPermission("Master Log Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-                db.InsertAuditTrail("Export Master Log", msg, pageTitle);
+                db.InsertAuditTrail("Master Log", msg, pageTitle);
                 return Json(new { result = "Success" });
             }
             catch (Exception ex)
@@ -348,7 +348,15 @@ namespace BDA.Areas.Master.Controllers
                 isSuccess = (dmj == 200) && (djp == 200) && (dip == 200);
             }
 
-            return isSuccess ? Ok() : StatusCode(500);
+            if (isSuccess) 
+            {
+                LogExportTemplate("Upload Template Master Log");
+                return Ok();
+            }
+            else
+            {
+                return StatusCode(500);
+            }
         }
 
         public int uploadBulk(SqlConnection conn, string dstTable, DataTable datas) 
