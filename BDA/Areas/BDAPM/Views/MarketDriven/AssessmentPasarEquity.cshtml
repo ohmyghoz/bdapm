@@ -1,6 +1,7 @@
 ﻿@using DevExtreme.AspNet.Mvc
 @{
     Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+    string reportId = "Assesmen Pasar Equity";
 }
 
 @inject BDA.DataModel.DataEntities db
@@ -142,7 +143,21 @@
                             .OnSelectionChanged("onSelectionChanged")
                             .Width("100%"))
                     </div>
-                    
+
+                    <div class="col-lg-3 form-group">
+
+                    <label>Value/Volume/Market</label>
+                    @(Html.DevExtreme().SelectBox()
+                        .ID("ChartType")
+                        .DataSource(new[] { "Value", "Volume", "Market Cap" })
+                        .Value("Value")
+                        .OnValueChanged(@<text>
+                        function (e) {
+                        onChartTypeSelectionChanged(e);
+                        }
+                         </text>)
+                        .Width("100%"))
+                    </div>
 
                     <div class="col-lg-3 form-group">
                         <label>Swap APE@*<span class="mandatory">*</span>*@</label>
@@ -221,7 +236,7 @@
                     </div>
                     <div class="col-lg-3 form-group" style="padding-right:10px;padding-left:10px;border: 1px solid black">
                         <div class="row">
-                            <h4 class="headerTable">Net Buy (Sell) Value</h4>
+                            <h4 class="headerTable">Net Buy Value</h4>
                         </div>
                         <div class="row" id="cardGrid3" style="padding-top:30px; padding-bottom:30px; padding-right:5px; padding-left:5px; display: none; align-items: center; justify-content: center; min-height: 120px;">
                             <div id="netValueValue" style="font-size: 28px; text-align: center; font-weight:bold; width: 100%; display: flex; align-items: center; justify-content: center;">
@@ -231,7 +246,7 @@
                     </div>
                     <div class="col-lg-3 form-group" style="padding-right:10px;padding-left:10px;border: 1px solid black">
                         <div class="row">
-                            <h4 class="headerTable">Net Buy (Sell) Volume</h4>
+                            <h4 class="headerTable">Net Buy Volume</h4>
                         </div>
                         <div class="row" id="cardGrid4" style="padding-top:30px; padding-bottom:30px; padding-right:5px; padding-left:5px; display: none; align-items: center; justify-content: center; min-height: 120px;">
                             <div id="netVolumeValue" style="font-size: 28px; text-align: center; font-weight:bold; width: 100%; display: flex; align-items: center; justify-content: center;">
@@ -242,7 +257,7 @@
                 </div>
                 <!-- Single date info for all 4 cards -->
                 <div class="row" id="cardGridInfo" style="display: none; padding: 10px; font-size: 14px; text-align: center; color: #666;">
-                    *hasil berdasarkan data tanggal   <span id="dateInfo"></span>
+                    *hasil berdasarkan data tanggal&nbsp;&nbsp;   <span id="dateInfo"></span>
                 </div>
             </div>
         </div>
@@ -253,22 +268,6 @@
                 <div class="card">
                     <div class="card-body">
                         <!-- Chart Type Selection -->
-                        <div class="row" style="padding-bottom: 20px;">
-                          
-                                <label>Value/Volume/Market Cap</label>
-                                @(Html.DevExtreme().SelectBox()
-                                    .ID("ChartType")
-                                    .DataSource(new[] { "Value", "Volume", "Market Cap" })
-                                    .Value("Value")
-                                    .OnValueChanged(@<text>
-                                function (e) {
-                                onChartTypeSelectionChanged(e);
-                                }
-                            </text>)
-                                    .Width("100%"))
-                           
-                        </div>
-
                         <!-- Single Chart Container -->
                         <div class="row">
                             <div class="col-lg-12">
@@ -1173,26 +1172,29 @@
 
     $("#btnSavePenggunaanData").click(function () {
         let penggunaandataid = $("#penggunaandataid").dxSelectBox("instance").option("value");
+        let penggunaandataText = $("#penggunaandataid").dxSelectBox("instance").option("text");
+        let pageTitle = "@reportId";
 
         if (penggunaandataid == null) {
             alert("Silahkan Pilih Tujuan Penggunaan Data");
             return false;
         } else {
             $.ajax({
-                url: '@Url.Action("SimpanPenggunaanData", "SegmentationSummaryClusterMKBD")',
-                data: { id: penggunaandataid },
+                url: '@Url.Action("SimpanPenggunaanData", "MarketDriven")',
+                data: {
+                    id: penggunaandataid,
+                    penggunaanData: penggunaandataText,
+                    reportTitle: pageTitle
+                },
                 dataType: "json",
                 type: "POST",
                 success: function (data) {
                     if (data.success == true) {
-                        //alert(data.message);
-    @* waitingDialog.hide(); *@
-                            $('#ModalSimpanPenggunaanData').modal('hide');
+                        $('#ModalSimpanPenggunaanData').modal('hide');
                         return "Saving Success !";
                     }
                     else if (data.success == false) {
-    @*  waitingDialog.hide(); *@
-                            alert(data.message);
+                        alert(data.message);
                         $('#ModalSimpanPenggunaanData').modal('hide');
                         return "Saving Failed !";
                     }
@@ -1200,6 +1202,7 @@
             });
         }
     });
+
 
     function ExportToPdf() {
         $.ajax({
@@ -1257,7 +1260,17 @@
         });
     }
 
+    function getCurrentFilterSummary() {
+        var periodType = $("#Periodid").dxSelectBox("instance")?.option("value");
+        var dayDate = $("#datePickdID").dxDateBox("instance")?.option("value");
+        var monthDate = $("#DatepickmID").dxDateBox("instance")?.option("value");
+        var startDate = $("#StartDateID").dxDateBox("instance")?.option("value");
+        var endDate = $("#EndDateID").dxDateBox("instance")?.option("value");
+        var buySell = $("#Buysellid").dxSelectBox("instance")?.option("value");
 
+        // Build a string summary of the filters
+        return `PeriodType: ${periodType}, Day: ${dayDate}, Month: ${monthDate}, Start: ${startDate}, End: ${endDate}, BuySell: ${buySell}`;
+    }
 
     function dateToYYYYMMDD(date) {
         var year = date.getFullYear();
@@ -1268,9 +1281,21 @@
 
      function exportGridToPDF1() {
         const doc = new jsPDF();
-
-        // Get the DataGrid instance
         const dataGrid = $("#gridInvestor").dxDataGrid("instance");
+
+        // Gather filter summary (customize this based on your actual filters)
+        var filterSummary = getCurrentFilterSummary();
+
+        // Audit trail log
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("LogExportAuditTrail", "MarketDriven")",
+            data: {
+                gridName: "gridInvestor",
+                exportType: "pdf",
+                filterSummary: filterSummary
+            }
+        });
 
         // Export DataGrid to PDF
         DevExpress.pdfExporter.exportDataGrid({
@@ -1279,12 +1304,25 @@
             keepColumnWidths: true
         }).then(() => {
             // Save the PDF with a given file name
-            doc.save('GridData.pdf');
+            doc.save('Grid Investor.pdf');
         });
     }
 
     function exportGridToExcel2() {
         var dataGrid = $("#gridSecurity").dxDataGrid("instance");
+        // Gather filter summary (customize this based on your actual filters)
+        var filterSummary = getCurrentFilterSummary();
+
+        // Audit trail log
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("LogExportAuditTrail", "MarketDriven")",
+            data: {
+                gridName: "gridSecurity",
+                exportType: "excel",
+                filterSummary: filterSummary
+            }
+        });
         if (dataGrid) {
             dataGrid.exportToExcel(false); // 'false' means export all data, not just selected rows
         } else {
@@ -1297,6 +1335,20 @@
 
         // Get the DataGrid instance
         const dataGrid = $("#gridSecurity").dxDataGrid("instance");
+
+        // Gather filter summary (customize this based on your actual filters)
+        var filterSummary = getCurrentFilterSummary();
+
+        // Audit trail log
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("LogExportAuditTrail", "MarketDriven")",
+            data: {
+                gridName: "gridSecurity",
+                exportType: "pdf",
+                filterSummary: filterSummary
+            }
+        });
 
         if (dataGrid) {
             // Export DataGrid to PDF
@@ -1315,6 +1367,20 @@
 
     function exportGridToExcel3() {
         var dataGrid = $("#gridCPInv").dxDataGrid("instance");
+        // Gather filter summary (customize this based on your actual filters)
+        var filterSummary = getCurrentFilterSummary();
+
+        // Audit trail log
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("LogExportAuditTrail", "MarketDriven")",
+            data: {
+                gridName: "gridCPInv",
+                exportType: "excel",
+                filterSummary: filterSummary
+            }
+        });
+
         if (dataGrid) {
             dataGrid.exportToExcel(false); // 'false' means export all data, not just selected rows
         } else {
@@ -1327,6 +1393,20 @@
 
         // Get the DataGrid instance
         const dataGrid = $("#gridCPInv").dxDataGrid("instance");
+
+        // Gather filter summary (customize this based on your actual filters)
+        var filterSummary = getCurrentFilterSummary();
+
+        // Audit trail log
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("LogExportAuditTrail", "MarketDriven")",
+            data: {
+                gridName: "gridCPInv",
+                exportType: "pdf",
+                filterSummary: filterSummary
+            }
+        });
 
         if (dataGrid) {
             // Export DataGrid to PDF
@@ -1345,7 +1425,24 @@
 
      function exportGridToExcel1() {
         var dataGrid = $("#gridInvestor").dxDataGrid("instance");
-        dataGrid.exportToExcel(false); // 'false' means export all data, not just selected rows
+        // Gather filter summary (customize this based on your actual filters)
+        var filterSummary = getCurrentFilterSummary();
+        // Audit trail log
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("LogExportAuditTrail", "MarketDriven")",
+            data: {
+                gridName: "gridInvestor",
+                exportType: "excel",
+                filterSummary: filterSummary
+            }
+        });
+
+        if (dataGrid) {
+            dataGrid.exportToExcel(false); // 'false' means export all data, not just selected rows
+        } else {
+            console.error("CP Investor grid not found");
+        }
     }
 
   
@@ -1497,7 +1594,25 @@
                 color: #28a745;
                 font-weight: bold;
             }
-
+    /* Responsive value styling for cardGrid1 - cardGrid4 */
+    #cardGrid1 #ihsgValue,
+    #cardGrid2 #marketCapValue,
+    #cardGrid3 #netValueValue,
+    #cardGrid4 #netVolumeValue {
+        font-size: clamp(1.2rem, 5vw, 2.8rem); /* Responsive font size */
+        text-align: center;
+        font-weight: bold;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        word-break: break-word;
+        white-space: normal;
+        overflow-wrap: break-word;
+        padding: 0 10px;
+        min-width: 0;
+        box-sizing: border-box;
+    }
     .negative-value {
         color: #dc3545 !important;
     }

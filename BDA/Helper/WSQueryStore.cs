@@ -6684,7 +6684,7 @@ namespace BDA.Helper
                 if (tableName == "mrkt_mnpltn_prtn_rcgntn")
                 {
                     props.Query = @"
-                        SELECT sourcetradeid from pasarmodal." + tableName + @"
+                        SELECT distinct sourcetradeid from pasarmodal." + tableName + @"
                         WHERE " + whereQuery + @"
                         group by sourcetradeid";
                 }
