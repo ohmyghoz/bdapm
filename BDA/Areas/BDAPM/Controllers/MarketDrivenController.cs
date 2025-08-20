@@ -1942,7 +1942,34 @@ namespace BDA.Controllers
                 // ✅ Call WSQueryPS with the correct periodType
                 var result = Helper.WSQueryPS.GetInvestorGridData(db, filterDate, periodType, transactionCode, loadOptions);
 
-                // ... rest of method unchanged
+                if (result?.data != null && result.data.Rows.Count > 0)
+                {
+                    // Convert DataTable to List for DevExtreme
+                    var gridData = new List<object>();
+                    int rowId = 1;
+
+                    foreach (DataRow row in result.data.Rows)
+                    {
+                        gridData.Add(new
+                        {
+                            rowid = rowId++,
+                            investorcode = row["investorcode"]?.ToString() ?? "",
+                            cpinvestorcode = row["cpinvestorcode"]?.ToString() ?? "",
+                            value = Convert.ToDecimal(row["value"] ?? 0),
+                            quantity = Convert.ToDecimal(row["quantity"] ?? 0)
+                        });
+                    }
+
+                    System.Diagnostics.Debug.WriteLine($"Returning {gridData.Count} investor records");
+
+                    // Apply DevExtreme operations (sorting, paging, filtering)
+                    return DataSourceLoader.Load(gridData, loadOptions);
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("No investor data found");
+                    return DataSourceLoader.Load(new List<object>(), loadOptions);
+                }
             }
             catch (Exception ex)
             {
@@ -1958,15 +1985,22 @@ namespace BDA.Controllers
                 System.Diagnostics.Debug.WriteLine("=== SECURITY GRID DATA DEBUG ===");
                 System.Diagnostics.Debug.WriteLine($"GetSecurityGridData called with loadOptions");
 
-                // Get filter date from session or request parameters
+                // ✅ Get period type from session (now it will be properly stored)
+
                 string filterDate = Request.Query["filterDate"].FirstOrDefault() ??
+
                                    HttpContext.Session.GetString("CurrentFilterDate");
 
-                // Get transaction code from session if available
+                string periodType = Request.Query["periodType"].FirstOrDefault() ??
+
+                                   HttpContext.Session.GetString("CurrentPeriodType") ?? "Daily";
+
                 string transactionCode = Request.Query["transactionCode"].FirstOrDefault() ??
+
                                         HttpContext.Session.GetString("CurrentTransactionCode");
 
                 System.Diagnostics.Debug.WriteLine($"Filter date for security grid: {filterDate}");
+                System.Diagnostics.Debug.WriteLine($"periodType: {periodType}");
                 System.Diagnostics.Debug.WriteLine($"Transaction code for security grid: {transactionCode}");
 
                 if (string.IsNullOrEmpty(filterDate))
@@ -1976,8 +2010,7 @@ namespace BDA.Controllers
                 }
 
                 // Call WSQueryPS method to get security data
-                var result = Helper.WSQueryPS.GetSecurityGridData(db, filterDate, transactionCode, loadOptions);
-
+                var result = Helper.WSQueryPS.GetSecurityGridData(db, filterDate, periodType, transactionCode, loadOptions);
                 if (result?.data != null && result.data.Rows.Count > 0)
                 {
                     // Convert DataTable to List for DevExtreme
@@ -2057,7 +2090,12 @@ namespace BDA.Controllers
                 string transactionCode = Request.Query["transactionCode"].FirstOrDefault() ??
                                         HttpContext.Session.GetString("CurrentTransactionCode");
 
+                string periodType = Request.Query["periodType"].FirstOrDefault() ??
+
+                           HttpContext.Session.GetString("CurrentPeriodType") ?? "Daily";
+
                 System.Diagnostics.Debug.WriteLine($"Filter date for CP Investor grid: {filterDate}");
+                System.Diagnostics.Debug.WriteLine($"periodType: {periodType}"); // Should now be "Monthly" when selected
                 System.Diagnostics.Debug.WriteLine($"Transaction code for CP Investor grid: {transactionCode}");
 
                 if (string.IsNullOrEmpty(filterDate))
@@ -2067,7 +2105,7 @@ namespace BDA.Controllers
                 }
 
                 // Call WSQueryPS method to get CP Investor data
-                var result = Helper.WSQueryPS.GetCPInvestorGridData(db, filterDate, transactionCode, loadOptions);
+                var result = Helper.WSQueryPS.GetCPInvestorGridData(db, filterDate, periodType, transactionCode, loadOptions);
 
                 if (result?.data != null && result.data.Rows.Count > 0)
                 {

@@ -99,7 +99,7 @@
 
                     <div class="col-lg-3 form-group">
                         <label>Buy/Sell@*<span class="mandatory">*</span>*@</label>
-                        @(Html.DevExtreme().SelectBox()
+                        @(Html.DevExtreme().TagBox()
                             .ID("Buysellid")
                             .DataSource(new[] { "Buy", "Sell" })
                             .ShowSelectionControls(true)                
@@ -172,7 +172,7 @@
                     </div>
                     <div class="col-lg-3 form-group">
                         <label>Summarize/Netting@*<span class="mandatory">*</span>*@</label>
-                        @(Html.DevExtreme().SelectBox()
+                        @(Html.DevExtreme().TagBox()
                             .ID("SummarizeNettingid")
                             .DataSource(new[] { "Summarize", "Netting" })
                             .ShowSelectionControls(true)
