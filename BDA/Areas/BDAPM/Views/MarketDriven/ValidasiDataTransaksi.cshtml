@@ -484,10 +484,27 @@
                 `ValidasiDataTransaksi_${ts}.xlsx`);
 
             DevExpress.ui.notify("Excel file exported successfully!", "success", 3000);
+            var params = getFilterParams();
+            console.log("params object:", params);
+            var paramsStr = JSON.stringify(params);
+            console.log("paramsStr (JSON):", paramsStr);
+            await logPivotExport("ExportExcel", `melakukan ekspor file Excel dengan filter: ${paramsStr}`);
         } catch (e) {
             console.error("Export Excel error:", e);
             DevExpress.ui.notify("Gagal mengekspor ke Excel: " + e.message, "error", 3000);
         }
+    }
+
+    async function logPivotExport(actionType, logMessage) {
+        return $.ajax({
+            url: '@Url.Action("LogPivotExport", "MarketDriven", new { Area = "BDAPM" })',
+            type: "POST",
+            data: {
+                __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val(),
+                actionType: actionType,
+                logMessage: logMessage
+            }
+        });
     }
 
     // Add this function to your existing JavaScript section

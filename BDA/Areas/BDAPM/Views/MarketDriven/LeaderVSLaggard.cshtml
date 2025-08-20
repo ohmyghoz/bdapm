@@ -116,6 +116,52 @@
 
         <div id="gainerLoserContent"></div>
 
+        <div class="card-body">
+            <div class="row">
+                <div class="col-lg-3 form-group">
+                    <h3><b>NEWS</b></h3>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-3 form-group">
+                    <label for="gainersLosersSelect" class="mr-2">LEADERS/LAGGARDS</label>
+                    @(Html.DevExtreme().SelectBox()
+                        .ID("leadersLaggardsSelect")
+                        .DataSource(new[] { "Leaders", "Laggards" })
+                        .Value("Leaders")
+                        )
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-3 form-group">
+                    <label for="kodeSahamSelect" class="mr-2">KODE SAHAM</label>
+                    @(Html.DevExtreme().SelectBox()
+                        .ID("kodeSahamSelect")
+                        .DataSource(new[] { "AALI", "ABBA", "ABDA", "ABMM", "ACES" })
+                        )
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-8">
+                    @(Html.DevExtreme().DataGrid()
+                        .ID("newsGrid")
+                        .ShowBorders(true)
+                        .Columns(columns =>
+                        {
+                            columns.Add().DataField("Index").Caption("No.").Width(50);
+                            columns.Add().DataField("SecurityCode").Caption("Kode Saham").Width(120);
+                            columns.Add().DataField("NamaBerita").Caption("Berita");
+                            columns.Add().DataField("NamaMedia").Caption("Nama Media").Width(300);
+                            columns.Add().DataField("TradeDateSK").Caption("Tanggal").Width(150)
+                            .DataType(GridColumnDataType.Date)
+                            .Format("dd-MM-yyyy");
+                        })
+                        .Paging(paging => paging.PageSize(10))
+                        .Pager(pager => pager.ShowInfo(true).ShowPageSizeSelector(false)))
+                </div>
+            </div>
+        </div>
+
     </div>
 
 

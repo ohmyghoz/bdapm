@@ -412,6 +412,8 @@ namespace BDA.Controllers
         {
             try
             {
+                
+
                 System.Diagnostics.Debug.WriteLine("=== MarketDrivenController.GetMarketData START ===");
                 System.Diagnostics.Debug.WriteLine($"Route: {Request?.Path.Value}");
                 System.Diagnostics.Debug.WriteLine($"Raw QueryString: {Request?.QueryString.Value}");
@@ -449,12 +451,29 @@ namespace BDA.Controllers
                 System.Diagnostics.Debug.WriteLine($"market=[{(market == null ? "" : string.Join(",", market))}]");
                 System.Diagnostics.Debug.WriteLine($"abCodes=[{(abCodes == null ? "" : string.Join(",", abCodes))}]");
 
+               
+
                 // IMPORTANT: return a flat array for PivotGrid
                 var dataArray = Helper.WSQueryPS.GetMarketDrivenData(
                     db, loadOptions,
                     periodType, selectedDate, selectedMonth, startDate, endDate,
                     startTime, endTime, confirmation, lokalAsing, countryInvestor,
                     typeInvestor, market, abCodes, topN
+                );
+
+                var userId = HttpContext.User.Identity.Name ?? "Anonymous";
+                db.InsertAuditTrail(
+                    "Validasi_Data_Transaksi_Data_Request",
+                    $"User {userId} requested Validasi Data Transaksi data for {periodType} period, date {selectedDate}" +
+                    (endDate != null ? $" to {endDate}" : "") +
+                    $", top {topN}, dengan filter " +
+                    $"confirmation [{(confirmation != null ? string.Join(",", confirmation) : "")}], " +
+                    $"asal [{(lokalAsing != null ? string.Join(",", lokalAsing) : "")}], " +
+                    $"negara [{(countryInvestor != null ? string.Join(",", countryInvestor) : "")}], " +
+                    $"Tipe Investor [{(typeInvestor != null ? string.Join(",", typeInvestor) : "")}], " +
+                    $"Market [{(market != null ? string.Join(",", market) : "")}], " +
+                    $"AB Code [{(abCodes != null ? string.Join(",", abCodes) : "")}]",
+                    "Validasi Data Transaksi"
                 );
 
                 // dataArray should be a List<Dictionary<...>>
@@ -2106,6 +2125,26 @@ namespace BDA.Controllers
                 System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
 
                 return DataSourceLoader.Load(new List<object>(), loadOptions);
+            }
+        }
+
+        public ActionResult LogPivotExport(string actionType, string logMessage)
+        {
+            // actionType: "ExportPDF" or "ExportExcel"
+            // logMessage: optional details (e.g. filter params, row count, etc.)
+            try
+            {
+                var userId = User.Identity.Name ?? "Unknown";
+                string actionName = actionType == "ExportPDF" ? "Export PivotGrid PDF" :
+                                    actionType == "ExportExcel" ? "Export PivotGrid Excel" :
+                                    "Export PivotGrid";
+                string logMessagef = $"User {userId} {logMessage}";
+                db.InsertAuditTrail(actionName, logMessagef, "Validasi Data Transaksi");
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, error = ex.Message });
             }
         }
 
