@@ -780,18 +780,20 @@
             type: 'POST',
             data: {
                 filterDate: filterDateInt.toString(),
+                periodType: periodType,
                 transactionCode: transactionCode
             },
             dataType: 'json'
         }).done(function (response) {
             if (response.success) {
-                console.log("Filter date set successfully");
+                console.log("Filter date set successfully with periodType:", periodType);
 
                 // Refresh all three grids
                 var gridInv = $("#gridInvestor").dxDataGrid("instance");
                 if (gridInv) {
                     gridInv.refresh();
                     console.log("Investor grid refreshed");
+                    console.log("Filter date set successfully with periodType:", periodType);
                 }
 
                 var gridSec = $("#gridSecurity").dxDataGrid("instance");

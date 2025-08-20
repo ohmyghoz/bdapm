@@ -1098,27 +1098,58 @@ namespace BDA.Helper
             }
         }
 
-        public static WSQueryReturns GetInvestorGridData(DataEntities db, string filterDate, object loadOptions = null)
+        public static WSQueryReturns GetInvestorGridData(DataEntities db, string filterDate, string periodType = "Daily", string transactionCode = null, object loadOptions = null)
         {
             System.Diagnostics.Debug.WriteLine("=== WSQueryPS INVESTOR GRID DEBUG START ===");
-            System.Diagnostics.Debug.WriteLine($"GetInvestorGridData received filterDate: '{filterDate}'");
+            System.Diagnostics.Debug.WriteLine($"GetInvestorGridData received filterDate: '{filterDate}', periodType: '{periodType}', transactionCode: '{transactionCode}'");
 
             try
             {
-                // Base SQL query for investor data
-                string sqlQuery = @"
+                // Determine which date column to use based on period type
+                string dateColumn = "tradedatesk";
+                string dateValue = filterDate;
+
+                if (string.Equals(periodType, "Monthly", StringComparison.OrdinalIgnoreCase))
+                {
+                    dateColumn = "p_month";
+                    // For monthly, we expect YYYYMM format
+                    if (filterDate.Length == 8) // Convert YYYYMMDD to YYYYMM
+                    {
+                        dateValue = filterDate.Substring(0, 6);
+                    }
+                    else if (filterDate.Length == 6) // Already in YYYYMM format
+                    {
+                        dateValue = filterDate;
+                    }
+                    System.Diagnostics.Debug.WriteLine($"Using monthly filter: p_month = {dateValue}");
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"Using daily filter: tradedatesk = {dateValue}");
+                }
+
+                // Build WHERE clause
+                string whereClause = $"{dateColumn} = @filterDate";
+
+                if (!string.IsNullOrEmpty(transactionCode))
+                {
+                    whereClause += " AND transactiontypecode = @transactionCode";
+                }
+
+                string sqlQuery = $@"
             SELECT 
+                ROW_NUMBER() OVER (ORDER BY SUM(ISNULL(value, 0)) DESC) as rowid,
                 investorcode,
                 cpinvestorcode,
                 SUM(ISNULL(value, 0)) as value,
                 SUM(ISNULL(quantity, 0)) as quantity
             FROM BDAPM.pasarmodal.market_driven_validasi_data_tra
-            WHERE tradedatesk = @filterDate
+            WHERE {whereClause}
             GROUP BY investorcode, cpinvestorcode
             ORDER BY value DESC, quantity DESC";
 
                 System.Diagnostics.Debug.WriteLine($"Investor Grid SQL Query: {sqlQuery}");
-                System.Diagnostics.Debug.WriteLine($"Filter Date Parameter: {filterDate}");
+                System.Diagnostics.Debug.WriteLine($"Parameters: filterDate={dateValue}, transactionCode={transactionCode}");
 
                 DataTable dt = new DataTable();
                 string connString = db.appSettings.DataConnString;
@@ -1129,14 +1160,19 @@ namespace BDA.Helper
                     {
                         cmd.CommandTimeout = 300;
 
-                        // Convert string to int for the parameter
-                        if (int.TryParse(filterDate, out int dateAsInt))
+                        // Add parameters
+                        if (int.TryParse(dateValue, out int dateAsInt))
                         {
                             cmd.Parameters.AddWithValue("@filterDate", dateAsInt);
                         }
                         else
                         {
-                            throw new ArgumentException($"Invalid date format: {filterDate}");
+                            throw new ArgumentException($"Invalid date format: {dateValue}");
+                        }
+
+                        if (!string.IsNullOrEmpty(transactionCode))
+                        {
+                            cmd.Parameters.AddWithValue("@transactionCode", transactionCode);
                         }
 
                         var adapter = new System.Data.SqlClient.SqlDataAdapter(cmd);
@@ -1145,16 +1181,6 @@ namespace BDA.Helper
                 }
 
                 System.Diagnostics.Debug.WriteLine($"Investor grid result rows: {dt.Rows.Count}");
-
-                if (dt.Rows.Count > 0)
-                {
-                    System.Diagnostics.Debug.WriteLine("=== INVESTOR GRID SAMPLE DATA ===");
-                    var firstRow = dt.Rows[0];
-                    foreach (DataColumn column in dt.Columns)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"  {column.ColumnName}: {firstRow[column.ColumnName]}");
-                    }
-                }
 
                 return new WSQueryReturns
                 {
