@@ -1,7 +1,7 @@
 ﻿@using DevExtreme.AspNet.Mvc
 @{
     Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
-    string reportId = "LeadersVSLaggards";
+    string reportId = "Leaders vs Laggards";
     var p = (string[])ViewBag.period;
     var maxItems = db.GetSetting("LimitFilterLJK");
     int sequenceCounter = 1;
@@ -115,6 +115,52 @@
         <br />
 
         <div id="gainerLoserContent"></div>
+
+        <div class="card-body">
+            <div class="row">
+                <div class="col-lg-3 form-group">
+                    <h3><b>NEWS</b></h3>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-3 form-group">
+                    <label for="gainersLosersSelect" class="mr-2">LEADERS/LAGGARDS</label>
+                    @(Html.DevExtreme().SelectBox()
+                        .ID("leadersLaggardsSelect")
+                        .DataSource(new[] { "Leaders", "Laggards" })
+                        .Value("Leaders")
+                        )
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-3 form-group">
+                    <label for="kodeSahamSelect" class="mr-2">KODE SAHAM</label>
+                    @(Html.DevExtreme().SelectBox()
+                        .ID("kodeSahamSelect")
+                        .DataSource(new[] { "AALI", "ABBA", "ABDA", "ABMM", "ACES" })
+                        )
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-8">
+                    @(Html.DevExtreme().DataGrid()
+                        .ID("newsGrid")
+                        .ShowBorders(true)
+                        .Columns(columns =>
+                        {
+                            columns.Add().DataField("Index").Caption("No.").Width(50);
+                            columns.Add().DataField("SecurityCode").Caption("Kode Saham").Width(120);
+                            columns.Add().DataField("NamaBerita").Caption("Berita");
+                            columns.Add().DataField("NamaMedia").Caption("Nama Media").Width(300);
+                            columns.Add().DataField("TradeDateSK").Caption("Tanggal").Width(150)
+                            .DataType(GridColumnDataType.Date)
+                            .Format("dd-MM-yyyy");
+                        })
+                        .Paging(paging => paging.PageSize(10))
+                        .Pager(pager => pager.ShowInfo(true).ShowPageSizeSelector(false)))
+                </div>
+            </div>
+        </div>
 
     </div>
 
@@ -321,7 +367,7 @@
                         <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
                             <span class="sr-only">Loading...</span>
                         </div>
-                        <h5 class="text-muted">Loading Gainers & Losers Data</h5>
+                        <h5 class="text-muted">Loading Leaders vs Laggards Data</h5>
                         <p class="text-muted">Please wait...</p>
                     </div>
                 `);
@@ -604,26 +650,29 @@
 
     $("#btnSavePenggunaanData").click(function () {
         let penggunaandataid = $("#penggunaandataid").dxSelectBox("instance").option("value");
+        let penggunaandataText = $("#penggunaandataid").dxSelectBox("instance").option("text");
+        let pageTitle = "@reportId";
 
         if (penggunaandataid == null) {
             alert("Silahkan Pilih Tujuan Penggunaan Data");
             return false;
         } else {
             $.ajax({
-                url: '@Url.Action("SimpanPenggunaanData", "SegmentationSummaryClusterMKBD")',
-                data: { id: penggunaandataid },
+                url: '@Url.Action("SimpanPenggunaanData", "MarketDriven")',
+                data: {
+                    id: penggunaandataid,
+                    penggunaanData: penggunaandataText,
+                    reportTitle: pageTitle
+                },
                 dataType: "json",
                 type: "POST",
                 success: function (data) {
                     if (data.success == true) {
-
-  
-                            $('#ModalSimpanPenggunaanData').modal('hide');
+                        $('#ModalSimpanPenggunaanData').modal('hide');
                         return "Saving Success !";
                     }
                     else if (data.success == false) {
-   
-                            alert(data.message);
+                        alert(data.message);
                         $('#ModalSimpanPenggunaanData').modal('hide');
                         return "Saving Failed !";
                     }

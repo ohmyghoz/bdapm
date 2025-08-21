@@ -28,6 +28,8 @@ using DevExpress.Xpo.DB;
 using DevExpress.Charts.Native;
 using static DevExpress.Data.ODataLinq.Helpers.ODataLinqHelpers;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace BDA.Controllers
 {
@@ -111,7 +113,11 @@ namespace BDA.Controllers
         }
         public object GetChartTypeInfo(DataSourceLoadOptions loadOptions, string periodeAwal, string periodeAkhir, string amandedtypeinfo)
         {
+            var userId = HttpContext.User.Identity.Name;
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+            var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+            var currentNode = mdl.GetCurrentNode();
+            string pageTitle = currentNode != null ? currentNode.Title : ""; //menampilkan data menu
             TempData.Clear(); //membersihkan data filtering
             string[] StatusAmandedTypeInfo = JsonConvert.DeserializeObject<string[]>(amandedtypeinfo);
 
@@ -141,6 +147,8 @@ namespace BDA.Controllers
 
             db.Database.CommandTimeout = 420;
             var result = Helper.WSQueryStore.GetBDAPMMM08TypeInfo(db, loadOptions, reportId, stringPeriodeAwal, stringPeriodeAkhir, stringAmandedtypeinfo, cekHive);
+            db.InsertAuditTrail("MMKoreksiTransaksi_Akses_Page", "user " + userId + " menampilkan dashboard Pola 8: Pola Koreksi per transaksi / pola transaksi dengan filter periode awal = " + stringPeriodeAwal + ", periode akhir = " + stringPeriodeAkhir + "," +
+                "Amanded Info Type = " + stringAmandedtypeinfo + "", pageTitle);
             return JsonConvert.SerializeObject(result);
         }
         public object GetChartTypeFirmID(DataSourceLoadOptions loadOptions, string periodeAwal, string periodeAkhir, string amandedtypeinfo)

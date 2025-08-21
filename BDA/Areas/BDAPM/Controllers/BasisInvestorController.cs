@@ -280,17 +280,35 @@ namespace BDA.Controllers
             List<double> investorOrigin = [originAsing, originLokal];
             List<double> clientVNewClient = [client, newClient];
             List<double> investorType = [typeIndv, typeInst];
+            List<string> segmentsSorted = new List<string>(segments);
+            segmentsSorted.Sort();
 
-            var scatterData = data.GroupBy(item => item.Field<string>("basis_investor_1"))
-                               .Select(group => new
-                               {
-                                   basis_investor = group.Select(item => item.Field<string>("basis_investor_1").ToString()).FirstOrDefault(),
-                                   log10_sid = Math.Log10(group.Count(item => item.Field<string>("sid") != null)),
-                                   med_inv_days = Statistics.Median(group.Select(item => Convert.ToDouble(item.Field<string>("investorlasttransactionindays"))).ToArray()),
-                                   med_inv_tot_val = Statistics.Median(group.Select(item => Convert.ToDouble(item.Field<string>("investortotalvalue"))).ToArray()) / 1000000  // Percentile of 'd' (as BIGINT), divided by 1 million
-                               })
-                               .OrderBy(result => result.basis_investor)
-                               .ToList();
+            //var scatterData = data.GroupBy(item => item.Field<string>("basis_investor_1"))
+            //                   .Select(group => new
+            //                   {
+            //                       basis_investor = group.Select(item => item.Field<string>("basis_investor_1").ToString()).FirstOrDefault(),
+            //                       log10_sid = Math.Log10(group.Count(item => item.Field<string>("sid") != null)),
+            //                       med_inv_days = Statistics.Median(group.Select(item => Convert.ToDouble(item.Field<string>("investorlasttransactionindays"))).ToArray()),
+            //                       med_inv_tot_val = Statistics.Median(group.Select(item => Convert.ToDouble(item.Field<string>("investortotalvalue"))).ToArray()) / 1000000 
+            //                   })
+            //                   .OrderBy(result => result.basis_investor)
+            //                   .ToList();
+
+            var scatterData = segmentsSorted
+                              .Select(s =>
+                              {
+                                  var group = data.Where(item => item.Field<string>("basis_investor_1") == s).ToList();
+
+                                  return new
+                                  {
+                                      basis_investor = s,
+                                      log10_sid = group.Any() ? Math.Log10(group.Count(item => item.Field<string>("sid") != null)) : 0,
+                                      med_inv_days = group.Any() ? Statistics.Median(group.Select(item => Convert.ToDouble(item.Field<string>("investorlasttransactionindays"))).ToArray()) : 0,
+                                      med_inv_tot_val = group.Any() ? (Statistics.Median(group.Select(item => Convert.ToDouble(item.Field<string>("investortotalvalue"))).ToArray()) / 1000000) : 0
+                                  };
+                              })
+                              .OrderBy(result => result.basis_investor)
+                              .ToList();
 
             DataTable dtsd = Helper.WSQueryStore.LINQResultToDataTable(scatterData);
 
@@ -478,7 +496,6 @@ namespace BDA.Controllers
             }
 
             db.Database.CommandTimeout = 420;
-            //var result = Helper.WSQueryStore.GetPS07CGridTRX(db, loadOptions, stringPeriodeAwal, stringNamaPE, stringInvCode, stringTrxSys, stringSecCode, cekHive);
             var result = Helper.WSQueryStore.GetPS07CPGTRX(db, loadOptions, stringPeriodeAwal, stringNamaPE, stringInvCode, stringTrxSys, stringSecCode, cekHive);
 
             return JsonConvert.SerializeObject(result);

@@ -7,6 +7,7 @@ using BDA.Helper;
 using BDA.Helper.FW;
 using DevExtreme.AspNet.Data;
 using DevExtreme.AspNet.Mvc;
+using DocumentFormat.OpenXml;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -97,7 +98,7 @@ namespace BDA.Areas.Master.Controllers
                         log_total_waktu = result.data.Rows[i]["TotalWaktu"].ToString().IsNullOrEmpty() ? result.data.Rows[i]["TotalWaktu"].ToString() : DateTime.Parse(result.data.Rows[i]["TotalWaktu"].ToString()).ToString("HH:mm:ss"),
                         log_delete_cnt = result.data.Rows[i]["JumlahPenghapusan"].ToString(),
                         log_insert_cnt = result.data.Rows[i]["JumlahInsertData"].ToString(),
-                        log_status = int.Parse(result.data.Rows[i]["Status"].ToString()),
+                        log_status = enumStatus.GetValueOrDefault(int.Parse(result.data.Rows[i]["Status"].ToString())),
                         log_percentage = result.data.Rows[i]["Persentase"].ToString(),
                     });
                 }
@@ -133,12 +134,12 @@ namespace BDA.Areas.Master.Controllers
                         log_end = result.data.Rows[i]["Selesai"].ToString().IsNullOrEmpty() ? result.data.Rows[i]["Selesai"].ToString() : DateTime.Parse(result.data.Rows[i]["Selesai"].ToString()).ToString("dd MMMM yyyy HH:mm:ss"),
                         log_delete_cnt = result.data.Rows[i]["JumlahPenghapusan"].ToString(),
                         log_insert_cnt = result.data.Rows[i]["JumlahInsertData"].ToString(),
-                        log_status = int.Parse(result.data.Rows[i]["Status"].ToString()),
+                        log_status = enumStatus.GetValueOrDefault(int.Parse(result.data.Rows[i]["Status"].ToString())),
                         log_desc = result.data.Rows[i]["Keterangan"].ToString()
                     });
                 }
             }
-
+            
             return DataSourceLoader.Load(data, loadOptions);
         }
 
@@ -153,7 +154,7 @@ namespace BDA.Areas.Master.Controllers
             public string log_total_waktu { get; set; }
             public string log_delete_cnt { get; set; }
             public string log_insert_cnt { get; set; }
-            public int log_status { get; set; }
+            public string log_status { get; set; }
             public string log_percentage { get; set; }
 
         }
@@ -168,7 +169,7 @@ namespace BDA.Areas.Master.Controllers
             public string log_end { get; set; }
             public string log_delete_cnt { get; set; }
             public string log_insert_cnt { get; set; }
-            public int log_status { get; set; }
+            public string log_status { get; set; }
             public string log_desc { get; set; }
         }
 

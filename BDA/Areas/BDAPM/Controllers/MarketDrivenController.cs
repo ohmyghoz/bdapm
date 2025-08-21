@@ -67,7 +67,7 @@ namespace BDA.Controllers
 
             db.CheckPermission("Market Driven View", DataEntities.PermissionMessageType.ThrowInvalidOperationException); //check permission nya view/lihat nya
             ViewBag.Export = db.CheckPermission("Market Driven Export", DataEntities.PermissionMessageType.NoMessage); //check permission export
-            db.InsertAuditTrail("Leader_vs_Laggard_Page", "Akses Page Leader vs Laggard", pageTitle); //simpan kedalam audit trail
+            db.InsertAuditTrail("Leader_vs_Laggard_Page", "Akses Page Leaders vs Laggards", pageTitle); //simpan kedalam audit trail
 
             return View();
 
@@ -178,7 +178,7 @@ namespace BDA.Controllers
 
             db.CheckPermission("Market Driven View", DataEntities.PermissionMessageType.ThrowInvalidOperationException); //check permission nya view/lihat nya
             ViewBag.Export = db.CheckPermission("Market Driven Export", DataEntities.PermissionMessageType.NoMessage); //check permission export
-            db.InsertAuditTrail("Gainers_vs_Lossers_Page", "Akses Page Gainers vs Lossers", pageTitle); //simpan kedalam audit trail
+            db.InsertAuditTrail("Gainers_vs_Lossers_Page", "Akses Page Gainers vs Losers", pageTitle); //simpan kedalam audit trail
 
             
             // 5. Pass the single page model (containing both lists) to the view
@@ -372,6 +372,8 @@ namespace BDA.Controllers
 
         }
 
+
+
         public IActionResult MDTest()
         {
             var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
@@ -410,6 +412,8 @@ namespace BDA.Controllers
         {
             try
             {
+                
+
                 System.Diagnostics.Debug.WriteLine("=== MarketDrivenController.GetMarketData START ===");
                 System.Diagnostics.Debug.WriteLine($"Route: {Request?.Path.Value}");
                 System.Diagnostics.Debug.WriteLine($"Raw QueryString: {Request?.QueryString.Value}");
@@ -447,12 +451,29 @@ namespace BDA.Controllers
                 System.Diagnostics.Debug.WriteLine($"market=[{(market == null ? "" : string.Join(",", market))}]");
                 System.Diagnostics.Debug.WriteLine($"abCodes=[{(abCodes == null ? "" : string.Join(",", abCodes))}]");
 
+               
+
                 // IMPORTANT: return a flat array for PivotGrid
                 var dataArray = Helper.WSQueryPS.GetMarketDrivenData(
                     db, loadOptions,
                     periodType, selectedDate, selectedMonth, startDate, endDate,
                     startTime, endTime, confirmation, lokalAsing, countryInvestor,
                     typeInvestor, market, abCodes, topN
+                );
+
+                var userId = HttpContext.User.Identity.Name ?? "Anonymous";
+                db.InsertAuditTrail(
+                    "Validasi_Data_Transaksi_Data_Request",
+                    $"User {userId} requested Validasi Data Transaksi data for {periodType} period, date {selectedDate}" +
+                    (endDate != null ? $" to {endDate}" : "") +
+                    $", top {topN}, dengan filter " +
+                    $"confirmation [{(confirmation != null ? string.Join(",", confirmation) : "")}], " +
+                    $"asal [{(lokalAsing != null ? string.Join(",", lokalAsing) : "")}], " +
+                    $"negara [{(countryInvestor != null ? string.Join(",", countryInvestor) : "")}], " +
+                    $"Tipe Investor [{(typeInvestor != null ? string.Join(",", typeInvestor) : "")}], " +
+                    $"Market [{(market != null ? string.Join(",", market) : "")}], " +
+                    $"AB Code [{(abCodes != null ? string.Join(",", abCodes) : "")}]",
+                    "Validasi Data Transaksi"
                 );
 
                 // dataArray should be a List<Dictionary<...>>
@@ -537,43 +558,29 @@ namespace BDA.Controllers
             return Json(new { message, success = result }, new Newtonsoft.Json.JsonSerializerSettings());
         }
 
-        public ActionResult SimpanPenggunaanData(string id)
+        [HttpPost]
+        public JsonResult SimpanPenggunaanData(string id, string penggunaanData, string reportTitle)
         {
             string message = "";
-            string Penggunaan_Data = "";
             bool result = true;
             var userId = HttpContext.User.Identity.Name;
 
-            var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
-            var currentNode = mdl.GetCurrentNode();
-            string pageTitle = currentNode != null ? currentNode.Title : "";
-            db.InsertAuditTrail("MarketDriven_Akses_Page", "user " + userId + " mengakses halaman Market Driven untuk digunakan sebagai " + Penggunaan_Data + "", pageTitle);
-
             try
             {
-                string strSQL = db.appSettings.DataConnString;
-                using (SqlConnection conn = new SqlConnection(strSQL))
-                {
-                    conn.Open();
-                    string strQuery = "Select * from MasterPenggunaanData where id=" + id + " order by id asc ";
-                    SqlDataAdapter da = new SqlDataAdapter(strQuery, conn);
-                    DataTable dt = new DataTable();
-                    da.Fill(dt);
-                    if (dt.Rows.Count > 0)
-                    {
-                        Penggunaan_Data = dt.Rows[0]["Penggunaan_Data"].ToString();
-                    }
-                    conn.Close();
-                    conn.Dispose();
-                }
+                // Use the parameters directly
+                db.InsertAuditTrail(
+                    "MarketDriven_Akses_Page",
+                    $"user {userId} mengakses halaman Market Driven untuk digunakan sebagai {penggunaanData}",
+                    reportTitle
+                );
                 result = true;
             }
             catch (Exception ex)
             {
-                string errMsg = ex.Message;
-                message = "Saving Failed !, " + " " + errMsg;
+                message = "Saving Failed! " + ex.Message;
                 result = false;
             }
+
             return Json(new { message, success = result }, new Newtonsoft.Json.JsonSerializerSettings());
         }
 
@@ -1208,7 +1215,7 @@ namespace BDA.Controllers
 
                 // Add headers
                 var headers = new string[] {
-            "Rank", "Security Code", "Security Name", "Change %", "Volume",
+            "Rank", "Security Code", "Security Name", "% Change Price", "Volume",
             "Turnover", "Frequency", "Price", "Net Value", "Net Volume",
             "Point", "Max Price", "Min Price"
         };
@@ -1232,9 +1239,10 @@ namespace BDA.Controllers
                     worksheet.Cells[row, 3].PutValue((double)gainer.ChangePercentage);
                     worksheet.Cells[row, 4].PutValue((long)gainer.Volume);
                     worksheet.Cells[row, 5].PutValue((double)gainer.Turnover);
+                    worksheet.Cells[row, 5].SetStyle(new Aspose.Cells.Style { Custom = "#,##0.00" }); // <-- THIS FORMATS TO TWO DECIMALS
                     worksheet.Cells[row, 6].PutValue(gainer.Freq);
                     worksheet.Cells[row, 7].PutValue((double)gainer.Price);
-                    worksheet.Cells[row, 8].PutValue((double)gainer.NetValue);
+                    worksheet.Cells[row, 8].PutValue(gainer.NetValue.ToString());
                     worksheet.Cells[row, 9].PutValue((double)gainer.NetVolume);
                     worksheet.Cells[row, 10].PutValue((double)gainer.Point);
                     worksheet.Cells[row, 11].PutValue((double)gainer.MaxPrice);
@@ -1305,7 +1313,7 @@ namespace BDA.Controllers
 
                 // Add headers
                 var headers = new string[] {
-            "Rank", "Security Code", "Security Name", "Change %", "Volume",
+            "Rank", "Security Code", "Security Name", "% Change Price", "Volume",
             "Turnover", "Frequency", "Price", "Net Value", "Net Volume",
             "Point", "Max Price", "Min Price"
         };
@@ -1328,9 +1336,10 @@ namespace BDA.Controllers
                     worksheet.Cells[row, 3].PutValue((double)gainer.ChangePercentage);
                     worksheet.Cells[row, 4].PutValue((long)gainer.Volume);
                     worksheet.Cells[row, 5].PutValue((double)gainer.Turnover);
+                    worksheet.Cells[row, 5].SetStyle(new Aspose.Cells.Style { Custom = "#,##0.00" }); // <-- THIS FORMATS TO TWO DECIMALS
                     worksheet.Cells[row, 6].PutValue(gainer.Freq);
                     worksheet.Cells[row, 7].PutValue((double)gainer.Price);
-                    worksheet.Cells[row, 8].PutValue((double)gainer.NetValue);
+                    worksheet.Cells[row, 8].PutValue(gainer.NetValue.ToString());
                     worksheet.Cells[row, 9].PutValue((double)gainer.NetVolume);
                     worksheet.Cells[row, 10].PutValue((double)gainer.Point);
                     worksheet.Cells[row, 11].PutValue((double)gainer.MaxPrice);
@@ -1403,7 +1412,7 @@ namespace BDA.Controllers
 
                 // Add headers
                 var headers = new string[] {
-            "Rank", "Security Code", "Security Name", "Change %", "Volume",
+            "Rank", "Security Code", "Security Name", "% Change Price", "Volume",
             "Turnover", "Frequency", "Price", "Net Value", "Net Volume",
             "Point", "Max Price", "Min Price"
         };
@@ -1427,9 +1436,10 @@ namespace BDA.Controllers
                     worksheet.Cells[row, 3].PutValue((double)loser.ChangePercentage);
                     worksheet.Cells[row, 4].PutValue((long)loser.Volume);
                     worksheet.Cells[row, 5].PutValue((double)loser.Turnover);
+                    worksheet.Cells[row, 5].SetStyle(new Aspose.Cells.Style { Custom = "#,##0.00" }); // <-- THIS FORMATS TO TWO DECIMALS
                     worksheet.Cells[row, 6].PutValue(loser.Freq);
                     worksheet.Cells[row, 7].PutValue((double)loser.Price);
-                    worksheet.Cells[row, 8].PutValue((double)loser.NetValue);
+                    worksheet.Cells[row, 8].PutValue(loser.NetValue.ToString());
                     worksheet.Cells[row, 9].PutValue((double)loser.NetVolume);
                     worksheet.Cells[row, 10].PutValue((double)loser.Point);
                     worksheet.Cells[row, 11].PutValue((double)loser.MaxPrice);
@@ -1500,7 +1510,7 @@ namespace BDA.Controllers
 
                 // Add headers
                 var headers = new string[] {
-            "Rank", "Security Code", "Security Name", "Change %", "Volume",
+            "Rank", "Security Code", "Security Name", "% Change Price", "Volume",
             "Turnover", "Frequency", "Price", "Net Value", "Net Volume",
             "Point", "Max Price", "Min Price"
         };
@@ -1523,9 +1533,10 @@ namespace BDA.Controllers
                     worksheet.Cells[row, 3].PutValue((double)loser.ChangePercentage);
                     worksheet.Cells[row, 4].PutValue((long)loser.Volume);
                     worksheet.Cells[row, 5].PutValue((double)loser.Turnover);
+                    worksheet.Cells[row, 5].SetStyle(new Aspose.Cells.Style { Custom = "#,##0.00" }); // <-- THIS FORMATS TO TWO DECIMALS
                     worksheet.Cells[row, 6].PutValue(loser.Freq);
                     worksheet.Cells[row, 7].PutValue((double)loser.Price);
-                    worksheet.Cells[row, 8].PutValue((double)loser.NetValue);
+                    worksheet.Cells[row, 8].PutValue(loser.NetValue.ToString());
                     worksheet.Cells[row, 9].PutValue((double)loser.NetVolume);
                     worksheet.Cells[row, 10].PutValue((double)loser.Point);
                     worksheet.Cells[row, 11].PutValue((double)loser.MaxPrice);
@@ -1572,6 +1583,15 @@ namespace BDA.Controllers
             try
             {
                 // Fetch data for leaders (isLeader: true)
+
+                var userId = HttpContext.User.Identity.Name ?? "Anonymous";
+
+                db.InsertAuditTrail("Leaders_Export_Excel",
+
+                    $"User {userId} exported Leaders data to Excel - Period: {periodType}, Date: {selectedDate}, Top: {topN}",
+
+                    "Leaders vs Laggards");
+
                 List<LeaderLaggardViewModel> leaders;
                 if (periodType == "Custom Date")
                 {
@@ -1589,7 +1609,7 @@ namespace BDA.Controllers
 
                 // Add headers
                 var headers = new string[] {
-            "Rank", "Security Code", "Security Name", "Change %", "Volume",
+            "Rank", "Security Code", "Security Name", "% Change Price", "Volume",
             "Turnover", "Frequency", "Price", "Net Value", "Net Volume",
             "Point", "Max Price", "Min Price"
         };
@@ -1611,9 +1631,10 @@ namespace BDA.Controllers
                     worksheet.Cells[row, 3].PutValue((double)leader.ChangePercentage);
                     worksheet.Cells[row, 4].PutValue((long)leader.Volume);
                     worksheet.Cells[row, 5].PutValue((double)leader.Turnover);
+                    worksheet.Cells[row, 5].SetStyle(new Aspose.Cells.Style { Custom = "#,##0.00" }); // <-- THIS FORMATS TO TWO DECIMALS
                     worksheet.Cells[row, 6].PutValue(leader.Freq);
                     worksheet.Cells[row, 7].PutValue((double)leader.Price);
-                    worksheet.Cells[row, 8].PutValue((double)leader.NetValue);
+                    worksheet.Cells[row, 8].PutValue(leader.NetValue.ToString());
                     worksheet.Cells[row, 9].PutValue((double)leader.NetVolume);
                     worksheet.Cells[row, 10].PutValue((double)leader.Point);
                     worksheet.Cells[row, 11].PutValue((double)leader.MaxPrice);
@@ -1643,6 +1664,14 @@ namespace BDA.Controllers
             try
             {
                 // Fetch data for leaders (isLeader: true)
+                var userId = HttpContext.User.Identity.Name ?? "Anonymous";
+
+                db.InsertAuditTrail("Leaders_Export_PDF",
+
+                   $"User {userId} exported Leaders data to PDF - Period: {periodType}, Date: {selectedDate}, Top: {topN}",
+
+                   "Leaders vs Laggards");
+
                 List<LeaderLaggardViewModel> leaders;
                 if (periodType == "Custom Date")
                 {
@@ -1662,7 +1691,7 @@ namespace BDA.Controllers
                 worksheet.Cells[0, 0].PutValue($"TOP LEADERS - {selectedDate} ({periodType})");
 
                 var headers = new string[] {
-            "Rank", "Security Code", "Security Name", "Change %", "Volume",
+            "Rank", "Security Code", "Security Name", "% Change Price", "Volume",
             "Turnover", "Frequency", "Price", "Net Value", "Net Volume",
             "Point", "Max Price", "Min Price"
         };
@@ -1683,9 +1712,10 @@ namespace BDA.Controllers
                     worksheet.Cells[row, 3].PutValue((double)leader.ChangePercentage);
                     worksheet.Cells[row, 4].PutValue((long)leader.Volume);
                     worksheet.Cells[row, 5].PutValue((double)leader.Turnover);
+                    worksheet.Cells[row, 5].SetStyle(new Aspose.Cells.Style { Custom = "#,##0.00" }); // <-- THIS FORMATS TO TWO DECIMALS
                     worksheet.Cells[row, 6].PutValue(leader.Freq);
                     worksheet.Cells[row, 7].PutValue((double)leader.Price);
-                    worksheet.Cells[row, 8].PutValue((double)leader.NetValue);
+                    worksheet.Cells[row, 8].PutValue(leader.NetValue.ToString());
                     worksheet.Cells[row, 9].PutValue((double)leader.NetVolume);
                     worksheet.Cells[row, 10].PutValue((double)leader.Point);
                     worksheet.Cells[row, 11].PutValue((double)leader.MaxPrice);
@@ -1722,6 +1752,15 @@ namespace BDA.Controllers
             try
             {
                 // Fetch data for laggards (isLeader: false)
+                var userId = HttpContext.User.Identity.Name ?? "Anonymous";
+
+                db.InsertAuditTrail("Laggards_Export_Excel",
+
+                    $"User {userId} exported Laggards data to Excel - Period: {periodType}, Date: {selectedDate}, Top: {topN}",
+
+                    "Leaders vs Laggards");
+
+
                 List<LeaderLaggardViewModel> laggards;
                 if (periodType == "Custom Date")
                 {
@@ -1739,7 +1778,7 @@ namespace BDA.Controllers
 
                 // Add headers
                 var headers = new string[] {
-            "Rank", "Security Code", "Security Name", "Change %", "Volume",
+            "Rank", "Security Code", "Security Name", "% Change Price", "Volume",
             "Turnover", "Frequency", "Price", "Net Value", "Net Volume",
             "Point", "Max Price", "Min Price"
         };
@@ -1761,9 +1800,10 @@ namespace BDA.Controllers
                     worksheet.Cells[row, 3].PutValue((double)laggard.ChangePercentage);
                     worksheet.Cells[row, 4].PutValue((long)laggard.Volume);
                     worksheet.Cells[row, 5].PutValue((double)laggard.Turnover);
+                    worksheet.Cells[row, 5].SetStyle(new Aspose.Cells.Style { Custom = "#,##0.00" }); // <-- THIS FORMATS TO TWO DECIMALS
                     worksheet.Cells[row, 6].PutValue(laggard.Freq);
                     worksheet.Cells[row, 7].PutValue((double)laggard.Price);
-                    worksheet.Cells[row, 8].PutValue((double)laggard.NetValue);
+                    worksheet.Cells[row, 8].PutValue(laggard.NetValue.ToString());
                     worksheet.Cells[row, 9].PutValue((double)laggard.NetVolume);
                     worksheet.Cells[row, 10].PutValue((double)laggard.Point);
                     worksheet.Cells[row, 11].PutValue((double)laggard.MaxPrice);
@@ -1793,6 +1833,14 @@ namespace BDA.Controllers
             try
             {
                 // Fetch data for laggards (isLeader: false)
+                var userId = HttpContext.User.Identity.Name ?? "Anonymous";
+
+                db.InsertAuditTrail("Laggards_Export_PDF",
+
+                    $"User {userId} exported Laggards data to PDF - Period: {periodType}, Date: {selectedDate}, Top: {topN}",
+
+                    "Leaders vs Laggards");
+
                 List<LeaderLaggardViewModel> laggards;
 
                 if (periodType == "Custom Date")
@@ -1813,7 +1861,7 @@ namespace BDA.Controllers
                 worksheet.Cells[0, 0].PutValue($"TOP LAGGARDS - {selectedDate} ({periodType})");
 
                 var headers = new string[] {
-            "Rank", "Security Code", "Security Name", "Change %", "Volume",
+            "Rank", "Security Code", "Security Name", "% Change Price", "Volume",
             "Turnover", "Frequency", "Price", "Net Value", "Net Volume",
             "Point", "Max Price", "Min Price"
         };
@@ -1834,6 +1882,7 @@ namespace BDA.Controllers
                     worksheet.Cells[row, 3].PutValue((double)laggard.ChangePercentage);
                     worksheet.Cells[row, 4].PutValue((long)laggard.Volume);
                     worksheet.Cells[row, 5].PutValue((double)laggard.Turnover);
+                    worksheet.Cells[row, 5].SetStyle(new Aspose.Cells.Style { Custom = "#,##0.00" }); // <-- THIS FORMATS TO TWO DECIMALS
                     worksheet.Cells[row, 6].PutValue(laggard.Freq);
                     worksheet.Cells[row, 7].PutValue((double)laggard.Price);
                     worksheet.Cells[row, 8].PutValue((double)laggard.NetValue);
@@ -1866,35 +1915,35 @@ namespace BDA.Controllers
             }
         }
 
+
         [HttpGet]
         public object GetInvestorGridData(DataSourceLoadOptions loadOptions)
         {
             try
             {
-                System.Diagnostics.Debug.WriteLine("=== INVESTOR GRID DATA DEBUG ===");
-                System.Diagnostics.Debug.WriteLine($"GetInvestorGridData called with loadOptions");
+                string filterDate = Request.Query["filterDate"].FirstOrDefault() ?? HttpContext.Session.GetString("CurrentFilterDate");
+                string periodType = Request.Query["periodType"].FirstOrDefault() ?? HttpContext.Session.GetString("CurrentPeriodType") ?? "Daily";
+                string transactionCode = Request.Query["transactionCode"].FirstOrDefault() ?? HttpContext.Session.GetString("CurrentTransactionCode");
+                string summarizeNetting = HttpContext.Session.GetString("CurrentSummarizeNettingOption");
 
-                // Get filter date from session or request parameters
-                string filterDate = Request.Query["filterDate"].FirstOrDefault() ??
-                                   HttpContext.Session.GetString("CurrentFilterDate");
-
-                System.Diagnostics.Debug.WriteLine($"Filter date for investor grid: {filterDate}");
-
-                if (string.IsNullOrEmpty(filterDate))
+                // If Netting mode is active, force Buy side (transactiontypecode = 'B')
+                if (string.Equals(summarizeNetting, "Netting", StringComparison.OrdinalIgnoreCase))
                 {
-                    // Return empty result if no filter date
-                    return DataSourceLoader.Load(new List<object>(), loadOptions);
+                    transactionCode = "B";
+                    System.Diagnostics.Debug.WriteLine("GetInvestorGridData: Netting mode => forcing transactionCode = B");
                 }
 
-                // Call WSQueryPS method to get data
-                var result = Helper.WSQueryPS.GetInvestorGridData(db, filterDate, loadOptions);
+                System.Diagnostics.Debug.WriteLine($"=== GetInvestorGridData DEBUG === filterDate={filterDate}, periodType={periodType}, transactionCode={transactionCode}, summarizeNetting={summarizeNetting}");
+
+                if (string.IsNullOrEmpty(filterDate))
+                    return DataSourceLoader.Load(new List<object>(), loadOptions);
+
+                var result = Helper.WSQueryPS.GetInvestorGridData(db, filterDate, periodType, transactionCode, loadOptions);
 
                 if (result?.data != null && result.data.Rows.Count > 0)
                 {
-                    // Convert DataTable to List for DevExtreme
                     var gridData = new List<object>();
                     int rowId = 1;
-
                     foreach (DataRow row in result.data.Rows)
                     {
                         gridData.Add(new
@@ -1906,60 +1955,42 @@ namespace BDA.Controllers
                             quantity = Convert.ToDecimal(row["quantity"] ?? 0)
                         });
                     }
-
-                    System.Diagnostics.Debug.WriteLine($"Returning {gridData.Count} investor records");
-
-                    // Apply DevExtreme operations (sorting, paging, filtering)
                     return DataSourceLoader.Load(gridData, loadOptions);
                 }
-                else
-                {
-                    System.Diagnostics.Debug.WriteLine("No investor data found");
-                    return DataSourceLoader.Load(new List<object>(), loadOptions);
-                }
+                return DataSourceLoader.Load(new List<object>(), loadOptions);
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error in GetInvestorGridData: {ex.Message}");
-                System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
-
                 return DataSourceLoader.Load(new List<object>(), loadOptions);
             }
         }
+
         [HttpGet]
         public object GetSecurityGridData(DataSourceLoadOptions loadOptions)
         {
             try
             {
-                System.Diagnostics.Debug.WriteLine("=== SECURITY GRID DATA DEBUG ===");
-                System.Diagnostics.Debug.WriteLine($"GetSecurityGridData called with loadOptions");
+                string filterDate = Request.Query["filterDate"].FirstOrDefault() ?? HttpContext.Session.GetString("CurrentFilterDate");
+                string periodType = Request.Query["periodType"].FirstOrDefault() ?? HttpContext.Session.GetString("CurrentPeriodType") ?? "Daily";
+                string transactionCode = Request.Query["transactionCode"].FirstOrDefault() ?? HttpContext.Session.GetString("CurrentTransactionCode");
+                string summarizeNetting = HttpContext.Session.GetString("CurrentSummarizeNettingOption");
 
-                // Get filter date from session or request parameters
-                string filterDate = Request.Query["filterDate"].FirstOrDefault() ??
-                                   HttpContext.Session.GetString("CurrentFilterDate");
-
-                // Get transaction code from session if available
-                string transactionCode = Request.Query["transactionCode"].FirstOrDefault() ??
-                                        HttpContext.Session.GetString("CurrentTransactionCode");
-
-                System.Diagnostics.Debug.WriteLine($"Filter date for security grid: {filterDate}");
-                System.Diagnostics.Debug.WriteLine($"Transaction code for security grid: {transactionCode}");
-
-                if (string.IsNullOrEmpty(filterDate))
+                if (string.Equals(summarizeNetting, "Netting", StringComparison.OrdinalIgnoreCase))
                 {
-                    // Return empty result if no filter date
-                    return DataSourceLoader.Load(new List<object>(), loadOptions);
+                    transactionCode = "B";
+                    System.Diagnostics.Debug.WriteLine("GetSecurityGridData: Netting mode => forcing transactionCode = B");
                 }
 
-                // Call WSQueryPS method to get security data
-                var result = Helper.WSQueryPS.GetSecurityGridData(db, filterDate, transactionCode, loadOptions);
+                if (string.IsNullOrEmpty(filterDate))
+                    return DataSourceLoader.Load(new List<object>(), loadOptions);
+
+                var result = Helper.WSQueryPS.GetSecurityGridData(db, filterDate, periodType, transactionCode, loadOptions);
 
                 if (result?.data != null && result.data.Rows.Count > 0)
                 {
-                    // Convert DataTable to List for DevExtreme
                     var gridData = new List<object>();
                     int rowId = 1;
-
                     foreach (DataRow row in result.data.Rows)
                     {
                         gridData.Add(new
@@ -1971,39 +2002,49 @@ namespace BDA.Controllers
                             frequency = Convert.ToInt32(row["frequency"] ?? 0)
                         });
                     }
-
-                    System.Diagnostics.Debug.WriteLine($"Returning {gridData.Count} security records");
-
-                    // Apply DevExtreme operations (sorting, paging, filtering)
                     return DataSourceLoader.Load(gridData, loadOptions);
                 }
-                else
-                {
-                    System.Diagnostics.Debug.WriteLine("No security data found");
-                    return DataSourceLoader.Load(new List<object>(), loadOptions);
-                }
+                return DataSourceLoader.Load(new List<object>(), loadOptions);
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error in GetSecurityGridData: {ex.Message}");
-                System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
-
                 return DataSourceLoader.Load(new List<object>(), loadOptions);
             }
         }
 
-        // Helper method to set filter date for grids
+        // Only the modified SetGridFilterDate (added extra form debug) and unchanged relevant getters.
         [HttpPost]
-        public JsonResult SetGridFilterDate(string filterDate, string transactionCode = null)
+        public JsonResult SetGridFilterDate(string filterDate, string periodType = "Daily", string transactionCode = null, string summarizeNettingOption = null)
         {
             try
             {
-                // Store filter parameters in session for grid data methods
+                // Extra debug to verify POST binding
+                System.Diagnostics.Debug.WriteLine("=== SetGridFilterDate POST RAW FORM ===");
+                foreach (var kv in Request.Form)
+                    System.Diagnostics.Debug.WriteLine($"{kv.Key} = {kv.Value}");
+
                 HttpContext.Session.SetString("CurrentFilterDate", filterDate);
-                if (!string.IsNullOrEmpty(transactionCode))
+                HttpContext.Session.SetString("CurrentPeriodType", periodType ?? "Daily");
+
+                // Store transactionCode even if empty string? We only store when not null.
+                if (transactionCode != null)
                 {
-                    HttpContext.Session.SetString("CurrentTransactionCode", transactionCode);
+                    if (string.IsNullOrWhiteSpace(transactionCode))
+                        HttpContext.Session.Remove("CurrentTransactionCode");
+                    else
+                        HttpContext.Session.SetString("CurrentTransactionCode", transactionCode);
                 }
+
+                if (summarizeNettingOption != null)
+                {
+                    if (string.IsNullOrWhiteSpace(summarizeNettingOption))
+                        HttpContext.Session.Remove("CurrentSummarizeNettingOption");
+                    else
+                        HttpContext.Session.SetString("CurrentSummarizeNettingOption", summarizeNettingOption);
+                }
+
+                System.Diagnostics.Debug.WriteLine($"[SetGridFilterDate Stored] filterDate={filterDate}, periodType={periodType}, transactionCode={transactionCode}, summarizeNettingOption={summarizeNettingOption}");
 
                 return Json(new { success = true });
             }
@@ -2018,65 +2059,348 @@ namespace BDA.Controllers
         {
             try
             {
-                System.Diagnostics.Debug.WriteLine("=== CP INVESTOR GRID DATA DEBUG ===");
-                System.Diagnostics.Debug.WriteLine($"GetCPInvestorGridData called with loadOptions");
+                string filterDate = Request.Query["filterDate"].FirstOrDefault() ?? HttpContext.Session.GetString("CurrentFilterDate");
+                string transactionCode = Request.Query["transactionCode"].FirstOrDefault() ?? HttpContext.Session.GetString("CurrentTransactionCode");
+                string periodType = Request.Query["periodType"].FirstOrDefault() ?? HttpContext.Session.GetString("CurrentPeriodType") ?? "Daily";
+                string summarizeNetting = HttpContext.Session.GetString("CurrentSummarizeNettingOption");
 
-                // Get filter date from session or request parameters
-                string filterDate = Request.Query["filterDate"].FirstOrDefault() ??
-                                   HttpContext.Session.GetString("CurrentFilterDate");
-
-                // Get transaction code from session if available
-                string transactionCode = Request.Query["transactionCode"].FirstOrDefault() ??
-                                        HttpContext.Session.GetString("CurrentTransactionCode");
-
-                System.Diagnostics.Debug.WriteLine($"Filter date for CP Investor grid: {filterDate}");
-                System.Diagnostics.Debug.WriteLine($"Transaction code for CP Investor grid: {transactionCode}");
-
-                if (string.IsNullOrEmpty(filterDate))
+                if (string.Equals(summarizeNetting, "Netting", StringComparison.OrdinalIgnoreCase))
                 {
-                    // Return empty result if no filter date
-                    return DataSourceLoader.Load(new List<object>(), loadOptions);
+                    transactionCode = "B";
+                    System.Diagnostics.Debug.WriteLine("GetCPInvestorGridData: Netting mode => forcing transactionCode = B");
                 }
 
-                // Call WSQueryPS method to get CP Investor data
-                var result = Helper.WSQueryPS.GetCPInvestorGridData(db, filterDate, transactionCode, loadOptions);
+                if (string.IsNullOrEmpty(filterDate))
+                    return DataSourceLoader.Load(new List<object>(), loadOptions);
+
+                var result = Helper.WSQueryPS.GetCPInvestorGridData(db, filterDate, periodType, transactionCode, loadOptions);
 
                 if (result?.data != null && result.data.Rows.Count > 0)
                 {
-                    // Convert DataTable to List for DevExtreme
                     var gridData = new List<object>();
                     int rowId = 1;
-
                     foreach (DataRow row in result.data.Rows)
                     {
                         gridData.Add(new
                         {
                             rowid = rowId++,
                             cpinvestorcode = row["cpinvestorcode"]?.ToString() ?? "",
-                            cptradeid = row["cpinvestorcode"]?.ToString() ?? "", // Same as cpinvestorcode as per your requirement
+                            cptradeid = row["cpinvestorcode"]?.ToString() ?? "",
                             value = Convert.ToDecimal(row["value"] ?? 0),
                             quantity = Convert.ToDecimal(row["quantity"] ?? 0)
                         });
                     }
-
-                    System.Diagnostics.Debug.WriteLine($"Returning {gridData.Count} CP Investor records");
-
-                    // Apply DevExtreme operations (sorting, paging, filtering)
                     return DataSourceLoader.Load(gridData, loadOptions);
                 }
-                else
-                {
-                    System.Diagnostics.Debug.WriteLine("No CP Investor data found");
-                    return DataSourceLoader.Load(new List<object>(), loadOptions);
-                }
+                return DataSourceLoader.Load(new List<object>(), loadOptions);
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error in GetCPInvestorGridData: {ex.Message}");
-                System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
-
                 return DataSourceLoader.Load(new List<object>(), loadOptions);
             }
+        }
+
+        public ActionResult LogPivotExport(string actionType, string logMessage)
+        {
+            // actionType: "ExportPDF" or "ExportExcel"
+            // logMessage: optional details (e.g. filter params, row count, etc.)
+            try
+            {
+                var userId = User.Identity.Name ?? "Unknown";
+                string actionName = actionType == "ExportPDF" ? "Export PivotGrid PDF" :
+                                    actionType == "ExportExcel" ? "Export PivotGrid Excel" :
+                                    "Export PivotGrid";
+                string logMessagef = $"User {userId} {logMessage}";
+                db.InsertAuditTrail(actionName, logMessagef, "Validasi Data Transaksi");
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, error = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public JsonResult LogExportAuditTrail(string gridName, string exportType, string filterSummary)
+        {
+            try
+            {
+                var userId = User.Identity.Name ?? "Unknown";
+                string actionName = $"{gridName}_export_{exportType}";
+                string logMessage = $"User {userId} exported {gridName} to {exportType.ToUpper()} with filter: {filterSummary}";
+                db.InsertAuditTrail(actionName, logMessage, "Assessmen Pasar Equity");
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, error = ex.Message });
+            }
+        }
+        [HttpPost]
+        public IActionResult ExportValidasiDataTransaksiToPDF(
+        string periodType = null,
+        string selectedDate = null,
+        string selectedMonth = null,
+        string startDate = null,
+        string endDate = null,
+        string startTime = null,
+        string endTime = null,
+        string[] confirmation = null,
+        string[] lokalAsing = null,
+        string[] countryInvestor = null,
+        string[] typeInvestor = null,
+        string[] market = null,
+        string[] abCodes = null,
+        int? topN = null
+)
+        {
+            try
+            {
+                // Check export permission
+                //db.CheckPermission("Market Driven Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
+
+                var userId = HttpContext.User.Identity.Name ?? "Anonymous";
+                db.InsertAuditTrail("ValidasiDataTransaksi_Export_PDF",
+                    $"User {userId} exported Validasi Data Transaksi to PDF - Period: {periodType}",
+                    "ValidasiDataTransaksi");
+
+                // Use the same approach as your existing GetMarketData method
+                var loadOptions = new DataSourceLoadOptions();
+
+                // Get data using the same method as the PivotGrid
+                var dataArray = Helper.WSQueryPS.GetMarketDrivenData(
+                    db, loadOptions,
+                    periodType, selectedDate, selectedMonth, startDate, endDate,
+                    startTime, endTime, confirmation, lokalAsing, countryInvestor,
+                    typeInvestor, market, abCodes, topN
+                );
+
+                // Convert to list for easier handling
+                var dataList = new List<Dictionary<string, object>>();
+
+                // Handle different possible return types from WSQueryPS.GetMarketDrivenData
+                if (dataArray is IEnumerable<Dictionary<string, object>> dictList)
+                {
+                    dataList = dictList.ToList();
+                }
+                else if (dataArray is IEnumerable<object> objList)
+                {
+                    // Convert objects to dictionaries using reflection
+                    foreach (var item in objList)
+                    {
+                        var dict = new Dictionary<string, object>();
+                        var properties = item.GetType().GetProperties();
+                        foreach (var prop in properties)
+                        {
+                            dict[prop.Name] = prop.GetValue(item);
+                        }
+                        dataList.Add(dict);
+                    }
+                }
+
+                if (!dataList.Any())
+                {
+                    return BadRequest("No data available for the selected filters.");
+                }
+
+                // Create Excel workbook (will be converted to PDF)
+                var workbook = new Aspose.Cells.Workbook();
+                var worksheet = workbook.Worksheets[0];
+                worksheet.Name = "Validasi Data Transaksi";
+
+                // Add title
+                worksheet.Cells.Merge(0, 0, 1, 7);
+                worksheet.Cells[0, 0].PutValue("VALIDASI DATA TRANSAKSI");
+                var titleStyle = workbook.CreateStyle();
+                titleStyle.Font.IsBold = true;
+                titleStyle.Font.Size = 12;
+                titleStyle.HorizontalAlignment = Aspose.Cells.TextAlignmentType.Center;
+                worksheet.Cells[0, 0].SetStyle(titleStyle);
+
+                // Add filter information
+                var filterInfo = BuildFilterInfoString(periodType, selectedDate, selectedMonth, startDate, endDate, startTime, endTime);
+                worksheet.Cells.Merge(1, 0, 1, 7);
+                worksheet.Cells[1, 0].PutValue($"Filter: {filterInfo}");
+                var filterStyle = workbook.CreateStyle();
+                filterStyle.Font.Size = 10;
+                filterStyle.HorizontalAlignment = Aspose.Cells.TextAlignmentType.Center;
+                worksheet.Cells[1, 0].SetStyle(filterStyle);
+
+                // Add export timestamp
+                worksheet.Cells.Merge(2, 0, 1, 7);
+                worksheet.Cells[2, 0].PutValue($"Exported on: {DateTime.Now:dd/MM/yyyy HH:mm:ss} by {userId}");
+                var timestampStyle = workbook.CreateStyle();
+                timestampStyle.Font.Size = 9;
+                timestampStyle.HorizontalAlignment = Aspose.Cells.TextAlignmentType.Center;
+                worksheet.Cells[2, 0].SetStyle(timestampStyle);
+
+                // Add headers
+                var headers = new string[] {
+            "Transaction Date", "SID", "SID Name", "Investor Code",
+            "Security Code", "Quantity", "Value"
+        };
+
+                var headerStyle = workbook.CreateStyle();
+                headerStyle.Font.IsBold = true;
+                headerStyle.ForegroundColor = System.Drawing.Color.LightGray;
+                headerStyle.Pattern = Aspose.Cells.BackgroundType.Solid;
+                headerStyle.Borders[Aspose.Cells.BorderType.TopBorder].LineStyle = Aspose.Cells.CellBorderType.Thin;
+                headerStyle.Borders[Aspose.Cells.BorderType.BottomBorder].LineStyle = Aspose.Cells.CellBorderType.Thin;
+                headerStyle.Borders[Aspose.Cells.BorderType.LeftBorder].LineStyle = Aspose.Cells.CellBorderType.Thin;
+                headerStyle.Borders[Aspose.Cells.BorderType.RightBorder].LineStyle = Aspose.Cells.CellBorderType.Thin;
+
+                for (int i = 0; i < headers.Length; i++)
+                {
+                    worksheet.Cells[3, i].PutValue(headers[i]);
+                    worksheet.Cells[3, i].SetStyle(headerStyle);
+                }
+
+                // Create data style
+                var dataStyle = workbook.CreateStyle();
+                dataStyle.Borders[Aspose.Cells.BorderType.TopBorder].LineStyle = Aspose.Cells.CellBorderType.Thin;
+                dataStyle.Borders[Aspose.Cells.BorderType.BottomBorder].LineStyle = Aspose.Cells.CellBorderType.Thin;
+                dataStyle.Borders[Aspose.Cells.BorderType.LeftBorder].LineStyle = Aspose.Cells.CellBorderType.Thin;
+                dataStyle.Borders[Aspose.Cells.BorderType.RightBorder].LineStyle = Aspose.Cells.CellBorderType.Thin;
+
+                // Create number style for quantity and value columns
+                var numberStyle = workbook.CreateStyle();
+                numberStyle.Custom = "#,##0";
+                numberStyle.Borders[Aspose.Cells.BorderType.TopBorder].LineStyle = Aspose.Cells.CellBorderType.Thin;
+                numberStyle.Borders[Aspose.Cells.BorderType.BottomBorder].LineStyle = Aspose.Cells.CellBorderType.Thin;
+                numberStyle.Borders[Aspose.Cells.BorderType.LeftBorder].LineStyle = Aspose.Cells.CellBorderType.Thin;
+                numberStyle.Borders[Aspose.Cells.BorderType.RightBorder].LineStyle = Aspose.Cells.CellBorderType.Thin;
+
+                // Add data
+                int rowIndex = 4;
+                foreach (var dataRow in dataList)
+                {
+                    // Transaction Date
+                    var transDate = GetFieldValue(dataRow, "TransactionDates") ?? GetFieldValue(dataRow, "transactiondates") ?? "";
+                    worksheet.Cells[rowIndex, 0].PutValue(transDate);
+                    worksheet.Cells[rowIndex, 0].SetStyle(dataStyle);
+
+                    // SID
+                    var sid = GetFieldValue(dataRow, "sid_ori") ?? GetFieldValue(dataRow, "SID_ori") ?? "";
+                    worksheet.Cells[rowIndex, 1].PutValue(sid);
+                    worksheet.Cells[rowIndex, 1].SetStyle(dataStyle);
+
+                    // SID Name
+                    var sidName = GetFieldValue(dataRow, "cpinvestorcode") ?? GetFieldValue(dataRow, "CPInvestorCode") ?? "";
+                    worksheet.Cells[rowIndex, 2].PutValue(sidName);
+                    worksheet.Cells[rowIndex, 2].SetStyle(dataStyle);
+
+                    // Investor Code
+                    var investorCode = GetFieldValue(dataRow, "investorcode") ?? GetFieldValue(dataRow, "InvestorCode") ?? "";
+                    worksheet.Cells[rowIndex, 3].PutValue(investorCode);
+                    worksheet.Cells[rowIndex, 3].SetStyle(dataStyle);
+
+                    // Security Code
+                    var securityCode = GetFieldValue(dataRow, "securitycode") ?? GetFieldValue(dataRow, "SecurityCode") ?? "";
+                    worksheet.Cells[rowIndex, 4].PutValue(securityCode);
+                    worksheet.Cells[rowIndex, 4].SetStyle(dataStyle);
+
+                    // Quantity - Apply number style
+                    var quantityValue = GetFieldValue(dataRow, "quantity") ?? GetFieldValue(dataRow, "Quantity");
+                    if (quantityValue != null && decimal.TryParse(quantityValue.ToString(), out decimal qty))
+                    {
+                        worksheet.Cells[rowIndex, 5].PutValue((double)qty);
+                    }
+                    else
+                    {
+                        worksheet.Cells[rowIndex, 5].PutValue(0);
+                    }
+                    worksheet.Cells[rowIndex, 5].SetStyle(numberStyle);
+
+                    // Value - Apply number style
+                    var valueValue = GetFieldValue(dataRow, "value") ?? GetFieldValue(dataRow, "Value");
+                    if (valueValue != null && decimal.TryParse(valueValue.ToString(), out decimal val))
+                    {
+                        worksheet.Cells[rowIndex, 6].PutValue((double)val);
+                    }
+                    else
+                    {
+                        worksheet.Cells[rowIndex, 6].PutValue(0);
+                    }
+                    worksheet.Cells[rowIndex, 6].SetStyle(numberStyle);
+
+                    rowIndex++;
+                }
+
+                // Auto-fit columns
+                worksheet.AutoFitColumns();
+
+                // Set minimum column widths
+                worksheet.Cells.SetColumnWidth(0, Math.Max(worksheet.Cells.GetColumnWidth(0), 15)); // Transaction Date
+                worksheet.Cells.SetColumnWidth(1, Math.Max(worksheet.Cells.GetColumnWidth(1), 10)); // SID
+                worksheet.Cells.SetColumnWidth(2, Math.Max(worksheet.Cells.GetColumnWidth(2), 15)); // SID Name
+                worksheet.Cells.SetColumnWidth(3, Math.Max(worksheet.Cells.GetColumnWidth(3), 12)); // Investor Code
+                worksheet.Cells.SetColumnWidth(4, Math.Max(worksheet.Cells.GetColumnWidth(4), 12)); // Security Code
+                worksheet.Cells.SetColumnWidth(5, Math.Max(worksheet.Cells.GetColumnWidth(5), 12)); // Quantity
+                worksheet.Cells.SetColumnWidth(6, Math.Max(worksheet.Cells.GetColumnWidth(6), 15)); // Value
+
+                // Set PDF settings
+                worksheet.PageSetup.Orientation = Aspose.Cells.PageOrientationType.Landscape;
+                worksheet.PageSetup.LeftMargin = 0.25;
+                worksheet.PageSetup.RightMargin = 0.25;
+                worksheet.PageSetup.TopMargin = 0.5;
+                worksheet.PageSetup.BottomMargin = 0.5;
+                worksheet.PageSetup.FitToPagesWide = 1;
+                worksheet.PageSetup.FitToPagesTall = 0; // Allow multiple pages vertically
+
+                // Generate filename
+                string dateStr = selectedDate ?? selectedMonth ?? DateTime.Now.ToString("yyyyMMdd");
+                string filename = $"ValidasiDataTransaksi_{dateStr}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+
+                // Export to PDF
+                var stream = new MemoryStream();
+                workbook.Save(stream, Aspose.Cells.SaveFormat.Pdf);
+                stream.Position = 0;
+
+                return File(stream.ToArray(), "application/pdf", filename);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in ExportValidasiDataTransaksiToPDF: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
+                return BadRequest($"Error exporting to PDF: {ex.Message}");
+            }
+        }
+
+        // Helper method to get field value with case-insensitive lookup
+        private object GetFieldValue(Dictionary<string, object> dataRow, string fieldName)
+        {
+            // Try exact match first
+            if (dataRow.ContainsKey(fieldName))
+                return dataRow[fieldName];
+
+            // Try case-insensitive match
+            var key = dataRow.Keys.FirstOrDefault(k => string.Equals(k, fieldName, StringComparison.OrdinalIgnoreCase));
+            return key != null ? dataRow[key] : null;
+        }
+
+        // Helper method to build filter information string
+        private string BuildFilterInfoString(string periodType, string selectedDate, string selectedMonth,
+            string startDate, string endDate, string startTime, string endTime)
+        {
+            var filters = new List<string>();
+
+            if (!string.IsNullOrEmpty(periodType))
+                filters.Add($"Period: {periodType}");
+
+            if (!string.IsNullOrEmpty(selectedDate))
+                filters.Add($"Date: {FormatDateForDisplay(selectedDate, "Daily")}");
+
+            if (!string.IsNullOrEmpty(selectedMonth))
+                filters.Add($"Month: {FormatDateForDisplay(selectedMonth, "Monthly")}");
+
+            if (!string.IsNullOrEmpty(startDate) && !string.IsNullOrEmpty(endDate))
+                filters.Add($"Period: {FormatDateForDisplay(startDate, "Daily")} - {FormatDateForDisplay(endDate, "Daily")}");
+
+            if (!string.IsNullOrEmpty(startTime) && !string.IsNullOrEmpty(endTime))
+                filters.Add($"Time: {startTime} - {endTime}");
+
+            return filters.Any() ? string.Join(", ", filters) : "All Data";
         }
 
         // Helper method for Excel header styling (place inside MarketDrivenController)

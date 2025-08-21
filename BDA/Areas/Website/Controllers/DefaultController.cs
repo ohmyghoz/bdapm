@@ -29,6 +29,7 @@ namespace BDA.Areas.Dashboard.Controllers
             this.db = db;
             _env = env;
         }
+
         public ActionResult Index()
         {
             var user = HttpContext.User.Identity.Name;
@@ -41,6 +42,10 @@ namespace BDA.Areas.Dashboard.Controllers
 
             db.InsertAuditTrail("Beranda_Akses_Page", "Akses Page Beranda", pageTitle);
             ViewBag.Edit = db.CheckPermission("Beranda Edit", DataEntities.PermissionMessageType.NoMessage);
+
+            Response.Headers["Cache-Control"] = "no-store";
+            Response.Headers["Pragma"] = "no-cache";
+            Response.Headers["Expires"] = "-1";
 
             return View(usr);
         }
