@@ -1,4 +1,5 @@
 ﻿using BDA.DataModel;
+using DevExpress.DashboardCommon.ViewModel;
 using DevExpress.PivotGrid;
 using DevExtreme.AspNet.Mvc;
 using DevExtreme.AspNet.Mvc.Builders;
@@ -2995,10 +2996,13 @@ namespace BDA.Helper
                         else if (row.ColumnName == "allsec_size") caption = "Jml. Efek Ditemukan";
 
                         if ((new string[] { "pstart", "pend" }.Any(s => row.ColumnName == s)))
-                        {
-                            format = "yyyy-MM-dd";
-                            colDataType = GridColumnDataType.Date;
-                            visible = false; 
+                        {                            
+                            visible = false;
+                            colDataType = GridColumnDataType.String;
+                            allowFilter = false;
+                                                        
+                            grid.Columns(c => c.Add().Caption(caption).DataField(row.ColumnName).Width(width).CustomizeText("periodeFormat").Visible(visible).DataType(colDataType).AllowFiltering(allowFilter));
+                            continue;
                         }
                         if (row.ColumnName == "side") visible = false;
                     }
