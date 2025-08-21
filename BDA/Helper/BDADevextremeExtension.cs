@@ -2993,8 +2993,14 @@ namespace BDA.Helper
                         else if (row.ColumnName == "inv1_nsec") caption = "Jml. Efek Investor";
                         else if (row.ColumnName == "inv2_nsec") caption = "Jml. Efek Lawan Investor";
                         else if (row.ColumnName == "allsec_size") caption = "Jml. Efek Ditemukan";
-                                                
-                        if ((new string[] {"side", "pstart", "pend" }.Any(s => row.ColumnName == s))) visible = false;                        
+
+                        if ((new string[] { "pstart", "pend" }.Any(s => row.ColumnName == s)))
+                        {
+                            format = "yyyy-MM-dd";
+                            colDataType = GridColumnDataType.Date;
+                            visible = false; 
+                        }
+                        if (row.ColumnName == "side") visible = false;
                     }
                     
                     if (row.ColumnName == "keyid")

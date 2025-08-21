@@ -478,12 +478,18 @@ namespace BDA.Controllers
                 //cekHive = false;
                 
                 loadOptions.RequireTotalCount = true;
+                try {
+                    //loadOptions.Take = 0;
+                    var result = Helper.WSQueryStore.GetPMIPRelQuery(db, loadOptions, reportId, stringStartPeriode, stringEndPeriode, SID, tradeId, namaSID, namaLike, kolomRel, nilaiRel, //securityCode
+                        nomorKTP, nomorNPWP, chk100, cekHive);
+                    //loadOptions.RequireTotalCount = true;
+                    return JsonConvert.SerializeObject(result);
+                }
+                catch (Exception e)
+                {
+                    return "Terdapat gangguan pada koneksi database";
+                }
                 
-                //loadOptions.Take = 0;
-                var result = Helper.WSQueryStore.GetPMIPRelQuery(db, loadOptions, reportId, stringStartPeriode, stringEndPeriode, SID, tradeId, namaSID, namaLike, kolomRel, nilaiRel, //securityCode
-                    nomorKTP, nomorNPWP, chk100, cekHive);
-                //loadOptions.RequireTotalCount = true;
-                return JsonConvert.SerializeObject(result);
 
             }
             else

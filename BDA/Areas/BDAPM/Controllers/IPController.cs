@@ -68,6 +68,7 @@ namespace BDA.Controllers
             string roleId = HttpContext.User.FindFirst(ClaimTypes.Role).Value.ToString();
             ViewBag.FullFilter = false;
             ViewBag.IsExternal = false;
+            ViewBag.filterLog = "";
             if (roleId == "Pengawas TE" || roleId == "AdminAplikasi" || roleId == "Admin PM") ViewBag.FullFilter = true;
             if (roleId == "External") ViewBag.IsExternal = true;
 
@@ -177,7 +178,7 @@ namespace BDA.Controllers
             }
         }
 
-        public IActionResult ExportPDF(string reportId,IFormFile file)
+        public IActionResult ExportPDF(string reportId, IFormFile file)
         {
             try
             {
@@ -191,7 +192,7 @@ namespace BDA.Controllers
                 var obj = db.osida_master.Find(reportId);
                 db.CheckPermission(obj.menu_nama + " Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
 
-                db.InsertAuditTrail("ExportIndex_PM_" + reportId, "Export Data", pageTitle);
+                db.InsertAuditTrail("ExportIndex_PM_" + reportId, "Export Data" + ViewBag.filterLog.ToString(), pageTitle);
 
                 var directory = _env.WebRootPath;
 
@@ -354,6 +355,7 @@ namespace BDA.Controllers
             if (reportId == "ip_sid") pageTitle = "SID Profile";
             else if (reportId == "ip_transaction") pageTitle = "Transaksi Profile";
             else pageTitle = "Kepemilikan Profile";
+            ViewBag.filterLog = filterValue;
             db.InsertAuditTrail("IP_Akses_Page", "user " + userId + " mengakases " + reportId + "; " + filterValue + "", pageTitle);
 
             var regex = new Regex(@"\Aip_relation");
