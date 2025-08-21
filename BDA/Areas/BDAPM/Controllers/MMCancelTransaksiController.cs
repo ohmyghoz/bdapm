@@ -29,6 +29,8 @@ using DevExpress.Charts.Native;
 using static DevExpress.Data.ODataLinq.Helpers.ODataLinqHelpers;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Globalization;
+using DocumentFormat.OpenXml.Spreadsheet;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace BDA.Controllers
 {
@@ -111,7 +113,11 @@ namespace BDA.Controllers
         }
         public object GetBarChartNumberCancellation(DataSourceLoadOptions loadOptions, string periodeAwal, string periodeAkhir, string bondissuertypecode)
         {
+            var userId = HttpContext.User.Identity.Name;
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+            var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+            var currentNode = mdl.GetCurrentNode();
+            string pageTitle = currentNode != null ? currentNode.Title : ""; //menampilkan data menu
             TempData.Clear(); //membersihkan data filtering
             string[] Statusbondissuertypecode = JsonConvert.DeserializeObject<string[]>(bondissuertypecode);
 
@@ -163,6 +169,8 @@ namespace BDA.Controllers
                                    total = Convert.ToInt32(bs.Field<Int32>("total").ToString()),
                                }).OrderBy(bs => bs.nobulan).ToList();
             }
+            db.InsertAuditTrail("MMCancelTransaksi_Akses_Page", "user " + userId + " menampilkan dashboard Pola 9: Pola cancel per transaksi / pola transaksi dengan filter periode awal = " + stringPeriodeAwal + ", periode akhir = " + stringPeriodeAkhir + "," +
+            "Bond Type = " + stringbondissuertypecode + "", pageTitle);
             return JsonConvert.SerializeObject(varDataList);
         }
         public object GetChartCancellationStatus(DataSourceLoadOptions loadOptions, string periodeAwal, string periodeAkhir, string bondissuertypecode)

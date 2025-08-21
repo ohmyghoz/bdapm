@@ -316,7 +316,12 @@ namespace BDA.Controllers
         public object GetGridData(DataSourceLoadOptions loadOptions, string periodeAwal, string periodeAkhir, 
             string caseid, string tradeid, string bondtypecode, string sourcenameid, string targetnameid, string reporttypeid,string bondreportid)
         {
+            var userId = HttpContext.User.Identity.Name;
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+            var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
+            var currentNode = mdl.GetCurrentNode();
+            string pageTitle = currentNode != null ? currentNode.Title : ""; //menampilkan data menu
+
             TempData.Clear(); //membersihkan data filtering
             string[] strcaseid = JsonConvert.DeserializeObject<string[]>(caseid);
             string[] strtradeid = JsonConvert.DeserializeObject<string[]>(tradeid);
@@ -400,10 +405,16 @@ namespace BDA.Controllers
             {
                 var result = Helper.WSQueryStore.GetBDAPMMMTransaksiSPVQuery(db, loadOptions, reportId,  periodeAwal,  periodeAkhir, stringcaseid, stringtradeid,
                     stringbondtypecode, stringsourcenameid, stringtargetnameid, stringreporttypeid, stringbondreportid, cekHive);
+                db.InsertAuditTrail("MMTransaksiSPV_Akses_Page", "user " + userId + " menampilkan dashboard Pola 1 : Transaksi Bolak Balik Menggunakan Special Purpose Vehicle atau Afiliasi Dealer dengan filter periode awal = " + stringPeriodeAwal + ", periode akhir = " + stringPeriodeAkhir + "," +
+    "Case ID = " + stringcaseid + ", Trade ID = " + stringtradeid + ", Bond Issuer Type Code = " + stringbondtypecode + ", " +
+    "Source Name = " + stringsourcenameid + ", Target Name = " + stringtargetnameid + ", Report Type Code = " + stringreporttypeid + ", Bond Report Status = " + stringbondreportid + "", pageTitle);
                 return JsonConvert.SerializeObject(result);
             }
             else
             {
+                db.InsertAuditTrail("MMTransaksiSPV_Akses_Page", "user " + userId + " menampilkan dashboard Pola 1 : Transaksi Bolak Balik Menggunakan Special Purpose Vehicle atau Afiliasi Dealer dengan filter periode awal = " + stringPeriodeAwal + ", periode akhir = " + stringPeriodeAkhir + "," +
+                "Case ID = " + stringcaseid + ", Trade ID = " + stringtradeid + ", Bond Issuer Type Code = " + stringbondtypecode + ", " +
+                "Source Name = " + stringsourcenameid + ", Target Name = " + stringtargetnameid + ", Report Type Code = " + stringreporttypeid + ", Bond Report Status = " + stringbondreportid + "", pageTitle);
                 loadOptions = new DataSourceLoadOptions();
             }
             return DataSourceLoader.Load(new List<string>(), loadOptions);
