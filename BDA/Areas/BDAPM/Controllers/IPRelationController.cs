@@ -217,14 +217,14 @@ namespace BDA.Controllers
                 var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
                 var currentNode = mdl.GetCurrentNode();
 
-                string pageTitle = reportId; // currentNode != null ? currentNode.Title : "";
-                //pageTitle = TempData.Peek("pageTitle").ToString();
+                string pageTitle = (reportId == "ip_rel_sid") ? "SID Keterkaitan" : ((reportId == "ip_rel_transaction") ? "Transaksi Keterkaitan" : "Kepemilikan Keterkaitan"); //currentNode != null ? currentNode.Title : "";
+                string pageFilter = TempData.Peek("pageFilter").ToString();//pageTitle = TempData.Peek("pageTitle").ToString();
                 //TODO : tambah permission
                 //db.CheckPermission("OSIDA Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
                 var obj = db.osida_master.Find(reportId);
                 db.CheckPermission(obj.menu_nama + " Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
 
-                db.InsertAuditTrail("ExportIndex_PM_" + reportId, "Export Data", pageTitle);
+                db.InsertAuditTrail("ExportIndex_PM_" + reportId, "Export Excel; " + pageFilter, pageTitle);
                 return Json(new { result = "Success" });
             }
             catch (Exception ex)
@@ -240,14 +240,14 @@ namespace BDA.Controllers
                 var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
                 var currentNode = mdl.GetCurrentNode();
 
-                string pageTitle = reportId; //currentNode != null ? currentNode.Title : "";
-                //pageTitle = TempData.Peek("pageTitle").ToString();
+                string pageTitle = (reportId == "ip_rel_sid") ? "SID Keterkaitan" : ((reportId == "ip_rel_transaction") ? "Transaksi Keterkaitan" : "Kepemilikan Keterkaitan"); //currentNode != null ? currentNode.Title : "";
+                string pageFilter = TempData.Peek("pageFilter").ToString();
                 //TODO : tambah permission
                 //db.CheckPermission("OSIDA Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
                 var obj = db.osida_master.Find(reportId);
                 db.CheckPermission(obj.menu_nama + " Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
 
-                db.InsertAuditTrail("ExportIndex_PM_" + reportId, "Export Data", pageTitle);
+                db.InsertAuditTrail("ExportIndex_PM_" + reportId, "Export PDF; " + pageFilter, pageTitle);
 
                 var directory = _env.WebRootPath;
 
@@ -443,7 +443,8 @@ namespace BDA.Controllers
                 filterValue = "sid=" + SID + ";trade=" + tradeId + ";nama=" + namaSID + ";namamirip=" + namaLike + ";ktp=" + nomorKTP + ";npwp=" + nomorNPWP + ";periode=" + startPeriode + " - " + endPeriode + ";";
                 pageTitle = (reportId == "ip_rel_transaction") ? "Transaksi Keterkaitan" : "Kepemilikan Keterkaitan";
             }
-            db.InsertAuditTrail("IP_Akses_Page", "user " + userId + " mengakases " + reportId + "; " + filterValue + "", pageTitle);
+            db.InsertAuditTrail("IP_Akses_Page", "Akses Data; " + filterValue + "", pageTitle);
+            //db.InsertAuditTrail("IP_Akses_Page", "user " + userId + " mengakases " + reportId + "; " + filterValue + "", pageTitle);
             
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
             TempData.Clear();
@@ -480,6 +481,7 @@ namespace BDA.Controllers
                 loadOptions.RequireTotalCount = true;
                 try {
                     //loadOptions.Take = 0;
+                    TempData["pageFilter"] = filterValue; 
                     var result = Helper.WSQueryStore.GetPMIPRelQuery(db, loadOptions, reportId, stringStartPeriode, stringEndPeriode, SID, tradeId, namaSID, namaLike, kolomRel, nilaiRel, //securityCode
                         nomorKTP, nomorNPWP, chk100, cekHive);
                     //loadOptions.RequireTotalCount = true;

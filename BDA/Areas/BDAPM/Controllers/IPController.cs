@@ -162,14 +162,15 @@ namespace BDA.Controllers
                 var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
                 var currentNode = mdl.GetCurrentNode();
 
-                string pageTitle = reportId; // currentNode != null ? currentNode.Title : "";
+                string pageTitle = (reportId == "ip_rel_sid") ? "SID Keterkaitan" : ((reportId == "ip_rel_transaction") ? "Transaksi Keterkaitan" : "Kepemilikan Keterkaitan"); //currentNode != null ? currentNode.Title : "";
+                string pageFilter = TempData.Peek("pageFilter").ToString();
                 //pageTitle = TempData.Peek("pageTitle").ToString();
                 //TODO : tambah permission
                 //db.CheckPermission("OSIDA Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
                 var obj = db.osida_master.Find(reportId);
                 db.CheckPermission(obj.menu_nama + " Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
 
-                db.InsertAuditTrail("ExportIndex_PM_" + reportId, "Export Data", pageTitle);
+                db.InsertAuditTrail("ExportIndex_PM_" + reportId, "Export Excel: " + pageFilter, pageTitle);
                 return Json(new { result = "Success" });
             }
             catch (Exception ex)
@@ -185,14 +186,15 @@ namespace BDA.Controllers
                 var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
                 var currentNode = mdl.GetCurrentNode();
 
-                string pageTitle = reportId; //currentNode != null ? currentNode.Title : "";
+                string pageTitle = (reportId == "ip_rel_sid") ? "SID Keterkaitan" : ((reportId == "ip_rel_transaction") ? "Transaksi Keterkaitan" : "Kepemilikan Keterkaitan"); //currentNode != null ? currentNode.Title : "";
+                string pageFilter = TempData.Peek("pageFilter").ToString();
                 //pageTitle = TempData.Peek("pageTitle").ToString();
                 //TODO : tambah permission
                 //db.CheckPermission("OSIDA Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
                 var obj = db.osida_master.Find(reportId);
                 db.CheckPermission(obj.menu_nama + " Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
 
-                db.InsertAuditTrail("ExportIndex_PM_" + reportId, "Export Data" + ViewBag.filterLog.ToString(), pageTitle);
+                db.InsertAuditTrail("ExportIndex_PM_" + reportId, "Export PDF" + pageFilter, pageTitle);
 
                 var directory = _env.WebRootPath;
 
@@ -355,8 +357,7 @@ namespace BDA.Controllers
             if (reportId == "ip_sid") pageTitle = "SID Profile";
             else if (reportId == "ip_transaction") pageTitle = "Transaksi Profile";
             else pageTitle = "Kepemilikan Profile";
-            ViewBag.filterLog = filterValue;
-            db.InsertAuditTrail("IP_Akses_Page", "user " + userId + " mengakases " + reportId + "; " + filterValue + "", pageTitle);
+            db.InsertAuditTrail("IP_Akses_Page", "Akses Data; " + filterValue + "", pageTitle);
 
             var regex = new Regex(@"\Aip_relation");
             var login = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
@@ -400,12 +401,20 @@ namespace BDA.Controllers
                 if (passport != null) {
                     passport = passport.Replace("-", "").Replace(" ", "");
                 }
-                //loadOptions.RequireTotalCount = false;
-                var result = Helper.WSQueryStore.GetPMIPQuery(db, loadOptions, reportId, SID, tradeId, namaSID, namaLike, nomorKTP, nomorNPWP, passport, sistem, businessReg, stringStartPeriode, stringEndPeriode, chk100, cekHive);
-                //loadOptions.RequireTotalCount = true;
-                return JsonConvert.SerializeObject(result);
 
-                
+                //loadOptions.RequireTotalCount = false;
+                try
+                {
+                    //loadOptions.Take = 0;
+                    TempData["pageFilter"] = filterValue;
+                    var result = Helper.WSQueryStore.GetPMIPQuery(db, loadOptions, reportId, SID, tradeId, namaSID, namaLike, nomorKTP, nomorNPWP, passport, sistem, businessReg, stringStartPeriode, stringEndPeriode, chk100, cekHive);
+                    //loadOptions.RequireTotalCount = true;
+                    return JsonConvert.SerializeObject(result);
+                }
+                catch (Exception e)
+                {
+                    return "Terdapat gangguan pada koneksi database";
+                }           
 
             }
             else {
