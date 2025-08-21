@@ -1,0 +1,173 @@
+﻿@using DevExtreme.AspNet.Mvc
+@{
+    Layout = "~/Views/Shared/_LayoutMainMetronic.cshtml";
+}
+
+@inject BDA.DataModel.DataEntities db
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="card card-default">
+        <div class="card-body">
+            <h2 style="margin-bottom:15px;">Daftar Link Tableau</h2>
+
+
+            @(Html.DevExtreme().DataGrid()
+                .ID("gridTableauLinks")
+                .DataSource(ds => ds.Mvc()
+                .Controller("BIview")
+                .LoadAction("GetTableauLinks")
+                )
+                .KeyExpr("RowNo")
+                .ShowBorders(true)
+                .RemoteOperations(true)
+                .Paging(p => p.PageSize(15))
+                .Pager(p =>
+                {
+                    p.ShowInfo(true);
+                    p.ShowPageSizeSelector(true);
+                    p.AllowedPageSizes(new[] { 15, 30, 50 });
+                })
+                .SearchPanel(sp => sp.Visible(true).Placeholder("Cari..."))
+                .FilterRow(fr => fr.Visible(false))
+                .HeaderFilter(hf => hf.Visible(false))
+                .ColumnAutoWidth(true)
+                .Export(ex => ex.Enabled(false)) /* We do custom export */
+                .Columns(c =>
+                {
+                    c.Add().DataField("RowNo").Caption("No.").Width(70).Alignment(HorizontalAlignment.Center);
+                    c.Add().DataField("NamaDashboardTableau").Caption("Nama Dashboard Tableau");
+                    c.Add().DataField("Link").Caption("Link").CellTemplate(@<text>
+            <a target="_blank" href="<%- value %>"><%- value %></a>
+        </text>);
+                })
+                )
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+    <!-- The Modal  Detail-->
+    <div class="modal fade" id="ModalSimpanPenggunaanData" tabindex="-1" role="document" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color:#0066b2">
+                    <h4 class="modal-title" style="text-align:left">
+                        <font color="white">Pilih Penggunaan Data</font>
+                    </h4>
+                </div><!--Modal Header-->
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <form id="StrukturFormDetail" method="POST" action="" class="form-horizontal row-border">
+                        <div class="row" style="padding: 0 10px 0 10px;">
+                            @(Html.DevExtreme().SelectBox()
+                                .ID("penggunaandataid")
+                                .DataSource(d => d.Mvc()
+                                .Controller("PenggunaanData")
+                                .Area("Website")
+                                .LoadAction("GetPenggunaanData")
+                                .Key("value"))
+                                .ValueExpr("value")
+                                .DisplayExpr("text")
+                                .SearchEnabled(true)
+                                .Width("100%")
+                                )
+                        </div>
+                    </form>
+                </div>
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="button" id="btnSavePenggunaanData" class="btn btn-primary" data-bs-dismiss="modal"><i class='fa fa-save'></i> Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- The Modal  Detail-->
+}
+
+
+
+<script>
+    window.jsPDF = window.jspdf.jsPDF;
+    applyPlugin(window.jsPDF);
+</script>
+
+<script>
+
+
+    $(function () {
+        $("#penggunaandataid").dxValidator({
+            validationGroup: "Filter",
+            validationRules: [{ type: "required", message: "[Penggunaan Data] harus dipilih" }]
+        })
+    });
+
+    $(function () {
+        $("#namaPEid").dxValidator({
+            validationGroup: "Filter",
+            validationRules: [{ type: "required", message: "[Nama PE] harus dipilih" }]
+        })
+    });
+
+    $(window).on('load', function () {
+        $("#ModalSimpanPenggunaanData").modal("show");
+    });
+
+    $("#btnSavePenggunaanData").click(function () {
+        let penggunaandataid = $("#penggunaandataid").dxSelectBox("instance").option("value");
+
+        if (penggunaandataid == null) {
+            alert("Silahkan Pilih Tujuan Penggunaan Data");
+            return false;
+        } else {
+            $.ajax({
+                url: '@Url.Action("SimpanPenggunaanData", "SegmentationSummaryClusterMKBD")',
+                data: { id: penggunaandataid },
+                dataType: "json",
+                type: "POST",
+                success: function (data) {
+                    if (data.success == true) {
+                        //alert(data.message);
+    @* waitingDialog.hide(); *@
+                            $('#ModalSimpanPenggunaanData').modal('hide');
+                        return "Saving Success !";
+                    }
+                    else if (data.success == false) {
+    @*  waitingDialog.hide(); *@
+                            alert(data.message);
+                        $('#ModalSimpanPenggunaanData').modal('hide');
+                        return "Saving Failed !";
+                    }
+                }
+            });
+        }
+    });
+
+</script>
+
+<style type="text/css">
+    .mandatory {
+        color: red;
+    }
+</style>
+
+
