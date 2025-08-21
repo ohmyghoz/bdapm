@@ -663,6 +663,12 @@
         });
     }
 
+    function periodeFormat(cellInfo) {
+        var cVal = cellInfo.value;
+        if (cVal.length !== 8) return cVal;
+        return cVal.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3');
+    }
+
     function ExportToPdf() {
         var dataGrid = $("#grid1").dxDataGrid("instance");
         dataGrid.option("onExporting", function (e) { });
