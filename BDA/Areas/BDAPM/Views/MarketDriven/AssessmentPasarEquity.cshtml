@@ -172,12 +172,10 @@
                     </div>
                     <div class="col-lg-3 form-group">
                         <label>Summarize/Netting@*<span class="mandatory">*</span>*@</label>
-                        @(Html.DevExtreme().TagBox()
+                        @(Html.DevExtreme().SelectBox()
                             .ID("SummarizeNettingid")
                             .DataSource(new[] { "Summarize", "Netting" })
-                            .ShowSelectionControls(true)
-                            .SearchEnabled(true)
-                            .OnSelectionChanged("onSelectionChanged")
+                            .Value("Summarize")
                             .Width("100%"))
                     </div>
                     <div class="col-lg-3 form-group" id="topDiv">
@@ -688,140 +686,105 @@
     function onButtonFilterClicked(e) {
         console.log("onButtonFilterClicked triggered");
 
-        // Get filter values
-        var periodType = $("#Periodid").dxSelectBox("instance")?.option("value"); // Add this line to get period type
+        var periodType = $("#Periodid").dxSelectBox("instance")?.option("value");
         var dayDate = $("#datePickdID").dxDateBox("instance")?.option("value");
         var monthDate = $("#DatepickmID").dxDateBox("instance")?.option("value");
         var startDate = $("#StartDateID").dxDateBox("instance")?.option("value");
         var endDate = $("#EndDateID").dxDateBox("instance")?.option("value");
-        var buySell = $("#Buysellid").dxSelectBox("instance")?.option("value");
 
-        console.log("=== BUTTON FILTER DEBUG ===");
-        console.log("Period Type:", periodType);
-        console.log("Day Date:", dayDate);
-        console.log("Month Date:", monthDate);
-        console.log("Start Date:", startDate);
-        console.log("End Date:", endDate);
-        console.log("Buy/Sell:", buySell);
+        // Buy/Sell TagBox returns array
+        var buySellValues = $("#Buysellid").dxTagBox("instance")?.option("value") || [];
+        // Summarize/Netting SelectBox returns string
+        var summarizeNetting = $("#SummarizeNettingid").dxSelectBox("instance")?.option("value") || "";
 
+        console.log("Buy/Sell raw:", buySellValues, "SummarizeNetting raw:", summarizeNetting);
+
+        // Derive transactionCode
+        let transactionCode = null;
+        if (buySellValues.length === 1) {
+            if (buySellValues[0] === "Buy") transactionCode = "B";
+            if (buySellValues[0] === "Sell") transactionCode = "S";
+        } else if (buySellValues.length > 1) {
+            // both selected => no transactionCode filter unless Netting forces override
+            transactionCode = null;
+        }
+
+        // Netting override
+        if (summarizeNetting === "Netting") {
+            transactionCode = "B";
+            console.log("Netting selected -> forcing transactionCode = B");
+        }
+
+        // --- DATE HANDLING (unchanged) ---
         var filterDateInt = null;
         var displayDate = "";
         var chartSingleDate = null;
         var chartStartDate = null;
         var chartEndDate = null;
 
-        // Determine which date to use based on period type and available dates
         if (periodType === "Daily" && dayDate) {
-            // Daily mode - use single date
             filterDateInt = dateToYYYYMMDD(dayDate);
             displayDate = formatDateToDDMMYYYY(dayDate);
             chartSingleDate = filterDateInt.toString();
-            console.log("Using Daily mode with single date:", chartSingleDate);
-
         } else if (periodType === "Monthly" && monthDate) {
-            // Monthly mode - use first day of month for summary, full month range for chart
-            var firstDayOfMonth = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
-            var lastDayOfMonth = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
-
-            filterDateInt = dateToYYYYMMDD(firstDayOfMonth);
-            displayDate = formatDateToDDMMYYYY(firstDayOfMonth) + " - " + formatDateToDDMMYYYY(lastDayOfMonth);
-
-            // For chart, use date range
-            chartStartDate = dateToYYYYMMDD(firstDayOfMonth).toString();
-            chartEndDate = dateToYYYYMMDD(lastDayOfMonth).toString();
-            console.log("Using Monthly mode with date range:", chartStartDate, "to", chartEndDate);
-
+            var first = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
+            var last = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
+            filterDateInt = dateToYYYYMMDD(first);
+            displayDate = formatDateToDDMMYYYY(first) + " - " + formatDateToDDMMYYYY(last);
+            chartStartDate = dateToYYYYMMDD(first).toString();
+            chartEndDate = dateToYYYYMMDD(last).toString();
         } else if (periodType === "Custom Date" && startDate && endDate) {
-            // Custom date range mode
             filterDateInt = dateToYYYYMMDD(startDate);
             displayDate = formatDateToDDMMYYYY(startDate) + " - " + formatDateToDDMMYYYY(endDate);
-
-            // For chart, use date range
             chartStartDate = dateToYYYYMMDD(startDate).toString();
             chartEndDate = dateToYYYYMMDD(endDate).toString();
-            console.log("Using Custom Date range mode:", chartStartDate, "to", chartEndDate);
-
         } else if (dayDate) {
-            // Fallback: if no period type but dayDate exists
             filterDateInt = dateToYYYYMMDD(dayDate);
             displayDate = formatDateToDDMMYYYY(dayDate);
             chartSingleDate = filterDateInt.toString();
-            console.log("Fallback to single date:", chartSingleDate);
-
         } else if (startDate && endDate) {
-            // Fallback: if no period type but date range exists
             filterDateInt = dateToYYYYMMDD(startDate);
             displayDate = formatDateToDDMMYYYY(startDate) + " - " + formatDateToDDMMYYYY(endDate);
             chartStartDate = dateToYYYYMMDD(startDate).toString();
             chartEndDate = dateToYYYYMMDD(endDate).toString();
-            console.log("Fallback to date range:", chartStartDate, "to", chartEndDate);
-
         } else {
-            alert("Please select a period type and fill in the required date fields");
+            alert("Please select period + date(s)");
             return;
         }
 
-        console.log("=== CHART PARAMETERS ===");
-        console.log("Chart Single Date:", chartSingleDate);
-        console.log("Chart Start Date:", chartStartDate);
-        console.log("Chart End Date:", chartEndDate);
+        console.log("Final send -> filterDateInt:", filterDateInt,
+            "periodType:", periodType,
+            "transactionCode:", transactionCode,
+            "summarizeNetting:", summarizeNetting);
 
-        // Convert buySell to transaction code
-        var transactionCode = null;
-        if (buySell === "Buy") {
-            transactionCode = "B";
-        } else if (buySell === "Sell") {
-            transactionCode = "S";
-        }
-
-        // Set filter date for grids via AJAX call
         $.ajax({
             url: '@Url.Action("SetGridFilterDate", "MarketDriven")',
             type: 'POST',
             data: {
                 filterDate: filterDateInt.toString(),
                 periodType: periodType,
-                transactionCode: transactionCode
+                transactionCode: transactionCode,
+                summarizeNettingOption: summarizeNetting
             },
             dataType: 'json'
-        }).done(function (response) {
-            if (response.success) {
-                console.log("Filter date set successfully with periodType:", periodType);
-
-                // Refresh all three grids
-                var gridInv = $("#gridInvestor").dxDataGrid("instance");
-                if (gridInv) {
-                    gridInv.refresh();
-                    console.log("Investor grid refreshed");
-                    console.log("Filter date set successfully with periodType:", periodType);
-                }
-
-                var gridSec = $("#gridSecurity").dxDataGrid("instance");
-                if (gridSec) {
-                    gridSec.refresh();
-                    console.log("Security grid refreshed");
-                }
-
-                var gridCPInv = $("#gridCPInv").dxDataGrid("instance");
-                if (gridCPInv) {
-                    gridCPInv.refresh();
-                    console.log("CP Investor grid refreshed");
-                }
+        }).done(function (resp) {
+            if (resp.success) {
+                ["#gridInvestor", "#gridSecurity", "#gridCPInv"].forEach(id => {
+                    const inst = $(id).dxDataGrid("instance");
+                    if (inst) inst.refresh();
+                });
+            } else {
+                console.warn("SetGridFilterDate failed:", resp.message);
             }
-        }).fail(function (xhr, status, error) {
-            console.error("Error setting filter date:", error);
+        }).fail(function (xhr, s, err) {
+            console.error("SetGridFilterDate AJAX error:", err, xhr.responseText);
         });
 
-        // Load summary data for cards
         loadSummaryData(filterDateInt.toString(), displayDate);
 
-        // Refresh chart data with proper parameters
-        var currentChartType = $("#ChartType").dxSelectBox("instance")?.option("value") || "Value";
+        var chartType = $("#ChartType").dxSelectBox("instance")?.option("value") || "Value";
+        refreshChartData(chartType, chartSingleDate, chartStartDate, chartEndDate);
 
-        // **FIX: Pass the correct date parameters to refreshChartData**
-        refreshChartData(currentChartType, chartSingleDate, chartStartDate, chartEndDate);
-
-        // Show all components
         showAllComponents();
         $("#marketDataChart").closest(".card").show();
     }
@@ -1268,10 +1231,10 @@
         var monthDate = $("#DatepickmID").dxDateBox("instance")?.option("value");
         var startDate = $("#StartDateID").dxDateBox("instance")?.option("value");
         var endDate = $("#EndDateID").dxDateBox("instance")?.option("value");
-        var buySell = $("#Buysellid").dxSelectBox("instance")?.option("value");
+        var buySellValues = $("#Buysellid").dxTagBox("instance")?.option("value") || [];
+        var summarizeNetting = $("#SummarizeNettingid").dxSelectBox("instance")?.option("value");
 
-        // Build a string summary of the filters
-        return `PeriodType: ${periodType}, Day: ${dayDate}, Month: ${monthDate}, Start: ${startDate}, End: ${endDate}, BuySell: ${buySell}`;
+        return `PeriodType:${periodType}; Day:${dayDate}; Month:${monthDate}; Start:${startDate}; End:${endDate}; BuySell:[${buySellValues.join(",")}]; SummarizeNetting:${summarizeNetting}`;
     }
 
     function dateToYYYYMMDD(date) {

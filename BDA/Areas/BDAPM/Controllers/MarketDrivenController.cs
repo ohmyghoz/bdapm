@@ -1915,39 +1915,35 @@ namespace BDA.Controllers
             }
         }
 
+
         [HttpGet]
         public object GetInvestorGridData(DataSourceLoadOptions loadOptions)
         {
             try
             {
-                // ✅ Get period type from session (now it will be properly stored)
-                string filterDate = Request.Query["filterDate"].FirstOrDefault() ??
-                                   HttpContext.Session.GetString("CurrentFilterDate");
-                string periodType = Request.Query["periodType"].FirstOrDefault() ??
-                                   HttpContext.Session.GetString("CurrentPeriodType") ?? "Daily";
-                string transactionCode = Request.Query["transactionCode"].FirstOrDefault() ??
-                                        HttpContext.Session.GetString("CurrentTransactionCode");
+                string filterDate = Request.Query["filterDate"].FirstOrDefault() ?? HttpContext.Session.GetString("CurrentFilterDate");
+                string periodType = Request.Query["periodType"].FirstOrDefault() ?? HttpContext.Session.GetString("CurrentPeriodType") ?? "Daily";
+                string transactionCode = Request.Query["transactionCode"].FirstOrDefault() ?? HttpContext.Session.GetString("CurrentTransactionCode");
+                string summarizeNetting = HttpContext.Session.GetString("CurrentSummarizeNettingOption");
 
-                // ✅ Add logging to verify values
-                System.Diagnostics.Debug.WriteLine($"=== GetInvestorGridData DEBUG ===");
-                System.Diagnostics.Debug.WriteLine($"filterDate: {filterDate}");
-                System.Diagnostics.Debug.WriteLine($"periodType: {periodType}"); // Should now be "Monthly" when selected
-                System.Diagnostics.Debug.WriteLine($"transactionCode: {transactionCode}");
-
-                if (string.IsNullOrEmpty(filterDate))
+                // If Netting mode is active, force Buy side (transactiontypecode = 'B')
+                if (string.Equals(summarizeNetting, "Netting", StringComparison.OrdinalIgnoreCase))
                 {
-                    return DataSourceLoader.Load(new List<object>(), loadOptions);
+                    transactionCode = "B";
+                    System.Diagnostics.Debug.WriteLine("GetInvestorGridData: Netting mode => forcing transactionCode = B");
                 }
 
-                // ✅ Call WSQueryPS with the correct periodType
+                System.Diagnostics.Debug.WriteLine($"=== GetInvestorGridData DEBUG === filterDate={filterDate}, periodType={periodType}, transactionCode={transactionCode}, summarizeNetting={summarizeNetting}");
+
+                if (string.IsNullOrEmpty(filterDate))
+                    return DataSourceLoader.Load(new List<object>(), loadOptions);
+
                 var result = Helper.WSQueryPS.GetInvestorGridData(db, filterDate, periodType, transactionCode, loadOptions);
 
                 if (result?.data != null && result.data.Rows.Count > 0)
                 {
-                    // Convert DataTable to List for DevExtreme
                     var gridData = new List<object>();
                     int rowId = 1;
-
                     foreach (DataRow row in result.data.Rows)
                     {
                         gridData.Add(new
@@ -1959,17 +1955,9 @@ namespace BDA.Controllers
                             quantity = Convert.ToDecimal(row["quantity"] ?? 0)
                         });
                     }
-
-                    System.Diagnostics.Debug.WriteLine($"Returning {gridData.Count} investor records");
-
-                    // Apply DevExtreme operations (sorting, paging, filtering)
                     return DataSourceLoader.Load(gridData, loadOptions);
                 }
-                else
-                {
-                    System.Diagnostics.Debug.WriteLine("No investor data found");
-                    return DataSourceLoader.Load(new List<object>(), loadOptions);
-                }
+                return DataSourceLoader.Load(new List<object>(), loadOptions);
             }
             catch (Exception ex)
             {
@@ -1977,46 +1965,32 @@ namespace BDA.Controllers
                 return DataSourceLoader.Load(new List<object>(), loadOptions);
             }
         }
+
         [HttpGet]
         public object GetSecurityGridData(DataSourceLoadOptions loadOptions)
         {
             try
             {
-                System.Diagnostics.Debug.WriteLine("=== SECURITY GRID DATA DEBUG ===");
-                System.Diagnostics.Debug.WriteLine($"GetSecurityGridData called with loadOptions");
+                string filterDate = Request.Query["filterDate"].FirstOrDefault() ?? HttpContext.Session.GetString("CurrentFilterDate");
+                string periodType = Request.Query["periodType"].FirstOrDefault() ?? HttpContext.Session.GetString("CurrentPeriodType") ?? "Daily";
+                string transactionCode = Request.Query["transactionCode"].FirstOrDefault() ?? HttpContext.Session.GetString("CurrentTransactionCode");
+                string summarizeNetting = HttpContext.Session.GetString("CurrentSummarizeNettingOption");
 
-                // ✅ Get period type from session (now it will be properly stored)
-
-                string filterDate = Request.Query["filterDate"].FirstOrDefault() ??
-
-                                   HttpContext.Session.GetString("CurrentFilterDate");
-
-                string periodType = Request.Query["periodType"].FirstOrDefault() ??
-
-                                   HttpContext.Session.GetString("CurrentPeriodType") ?? "Daily";
-
-                string transactionCode = Request.Query["transactionCode"].FirstOrDefault() ??
-
-                                        HttpContext.Session.GetString("CurrentTransactionCode");
-
-                System.Diagnostics.Debug.WriteLine($"Filter date for security grid: {filterDate}");
-                System.Diagnostics.Debug.WriteLine($"periodType: {periodType}");
-                System.Diagnostics.Debug.WriteLine($"Transaction code for security grid: {transactionCode}");
-
-                if (string.IsNullOrEmpty(filterDate))
+                if (string.Equals(summarizeNetting, "Netting", StringComparison.OrdinalIgnoreCase))
                 {
-                    // Return empty result if no filter date
-                    return DataSourceLoader.Load(new List<object>(), loadOptions);
+                    transactionCode = "B";
+                    System.Diagnostics.Debug.WriteLine("GetSecurityGridData: Netting mode => forcing transactionCode = B");
                 }
 
-                // Call WSQueryPS method to get security data
+                if (string.IsNullOrEmpty(filterDate))
+                    return DataSourceLoader.Load(new List<object>(), loadOptions);
+
                 var result = Helper.WSQueryPS.GetSecurityGridData(db, filterDate, periodType, transactionCode, loadOptions);
+
                 if (result?.data != null && result.data.Rows.Count > 0)
                 {
-                    // Convert DataTable to List for DevExtreme
                     var gridData = new List<object>();
                     int rowId = 1;
-
                     foreach (DataRow row in result.data.Rows)
                     {
                         gridData.Add(new
@@ -2028,43 +2002,49 @@ namespace BDA.Controllers
                             frequency = Convert.ToInt32(row["frequency"] ?? 0)
                         });
                     }
-
-                    System.Diagnostics.Debug.WriteLine($"Returning {gridData.Count} security records");
-
-                    // Apply DevExtreme operations (sorting, paging, filtering)
                     return DataSourceLoader.Load(gridData, loadOptions);
                 }
-                else
-                {
-                    System.Diagnostics.Debug.WriteLine("No security data found");
-                    return DataSourceLoader.Load(new List<object>(), loadOptions);
-                }
+                return DataSourceLoader.Load(new List<object>(), loadOptions);
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error in GetSecurityGridData: {ex.Message}");
-                System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
-
                 return DataSourceLoader.Load(new List<object>(), loadOptions);
             }
         }
 
-        // Helper method to set filter date for grids
+        // Only the modified SetGridFilterDate (added extra form debug) and unchanged relevant getters.
         [HttpPost]
-        public JsonResult SetGridFilterDate(string filterDate, string periodType = "Daily", string transactionCode = null)
+        public JsonResult SetGridFilterDate(string filterDate, string periodType = "Daily", string transactionCode = null, string summarizeNettingOption = null)
         {
             try
             {
-                // Store filter parameters in session for grid data methods
+                // Extra debug to verify POST binding
+                System.Diagnostics.Debug.WriteLine("=== SetGridFilterDate POST RAW FORM ===");
+                foreach (var kv in Request.Form)
+                    System.Diagnostics.Debug.WriteLine($"{kv.Key} = {kv.Value}");
+
                 HttpContext.Session.SetString("CurrentFilterDate", filterDate);
                 HttpContext.Session.SetString("CurrentPeriodType", periodType ?? "Daily");
 
-                if (!string.IsNullOrEmpty(transactionCode))
+                // Store transactionCode even if empty string? We only store when not null.
+                if (transactionCode != null)
                 {
-                    HttpContext.Session.SetString("CurrentTransactionCode", transactionCode);
+                    if (string.IsNullOrWhiteSpace(transactionCode))
+                        HttpContext.Session.Remove("CurrentTransactionCode");
+                    else
+                        HttpContext.Session.SetString("CurrentTransactionCode", transactionCode);
                 }
 
-                System.Diagnostics.Debug.WriteLine($"SetGridFilterDate: filterDate={filterDate}, periodType={periodType}, transactionCode={transactionCode}");
+                if (summarizeNettingOption != null)
+                {
+                    if (string.IsNullOrWhiteSpace(summarizeNettingOption))
+                        HttpContext.Session.Remove("CurrentSummarizeNettingOption");
+                    else
+                        HttpContext.Session.SetString("CurrentSummarizeNettingOption", summarizeNettingOption);
+                }
+
+                System.Diagnostics.Debug.WriteLine($"[SetGridFilterDate Stored] filterDate={filterDate}, periodType={periodType}, transactionCode={transactionCode}, summarizeNettingOption={summarizeNettingOption}");
 
                 return Json(new { success = true });
             }
@@ -2079,68 +2059,44 @@ namespace BDA.Controllers
         {
             try
             {
-                System.Diagnostics.Debug.WriteLine("=== CP INVESTOR GRID DATA DEBUG ===");
-                System.Diagnostics.Debug.WriteLine($"GetCPInvestorGridData called with loadOptions");
+                string filterDate = Request.Query["filterDate"].FirstOrDefault() ?? HttpContext.Session.GetString("CurrentFilterDate");
+                string transactionCode = Request.Query["transactionCode"].FirstOrDefault() ?? HttpContext.Session.GetString("CurrentTransactionCode");
+                string periodType = Request.Query["periodType"].FirstOrDefault() ?? HttpContext.Session.GetString("CurrentPeriodType") ?? "Daily";
+                string summarizeNetting = HttpContext.Session.GetString("CurrentSummarizeNettingOption");
 
-                // Get filter date from session or request parameters
-                string filterDate = Request.Query["filterDate"].FirstOrDefault() ??
-                                   HttpContext.Session.GetString("CurrentFilterDate");
-
-                // Get transaction code from session if available
-                string transactionCode = Request.Query["transactionCode"].FirstOrDefault() ??
-                                        HttpContext.Session.GetString("CurrentTransactionCode");
-
-                string periodType = Request.Query["periodType"].FirstOrDefault() ??
-
-                           HttpContext.Session.GetString("CurrentPeriodType") ?? "Daily";
-
-                System.Diagnostics.Debug.WriteLine($"Filter date for CP Investor grid: {filterDate}");
-                System.Diagnostics.Debug.WriteLine($"periodType: {periodType}"); // Should now be "Monthly" when selected
-                System.Diagnostics.Debug.WriteLine($"Transaction code for CP Investor grid: {transactionCode}");
-
-                if (string.IsNullOrEmpty(filterDate))
+                if (string.Equals(summarizeNetting, "Netting", StringComparison.OrdinalIgnoreCase))
                 {
-                    // Return empty result if no filter date
-                    return DataSourceLoader.Load(new List<object>(), loadOptions);
+                    transactionCode = "B";
+                    System.Diagnostics.Debug.WriteLine("GetCPInvestorGridData: Netting mode => forcing transactionCode = B");
                 }
 
-                // Call WSQueryPS method to get CP Investor data
+                if (string.IsNullOrEmpty(filterDate))
+                    return DataSourceLoader.Load(new List<object>(), loadOptions);
+
                 var result = Helper.WSQueryPS.GetCPInvestorGridData(db, filterDate, periodType, transactionCode, loadOptions);
 
                 if (result?.data != null && result.data.Rows.Count > 0)
                 {
-                    // Convert DataTable to List for DevExtreme
                     var gridData = new List<object>();
                     int rowId = 1;
-
                     foreach (DataRow row in result.data.Rows)
                     {
                         gridData.Add(new
                         {
                             rowid = rowId++,
                             cpinvestorcode = row["cpinvestorcode"]?.ToString() ?? "",
-                            cptradeid = row["cpinvestorcode"]?.ToString() ?? "", // Same as cpinvestorcode as per your requirement
+                            cptradeid = row["cpinvestorcode"]?.ToString() ?? "",
                             value = Convert.ToDecimal(row["value"] ?? 0),
                             quantity = Convert.ToDecimal(row["quantity"] ?? 0)
                         });
                     }
-
-                    System.Diagnostics.Debug.WriteLine($"Returning {gridData.Count} CP Investor records");
-
-                    // Apply DevExtreme operations (sorting, paging, filtering)
                     return DataSourceLoader.Load(gridData, loadOptions);
                 }
-                else
-                {
-                    System.Diagnostics.Debug.WriteLine("No CP Investor data found");
-                    return DataSourceLoader.Load(new List<object>(), loadOptions);
-                }
+                return DataSourceLoader.Load(new List<object>(), loadOptions);
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error in GetCPInvestorGridData: {ex.Message}");
-                System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
-
                 return DataSourceLoader.Load(new List<object>(), loadOptions);
             }
         }
