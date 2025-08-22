@@ -150,16 +150,16 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-lg-8">
+                <div class="col-md-12">
                 @(Html.DevExtreme().DataGrid()
                     .ID("newsGrid")
                     .ShowBorders(true)
                     .Columns(columns => {
-                        columns.Add().DataField("Index").Caption("No.").Width(50);
-                        columns.Add().DataField("SecurityCode").Caption("Kode Saham").Width(120);
+                            columns.Add().DataField("Index").Caption("No.").Width(100);
+                        columns.Add().DataField("SecurityCode").Caption("Kode Saham");
                         columns.Add().DataField("NamaBerita").Caption("Berita");
-                        columns.Add().DataField("NamaMedia").Caption("Nama Media").Width(300);
-                        columns.Add().DataField("TradeDateSK").Caption("Tanggal").Width(150)
+                        columns.Add().DataField("NamaMedia").Caption("Nama Media");
+                        columns.Add().DataField("TradeDateSK").Caption("Tanggal")
                             .DataType(GridColumnDataType.Date)
                             .Format("dd-MM-yyyy");
                     })
