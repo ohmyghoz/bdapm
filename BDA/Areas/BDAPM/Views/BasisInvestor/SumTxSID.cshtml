@@ -145,44 +145,15 @@
 
             <div class="gridview-div">
                 <header class="bg-danger"><h5 class="text-white">&nbsp;Transaction Summary</h5></header>
-                <div id="pgTRX"></div>
+                <div id ="scrollview1">
+                    <div id="pgTRX"></div>
+                </div>
                 <div class="loadpanel1"></div>
-                @* @(Html.DevExtreme().DataGrid()
-                    .ID("gridtrx")
-                    .RemoteOperations(true)
-                    .Width("100%")
-                    .AllowColumnResizing(true)
-                    .ColumnAutoWidth(true)
-                    .Columns(columns =>
-                    {
-                        columns.Add().DataField("pe").Caption("PE");
-                        columns.Add().DataField("sid").Caption("SID");
-                        columns.Add().DataField("invcode").Caption("Investor Code");
-                        columns.Add().DataField("seccode").Caption("Security Code");
-                        columns.Add().DataField("trxsys").Caption("Transaction System");
-                        columns.Add().DataField("ttltrxfreq").Caption("Total Transaction Frequency");
-                        columns.Add().DataField("ttltrxvol").Caption("Total Transaction Volume");
-                        columns.Add().DataField("ttltrxval").Caption("Total Transaction Value");
-                    })
-                    .ColumnResizingMode(ColumnResizingMode.Widget)
-                    .FilterRow(f => f.Visible(true))
-                    .ShowBorders(false)
-                    .Paging(p =>
-                    {
-                        p.PageSize(20);
-                        p.Enabled(true);
-                    })
-                    .Pager(p =>
-                    {
-                        p.ShowInfo(true);
-                    })
-                    ) *@
-
             </div>
         </div>
 
         <div class="pt-4 pb-4">
-            <br />
+            <br /><br />
         </div>
 
         @*grid*@
@@ -195,38 +166,10 @@
             <br />
             <div class="gridview-div">
                 <header class="bg-danger"><h5 class="text-white">&nbsp;SRE Summary</h5></header>
-                <div id="pgSRE"></div>
+                <div id="scrollview2">
+                    <div id="pgSRE"></div>
+                </div>
                 <div class="loadpanel2"></div>
-                @* @(Html.DevExtreme().DataGrid()
-                    .ID("gridsre")
-                    .RemoteOperations(true)
-                    .Width("100%")
-                    .AllowColumnResizing(true)
-                    .ColumnAutoWidth(true)
-                    .Columns(columns =>
-                    {
-                        columns.Add().DataField("pe").Caption("PE");
-                        columns.Add().DataField("sid").Caption("SID");
-                        columns.Add().DataField("secphytcode").Caption("Security Physical Type Code");
-                        columns.Add().DataField("stlactowntcode").Caption("Settlement Account Owner Type Code");
-                        columns.Add().DataField("stlacttcode").Caption("Settlement Account Type Code");
-                        columns.Add().DataField("actblcstscode").Caption("Account Balance Status Code");
-                        columns.Add().DataField("portoamount").Caption("Portofolio Amount");
-                        columns.Add().DataField("portoqty").Caption("Portofolio Quantity");
-                    })
-                    .ColumnResizingMode(ColumnResizingMode.Widget)
-                    .FilterRow(f => f.Visible(true))
-                    .ShowBorders(false)
-                    .Paging(p =>
-                    {
-                        p.PageSize(20);
-                        p.Enabled(true);
-                    })
-                    .Pager(p =>
-                    {
-                        p.ShowInfo(true);
-                    })
-                    ) *@
             </div>
         </div>
 
@@ -314,6 +257,20 @@
             showColumnTotals: false,
             fieldChooser: { enabled: false }
         }).dxPivotGrid("instance");
+
+        $("#scrollview1").dxScrollView({
+            useNative: true,
+            showScrollbar: 'always',
+            direction: 'horizontal',
+            scrollByContent: true,
+        }).dxScrollView('instance');
+
+        $("#scrollview2").dxScrollView({
+            useNative: true,
+            showScrollbar: 'always',
+            direction: 'horizontal',
+            scrollByContent: true,
+        }).dxScrollView('instance');
     });
 
     $(function () {
@@ -568,18 +525,17 @@
                                     data: response.data
                                 },
                                 fields: [
-                                    { dataField: "pe", caption: "PE", wordWrapEnabled: true, width: 10, area: "row" },
-                                    { dataField: "sid", caption: "SID", wordWrapEnabled: true, width: 10, area: "row" },
-                                    { dataField: "invcode", caption: "Investor Code", wordWrapEnabled: true, width: 10, area: "row" },
-                                    { dataField: "seccode", caption: "Security Code", wordWrapEnabled: true, width: 10, area: "row" },
-                                    { dataField: "trxsys", caption: "Transaction System", wordWrapEnabled: true, width: 10, area: "row" },
+                                    { dataField: "pe", caption: "PE", area: "row" },
+                                    { dataField: "sid", caption: "SID", area: "row" },
+                                    { dataField: "invcode", caption: "Investor Code", area: "row" },
+                                    { dataField: "seccode", caption: "Security Code", area: "row" },
+                                    { dataField: "trxsys", caption: "Transaction System", area: "row" },
                                     { dataField: "fake", caption: "", area: "column" },
-                                    { dataField: "ttltrxfreq", caption: "Total Transaction Frequency", width: 10, area: "data", dataType: "number", format: '#,##0', summaryType: "sum" },
-                                    { dataField: "ttltrxvol", caption: "Total Transaction Volume", width: 10, area: "data", dataType: "number", format: '#,##0', summaryType: "sum" },
-                                    { dataField: "ttltrxval", caption: "Total Transaction Value", width: 10, area: "data", dataType: "number", format: '#,##0', summaryType: "sum" }
+                                    { dataField: "ttltrxfreq", caption: "Total Transaction Frequency", area: "data", dataType: "number", format: '#,##0', summaryType: "sum" },
+                                    { dataField: "ttltrxvol", caption: "Total Transaction Volume", area: "data", dataType: "number", format: '#,##0', summaryType: "sum" },
+                                    { dataField: "ttltrxval", caption: "Total Transaction Value", area: "data", dataType: "number", format: '#,##0', summaryType: "sum" }
                                 ]
                             },
-                            rowHeaderLayout: 'tree',
                             loadPanel: { enabled: false },
                             showBorders: true,
                             showRowGrandTotals: false,
@@ -603,10 +559,10 @@
                                 allowFieldDragging: false,
                                 visible: true,
                             },
-                            scrolling: {
+@*                             scrolling: {
                                 mode: 'virtual',
-                            },
-                            width: "100%"
+                            }, *@
+@*                             width: "100%" *@
                         }).dxPivotGrid("instance");
 
                         pgTRX.getDataSource().expandAll("pe");
@@ -645,15 +601,15 @@
                                     data: response.data
                                 },
                                 fields: [
-                                    { dataField: "pe", caption: "PE", width: 10, area: "row" },
-                                    { dataField: "sid", caption: "SID", width: 10, area: "row" },
-                                    { dataField: "secphytcode", caption: "Security Physical Type Code", width: 10, area: "row" },
-                                    { dataField: "stlactowntcode", caption: "Settlement Account Owner Type Code", width: 10, area: "row" },
-                                    { dataField: "stlacttcode", caption: "Settlement Account Type Code", width: 10, area: "row" },
-                                    { dataField: "actblcstscode", caption: "Account Balance Status Code", width: 10, area: "row" },
+                                    { dataField: "pe", caption: "PE", area: "row" },
+                                    { dataField: "sid", caption: "SID", area: "row" },
+                                    { dataField: "secphytcode", caption: "Security Physical Type Code", area: "row" },
+                                    { dataField: "stlactowntcode", caption: "Settlement Account Owner Type Code", area: "row" },
+                                    { dataField: "stlacttcode", caption: "Settlement Account Type Code", area: "row" },
+                                    { dataField: "actblcstscode", caption: "Account Balance Status Code", area: "row" },
                                     { dataField: "fake", caption: "", area: "column" },
-                                    { dataField: "portoamount", caption: "Portofolio Amount", width: 10, area: "data", dataType: "number", format: '#,##0', summaryType: "sum" },
-                                    { dataField: "portoqty", caption: "Portofolio Quantity", width: 10, area: "data", dataType: "number", format: '#,##0', summaryType: "sum" }
+                                    { dataField: "portoamount", caption: "Portofolio Amount", area: "data", dataType: "number", format: '#,##0', summaryType: "sum" },
+                                    { dataField: "portoqty", caption: "Portofolio Quantity", area: "data", dataType: "number", format: '#,##0', summaryType: "sum" }
                                 ]
                             },
                             loadPanel: { enabled: false },
@@ -679,10 +635,10 @@
                                 allowFieldDragging: false,
                                 visible: true,
                             },
-                            scrolling: {
+                            @* scrolling: {
                                 mode: 'virtual',
-                            },
-                            width: "100%"
+                            }, *@
+@*                             width: "100%" *@
                         }).dxPivotGrid("instance");
 
                         pgSRE.getDataSource().expandAll("pe");
