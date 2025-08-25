@@ -6579,7 +6579,7 @@ namespace BDA.Helper
             if (logDate != null)
             {
                 string ld = "'" + logDate.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery += " AND TglLog =  '" + ld + "'";
+                whereQuery += " AND CAST(TglLog AS date) =  " + ld + "";
             }
 
             if (status != null)

@@ -75,12 +75,6 @@ namespace BDA.Areas.Master.Controllers
         {
             List<LogMonData> data = new List<LogMonData>();
 
-            if (paramLogDate != null) {
-                string logDate = DateTime.Parse(paramLogDate).ToString("yyyy-MM-dd");
-                paramLogDate = logDate;
-            }
-            
-
             WSQueryReturns result = Helper.WSQueryStore.GetLogMonData(db, loadOptions, paramLogDate, paramStatus);
 
             if (result.data.Rows.Count > 0)

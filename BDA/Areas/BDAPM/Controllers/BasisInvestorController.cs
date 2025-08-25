@@ -283,17 +283,6 @@ namespace BDA.Controllers
             List<string> segmentsSorted = new List<string>(segments);
             segmentsSorted.Sort();
 
-            //var scatterData = data.GroupBy(item => item.Field<string>("basis_investor_1"))
-            //                   .Select(group => new
-            //                   {
-            //                       basis_investor = group.Select(item => item.Field<string>("basis_investor_1").ToString()).FirstOrDefault(),
-            //                       log10_sid = Math.Log10(group.Count(item => item.Field<string>("sid") != null)),
-            //                       med_inv_days = Statistics.Median(group.Select(item => Convert.ToDouble(item.Field<string>("investorlasttransactionindays"))).ToArray()),
-            //                       med_inv_tot_val = Statistics.Median(group.Select(item => Convert.ToDouble(item.Field<string>("investortotalvalue"))).ToArray()) / 1000000 
-            //                   })
-            //                   .OrderBy(result => result.basis_investor)
-            //                   .ToList();
-
             var scatterData = segmentsSorted
                               .Select(s =>
                               {
@@ -742,12 +731,56 @@ namespace BDA.Controllers
                     long bytesRead = inFile.Read(binaryData, 0, (int)inFile.Length);
 
                     //apply format number
-                    Style textStyle = workbook.CreateStyle();
-                    textStyle.Number = 3;
-                    StyleFlag textFlag = new StyleFlag();
-                    textFlag.NumberFormat = true;
+                    Style numericStyle = workbook.CreateStyle();
+                    numericStyle.Custom = "#,##0.00";
+                    numericStyle.HorizontalAlignment = TextAlignmentType.Right;
+                    StyleFlag numericFlag = new StyleFlag();
+                    numericFlag.NumberFormat = true;
+                    numericFlag.HorizontalAlignment = true;
 
-                    worksheet.Cells.Columns[9].ApplyStyle(textStyle, textFlag);
+                    // Create header style with text wrapping
+                    Style headerStyle = workbook.CreateStyle();
+                    headerStyle.IsTextWrapped = true; // Enable text wrapping
+                    headerStyle.HorizontalAlignment = TextAlignmentType.Center;
+                    headerStyle.VerticalAlignment = TextAlignmentType.Center;
+                    headerStyle.Font.IsBold = true;
+                    headerStyle.Font.Size = 10;
+
+                    StyleFlag headerFlag = new StyleFlag();
+                    headerFlag.WrapText = true;
+                    headerFlag.HorizontalAlignment = true;
+                    headerFlag.VerticalAlignment = true;
+                    headerFlag.FontBold = true;
+                    headerFlag.FontSize = true;
+
+                    // Apply header style to first row (assuming first row contains headers)
+                    Aspose.Cells.Range headerRange = worksheet.Cells.CreateRange(0, 0, 1, worksheet.Cells.MaxDataColumn + 1);
+                    headerRange.ApplyStyle(headerStyle, headerFlag);
+
+                    // Alternative: Apply header style only to cells that contain data in first row
+                    for (int col = 0; col <= worksheet.Cells.MaxDataColumn; col++)
+                    {
+                        Cell headerCell = worksheet.Cells[0, col];
+                        if (!string.IsNullOrEmpty(headerCell.StringValue))
+                        {
+                            headerCell.SetStyle(headerStyle, headerFlag);
+                        }
+                    }
+
+                    // Apply numeric formatting to data cells (excluding header row)
+                    foreach (Cell cell in worksheet.Cells)
+                    {
+                        if (cell.Type == CellValueType.IsNumeric && cell.Row > 0) // Skip header row
+                        {
+                            cell.SetStyle(numericStyle);
+                        }
+                    }
+
+                    // Auto-fit row height for header row to accommodate wrapped text
+                    worksheet.AutoFitRow(0);
+
+                    // Optional: Set minimum row height for header
+                    worksheet.Cells.SetRowHeight(0, 30); // Set minimum height to 30 points
 
                     //page setup
                     PageSetup pageSetup = worksheet.PageSetup;

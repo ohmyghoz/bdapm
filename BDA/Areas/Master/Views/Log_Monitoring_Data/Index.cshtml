@@ -126,27 +126,18 @@
         }
     }
 
-    // function gridOnBeforeSend(method, ajaxOptions) {
-    //     var tempstartDate = $("#startDate").dxDateBox("instance").option('value');
-    //     var tempendDate = $("#endDate").dxDateBox("instance").option('value');
-    //     var startDate = null;
-    //     var endDate = null;
+    function gridOnBeforeSend(method, ajaxOptions) {
+        var logDate = $("#logDate").dxDateBox("instance").option('value');
+        var status = $("#status").dxSelectBox("instance").option('value');
 
-    //     if (tempstartDate > tempendDate) {
-    //         swal({ type: 'error', title: 'Validasi', text: 'Periksa Kembali Tanggal Inputan' });
-    //     }
+        if (logDate != null) {
+            logDate = logDate.getFullYear() + '-' + String(logDate.getMonth() + 1).padStart(2, '0') + '-' + String(logDate.getDate()).padStart(2, '0');
+        }
 
-    //     if (tempstartDate != null) {
-    //         startDate = tempstartDate.getFullYear() + '-' + (tempstartDate.getMonth() + 1) + '-' + tempstartDate.getDate();
-    //     }
-    //     if (tempendDate != null) {
-    //         endDate = tempendDate.getFullYear() + '-' + (tempendDate.getMonth() + 1) + '-' + tempendDate.getDate();
-    //     }
+        ajaxOptions.data.paramLogDate = logDate;
+        ajaxOptions.data.paramStatus = status;
 
-    //     ajaxOptions.data.paramStartDate = startDate;
-    //     ajaxOptions.data.paramEndDate = endDate;
-
-    // }
+    }
 </script>
 
 
@@ -185,20 +176,6 @@
                         .Width("100%")
                         .Placeholder("(ALL)"))
                 </div>
-@*                 <div class="col-lg-4 form-group">
-                    <label>Tanggal Mulai</label>
-                    @(Html.DevExtreme().DateBox()
-                            .ID("startDate")
-                            .Name("startDate")
-                            .Width("100%").Value(DateTime.Now).DisplayFormat("dd MMM yyyy"))
-                </div>
-                <div class="col-lg-4 form-group">
-                    <label>Tanggal Selesai</label>
-                    @(Html.DevExtreme().DateBox()
-                            .ID("endDate")
-                            .Name("endDate")
-                            .Width("100%").Value(DateTime.Now).DisplayFormat("dd MMM yyyy"))
-                </div> *@
             </div>
 
             <div class="float-left">
@@ -227,7 +204,7 @@
             .DataSource(d => d.Mvc()
                 .Controller("Log_Monitoring_Data")
                 .LoadAction("GetGridData")
-            )
+                .OnBeforeSend("gridOnBeforeSend"))
             .RemoteOperations(true)
             .Export(e => e.AllowExportSelectedData(true).Texts(q => q.ExportTo("Ekspor")))
             .Width("100%")

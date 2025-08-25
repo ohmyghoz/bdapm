@@ -568,17 +568,18 @@
                                     data: response.data
                                 },
                                 fields: [
-                                    { dataField: "pe", caption: "PE", area: "row" },
-                                    { dataField: "sid", caption: "SID", area: "row" },
-                                    { dataField: "invcode", caption: "Investor Code", area: "row" },
-                                    { dataField: "seccode", caption: "Security Code", area: "row" },
-                                    { dataField: "trxsys", caption: "Transaction System", area: "row" },
+                                    { dataField: "pe", caption: "PE", wordWrapEnabled: true, width: 10, area: "row" },
+                                    { dataField: "sid", caption: "SID", wordWrapEnabled: true, width: 10, area: "row" },
+                                    { dataField: "invcode", caption: "Investor Code", wordWrapEnabled: true, width: 10, area: "row" },
+                                    { dataField: "seccode", caption: "Security Code", wordWrapEnabled: true, width: 10, area: "row" },
+                                    { dataField: "trxsys", caption: "Transaction System", wordWrapEnabled: true, width: 10, area: "row" },
                                     { dataField: "fake", caption: "", area: "column" },
-                                    { dataField: "ttltrxfreq", caption: "Total Transaction Frequency", area: "data", dataType: "number", format: '#,##0', summaryType: "sum" },
-                                    { dataField: "ttltrxvol", caption: "Total Transaction Volume", area: "data", dataType: "number", format: '#,##0', summaryType: "sum" },
-                                    { dataField: "ttltrxval", caption: "Total Transaction Value", area: "data", dataType: "number", format: '#,##0', summaryType: "sum" }
+                                    { dataField: "ttltrxfreq", caption: "Total Transaction Frequency", width: 10, area: "data", dataType: "number", format: '#,##0', summaryType: "sum" },
+                                    { dataField: "ttltrxvol", caption: "Total Transaction Volume", width: 10, area: "data", dataType: "number", format: '#,##0', summaryType: "sum" },
+                                    { dataField: "ttltrxval", caption: "Total Transaction Value", width: 10, area: "data", dataType: "number", format: '#,##0', summaryType: "sum" }
                                 ]
                             },
+                            rowHeaderLayout: 'tree',
                             loadPanel: { enabled: false },
                             showBorders: true,
                             showRowGrandTotals: false,
@@ -644,15 +645,15 @@
                                     data: response.data
                                 },
                                 fields: [
-                                    { dataField: "pe", caption: "PE", area: "row" },
-                                    { dataField: "sid", caption: "SID", area: "row" },
-                                    { dataField: "secphytcode", caption: "Security Physical Type Code", area: "row" },
-                                    { dataField: "stlactowntcode", caption: "Settlement Account Owner Type Code", area: "row" },
-                                    { dataField: "stlacttcode", caption: "Settlement Account Type Code", area: "row" },
-                                    { dataField: "actblcstscode", caption: "Account Balance Status Code", area: "row" },
+                                    { dataField: "pe", caption: "PE", width: 10, area: "row" },
+                                    { dataField: "sid", caption: "SID", width: 10, area: "row" },
+                                    { dataField: "secphytcode", caption: "Security Physical Type Code", width: 10, area: "row" },
+                                    { dataField: "stlactowntcode", caption: "Settlement Account Owner Type Code", width: 10, area: "row" },
+                                    { dataField: "stlacttcode", caption: "Settlement Account Type Code", width: 10, area: "row" },
+                                    { dataField: "actblcstscode", caption: "Account Balance Status Code", width: 10, area: "row" },
                                     { dataField: "fake", caption: "", area: "column" },
-                                    { dataField: "portoamount", caption: "Portofolio Amount", area: "data", dataType: "number", format: '#,##0', summaryType: "sum" },
-                                    { dataField: "portoqty", caption: "Portofolio Quantity", area: "data", dataType: "number", format: '#,##0', summaryType: "sum" }
+                                    { dataField: "portoamount", caption: "Portofolio Amount", width: 10, area: "data", dataType: "number", format: '#,##0', summaryType: "sum" },
+                                    { dataField: "portoqty", caption: "Portofolio Quantity", width: 10, area: "data", dataType: "number", format: '#,##0', summaryType: "sum" }
                                 ]
                             },
                             loadPanel: { enabled: false },
