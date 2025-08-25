@@ -6579,13 +6579,13 @@ namespace BDA.Helper
             if (logDate != null)
             {
                 string ld = "'" + logDate.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery += " AND CAST(TglLog AS date) =  " + ld + "";
+                whereQuery += " AND CAST(TglLog AS date) = " + ld + "";
             }
 
             if (status != null)
             {
                 string s = "'" + status.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery += " AND Status =  '" + s + "'";
+                whereQuery += " AND Status = " + s + "";
             }
 
             props.Query = @"SELECT 
