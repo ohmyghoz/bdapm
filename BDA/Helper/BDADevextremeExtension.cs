@@ -1,4 +1,5 @@
 ﻿using BDA.DataModel;
+using DevExpress.DashboardCommon.ViewModel;
 using DevExpress.PivotGrid;
 using DevExtreme.AspNet.Mvc;
 using DevExtreme.AspNet.Mvc.Builders;
@@ -2949,7 +2950,16 @@ namespace BDA.Helper
                         else if (row.ColumnName == "similarityvalue") {caption = "Nilai Similarity"; allowFilter = false; }
                         else if (row.ColumnName == "psystem") caption = "Sistem";
 
-                        if ((new string[] { "yearmonth", "pmonth", "side" }.Any(s => row.ColumnName == s))) visible = false;
+                        
+                        if ((new string[] { "yearmonth", "pmonth" }.Any(s => row.ColumnName == s)))
+                        {
+                            visible = false;
+                            colDataType = GridColumnDataType.String;
+                            allowFilter = false;
+
+                            grid.Columns(c => c.Add().Caption(caption).DataField(row.ColumnName).Width(width).CustomizeText("periodeFormat").Visible(visible).DataType(colDataType).AllowFiltering(allowFilter));
+                            continue;
+                        }                        
                     }
                     else
                     {
@@ -2993,10 +3003,19 @@ namespace BDA.Helper
                         else if (row.ColumnName == "inv1_nsec") caption = "Jml. Efek Investor";
                         else if (row.ColumnName == "inv2_nsec") caption = "Jml. Efek Lawan Investor";
                         else if (row.ColumnName == "allsec_size") caption = "Jml. Efek Ditemukan";
-                                                
-                        if ((new string[] {"side", "pstart", "pend" }.Any(s => row.ColumnName == s))) visible = false;                        
+
+                        if ((new string[] { "pstart", "pend"}.Any(s => row.ColumnName == s)))
+                        {                            
+                            visible = false;
+                            colDataType = GridColumnDataType.String;
+                            allowFilter = false;
+                                                        
+                            grid.Columns(c => c.Add().Caption(caption).DataField(row.ColumnName).Width(width).CustomizeText("periodeFormat").Visible(visible).DataType(colDataType).AllowFiltering(allowFilter));
+                            continue;
+                        }
+                        
                     }
-                    
+                    if (row.ColumnName == "side") visible = false;
                     if (row.ColumnName == "keyid")
                     {
                         string ct = "<text><a href=\"../../IP/Index/ip_sid?detailsid=<%- data.lem %><%- value %>\"><%- value %></a></text>";
