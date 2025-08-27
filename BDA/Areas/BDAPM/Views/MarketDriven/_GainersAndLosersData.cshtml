@@ -1,155 +1,173 @@
 ﻿@model BDA.Areas.BDAPM.Models.GainersAndLosersPageViewModel
-@{
-    int sequenceCounter;
-}
 
 <div class="row">
     <div class="col-md-6">
-        <div class="card">
-            <div class="card-header" style="background-color: #28a745; position:relative;">
-                <h1 class="card-title" style="color:white; font-weight:bold; display:inline-block;">Gainers</h1>
-                <div style="position: absolute; right: 20px; top: 18px;">
-                    <a href="javascript:exportGainersToExcel();" class="btn btn-success btn-sm" title="Export Gainers to Excel">
-                        <i class="fa fa-file-excel"></i> Excel
-                    </a>
-                    <a href="javascript:exportGainersToPDF();" class="btn btn-danger btn-sm" title="Export Gainers to PDF">
-                        <i class="fa fa-file-pdf"></i> PDF
-                    </a>
+        <div class="card h-100">
+            <div class="card-header" style="background-color:#28a745; position:relative;">
+                <h1 class="card-title" style="color:white;font-weight:bold;display:inline-block;">Gainers</h1>
+                <div style="position:absolute; right:20px; top:18px;">
+                    <a href="javascript:exportGainersToExcel();" class="btn btn-success btn-sm" title="Export Gainers to Excel"><i class="fa fa-file-excel"></i> Excel</a>
+                    <a href="javascript:exportGainersToPDF();" class="btn btn-danger btn-sm" title="Export Gainers to PDF"><i class="fa fa-file-pdf"></i> PDF</a>
                 </div>
             </div>
-            <div class="card-body" style="padding: 0;">
-                @{
-                    sequenceCounter = 1;
-                }
-                @foreach (BDA.Models.GainerLoserViewModel item in Model.Gainers)
+            <div class="card-body" style="padding:0;">
+                @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage as string))
                 {
-                    <div class="gainer-item">
-                        <div class="gainer-header">
-                            <div class="gainer-seq">@(sequenceCounter++)</div>
-                            <div class="gainer-code">@item.SecurityCode</div>
-                            <div class="gainer-name">@item.SecurityName</div>
-                            <div class="gainer-details">
-                                <table>
-                                    <tr>
-                                        <td>Volume</td>
-                                        <td>@Html.DisplayFor(modelItem => item.Volume)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Turnover</td>
-                                        <td>@Html.DisplayFor(modelItem => item.Turnover)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Freq</td>
-                                        <td>@Html.DisplayFor(modelItem => item.Freq)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Net Value</td>
-                                        <td>@Html.DisplayFor(modelItem => item.NetValue)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Net Volume</td>
-                                        <td>@Html.DisplayFor(modelItem => item.NetVolume)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Point</td>
-                                        <td class="negative-value">@Html.DisplayFor(modelItem => item.Point)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Price</td>
-                                        <td>@Html.DisplayFor(modelItem => item.Price)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>% Change Price</td>
-                                        <td class="negative-value">@Html.DisplayFor(modelItem => item.ChangePercentage)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Max</td>
-                                        <td>@Html.DisplayFor(modelItem => item.MaxPrice)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Min</td>
-                                        <td>@Html.DisplayFor(modelItem => item.MinPrice)</td>
-                                    </tr>
-                                </table>
+                    <div class="alert alert-danger m-3">@ViewBag.ErrorMessage</div>
+                }
+                else if (!string.IsNullOrEmpty(ViewBag.InfoMessage as string) && !Model.HasGainers)
+                {
+                    <div class="alert alert-info m-3">@ViewBag.InfoMessage</div>
+                }
+                else
+                {
+                    foreach (var item in Model.Gainers)
+                    {
+                        <div class="gainer-item">
+                            <div class="gainer-header">
+                                <div class="gainer-seq">@item.Sequence</div>
+                                <div class="gainer-code">@item.SecurityCode</div>
+                                <div class="gainer-name">@item.SecurityName</div>
+                                <div class="gainer-details">
+                                    <table>
+                                        <tr><td>Volume</td><td>@Html.DisplayFor(m => item.Volume)</td></tr>
+                                        <tr><td>Turnover</td><td>@Html.DisplayFor(m => item.Turnover)</td></tr>
+                                        <tr><td>Freq</td><td>@Html.DisplayFor(m => item.Freq)</td></tr>
+                                        <tr><td>Net Value</td><td>@Html.DisplayFor(m => item.NetValue)</td></tr>
+                                        <tr><td>Net Volume</td><td>@Html.DisplayFor(m => item.NetVolume)</td></tr>
+                                        <tr><td>Point</td><td class="negative-value">@Html.DisplayFor(m => item.Point)</td></tr>
+                                        <tr><td>Price</td><td>@Html.DisplayFor(m => item.Price)</td></tr>
+                                        <tr><td>% Change Price</td><td class="negative-value">@Html.DisplayFor(m => item.ChangePercentage)</td></tr>
+                                        <tr><td>Max</td><td>@Html.DisplayFor(m => item.MaxPrice)</td></tr>
+                                        <tr><td>Min</td><td>@Html.DisplayFor(m => item.MinPrice)</td></tr>
+                                    </table>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    }
                 }
             </div>
+            @if (Model.HasGainers && string.IsNullOrEmpty(ViewBag.ErrorMessage as string))
+            {
+                <div class="card-footer p-2">
+                    @Html.Partial("_GLPagination", new Tuple<string, int, int, int>("gainers", Model.PageGainers, Model.TotalPagesGainers, Model.PageSizeGainers))
+                    <div class="text-center small text-muted">
+                        Page @Model.PageGainers of @Model.TotalPagesGainers (Total: @Model.TotalGainers, Page Size: 10)
+                    </div>
+                </div>
+            }
         </div>
     </div>
     <div class="col-md-6">
-        <div class="card">
-            <div class="card-header" style="background-color: #dc3545; position:relative;">
-                <h1 class="card-title" style="color:white; font-weight:bold; display:inline-block;">Losers</h1>
-                <div style="position: absolute; right: 20px; top: 18px;">
-                    <a href="javascript:exportLosersToExcel();" class="btn btn-success btn-sm" title="Export Losers to Excel">
-                        <i class="fa fa-file-excel"></i> Excel
-                    </a>
-                    <a href="javascript:exportLosersToPDF();" class="btn btn-danger btn-sm" title="Export Losers to PDF">
-                        <i class="fa fa-file-pdf"></i> PDF
-                    </a>
+        <div class="card h-100">
+            <div class="card-header" style="background-color:#dc3545; position:relative;">
+                <h1 class="card-title" style="color:white;font-weight:bold;display:inline-block;">Losers</h1>
+                <div style="position:absolute; right:20px; top:18px;">
+                    <a href="javascript:exportLosersToExcel();" class="btn btn-success btn-sm" title="Export Losers to Excel"><i class="fa fa-file-excel"></i> Excel</a>
+                    <a href="javascript:exportLosersToPDF();" class="btn btn-danger btn-sm" title="Export Losers to PDF"><i class="fa fa-file-pdf"></i> PDF</a>
                 </div>
             </div>
-            <div class="card-body" style="padding: 0;">
-                @{
-                    sequenceCounter = 1;
-                }
-                @foreach (BDA.Models.GainerLoserViewModel item in Model.Losers)
+            <div class="card-body" style="padding:0;">
+                @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage as string))
                 {
-                    <div class="gainer-item">
-                        <div class="gainer-header">
-                            <div class="gainer-seq">@(sequenceCounter++)</div>
-                            <div class="gainer-code">@item.SecurityCode</div>
-                            <div class="gainer-name">@item.SecurityName</div>
-                            <div class="loser-details">
-                                <table>
-                                    <tr>
-                                        <td>Volume</td>
-                                        <td>@Html.DisplayFor(modelItem => item.Volume)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Turnover</td>
-                                        <td>@Html.DisplayFor(modelItem => item.Turnover)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Freq</td>
-                                        <td>@Html.DisplayFor(modelItem => item.Freq)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Net Value</td>
-                                        <td>@Html.DisplayFor(modelItem => item.NetValue)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Net Volume</td>
-                                        <td>@Html.DisplayFor(modelItem => item.NetVolume)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Point</td>
-                                        <td class="negative-value">@Html.DisplayFor(modelItem => item.Point)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Price</td>
-                                        <td>@Html.DisplayFor(modelItem => item.Price)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>% Change Price</td>
-                                        <td class="negative-value">@Html.DisplayFor(modelItem => item.ChangePercentage)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Max</td>
-                                        <td>@Html.DisplayFor(modelItem => item.MaxPrice)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Min</td>
-                                        <td>@Html.DisplayFor(modelItem => item.MinPrice)</td>
-                                    </tr>
-                                </table>
+                    <div class="alert alert-danger m-3">@ViewBag.ErrorMessage</div>
+                }
+                else if (!string.IsNullOrEmpty(ViewBag.InfoMessage as string) && !Model.HasLosers)
+                {
+                    <div class="alert alert-info m-3">@ViewBag.InfoMessage</div>
+                }
+                else
+                {
+                    foreach (var item in Model.Losers)
+                    {
+                        <div class="gainer-item">
+                            <div class="gainer-header">
+                                <div class="gainer-seq">@item.Sequence</div>
+                                <div class="gainer-code">@item.SecurityCode</div>
+                                <div class="gainer-name">@item.SecurityName</div>
+                                <div class="loser-details">
+                                    <table>
+                                        <tr><td>Volume</td><td>@Html.DisplayFor(m => item.Volume)</td></tr>
+                                        <tr><td>Turnover</td><td>@Html.DisplayFor(m => item.Turnover)</td></tr>
+                                        <tr><td>Freq</td><td>@Html.DisplayFor(m => item.Freq)</td></tr>
+                                        <tr><td>Net Value</td><td>@Html.DisplayFor(m => item.NetValue)</td></tr>
+                                        <tr><td>Net Volume</td><td>@Html.DisplayFor(m => item.NetVolume)</td></tr>
+                                        <tr><td>Point</td><td class="negative-value">@Html.DisplayFor(m => item.Point)</td></tr>
+                                        <tr><td>Price</td><td>@Html.DisplayFor(m => item.Price)</td></tr>
+                                        <tr><td>% Change Price</td><td class="negative-value">@Html.DisplayFor(m => item.ChangePercentage)</td></tr>
+                                        <tr><td>Max</td><td>@Html.DisplayFor(m => item.MaxPrice)</td></tr>
+                                        <tr><td>Min</td><td>@Html.DisplayFor(m => item.MinPrice)</td></tr>
+                                    </table>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    }
                 }
             </div>
+            @if (Model.HasLosers && string.IsNullOrEmpty(ViewBag.ErrorMessage as string))
+            {
+                <div class="card-footer p-2">
+                    @Html.Partial("_GLPagination", new Tuple<string, int, int, int>("losers", Model.PageLosers, Model.TotalPagesLosers, Model.PageSizeLosers))
+                    <div class="text-center small text-muted">
+                        Page @Model.PageLosers of @Model.TotalPagesLosers (Total: @Model.TotalLosers, Page Size: 10)
+                    </div>
+                </div>
+            }
         </div>
     </div>
 </div>
+
+<style>
+    .gainer-item {
+        border-bottom: 1px solid #dee2e6;
+        padding: 0.75rem 1.25rem;
+    }
+
+    .gainer-header {
+        display: flex;
+        align-items: center;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+
+    .gainer-seq {
+        width: 30px;
+    }
+
+    .gainer-code {
+        width: 70px;
+    }
+
+    .gainer-name {
+        flex-grow: 1;
+    }
+
+    .gainer-details table, .loser-details table {
+        width: 300px;
+        font-size: 0.9em;
+    }
+
+    .gainer-details td, .loser-details td {
+        padding: 2px 0;
+        width: 200px;
+    }
+
+        .gainer-details td:first-child, .loser-details td:first-child {
+            width: 35%;
+            color: #6c757d;
+        }
+
+        .gainer-details td:last-child {
+            text-align: right;
+            width: 150px;
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .loser-details td:last-child {
+            text-align: right;
+            width: 150px;
+            color: #dc3545;
+            font-weight: bold;
+        }
+</style>

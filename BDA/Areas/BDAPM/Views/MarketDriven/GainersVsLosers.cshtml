@@ -91,7 +91,7 @@
                     <div class="col-lg-3 form-group" id="topDiv">
                         <label>Top@*<span class="mandatory">*</span>*@</label>
                         @(Html.DevExtreme().SelectBox()
-                            .ID("ItemsPerPageSelectBox")
+                            .ID("TopNSelectBox")
                             .DataSource(new[] { "10", "25", "50", "100", "150", "200", "All" })
                             .ValueExpr("this")
                             .DisplayExpr("this")
@@ -249,7 +249,7 @@
                 selectedDate = window.getFormattedDateByPeriod(periodType);
             }
 
-            var topN = $("#ItemsPerPageSelectBox").dxSelectBox("instance").option("value");
+            var topN = $("#TopNSelectBox").dxSelectBox("instance").option("value");
             console.log("Top N:", topN);
 
             // Validate inputs
@@ -266,17 +266,28 @@
             // Convert topN to number, default to 10
             var topCount = topN === "All" ? 500 : (parseInt(topN) || 10);
 
+            // Fixed page sizes
+            var fixedPageSize = 10;
+
+
             // Show loading indicator
             showLoadingIndicator();
 
             var ajaxData = {
                 selectedDate: selectedDate,
                 topN: topCount,
-                periodType: periodType
+                periodType: periodType,
+                pageGainers: 1,
+                pageLosers: 1,
+                pageSizeGainers: fixedPageSize,
+                pageSizeLosers: fixedPageSize
             };
             if (periodType === "Custom Date") {
                 ajaxData.endDate = endDate;
             }
+
+            window.gainersLosersFilter = Object.assign({}, ajaxData);
+
 
             $.ajax({
                 url: '@Url.Action("_GetGainersAndLosersData", "MarketDriven")',
@@ -285,6 +296,7 @@
                 success: function (responseHtml) {
                     console.log("AJAX Success");
                     $('#gainerLoserContent').html(responseHtml);
+                    window.gainersLosersFilter = ajaxData;
                     hideLoadingIndicator();
                     DevExpress.ui.notify("Data loaded successfully.", "success", 2000);
                 },
@@ -320,6 +332,30 @@
             alert("Error: " + e.message);
         }
     };
+
+    // Independent pagination click
+    $(document).on('click', '.gl-page-link', function () {
+        var which = $(this).data('which'); // 'gainers' or 'losers'
+        var newPage = parseInt($(this).data('page'));
+        if (!window.gainersLosersFilter || isNaN(newPage)) return;
+
+        var payload = Object.assign({}, window.gainersLosersFilter);
+        if (which === 'gainers') payload.pageGainers = newPage;
+        else payload.pageLosers = newPage;
+
+        $.ajax({
+            url: '@Url.Action("_GetGainersAndLosersData", "MarketDriven")',
+            type: 'POST',
+            data: payload,
+            success: function (html) {
+                window.gainersLosersFilter = payload;
+                $('#gainerLoserContent').html(html);
+            },
+            error: function () {
+                DevExpress.ui.notify("Pagination load failed", "error", 3000);
+            }
+        });
+    });
 
     window.getFormattedDateByPeriod = function (periodType) {
         console.log("getFormattedDateByPeriod called with:", periodType);
@@ -512,8 +548,8 @@
                 selectedDate = window.getFormattedDateByPeriod(periodType);
             }
 
-            var topN = $("#ItemsPerPageSelectBox").dxSelectBox("instance").option("value");
-            var topCount = topN === "All" ? 500 : (parseInt(topN) || 10);
+            var topNValue = $("#TopNSelectBox").dxSelectBox("instance").option("value");
+            var topCount = parseInt(topNValue) || 10;
 
             // Build export URL
             var exportUrl = '@Url.Action("ExportLosersToExcel", "MarketDriven")' +
@@ -551,7 +587,7 @@
                 selectedDate = window.getFormattedDateByPeriod(periodType);
             }
 
-            var topN = $("#ItemsPerPageSelectBox").dxSelectBox("instance").option("value");
+            var topN = $("#TopNSelectBox").dxSelectBox("instance").option("value");
             var topCount = topN === "All" ? 500 : (parseInt(topN) || 10);
 
             // Build export URL
@@ -643,6 +679,35 @@
             console.error("Error in document ready:", e);
         }
     });
+
+    // Export functions now use TopNSelectBox only
+    window.exportGainersToExcel = function () { doExport('ExportGainersToExcel'); };
+    window.exportGainersToPDF = function () { doExport('ExportGainersToPDF'); };
+    window.exportLosersToExcel = function () { doExport('ExportLosersToExcel'); };
+    window.exportLosersToPDF = function () { doExport('ExportLosersToPDF'); };
+
+    function doExport(actionName) {
+        try {
+            var periodType = $("#Periodid").dxSelectBox("instance").option("value");
+            var selectedDate, endDate = null;
+            if (periodType === "Custom Date") {
+                selectedDate = window.formatDateYYYYMMDD($("#StartDateID").dxDateBox("instance").option("value"));
+                endDate = window.formatDateYYYYMMDD($("#EndDateID").dxDateBox("instance").option("value"));
+            } else {
+                selectedDate = window.getFormattedDateByPeriod(periodType);
+            }
+            var topN = parseInt($("#TopNSelectBox").dxSelectBox("instance").option("value")) || 10;
+            var url = '@Url.Action("__PLACEHOLDER__", "MarketDriven")'
+                .replace('__PLACEHOLDER__', actionName)
+                + '?selectedDate=' + encodeURIComponent(selectedDate)
+                + '&topN=' + topN
+                + '&periodType=' + encodeURIComponent(periodType);
+            if (endDate) url += '&endDate=' + encodeURIComponent(endDate);
+            window.open(url, '_blank');
+        } catch (e) {
+            DevExpress.ui.notify("Export error: " + e.message, "error", 3000);
+        }
+    }
 
     // Keep all your existing functions below this line
     $(function () {

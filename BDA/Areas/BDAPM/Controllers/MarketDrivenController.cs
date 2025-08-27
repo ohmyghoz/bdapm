@@ -187,13 +187,26 @@ namespace BDA.Controllers
 
 
         [HttpPost]
-        public PartialViewResult _GetGainersAndLosersData(string selectedDate, int? topN, string periodType, string endDate = null)
+        public PartialViewResult _GetGainersAndLosersData(
+        string selectedDate,
+        int? topN,
+        string periodType,
+        string endDate = null,
+        int pageGainers = 1,
+        int pageLosers = 1,
+        int pageSizeGainers = 10,
+        int pageSizeLosers = 10)
         {
-            var pageModel = new GainersAndLosersPageViewModel();
+            var pageModel = new GainersAndLosersPageViewModel
+            {
+                PageGainers = pageGainers < 1 ? 1 : pageGainers,
+                PageLosers = pageLosers < 1 ? 1 : pageLosers,
+                PageSizeGainers = pageSizeGainers <= 0 ? 10 : pageSizeGainers,
+                PageSizeLosers = pageSizeLosers <= 0 ? 10 : pageSizeLosers
+            };
 
             try
             {
-                // Input validation
                 if (string.IsNullOrEmpty(selectedDate))
                 {
                     ViewBag.ErrorMessage = "Please select a valid date.";
@@ -206,21 +219,17 @@ namespace BDA.Controllers
                     return PartialView("_GainersAndLosersData", pageModel);
                 }
 
-                // Validate date format based on period type
                 bool isValidFormat = false;
                 if (periodType == "Daily" || periodType == "Custom Date")
                 {
-                    // Should be YYYYMMDD (8 digits)
                     isValidFormat = selectedDate.Length == 8 && int.TryParse(selectedDate, out _);
                     if (periodType == "Custom Date")
                     {
-                        // endDate must also be valid
                         isValidFormat = isValidFormat && !string.IsNullOrEmpty(endDate) && endDate.Length == 8 && int.TryParse(endDate, out _);
                     }
                 }
                 else if (periodType == "Monthly")
                 {
-                    // Should be YYYYMM (6 digits)
                     isValidFormat = selectedDate.Length == 6 && int.TryParse(selectedDate, out _);
                 }
 
@@ -233,15 +242,17 @@ namespace BDA.Controllers
                 int topCount = topN ?? 10;
                 if (topCount <= 0 || topCount > 500)
                 {
-                    topCount = 10; // Default fallback
+                    topCount = 10;
                 }
 
                 var userId = HttpContext.User.Identity.Name ?? "Anonymous";
                 db.InsertAuditTrail("Gainers_Losers_Data_Request",
-                    $"User {userId} requested gainers/losers data for {periodType} period, date {selectedDate}" + (endDate != null ? $" to {endDate}" : "") + $", top {topCount}",
+                    $"User {userId} requested G/L data Period={periodType} Date={selectedDate}" +
+                    (endDate != null ? $" to {endDate}" : "") +
+                    $", Top={topCount}, GainersPage={pageGainers}, LosersPage={pageLosers}, PSG={pageSizeGainers}, PSL={pageSizeLosers}",
                     "GainersVsLosers");
 
-                // Call the helper methods
+                // Fetch capped lists first
                 if (periodType == "Custom Date")
                 {
                     pageModel.Gainers = WSQueryPS.GetGainersOrLosersCustomDate(db, selectedDate, endDate, topCount, true);
@@ -253,21 +264,42 @@ namespace BDA.Controllers
                     pageModel.Losers = WSQueryPS.GetGainersOrLosers(db, false, selectedDate, topCount, periodType);
                 }
 
-                if (!pageModel.Gainers.Any() && !pageModel.Losers.Any())
+                pageModel.TotalGainers = pageModel.Gainers.Count;
+                pageModel.TotalLosers = pageModel.Losers.Count;
+
+                pageModel.TotalPagesGainers = pageModel.TotalGainers == 0
+                    ? 1
+                    : (int)System.Math.Ceiling(pageModel.TotalGainers / (double)pageModel.PageSizeGainers);
+
+                pageModel.TotalPagesLosers = pageModel.TotalLosers == 0
+                    ? 1
+                    : (int)System.Math.Ceiling(pageModel.TotalLosers / (double)pageModel.PageSizeLosers);
+
+                if (pageModel.PageGainers > pageModel.TotalPagesGainers)
+                    pageModel.PageGainers = pageModel.TotalPagesGainers;
+                if (pageModel.PageLosers > pageModel.TotalPagesLosers)
+                    pageModel.PageLosers = pageModel.TotalPagesLosers;
+
+                int skipG = (pageModel.PageGainers - 1) * pageModel.PageSizeGainers;
+                int skipL = (pageModel.PageLosers - 1) * pageModel.PageSizeLosers;
+
+                // Apply paging
+                var pagedGainers = pageModel.Gainers.Skip(skipG).Take(pageModel.PageSizeGainers).ToList();
+                var pagedLosers = pageModel.Losers.Skip(skipL).Take(pageModel.PageSizeLosers).ToList();
+
+                // Re-sequence relative to entire capped list
+                for (int i = 0; i < pagedGainers.Count; i++)
+                    pagedGainers[i].Sequence = skipG + i + 1;
+
+                for (int i = 0; i < pagedLosers.Count; i++)
+                    pagedLosers[i].Sequence = skipL + i + 1;
+
+                pageModel.Gainers = pagedGainers;
+                pageModel.Losers = pagedLosers;
+
+                if (pageModel.TotalGainers == 0 && pageModel.TotalLosers == 0)
                 {
                     ViewBag.InfoMessage = $"No data available for the selected {periodType.ToLower()}";
-                }
-                else
-                {
-                    for (int i = 0; i < pageModel.Gainers.Count; i++)
-                    {
-                        pageModel.Gainers[i].Sequence = i + 1;
-                    }
-
-                    for (int i = 0; i < pageModel.Losers.Count; i++)
-                    {
-                        pageModel.Losers[i].Sequence = i + 1;
-                    }
                 }
             }
             catch (SqlException sqlEx)
@@ -284,7 +316,7 @@ namespace BDA.Controllers
             return PartialView("_GainersAndLosersData", pageModel);
         }
 
-      
+
 
         private string FormatDateForDisplay(string dateString, string periodType)
         {
