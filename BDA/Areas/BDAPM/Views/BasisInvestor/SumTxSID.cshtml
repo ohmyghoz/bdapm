@@ -224,6 +224,9 @@
 <script>
 
     $(function () {
+
+        let excelFileData = null;
+
         var pgTRX = $("#pgTRX").dxPivotGrid({
             dataSource: {
                 store: {
@@ -238,7 +241,7 @@
             showRowTotals: false,
             showColumnGrandTotals: false,
             showColumnTotals: false,
-            fieldChooser: { enabled: false }
+            fieldChooser: { enabled: false },
         }).dxPivotGrid("instance");
 
         var pgSRE = $("#pgSRE").dxPivotGrid({
@@ -255,7 +258,7 @@
             showRowTotals: false,
             showColumnGrandTotals: false,
             showColumnTotals: false,
-            fieldChooser: { enabled: false }
+            fieldChooser: { enabled: false },
         }).dxPivotGrid("instance");
 
         $("#scrollview1").dxScrollView({
@@ -292,8 +295,8 @@
             return false;
         } else {
             $.ajax({
-                url: '@Url.Action("SimpanPenggunaanData", "SegmentationSummaryClusterMKBD")',
-                data: { id: penggunaandataid },
+                url: '@Url.Action("SimpanPenggunaanData", "BasisInvestor")',
+                data: { id: penggunaandataid, page: "Summary Transaction SID" },
                 dataType: "json",
                 type: "POST",
                 success: function (data) {
@@ -322,16 +325,13 @@
                 if (response.result == "Success") {
                     var workbook = new ExcelJS.Workbook();
                     var worksheet = workbook.addWorksheet('Transaction Summary');
-                    var exportHeaderOptions = {
-                        exportRowFieldHeaders: true,
-                        exportColumnFieldHeaders: false,
-                        exportDataFieldHeaders: false,
-                        exportFilterFieldHeaders: false,
-                    };
 
                     DevExpress.excelExporter.exportPivotGrid({
                         component: $("#pgTRX").dxPivotGrid("instance"),
-                        exportHeaderOptions: { exportRowFieldHeaders: true },
+                        exportRowFieldHeaders: true,
+                        exportColumnFieldHeaders: true,
+                        exportDataFieldHeaders: true,
+                        exportFilterFieldHeaders: true,
                         worksheet: worksheet,
                         customizeCell: function (options) {
                             var gridCell = options.gridCell;
@@ -343,6 +343,20 @@
                                 }
                             }
                         }
+                    }).then(function (dataGridRange) {
+                        var fields = $("#pgTRX").dxPivotGrid("instance").getDataSource().fields();
+                        var rowFields = fields.filter(r => r.area === 'row').map(r => r.caption);
+                        var firstRow = worksheet.getRow(2);
+                        worksheet.unMergeCells('A1');
+                        rowFields.forEach(insertRow);
+
+                        function insertRow(item, index) {
+                            var cell = firstRow.getCell(index + 1);
+                            cell.value = item;
+                            cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+                        }
+
+                        return Promise.resolve();
                     }).then(function () {
                         workbook.xlsx.writeBuffer().then(function (buffer) {
                             saveAs(new Blob([buffer], { type: "application/octet-stream" }), "TransactionSummary_" + new Date().toISOString().slice(0, 10) + ".xlsx");
@@ -363,8 +377,12 @@
                     var worksheet = workbook.addWorksheet('SRE Summary');
 
                     DevExpress.excelExporter.exportPivotGrid({
-                        component: $("#pgTRX").dxPivotGrid("instance"),
+                        component: $("#pgSRE").dxPivotGrid("instance"),
                         worksheet: worksheet,
+                        exportRowFieldHeaders: true,
+                        exportColumnFieldHeaders: false,
+                        exportDataFieldHeaders: true,
+                        exportFilterFieldHeaders: false,
                         customizeCell: function (options) {
                             var gridCell = options.gridCell;
                             var excelCell = options.excelCell;
@@ -376,7 +394,22 @@
                                 }
                             }
                         }
-                    }).then(function () {
+                    }).then(function (dataGridRange) {
+                        var fields = $("#pgSRE").dxPivotGrid("instance").getDataSource().fields();
+                        var rowFields = fields.filter(r => r.area === 'row').map(r => r.caption);
+                        var firstRow = worksheet.getRow(2);
+                        worksheet.unMergeCells('A1');
+                        rowFields.forEach(insertRow);
+
+                        function insertRow(item, index) {
+                            var cell = firstRow.getCell(index + 1);
+                            cell.value = item;
+                            cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+                        }
+
+                        return Promise.resolve();
+                    })
+                    .then(function () {
                         workbook.xlsx.writeBuffer().then(function (buffer) {
                             saveAs(new Blob([buffer], { type: "application/octet-stream" }), "SRESummary_" + new Date().toISOString().slice(0, 10) + ".xlsx");
                         });
@@ -394,22 +427,50 @@
         pivotGrid.option("onExporting", function (e) { 
             var workbook = new ExcelJS.Workbook();
             var worksheet = workbook.addWorksheet('Transaction Summary');
-            var gridCell = e.gridCell;
-            var excelCell = e.excelCell;
 
-            // Ensure there is a valid gridCell before accessing its properties
-            if (gridCell) {
-                // Handle data cells (numerical cells)
-                if (gridCell.rowType === 'data') {
-                    if (gridCell.column && gridCell.column.dataType === 'number') {
-                        excelCell.numFmt = '#,##0';  // Apply number formatting
-                    }
+            DevExpress.excelExporter.exportPivotGrid({
+                component: e.component,
+                worksheet: worksheet,
+                exportRowFieldHeaders: true,
+                exportColumnFieldHeaders: false,
+                exportDataFieldHeaders: true,
+                exportFilterFieldHeaders: false,
+                customizeCell: function (options) {
+                    var gridCell = options.gridCell;
+                    var excelCell = options.excelCell;
+
+@*                     // Defensive checks to avoid errors
+                    if (gridCell && gridCell.rowType === 'data') {
+                        if (gridCell.column && gridCell.column.dataType === 'number') {
+                            excelCell.numFmt = '#,##0';
+                        }
+                    } *@
                 }
-            }
+            }).then(function (dataGridRange) {
+                var fields = e.component.getDataSource().fields();
+                var rowFields = fields.filter(r => r.area === 'row').map(r => r.caption);
+                var firstRow = worksheet.getRow(2);
+                worksheet.unMergeCells('A1');
+                worksheet.views = [];
+                rowFields.forEach(insertRow);
+
+                function insertRow(item, index) {
+                    var cell = firstRow.getCell(index + 1);
+                    cell.value = item;
+                    cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+                }
+
+                return workbook.xlsx.writeBuffer();
+            }).then(function (buffer) {
+                excelFileData = buffer;
+            });
         });
+
         pivotGrid.option("onFileSaving", function (e) {
             var fd = new FormData();
-            fd.append("file", e.data);
+            var blob = new Blob([excelFileData], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+
+            fd.append("file", blob);
             fd.append("name", "TransactionSummary");
             $.ajax({
                 type: "POST",
@@ -422,15 +483,63 @@
             });
             e.cancel = true;
         });
+
         pivotGrid.exportToExcel();
     }
 
     function ExportToPdf2() {
         var pivotGrid = $("#pgSRE").dxPivotGrid("instance");
-        pivotGrid.option("onExporting", function (e) { });
+
+        pivotGrid.option("exportRowFieldHeaders", true);
+
+        pivotGrid.option("onExporting", function (e) {
+            var workbook = new ExcelJS.Workbook();
+            var worksheet = workbook.addWorksheet('SRE Summary');
+
+            DevExpress.excelExporter.exportPivotGrid({
+                component: e.component,
+                worksheet: worksheet,
+                exportRowFieldHeaders: true,
+                exportColumnFieldHeaders: false,
+                exportDataFieldHeaders: true,
+                exportFilterFieldHeaders: false,
+                customizeCell: function (options) {
+                    var gridCell = options.gridCell;
+                    var excelCell = options.excelCell;
+
+@*                     // Defensive checks to avoid errors
+                    if (gridCell && gridCell.rowType === 'data') {
+                        if (gridCell.column && gridCell.column.dataType === 'number') {
+                            excelCell.numFmt = '#,##0';
+                        }
+                    } *@
+                }
+            }).then(function (dataGridRange) {
+                var fields = e.component.getDataSource().fields();
+                var rowFields = fields.filter(r => r.area === 'row').map(r => r.caption);
+                var firstRow = worksheet.getRow(2);
+                worksheet.unMergeCells('A1');
+                worksheet.views = [];
+                rowFields.forEach(insertRow);
+
+                function insertRow(item, index) {
+                    var cell = firstRow.getCell(index + 1);
+                    cell.value = item;
+                    cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+                }
+
+                return workbook.xlsx.writeBuffer();
+            }).then(function (buffer) {
+                excelFileData = buffer;
+            });
+        });
+
         pivotGrid.option("onFileSaving", function (e) {
             var fd = new FormData();
-            fd.append("file", e.data);
+            var fd = new FormData();
+            var blob = new Blob([excelFileData], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+
+            fd.append("file", blob);
             fd.append("name", "SRESummary");
             $.ajax({
                 type: "POST",
@@ -559,10 +668,6 @@
                                 allowFieldDragging: false,
                                 visible: true,
                             },
-@*                             scrolling: {
-                                mode: 'virtual',
-                            }, *@
-@*                             width: "100%" *@
                         }).dxPivotGrid("instance");
 
                         pgTRX.getDataSource().expandAll("pe");
@@ -635,10 +740,6 @@
                                 allowFieldDragging: false,
                                 visible: true,
                             },
-                            @* scrolling: {
-                                mode: 'virtual',
-                            }, *@
-@*                             width: "100%" *@
                         }).dxPivotGrid("instance");
 
                         pgSRE.getDataSource().expandAll("pe");
