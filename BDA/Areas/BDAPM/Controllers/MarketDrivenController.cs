@@ -74,33 +74,45 @@ namespace BDA.Controllers
         }
 
         [HttpPost]
-        public PartialViewResult _LeadersAndLaggardsData(string selectedDate, int? topN, string periodType, string endDate = null)
+        public PartialViewResult _LeadersAndLaggardsData(
+        string selectedDate,
+        int? topN,
+        string periodType,
+        string endDate = null,
+        int pageLeaders = 1,
+        int pageLaggards = 1,
+        int pageSizeLeaders = 10,
+        int pageSizeLaggards = 10)
         {
-            var pageModel = new LeadersAndLaggardsPageViewModel();
+            var pageModel = new LeadersAndLaggardsPageViewModel
+            {
+                PageLeaders = pageLeaders < 1 ? 1 : pageLeaders,
+                PageLaggards = pageLaggards < 1 ? 1 : pageLaggards,
+                PageSizeLeaders = 10,   // enforce fixed page size
+                PageSizeLaggards = 10
+            };
 
             try
             {
-                // Validasi input dasar
                 if (string.IsNullOrEmpty(selectedDate))
                 {
                     ViewBag.ErrorMessage = "Please select a valid date.";
                     return PartialView("_LeadersAndLaggardsData", pageModel);
                 }
-
                 if (string.IsNullOrEmpty(periodType))
                 {
                     ViewBag.ErrorMessage = "Please select a period type.";
                     return PartialView("_LeadersAndLaggardsData", pageModel);
                 }
 
-                // Validasi format tanggal berdasarkan tipe periode
                 bool isValidFormat = false;
                 if (periodType == "Daily" || periodType == "Custom Date")
                 {
                     isValidFormat = selectedDate.Length == 8 && int.TryParse(selectedDate, out _);
                     if (periodType == "Custom Date")
                     {
-                        isValidFormat = isValidFormat && !string.IsNullOrEmpty(endDate) && endDate.Length == 8 && int.TryParse(endDate, out _);
+                        isValidFormat = isValidFormat && !string.IsNullOrEmpty(endDate) &&
+                                        endDate.Length == 8 && int.TryParse(endDate, out _);
                     }
                 }
                 else if (periodType == "Monthly")
@@ -116,16 +128,16 @@ namespace BDA.Controllers
 
                 int topCount = topN ?? 10;
                 if (topCount <= 0 || topCount > 500)
-                {
                     topCount = 10;
-                }
 
                 var userId = HttpContext.User.Identity.Name ?? "Anonymous";
                 db.InsertAuditTrail("Leaders_Laggards_Data_Request",
-                    $"User {userId} requested leaders/laggards data for {periodType} period, date {selectedDate}" + (endDate != null ? $" to {endDate}" : "") + $", top {topCount}",
+                    $"User {userId} requested leaders/laggards data Period={periodType}, Date={selectedDate}" +
+                    (endDate != null ? $" to {endDate}" : "") +
+                    $", Top={topCount}, PageLeaders={pageLeaders}, PageLaggards={pageLaggards}",
                     "LeadersAndLaggards");
 
-                // Pemanggilan metode helper sesuai dengan tipe periode
+                // Fetch capped lists
                 if (periodType == "Custom Date")
                 {
                     pageModel.Leaders = WSQueryPS.GetLeadersOrLaggardsCustomDate(db, selectedDate, endDate, topCount, true);
@@ -137,22 +149,39 @@ namespace BDA.Controllers
                     pageModel.Laggards = WSQueryPS.GetLeadersOrLaggards(db, false, selectedDate, topCount, periodType);
                 }
 
-                if (!pageModel.Leaders.Any() && !pageModel.Laggards.Any())
-                {
-                    ViewBag.InfoMessage = $"No data available for the selected {periodType.ToLower()}";
-                }
-                else
-                {
-                    for (int i = 0; i < pageModel.Leaders.Count; i++)
-                    {
-                        pageModel.Leaders[i].Sequence = i + 1;
-                    }
+                pageModel.TotalLeaders = pageModel.Leaders.Count;
+                pageModel.TotalLaggards = pageModel.Laggards.Count;
 
-                    for (int i = 0; i < pageModel.Laggards.Count; i++)
-                    {
-                        pageModel.Laggards[i].Sequence = i + 1;
-                    }
-                }
+                pageModel.TotalPagesLeaders = pageModel.TotalLeaders == 0
+                    ? 1
+                    : (int)Math.Ceiling(pageModel.TotalLeaders / (double)pageModel.PageSizeLeaders);
+
+                pageModel.TotalPagesLaggards = pageModel.TotalLaggards == 0
+                    ? 1
+                    : (int)Math.Ceiling(pageModel.TotalLaggards / (double)pageModel.PageSizeLaggards);
+
+                if (pageModel.PageLeaders > pageModel.TotalPagesLeaders)
+                    pageModel.PageLeaders = pageModel.TotalPagesLeaders;
+                if (pageModel.PageLaggards > pageModel.TotalPagesLaggards)
+                    pageModel.PageLaggards = pageModel.TotalPagesLaggards;
+
+                int skipLeaders = (pageModel.PageLeaders - 1) * pageModel.PageSizeLeaders;
+                int skipLaggards = (pageModel.PageLaggards - 1) * pageModel.PageSizeLaggards;
+
+                var pagedLeaders = pageModel.Leaders.Skip(skipLeaders).Take(pageModel.PageSizeLeaders).ToList();
+                var pagedLaggards = pageModel.Laggards.Skip(skipLaggards).Take(pageModel.PageSizeLaggards).ToList();
+
+                // Global sequence across the full capped list
+                for (int i = 0; i < pagedLeaders.Count; i++)
+                    pagedLeaders[i].Sequence = skipLeaders + i + 1;
+                for (int i = 0; i < pagedLaggards.Count; i++)
+                    pagedLaggards[i].Sequence = skipLaggards + i + 1;
+
+                pageModel.Leaders = pagedLeaders;
+                pageModel.Laggards = pagedLaggards;
+
+                if (pageModel.TotalLeaders == 0 && pageModel.TotalLaggards == 0)
+                    ViewBag.InfoMessage = $"No data available for the selected {periodType.ToLower()}";
             }
             catch (SqlException sqlEx)
             {

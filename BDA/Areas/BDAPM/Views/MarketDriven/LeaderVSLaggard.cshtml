@@ -267,11 +267,17 @@
             var ajaxData = {
                 selectedDate: selectedDate,
                 topN: topCount,
-                periodType: periodType
+                periodType: periodType,
+                pageLeaders: 1,
+                pageLaggards: 1,
+                pageSizeLeaders: 10,
+                pageSizeLaggards: 10
             };
             if (periodType === "Custom Date") {
                 ajaxData.endDate = endDate;
             }
+
+            window.leadersLaggardsFilter = Object.assign({}, ajaxData);
 
             $.ajax({
                 url: '@Url.Action("_LeadersAndLaggardsData", "MarketDriven")',
@@ -315,6 +321,40 @@
             alert("Error: " + e.message);
         }
     };
+
+    // Delegated pagination handler (reuse _GLPagination.cshtml link classes)
+    $(document).on('click', '.gl-page-link', function () {
+        var which = $(this).data('which'); // 'leaders' or 'laggards'
+        var newPage = parseInt($(this).data('page'));
+        if (!window.leadersLaggardsFilter || isNaN(newPage)) return;
+
+        var payload = Object.assign({}, window.leadersLaggardsFilter);
+        if (which === 'leaders') payload.pageLeaders = newPage;
+        else payload.pageLaggards = newPage;
+
+        $.ajax({
+            url: '@Url.Action("_LeadersAndLaggardsData", "MarketDriven")',
+            type: 'POST',
+            data: payload,
+            success: function (html) {
+                window.leadersLaggardsFilter = payload;
+                $('#gainerLoserContent').html(html);
+            },
+            error: function () {
+                DevExpress.ui.notify("Pagination load failed.", "error", 2500);
+            }
+        });
+    });
+
+    window.showLLLoading = function () {
+        $('#gainerLoserContent').html(`
+            <div class="text-center p-5">
+                <div class="spinner-border text-primary mb-3" role="status" style="width:3rem;height:3rem;"></div>
+                <h5 class="text-muted">Loading Leaders & Laggards</h5>
+            </div>
+        `);
+    };
+
 
     window.getFormattedDateByPeriod = function (periodType) {
         console.log("getFormattedDateByPeriod called with:", periodType);
@@ -372,6 +412,37 @@
                     </div>
                 `);
     };
+
+    // Export functions (unchanged logic; still use selected filters + topN)
+    window.exportLeadersToExcel = function () { doLLExport('ExportLeadersToExcel'); };
+    window.exportLeadersToPDF = function () { doLLExport('ExportLeadersToPDF'); };
+    window.exportLaggardsToExcel = function () { doLLExport('ExportLaggardsToExcel'); };
+    window.exportLaggardsToPDF = function () { doLLExport('ExportLaggardsToPDF'); };
+
+    function doLLExport(actionName) {
+        try {
+            var periodType = $("#Periodid").dxSelectBox("instance").option("value");
+            var selectedDate, endDate = null;
+            if (periodType === "Custom Date") {
+                selectedDate = window.formatDateYYYYMMDD($("#StartDateID").dxDateBox("instance").option("value"));
+                endDate = window.formatDateYYYYMMDD($("#EndDateID").dxDateBox("instance").option("value"));
+            } else {
+                selectedDate = window.getFormattedDateByPeriod(periodType);
+            }
+            var topSel = $("#ItemsPerPageSelectBox").dxSelectBox("instance").option("value");
+            var topN = (topSel === "All") ? 500 : (parseInt(topSel) || 10);
+
+            var url = '@Url.Action("__PLACEHOLDER__", "MarketDriven")'
+                .replace('__PLACEHOLDER__', actionName)
+                + '?selectedDate=' + encodeURIComponent(selectedDate)
+                + '&topN=' + topN
+                + '&periodType=' + encodeURIComponent(periodType);
+            if (endDate) url += '&endDate=' + encodeURIComponent(endDate);
+            window.open(url, '_blank');
+        } catch (e) {
+            DevExpress.ui.notify("Export error: " + e.message, "error", 3000);
+        }
+    }
 
     window.hideLoadingIndicator = function () {
         // Loading indicator will be replaced by the actual content
