@@ -65,6 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Areas\BDAPM\Views\IP\Index2.cshtml" />
+    <Content Remove="Areas\BDAPM\Views\MarketDriven\Index1.cshtml" />
     <Content Remove="Areas\FW\Views\DXReport\Designer.cshtml" />
     <Content Remove="Areas\FW\Views\DXReport\QueryBuilder.cshtml" />
     <Content Remove="Areas\FW\Views\DXReport\Viewer.cshtml" />
@@ -103,6 +104,7 @@
     <PackageReference Include="System.Data.Odbc" Version="8.0.0" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Areas\BDAPM\Views\MarketDriven\Index1.cshtml" />
     <None Include="Areas\FW\Views\Attachment\Sample.cshtml" />
     <None Include="Areas\FW\Views\DXReport\Designer.cshtml" />
     <None Include="Areas\FW\Views\DXReport\QueryBuilder.cshtml" />
@@ -1303,4 +1305,10 @@
       <UserProperties DismissedDevExtremeVersion="" />
     </VisualStudio>
   </ProjectExtensions>
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Areas\BDAPM\Views\MarketDriven\Index1.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Areas\BDAPM\Views\MarketDriven\Index1.cshtml" />
+  </ItemGroup>
 </Project>
