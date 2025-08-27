@@ -1073,7 +1073,7 @@
         } else {
             $.ajax({
                 url: '@Url.Action("SimpanPenggunaanData", "BasisInvestor")',
-                data: { id: penggunaandataid },
+                data: { id: penggunaandataid, page: "Basis Investor" },
                 dataType: "json",
                 type: "POST",
                 success: function (data) {

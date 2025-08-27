@@ -863,17 +863,14 @@ namespace BDA.Controllers
 
 
         [HttpPost]
-        public ActionResult SimpanPenggunaanData(string id)
+        public ActionResult SimpanPenggunaanData(string id, string page)
         {
             string message = "";
             string Penggunaan_Data = "";
             bool result = true;
             var userId = HttpContext.User.Identity.Name;
 
-            var mdl = new BDA.Models.MenuDbModels(db, Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(db.httpContext.Request).ToLower());
-            var currentNode = mdl.GetCurrentNode();
-            string pageTitle = currentNode != null ? currentNode.Title : "";
-            db.InsertAuditTrail("SegmentationSummaryClusterMKBD_Akses_Page", "user " + userId + " mengakases halaman Segmentation Summary Cluster MKBD untuk digunakan sebagai " + Penggunaan_Data + "", pageTitle);
+            string pageTitle = page.Replace(" ", "");
 
             try
             {
@@ -892,6 +889,8 @@ namespace BDA.Controllers
                     conn.Close();
                     conn.Dispose();
                 }
+               
+                db.InsertAuditTrail(pageTitle + "_Akses_Page", "user " + userId + " mengakses halaman " + page + " untuk digunakan sebagai " + Penggunaan_Data + "", page);
                 result = true;
             }
             catch (Exception ex)

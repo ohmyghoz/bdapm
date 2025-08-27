@@ -357,7 +357,7 @@
         } else {
             $.ajax({
                 url: '@Url.Action("SimpanPenggunaanData", "BasisInvestor")',
-                data: { id: penggunaandataid },
+                data: { id: penggunaandataid, page: "Detail Basis Investor" },
                 dataType: "json",
                 type: "POST",
                 success: function (data) {

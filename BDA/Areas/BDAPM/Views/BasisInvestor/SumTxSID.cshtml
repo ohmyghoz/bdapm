@@ -295,8 +295,8 @@
             return false;
         } else {
             $.ajax({
-                url: '@Url.Action("SimpanPenggunaanData", "SegmentationSummaryClusterMKBD")',
-                data: { id: penggunaandataid },
+                url: '@Url.Action("SimpanPenggunaanData", "BasisInvestor")',
+                data: { id: penggunaandataid, page: "Summary Transaction SID" },
                 dataType: "json",
                 type: "POST",
                 success: function (data) {
