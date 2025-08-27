@@ -24,6 +24,7 @@ using DevExpress.CodeParser;
 using System.ServiceModel.Dispatcher;
 using MathNet.Numerics.Statistics;
 using System.Net;
+using DevExpress.XtraExport.Helpers;
 
 namespace BDA.Controllers
 {
@@ -552,7 +553,7 @@ namespace BDA.Controllers
                 string pageTitle = currentNode != null ? currentNode.Title : "";
 
                 db.CheckPermission("Summary Transaction SID Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-                db.InsertAuditTrail("SummaryTransactionSID_Akses_Page", "Export Data", pageTitle);
+                db.InsertAuditTrail("SummaryTransactionSID_Export", "Export Data", "Summary Transaction SID - TRX");
                 return Json(new { result = "Success" });
             }
             catch (Exception ex)
@@ -571,7 +572,7 @@ namespace BDA.Controllers
                 string pageTitle = currentNode != null ? currentNode.Title : "";
 
                 db.CheckPermission("Summary Transaction SID Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-                db.InsertAuditTrail("SummaryTransactionSID_Akses_Page", "Export Data", pageTitle);
+                db.InsertAuditTrail("SummaryTransactionSID_Export", "Export Data", "Summary Transaction SID - SRE");
                 return Json(new { result = "Success" });
             }
             catch (Exception ex)
@@ -590,12 +591,13 @@ namespace BDA.Controllers
                 string pageTitle = currentNode != null ? currentNode.Title : "";
 
                 db.CheckPermission("Summary Transaction SID Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-                db.InsertAuditTrail("SummaryTransactionSID_Akses_Page", "Export Data", pageTitle);
+                db.InsertAuditTrail("SummaryTransactionSID_Export", "Export Data", "Summary Transaction SID");
 
                 var directory = _env.WebRootPath;
                 var timeStamp = DateTime.Now.ToString();
                 Workbook workbook = new Workbook(file.OpenReadStream());
                 Worksheet worksheet2 = workbook.Worksheets[0];
+                worksheet2.Cells.DeleteRow(0);
                 var columns1 = worksheet2.Cells.Columns.Count;
                 var rows1 = worksheet2.Cells.Rows.Count;
                 var style = workbook.CreateStyle();
@@ -609,7 +611,7 @@ namespace BDA.Controllers
                 {
                     for (int col = 0; col <= columns1 - 1; col++)
                     {
-                        Aspose.Cells.Cell cell = worksheet2.Cells[r, col];
+                        Cell cell = worksheet2.Cells[r, col];
 
                         cell.SetStyle(style);
                     }
@@ -626,12 +628,58 @@ namespace BDA.Controllers
                     long bytesRead = inFile.Read(binaryData, 0, (int)inFile.Length);
 
                     //apply format number
-                    Style textStyle = workbook.CreateStyle();
-                    textStyle.Number = 3;
-                    StyleFlag textFlag = new StyleFlag();
-                    textFlag.NumberFormat = true;
+                    Style numericStyle = workbook.CreateStyle();
+                    numericStyle.Copy(style);
+                    numericStyle.Custom = "#,##0.00";
+                    numericStyle.HorizontalAlignment = TextAlignmentType.Right;
+                    numericStyle.IsTextWrapped = true;
+                    StyleFlag numericFlag = new StyleFlag();
+                    numericFlag.NumberFormat = true;
+                    numericFlag.HorizontalAlignment = true;
 
-                    worksheet.Cells.Columns[9].ApplyStyle(textStyle, textFlag);
+                    // Create header style with text wrapping
+                    Style headerStyle = workbook.CreateStyle();
+                    headerStyle.IsTextWrapped = true; // Enable text wrapping
+                    headerStyle.HorizontalAlignment = TextAlignmentType.Center;
+                    headerStyle.VerticalAlignment = TextAlignmentType.Center;
+                    headerStyle.Font.IsBold = true;
+                    headerStyle.Font.Size = 10;
+
+                    StyleFlag headerFlag = new StyleFlag();
+                    headerFlag.WrapText = true;
+                    headerFlag.HorizontalAlignment = true;
+                    headerFlag.VerticalAlignment = true;
+                    headerFlag.FontBold = true;
+                    headerFlag.FontSize = true;
+
+                    // Apply header style to first row (assuming first row contains headers)
+                    Aspose.Cells.Range headerRange = worksheet.Cells.CreateRange(0, 0, 1, worksheet.Cells.MaxDataColumn + 1);
+                    headerRange.ApplyStyle(headerStyle, headerFlag);
+
+                    // Alternative: Apply header style only to cells that contain data in first row
+                    for (int col = 0; col <= worksheet.Cells.MaxDataColumn; col++)
+                    {
+                        Cell headerCell = worksheet.Cells[0, col];
+                        if (!string.IsNullOrEmpty(headerCell.StringValue))
+                        {
+                            headerCell.SetStyle(headerStyle, headerFlag);
+                        }
+                    }
+
+                    // Apply numeric formatting to data cells (excluding header row)
+                    foreach (Cell cell in worksheet.Cells)
+                    {
+                        if (cell.Type == CellValueType.IsNumeric && cell.Row > 0) // Skip header row
+                        {
+                            cell.SetStyle(numericStyle);
+                        }
+                    }
+
+                    // Auto-fit row height for header row to accommodate wrapped text
+                    worksheet.AutoFitRow(0);
+
+                    // Optional: Set minimum row height for header
+                    worksheet.Cells.SetRowHeight(0, 30); // Set minimum height to 30 points
 
                     //page setup
                     PageSetup pageSetup = worksheet.PageSetup;
@@ -676,7 +724,7 @@ namespace BDA.Controllers
                 string pageTitle = currentNode != null ? currentNode.Title : "";
 
                 db.CheckPermission("Detail Basis Investor Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-                db.InsertAuditTrail("BasisInvestorDetail_Akses_Page", "Export Data", pageTitle);
+                db.InsertAuditTrail("BasisInvestorDetail_Export", "Export Data", "Detail Basis Investor");
                 return Json(new { result = "Success" });
             }
             catch (Exception ex)
@@ -695,7 +743,7 @@ namespace BDA.Controllers
                 string pageTitle = currentNode != null ? currentNode.Title : "";
 
                 db.CheckPermission("Detail Basis Investor Export", DataEntities.PermissionMessageType.ThrowInvalidOperationException);
-                db.InsertAuditTrail("BasisInvestorDetail_Akses_Page", "Export Data", pageTitle);
+                db.InsertAuditTrail("BasisInvestorDetail_Export", "Export Data", "Detail Basis Investor");
 
                 var directory = _env.WebRootPath;
                 var timeStamp = DateTime.Now.ToString();
