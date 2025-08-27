@@ -145,44 +145,15 @@
 
             <div class="gridview-div">
                 <header class="bg-danger"><h5 class="text-white">&nbsp;Transaction Summary</h5></header>
-                <div id="pgTRX"></div>
+                <div id ="scrollview1">
+                    <div id="pgTRX"></div>
+                </div>
                 <div class="loadpanel1"></div>
-                @* @(Html.DevExtreme().DataGrid()
-                    .ID("gridtrx")
-                    .RemoteOperations(true)
-                    .Width("100%")
-                    .AllowColumnResizing(true)
-                    .ColumnAutoWidth(true)
-                    .Columns(columns =>
-                    {
-                        columns.Add().DataField("pe").Caption("PE");
-                        columns.Add().DataField("sid").Caption("SID");
-                        columns.Add().DataField("invcode").Caption("Investor Code");
-                        columns.Add().DataField("seccode").Caption("Security Code");
-                        columns.Add().DataField("trxsys").Caption("Transaction System");
-                        columns.Add().DataField("ttltrxfreq").Caption("Total Transaction Frequency");
-                        columns.Add().DataField("ttltrxvol").Caption("Total Transaction Volume");
-                        columns.Add().DataField("ttltrxval").Caption("Total Transaction Value");
-                    })
-                    .ColumnResizingMode(ColumnResizingMode.Widget)
-                    .FilterRow(f => f.Visible(true))
-                    .ShowBorders(false)
-                    .Paging(p =>
-                    {
-                        p.PageSize(20);
-                        p.Enabled(true);
-                    })
-                    .Pager(p =>
-                    {
-                        p.ShowInfo(true);
-                    })
-                    ) *@
-
             </div>
         </div>
 
         <div class="pt-4 pb-4">
-            <br />
+            <br /><br />
         </div>
 
         @*grid*@
@@ -195,38 +166,10 @@
             <br />
             <div class="gridview-div">
                 <header class="bg-danger"><h5 class="text-white">&nbsp;SRE Summary</h5></header>
-                <div id="pgSRE"></div>
+                <div id="scrollview2">
+                    <div id="pgSRE"></div>
+                </div>
                 <div class="loadpanel2"></div>
-                @* @(Html.DevExtreme().DataGrid()
-                    .ID("gridsre")
-                    .RemoteOperations(true)
-                    .Width("100%")
-                    .AllowColumnResizing(true)
-                    .ColumnAutoWidth(true)
-                    .Columns(columns =>
-                    {
-                        columns.Add().DataField("pe").Caption("PE");
-                        columns.Add().DataField("sid").Caption("SID");
-                        columns.Add().DataField("secphytcode").Caption("Security Physical Type Code");
-                        columns.Add().DataField("stlactowntcode").Caption("Settlement Account Owner Type Code");
-                        columns.Add().DataField("stlacttcode").Caption("Settlement Account Type Code");
-                        columns.Add().DataField("actblcstscode").Caption("Account Balance Status Code");
-                        columns.Add().DataField("portoamount").Caption("Portofolio Amount");
-                        columns.Add().DataField("portoqty").Caption("Portofolio Quantity");
-                    })
-                    .ColumnResizingMode(ColumnResizingMode.Widget)
-                    .FilterRow(f => f.Visible(true))
-                    .ShowBorders(false)
-                    .Paging(p =>
-                    {
-                        p.PageSize(20);
-                        p.Enabled(true);
-                    })
-                    .Pager(p =>
-                    {
-                        p.ShowInfo(true);
-                    })
-                    ) *@
             </div>
         </div>
 
@@ -314,6 +257,20 @@
             showColumnTotals: false,
             fieldChooser: { enabled: false }
         }).dxPivotGrid("instance");
+
+        $("#scrollview1").dxScrollView({
+            useNative: true,
+            showScrollbar: 'always',
+            direction: 'horizontal',
+            scrollByContent: true,
+        }).dxScrollView('instance');
+
+        $("#scrollview2").dxScrollView({
+            useNative: true,
+            showScrollbar: 'always',
+            direction: 'horizontal',
+            scrollByContent: true,
+        }).dxScrollView('instance');
     });
 
     $(function () {
@@ -602,10 +559,10 @@
                                 allowFieldDragging: false,
                                 visible: true,
                             },
-                            scrolling: {
+@*                             scrolling: {
                                 mode: 'virtual',
-                            },
-                            width: "100%"
+                            }, *@
+@*                             width: "100%" *@
                         }).dxPivotGrid("instance");
 
                         pgTRX.getDataSource().expandAll("pe");
@@ -678,10 +635,10 @@
                                 allowFieldDragging: false,
                                 visible: true,
                             },
-                            scrolling: {
+                            @* scrolling: {
                                 mode: 'virtual',
-                            },
-                            width: "100%"
+                            }, *@
+@*                             width: "100%" *@
                         }).dxPivotGrid("instance");
 
                         pgSRE.getDataSource().expandAll("pe");

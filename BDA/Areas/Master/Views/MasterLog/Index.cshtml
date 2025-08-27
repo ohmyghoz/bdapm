@@ -69,8 +69,6 @@
 
 
         popupUpload.show();
-        
-        //$("#file-uploader").show();
     }
 
     function GetTemplate() {
@@ -180,7 +178,6 @@
             .DataSource(d => d.Mvc()
             .Controller("MasterLog")
             .LoadAction("GetGridData")
-            //.OnBeforeSend("gridOnBeforeSend")
             .Key("log_kode")
             )
             .RemoteOperations(true)
