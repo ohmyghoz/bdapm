@@ -1,168 +1,119 @@
 ﻿@model BDA.Areas.BDAPM.Models.LeadersAndLaggardsPageViewModel
-@{
-    // Note: No Layout page is set here, as it's a partial view.
-    int sequenceCounter;
-}
 
 <div class="row">
     <div class="col-md-6">
-        <div class="card">
-            <div class="card-header" style="background-color: #28a745; position:relative;">
-                <h1 class="card-title" style="color:white; font-weight:bold; display:inline-block;">Leaders</h1>
-                <div style="position: absolute; right: 20px; top: 18px;">
-                    <a href="javascript:exportLeadersToExcel();" class="btn btn-success btn-sm" title="Export Leaders to Excel">
-                        <i class="fa fa-file-excel"></i> Excel
-                    </a>
-                    <a href="javascript:exportLeadersToPDF();" class="btn btn-danger btn-sm" title="Export Leaders to PDF">
-                        <i class="fa fa-file-pdf"></i> PDF
-                    </a>
+        <div class="card h-100">
+            <div class="card-header" style="background-color:#28a745; position:relative;">
+                <h1 class="card-title" style="color:white;font-weight:bold;display:inline-block;">Leaders</h1>
+                <div style="position:absolute; right:20px; top:18px;">
+                    <a href="javascript:exportLeadersToExcel();" class="btn btn-success btn-sm" title="Export Leaders to Excel"><i class="fa fa-file-excel"></i> Excel</a>
+                    <a href="javascript:exportLeadersToPDF();" class="btn btn-danger btn-sm" title="Export Leaders to PDF"><i class="fa fa-file-pdf"></i> PDF</a>
                 </div>
             </div>
-            <div class="card-body" style="padding: 0;">
-                @{
-                    sequenceCounter = 1;
-                }
-
-                @* 2. Loop over the Gainers list *@
-                @foreach (BDA.Models.LeaderLaggardViewModel item in Model.Leaders)
+            <div class="card-body" style="padding:0;">
+                @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage as string))
                 {
-                    <div class="gainer-item">
-                        <div class="gainer-header">
-                            <div class="gainer-seq">@(sequenceCounter++)</div>
-                            <div class="gainer-code">@item.SecurityCode</div>
-                            <div class="gainer-name">@item.SecurityName</div>
-                            <div class="gainer-details">
-                                <table>
-                                    <tr>
-                                        <td>Volume</td>
-                                        <td>@Html.DisplayFor(modelItem => item.Volume)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Turnover</td>
-                                        <td>@Html.DisplayFor(modelItem => item.Turnover)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Freq</td>
-                                        <td>@Html.DisplayFor(modelItem => item.Freq)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Net Value</td>
-                                        <td>@Html.DisplayFor(modelItem => item.NetValue)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Net Volume</td>
-                                        <td>@Html.DisplayFor(modelItem => item.NetVolume)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Point</td>
-                                        <td class="negative-value">@Html.DisplayFor(modelItem => item.Point)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Price</td>
-                                        <td>@Html.DisplayFor(modelItem => item.Price)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>% Change Price</td>
-                                        <td class="negative-value">@Html.DisplayFor(modelItem => item.ChangePercentage)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Max</td>
-                                        <td>@Html.DisplayFor(modelItem => item.MaxPrice)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Min</td>
-                                        <td>@Html.DisplayFor(modelItem => item.MinPrice)</td>
-                                    </tr>
-                                </table>
+                    <div class="alert alert-danger m-3">@ViewBag.ErrorMessage</div>
+                }
+                else if (!string.IsNullOrEmpty(ViewBag.InfoMessage as string) && !Model.HasLeaders)
+                {
+                    <div class="alert alert-info m-3">@ViewBag.InfoMessage</div>
+                }
+                else
+                {
+                    foreach (var item in Model.Leaders)
+                    {
+                        <div class="gainer-item">
+                            <div class="gainer-header">
+                                <div class="gainer-seq">@item.Sequence</div>
+                                <div class="gainer-code">@item.SecurityCode</div>
+                                <div class="gainer-name">@item.SecurityName</div>
+                                <div class="gainer-details">
+                                    <table>
+                                        <tr><td>Volume</td><td>@Html.DisplayFor(m => item.Volume)</td></tr>
+                                        <tr><td>Turnover</td><td>@Html.DisplayFor(m => item.Turnover)</td></tr>
+                                        <tr><td>Freq</td><td>@Html.DisplayFor(m => item.Freq)</td></tr>
+                                        <tr><td>Net Value</td><td>@Html.DisplayFor(m => item.NetValue)</td></tr>
+                                        <tr><td>Net Volume</td><td>@Html.DisplayFor(m => item.NetVolume)</td></tr>
+                                        <tr><td>Point</td><td class="negative-value">@Html.DisplayFor(m => item.Point)</td></tr>
+                                        <tr><td>Price</td><td>@Html.DisplayFor(m => item.Price)</td></tr>
+                                        <tr><td>% Change Price</td><td class="negative-value">@Html.DisplayFor(m => item.ChangePercentage)</td></tr>
+                                        <tr><td>Max</td><td>@Html.DisplayFor(m => item.MaxPrice)</td></tr>
+                                        <tr><td>Min</td><td>@Html.DisplayFor(m => item.MinPrice)</td></tr>
+                                    </table>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    }
                 }
             </div>
+            @if (Model.HasLeaders && string.IsNullOrEmpty(ViewBag.ErrorMessage as string))
+            {
+                <div class="card-footer p-2">
+                    @Html.Partial("_GLPagination", new Tuple<string, int, int, int>("leaders", Model.PageLeaders, Model.TotalPagesLeaders, Model.PageSizeLeaders))
+                    <div class="text-center small text-muted">
+                        Page @Model.PageLeaders of @Model.TotalPagesLeaders (Total: @Model.TotalLeaders, Page Size: 10)
+                    </div>
+                </div>
+            }
         </div>
     </div>
+
     <div class="col-md-6">
-
-        <div class="card">
-            <div class="card-header" style="background-color: #dc3545; position:relative;">
-                <h1 class="card-title" style="color:white; font-weight:bold; display:inline-block;">Laggards</h1>
-                <div style="position: absolute; right: 20px; top: 18px;">
-
-                    <a href="javascript:exportLaggardsToExcel();" class="btn btn-success btn-sm" title="Export Laggards to Excel">
-
-                        <i class="fa fa-file-excel"></i> Excel
-
-                    </a>
-
-                    <a href="javascript:exportLaggardsToPDF();" class="btn btn-danger btn-sm" title="Export Laggards to PDF">
-
-                        <i class="fa fa-file-pdf"></i> PDF
-
-                    </a>
-
+        <div class="card h-100">
+            <div class="card-header" style="background-color:#dc3545; position:relative;">
+                <h1 class="card-title" style="color:white;font-weight:bold;display:inline-block;">Laggards</h1>
+                <div style="position:absolute; right:20px; top:18px;">
+                    <a href="javascript:exportLaggardsToExcel();" class="btn btn-success btn-sm" title="Export Laggards to Excel"><i class="fa fa-file-excel"></i> Excel</a>
+                    <a href="javascript:exportLaggardsToPDF();" class="btn btn-danger btn-sm" title="Export Laggards to PDF"><i class="fa fa-file-pdf"></i> PDF</a>
                 </div>
             </div>
-            <div class="card-body" style="padding: 0;">
-                @{
-                    sequenceCounter = 1;
-                }
-
-            
-                @foreach (BDA.Models.LeaderLaggardViewModel item in Model.Laggards)
+            <div class="card-body" style="padding:0;">
+                @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage as string))
                 {
-                    <div class="gainer-item">
-                        <div class="gainer-header">
-                            <div class="gainer-seq">@(sequenceCounter++)</div>
-                            <div class="gainer-code">@item.SecurityCode</div>
-                            <div class="gainer-name">@item.SecurityName</div>
-                            <div class="loser-details">
-                                <table>
-                                    <tr>
-                                        <td>Volume</td>
-                                        <td>@Html.DisplayFor(modelItem => item.Volume)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Turnover</td>
-                                        <td>@Html.DisplayFor(modelItem => item.Turnover)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Freq</td>
-                                        <td>@Html.DisplayFor(modelItem => item.Freq)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Net Value</td>
-                                        <td>@Html.DisplayFor(modelItem => item.NetValue)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Net Volume</td>
-                                        <td>@Html.DisplayFor(modelItem => item.NetVolume)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Point</td>
-                                        <td class="negative-value">@Html.DisplayFor(modelItem => item.Point)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Price</td>
-                                        <td>@Html.DisplayFor(modelItem => item.Price)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>% Change Price</td>
-                                        <td class="negative-value">@Html.DisplayFor(modelItem => item.ChangePercentage)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Max</td>
-                                        <td>@Html.DisplayFor(modelItem => item.MaxPrice)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Min</td>
-                                        <td>@Html.DisplayFor(modelItem => item.MinPrice)</td>
-                                    </tr>
-                                </table>
+                    <div class="alert alert-danger m-3">@ViewBag.ErrorMessage</div>
+                }
+                else if (!string.IsNullOrEmpty(ViewBag.InfoMessage as string) && !Model.HasLaggards)
+                {
+                    <div class="alert alert-info m-3">@ViewBag.InfoMessage</div>
+                }
+                else
+                {
+                    foreach (var item in Model.Laggards)
+                    {
+                        <div class="gainer-item">
+                            <div class="gainer-header">
+                                <div class="gainer-seq">@item.Sequence</div>
+                                <div class="gainer-code">@item.SecurityCode</div>
+                                <div class="gainer-name">@item.SecurityName</div>
+                                <div class="loser-details">
+                                    <table>
+                                        <tr><td>Volume</td><td>@Html.DisplayFor(m => item.Volume)</td></tr>
+                                        <tr><td>Turnover</td><td>@Html.DisplayFor(m => item.Turnover)</td></tr>
+                                        <tr><td>Freq</td><td>@Html.DisplayFor(m => item.Freq)</td></tr>
+                                        <tr><td>Net Value</td><td>@Html.DisplayFor(m => item.NetValue)</td></tr>
+                                        <tr><td>Net Volume</td><td>@Html.DisplayFor(m => item.NetVolume)</td></tr>
+                                        <tr><td>Point</td><td class="negative-value">@Html.DisplayFor(m => item.Point)</td></tr>
+                                        <tr><td>Price</td><td>@Html.DisplayFor(m => item.Price)</td></tr>
+                                        <tr><td>% Change Price</td><td class="negative-value">@Html.DisplayFor(m => item.ChangePercentage)</td></tr>
+                                        <tr><td>Max</td><td>@Html.DisplayFor(m => item.MaxPrice)</td></tr>
+                                        <tr><td>Min</td><td>@Html.DisplayFor(m => item.MinPrice)</td></tr>
+                                    </table>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    }
                 }
             </div>
+            @if (Model.HasLaggards && string.IsNullOrEmpty(ViewBag.ErrorMessage as string))
+            {
+                <div class="card-footer p-2">
+                    @Html.Partial("_GLPagination", new Tuple<string, int, int, int>("laggards", Model.PageLaggards, Model.TotalPagesLaggards, Model.PageSizeLaggards))
+                    <div class="text-center small text-muted">
+                        Page @Model.PageLaggards of @Model.TotalPagesLaggards (Total: @Model.TotalLaggards, Page Size: 10)
+                    </div>
+                </div>
+            }
         </div>
     </div>
 </div>
