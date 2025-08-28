@@ -6370,11 +6370,11 @@ namespace BDA.Helper
                 whereQuery += " AND tradeid = " + ti;
             }
 
-            if (trxSys != null)
-            {
-                string ts = "'" + trxSys.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
-                whereQuery += " AND transactionsystem = " + ts;
-            }
+            //if (trxSys != null)
+            //{
+            //    string ts = "'" + trxSys.Replace("'", "").Replace(",", "','").Replace("' ", "'") + "'"; //cegah sql inject dikit
+            //    whereQuery += " AND transactionsystem = " + ts;
+            //}
 
             if (secCode != null)
             {
