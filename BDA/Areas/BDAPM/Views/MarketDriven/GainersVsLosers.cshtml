@@ -245,6 +245,20 @@
                     DevExpress.ui.notify("Start date cannot be after end date.", "warning", 3000);
                     return;
                 }
+            } else if (periodType === "Monthly") {
+                // Treat Monthly like a custom date range: first day to last day of month
+                var monthDate = $("#DatepickmID").dxDateBox("instance").option("value");
+                if (!monthDate) {
+                    DevExpress.ui.notify("Please pick a month.", "warning", 3000);
+                    return;
+                }
+                var year = monthDate.getFullYear();
+                var month = monthDate.getMonth(); // 0-based
+                var firstDay = new Date(year, month, 1);
+                var lastDay = new Date(year, month + 1, 0); // day 0 of next month
+                selectedDate = window.formatDateYYYYMMDD(firstDay);
+                endDate = window.formatDateYYYYMMDD(lastDay);
+                console.log("Monthly period mapped to range:", selectedDate, "->", endDate);
             } else {
                 selectedDate = window.getFormattedDateByPeriod(periodType);
             }
@@ -282,7 +296,7 @@
                 pageSizeGainers: fixedPageSize,
                 pageSizeLosers: fixedPageSize
             };
-            if (periodType === "Custom Date") {
+            if (periodType === "Custom Date" || periodType === "Monthly") {
                 ajaxData.endDate = endDate;
             }
 
@@ -693,7 +707,16 @@
             if (periodType === "Custom Date") {
                 selectedDate = window.formatDateYYYYMMDD($("#StartDateID").dxDateBox("instance").option("value"));
                 endDate = window.formatDateYYYYMMDD($("#EndDateID").dxDateBox("instance").option("value"));
-            } else {
+            } else if (periodType === "Monthly") {
+                var monthDate = $("#DatepickmID").dxDateBox("instance").option("value");
+                var year = monthDate.getFullYear();
+                var month = monthDate.getMonth();
+                var firstDay = new Date(year, month, 1);
+                var lastDay = new Date(year, month + 1, 0);
+                selectedDate = window.formatDateYYYYMMDD(firstDay);
+                endDate = window.formatDateYYYYMMDD(lastDay);
+
+            }   else {
                 selectedDate = window.getFormattedDateByPeriod(periodType);
             }
             var topN = parseInt($("#TopNSelectBox").dxSelectBox("instance").option("value")) || 10;

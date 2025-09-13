@@ -217,14 +217,14 @@ namespace BDA.Controllers
 
         [HttpPost]
         public PartialViewResult _GetGainersAndLosersData(
-        string selectedDate,
-        int? topN,
-        string periodType,
-        string endDate = null,
-        int pageGainers = 1,
-        int pageLosers = 1,
-        int pageSizeGainers = 10,
-        int pageSizeLosers = 10)
+     string selectedDate,
+     int? topN,
+     string periodType,
+     string endDate = null,
+     int pageGainers = 1,
+     int pageLosers = 1,
+     int pageSizeGainers = 10,
+     int pageSizeLosers = 10)
         {
             var pageModel = new GainersAndLosersPageViewModel
             {
@@ -233,6 +233,11 @@ namespace BDA.Controllers
                 PageSizeGainers = pageSizeGainers <= 0 ? 10 : pageSizeGainers,
                 PageSizeLosers = pageSizeLosers <= 0 ? 10 : pageSizeLosers
             };
+
+            System.Diagnostics.Debug.WriteLine("=== _GetGainersAndLosersData START ===");
+            System.Diagnostics.Debug.WriteLine($"Params: selectedDate={selectedDate}, endDate={endDate}, periodType={periodType}, topN={topN}");
+            System.Diagnostics.Debug.WriteLine($"Paging: pageGainers={pageGainers}, pageLosers={pageLosers}, sizeG={pageSizeGainers}, sizeL={pageSizeLosers}");
+
 
             try
             {
@@ -249,17 +254,27 @@ namespace BDA.Controllers
                 }
 
                 bool isValidFormat = false;
-                if (periodType == "Daily" || periodType == "Custom Date")
+
+                if (periodType == "Daily")
                 {
                     isValidFormat = selectedDate.Length == 8 && int.TryParse(selectedDate, out _);
-                    if (periodType == "Custom Date")
-                    {
-                        isValidFormat = isValidFormat && !string.IsNullOrEmpty(endDate) && endDate.Length == 8 && int.TryParse(endDate, out _);
-                    }
+
                 }
                 else if (periodType == "Monthly")
                 {
+                    // Accept YYYYMM or trim YYYYMMDD -> YYYYMM
+                    if (selectedDate.Length == 8 && int.TryParse(selectedDate, out _))
+                        selectedDate = selectedDate.Substring(0, 6);
+
                     isValidFormat = selectedDate.Length == 6 && int.TryParse(selectedDate, out _);
+                    endDate = null; // not used for Monthly
+                }
+                else if (periodType == "Custom Date")
+                {
+                    isValidFormat =
+                        selectedDate?.Length == 8 && int.TryParse(selectedDate, out _) &&
+                        !string.IsNullOrEmpty(endDate) &&
+                        endDate.Length == 8 && int.TryParse(endDate, out _);
                 }
 
                 if (!isValidFormat)
@@ -269,10 +284,7 @@ namespace BDA.Controllers
                 }
 
                 int topCount = topN ?? 10;
-                if (topCount <= 0 || topCount > 500)
-                {
-                    topCount = 10;
-                }
+                if (topCount <= 0 || topCount > 500) topCount = 10;
 
                 var userId = HttpContext.User.Identity.Name ?? "Anonymous";
                 db.InsertAuditTrail("Gainers_Losers_Data_Request",
@@ -281,14 +293,16 @@ namespace BDA.Controllers
                     $", Top={topCount}, GainersPage={pageGainers}, LosersPage={pageLosers}, PSG={pageSizeGainers}, PSL={pageSizeLosers}",
                     "GainersVsLosers");
 
-                // Fetch capped lists first
+                // Fetch data
                 if (periodType == "Custom Date")
                 {
                     pageModel.Gainers = WSQueryPS.GetGainersOrLosersCustomDate(db, selectedDate, endDate, topCount, true);
                     pageModel.Losers = WSQueryPS.GetGainersOrLosersCustomDate(db, selectedDate, endDate, topCount, false);
+                    System.Diagnostics.Debug.WriteLine("Fetching via GetGainersOrLosersCustomDate...");
                 }
-                else
+                else // Daily or Monthly
                 {
+                    System.Diagnostics.Debug.WriteLine($"Fetching via GetGainersOrLosers (periodType={periodType})...selectedDate={selectedDate}");
                     pageModel.Gainers = WSQueryPS.GetGainersOrLosers(db, true, selectedDate, topCount, periodType);
                     pageModel.Losers = WSQueryPS.GetGainersOrLosers(db, false, selectedDate, topCount, periodType);
                 }
@@ -298,11 +312,11 @@ namespace BDA.Controllers
 
                 pageModel.TotalPagesGainers = pageModel.TotalGainers == 0
                     ? 1
-                    : (int)System.Math.Ceiling(pageModel.TotalGainers / (double)pageModel.PageSizeGainers);
+                    : (int)Math.Ceiling(pageModel.TotalGainers / (double)pageModel.PageSizeGainers);
 
                 pageModel.TotalPagesLosers = pageModel.TotalLosers == 0
                     ? 1
-                    : (int)System.Math.Ceiling(pageModel.TotalLosers / (double)pageModel.PageSizeLosers);
+                    : (int)Math.Ceiling(pageModel.TotalLosers / (double)pageModel.PageSizeLosers);
 
                 if (pageModel.PageGainers > pageModel.TotalPagesGainers)
                     pageModel.PageGainers = pageModel.TotalPagesGainers;
@@ -312,11 +326,9 @@ namespace BDA.Controllers
                 int skipG = (pageModel.PageGainers - 1) * pageModel.PageSizeGainers;
                 int skipL = (pageModel.PageLosers - 1) * pageModel.PageSizeLosers;
 
-                // Apply paging
                 var pagedGainers = pageModel.Gainers.Skip(skipG).Take(pageModel.PageSizeGainers).ToList();
                 var pagedLosers = pageModel.Losers.Skip(skipL).Take(pageModel.PageSizeLosers).ToList();
 
-                // Re-sequence relative to entire capped list
                 for (int i = 0; i < pagedGainers.Count; i++)
                     pagedGainers[i].Sequence = skipG + i + 1;
 
@@ -333,12 +345,12 @@ namespace BDA.Controllers
             }
             catch (SqlException sqlEx)
             {
-                System.Diagnostics.Debug.WriteLine($"SQL Error in _GetGainersAndLosersData: {sqlEx.Message}");
+                Debug.WriteLine($"SQL Error in _GetGainersAndLosersData: {sqlEx.Message}");
                 ViewBag.ErrorMessage = "Database connection error. Please try again later.";
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error in _GetGainersAndLosersData: {ex.Message}");
+                Debug.WriteLine($"Error in _GetGainersAndLosersData: {ex.Message}");
                 ViewBag.ErrorMessage = "An unexpected error occurred. Please try again later.";
             }
 
@@ -1266,6 +1278,8 @@ namespace BDA.Controllers
                 }
                 else
                 {
+                    if (periodType == "Monthly" && selectedDate?.Length == 8)
+                        selectedDate = selectedDate.Substring(0, 6);
                     gainers = WSQueryPS.GetGainersOrLosers(db, true, selectedDate, topN, periodType);
                 }
 
@@ -1359,6 +1373,9 @@ namespace BDA.Controllers
                 }
                 else
                 {
+                    if (periodType == "Monthly" && selectedDate?.Length == 8)
+                        selectedDate = selectedDate.Substring(0, 6); // trim YYYYMMDD -> YYYYMM
+
                     gainers = WSQueryPS.GetGainersOrLosers(db, true, selectedDate, topN, periodType);
                 }
 
@@ -1463,6 +1480,9 @@ namespace BDA.Controllers
                 }
                 else
                 {
+                    if (periodType == "Monthly" && selectedDate?.Length == 8)
+                        selectedDate = selectedDate.Substring(0, 6); // trim YYYYMMDD -> YYYYMM
+
                     losers = WSQueryPS.GetGainersOrLosers(db, false, selectedDate, topN, periodType);
                 }
 
@@ -1556,6 +1576,9 @@ namespace BDA.Controllers
                 }
                 else
                 {
+                    if (periodType == "Monthly" && selectedDate?.Length == 8)
+                        selectedDate = selectedDate.Substring(0, 6); // trim YYYYMMDD -> YYYYMM
+
                     losers = WSQueryPS.GetGainersOrLosers(db, false, selectedDate, topN, periodType);
                 }
 

@@ -2,6 +2,7 @@
 using BDA.Helper.FW;
 using BDA.Models;
 using DevExpress.Data.Extensions;
+using DevExpress.Xpo.DB;
 using DevExpress.Xpo.DB.Helpers;
 using DevExpress.XtraRichEdit;
 using DevExtreme.AspNet.Data;
@@ -1643,7 +1644,8 @@ namespace BDA.Helper
                 System.Diagnostics.Debug.WriteLine($"Invalid parameters: selectedDate='{selectedDate}', topN={topN}");
                 return list;
             }
-
+            System.Diagnostics.Debug.WriteLine("=== WSQueryPS.GetGainersOrLosers START ===");
+            System.Diagnostics.Debug.WriteLine($"Params: isGainer={isGainer}, selectedDate={selectedDate}, topN={topN}, periodType={periodType}");
             // Determine history_type based on periodType
             string historyType;
             switch (periodType)
@@ -1658,9 +1660,12 @@ namespace BDA.Helper
                     break;
             }
 
+            System.Diagnostics.Debug.WriteLine($"HistoryType resolved to {historyType}");
+
             // Determine the sorting order based on the isGainer flag
             string orderByClause = isGainer ? "ORDER BY changeprice DESC" : "ORDER BY changeprice ASC";
             string queryType = isGainer ? "Gainers" : "Losers";
+            string dateColumn = historyType == "monthly" ? "periode_lvl0" : "periode";
 
             // Build the query with dynamic history_type
             string sqlQuery = $@"
@@ -1678,9 +1683,14 @@ namespace BDA.Helper
             ISNULL(changeprice, 0) as changeprice,
             ISNULL(highvalue, 0) as highvalue,
             ISNULL(lowvalue, 0) as lowvalue
-        FROM BDAPM.pasarmodal.market_driven_ape_growth
-        WHERE history_type = @HistoryType AND periode = @Periode
+        FROM pasarmodal.market_driven_ape_growth
+        WHERE history_type = @HistoryType AND {dateColumn} = @Periode
         {orderByClause}";
+
+            System.Diagnostics.Debug.WriteLine("Generated SQL:");
+            System.Diagnostics.Debug.WriteLine(sqlQuery);
+            System.Diagnostics.Debug.WriteLine($"Params: dateColumn={dateColumn} @TopN={topN}, @HistoryType={historyType}, @Periode={selectedDate}");
+
 
             string connString = db.appSettings.DataConnString;
 
@@ -1737,6 +1747,7 @@ namespace BDA.Helper
                 throw new ApplicationException($"Error while retrieving {queryType.ToLower()} data for {periodType} period", ex);
             }
 
+            System.Diagnostics.Debug.WriteLine("=== WSQueryPS.GetGainersOrLosers END ===");
             return list;
         }
 
@@ -1744,6 +1755,7 @@ namespace BDA.Helper
     DataEntities db, string startDate, string endDate, int topN, bool isGainer)
         {
             var list = new List<GainerLoserViewModel>();
+            System.Diagnostics.Debug.WriteLine($"[WS G/L SINGLE] isGainer={isGainer} selectedDate={startDate} endDate={endDate}len={startDate?.Length} topN={topN}");
             string orderByClause = isGainer ? "ChangePercentage DESC" : "ChangePercentage ASC";
             string sqlQuery = $@"
         WITH Aggregated AS (
