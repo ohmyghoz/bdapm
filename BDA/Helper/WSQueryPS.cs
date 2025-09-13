@@ -17,6 +17,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace BDA.Helper
 {
@@ -1634,122 +1635,142 @@ namespace BDA.Helper
             }
         }
 
-        public static List<GainerLoserViewModel> GetGainersOrLosers(DataEntities db, bool isGainer, string selectedDate, int topN, string periodType = "Daily")
+        public static List<GainerLoserViewModel> GetGainersOrLosers(
+     DataEntities db, bool isGainer, string selectedDate, int topN, string periodType = "Daily")
+
         {
             var list = new List<GainerLoserViewModel>();
 
-            // Input validation
             if (string.IsNullOrEmpty(selectedDate) || topN <= 0)
             {
                 System.Diagnostics.Debug.WriteLine($"Invalid parameters: selectedDate='{selectedDate}', topN={topN}");
                 return list;
             }
-            System.Diagnostics.Debug.WriteLine("=== WSQueryPS.GetGainersOrLosers START ===");
-            System.Diagnostics.Debug.WriteLine($"Params: isGainer={isGainer}, selectedDate={selectedDate}, topN={topN}, periodType={periodType}");
-            // Determine history_type based on periodType
-            string historyType;
-            switch (periodType)
-            {
-                case "Monthly":
-                    historyType = "monthly";
-                    break;
-                case "Daily":
-                case "Custom Date":
-                default:
-                    historyType = "daily";
-                    break;
-            }
 
-            System.Diagnostics.Debug.WriteLine($"HistoryType resolved to {historyType}");
-
-            // Determine the sorting order based on the isGainer flag
+            string historyType = periodType == "Monthly" ? "monthly" : "daily";
+            string dateColumn = historyType == "monthly" ? "periode_lvl0" : "periode";
             string orderByClause = isGainer ? "ORDER BY changeprice DESC" : "ORDER BY changeprice ASC";
             string queryType = isGainer ? "Gainers" : "Losers";
-            string dateColumn = historyType == "monthly" ? "periode_lvl0" : "periode";
+            string tableName = "market_driven_ape_growth";
+           
 
-            // Build the query with dynamic history_type
-            string sqlQuery = $@"
-        SET ARITHABORT ON;
-        SELECT TOP (@TopN) 
-            security_code,
-            security_name,
-            ISNULL(volume, 0) as volume,
-            ISNULL(turnover, 0) as turnover,
-            ISNULL(freq, 0) as freq,
-            ISNULL(net_value, 0) as net_value,
-            ISNULL(net_volume, 0) as net_volume,
-            ISNULL(point, 0) as point,
-            ISNULL(price, 0) as price,
-            ISNULL(changeprice, 0) as changeprice,
-            ISNULL(highvalue, 0) as highvalue,
-            ISNULL(lowvalue, 0) as lowvalue
-        FROM pasarmodal.market_driven_ape_growth
-        WHERE history_type = @HistoryType AND {dateColumn} = @Periode
-        {orderByClause}";
+            // ✅ Cek Hive hanya dengan (db, tableName)
+
+            bool isHive = Helper.WSQueryStore.IsPeriodInHive(db, tableName);
+            System.Diagnostics.Debug.WriteLine($"IsPeriodInHive({tableName}) = {isHive}");
+
+            string limitClause = isHive ? $"LIMIT {topN}" : "TOP (@TopN)";
+
+
+
+            string sqlQuery;
+            if (isHive)
+            {
+                // Hive tidak support TOP, ganti dengan LIMIT, dan inline value
+                sqlQuery = $@"
+SELECT 
+    security_code,
+    security_name,
+    CAST(volume AS BIGINT) as volume,
+    CAST(turnover AS DECIMAL(18,2)) as turnover,
+    CAST(freq AS INT) as freq,
+    CAST(net_value AS DECIMAL(18,2)) as net_value,
+    CAST(net_volume AS DECIMAL(18,2)) as net_volume,
+    CAST(point AS DECIMAL(18,2)) as point,
+    CAST(price AS DECIMAL(18,2)) as price,
+    CAST(changeprice AS DECIMAL(18,2)) as changeprice,
+    CAST(highvalue AS DECIMAL(18,2)) as highvalue,
+    CAST(lowvalue AS DECIMAL(18,2)) as lowvalue
+FROM pasarmodal.{tableName}
+WHERE history_type = '{historyType}' 
+  AND {dateColumn} = '{selectedDate}'
+{orderByClause}
+LIMIT {topN}";
+            }
+            else
+            {
+                // SQL Server pakai TOP + parameter binding
+                sqlQuery = $@"
+SET ARITHABORT ON;
+SELECT TOP (@TopN)
+    security_code,
+    security_name,
+    CAST(ISNULL(volume, 0) AS BIGINT) as volume,
+    CAST(ISNULL(turnover, 0) AS DECIMAL(18,2)) as turnover,
+    CAST(ISNULL(freq, 0) AS INT) as freq,
+    CAST(ISNULL(net_value, 0) AS DECIMAL(18,2)) as net_value,
+    CAST(ISNULL(net_volume, 0) AS DECIMAL(18,2)) as net_volume,
+    CAST(ISNULL(point, 0) AS DECIMAL(18,2)) as point,
+    CAST(ISNULL(price, 0) AS DECIMAL(18,2)) as price,
+    CAST(ISNULL(changeprice, 0) AS DECIMAL(18,2)) as changeprice,
+    CAST(ISNULL(highvalue, 0) AS DECIMAL(18,2)) as highvalue,
+    CAST(ISNULL(lowvalue, 0) AS DECIMAL(18,2)) as lowvalue
+FROM pasarmodal.{tableName}
+WHERE history_type = @HistoryType 
+  AND {dateColumn} = @Periode
+{orderByClause}";
+            }
+
+
 
             System.Diagnostics.Debug.WriteLine("Generated SQL:");
             System.Diagnostics.Debug.WriteLine(sqlQuery);
-            System.Diagnostics.Debug.WriteLine($"Params: dateColumn={dateColumn} @TopN={topN}, @HistoryType={historyType}, @Periode={selectedDate}");
-
-
-            string connString = db.appSettings.DataConnString;
 
             try
             {
-                using (SqlConnection conn = new SqlConnection(connString))
+                // Persiapkan props
+                var props = new WSQueryProperties
                 {
-                    using (SqlCommand cmd = new SqlCommand(sqlQuery, conn))
+                    Query = sqlQuery,
+                    SqlParameters = new List<SqlParameter>()
+                };
+
+                if (!isHive)
+                {
+                    // Tambahkan parameter hanya untuk SQL Server
+                    props.SqlParameters.Add(new SqlParameter("@TopN", topN));
+                    props.SqlParameters.Add(new SqlParameter("@HistoryType", historyType));
+                    props.SqlParameters.Add(new SqlParameter("@Periode", selectedDate));
+                }
+
+                var loadOptions = new DataSourceLoadOptions { RequireTotalCount = false };
+
+             
+
+                var result = WSQueryHelper.DoQuery(db, props, loadOptions, false, isHive);
+
+                if (result?.data != null)
+                {
+                    foreach (DataRow row in result.data.Rows)
                     {
-                        cmd.CommandTimeout = 300;
-                        cmd.Parameters.AddWithValue("@Periode", selectedDate);
-                        cmd.Parameters.AddWithValue("@TopN", topN);
-                        cmd.Parameters.AddWithValue("@HistoryType", historyType);
-
-                       
-
-                        conn.Open();
-                        DataTable dt = new DataTable();
-                        new SqlDataAdapter(cmd).Fill(dt);
-
-                   
-
-                        // Map the results to the ViewModel list with null checks
-                        foreach (DataRow row in dt.Rows)
+                        list.Add(new GainerLoserViewModel
                         {
-                            list.Add(new GainerLoserViewModel
-                            {
-                                SecurityCode = row["security_code"]?.ToString() ?? "",
-                                SecurityName = row["security_name"]?.ToString() ?? "",
-                                Volume = Convert.ToInt64(row["volume"] ?? 0),
-                                Turnover = Convert.ToDecimal(row["turnover"] ?? 0),
-                                Freq = Convert.ToInt32(row["freq"] ?? 0),
-                                NetValue = Convert.ToDecimal(row["net_value"] ?? 0),
-                                NetVolume = Convert.ToDecimal(row["net_volume"] ?? 0),
-                                Point = Convert.ToDecimal(row["point"] ?? 0),
-                                Price = Convert.ToDecimal(row["price"] ?? 0),
-                                ChangePercentage = Convert.ToDecimal(row["changeprice"] ?? 0),
-                                MaxPrice = Convert.ToDecimal(row["highvalue"] ?? 0),
-                                MinPrice = Convert.ToDecimal(row["lowvalue"] ?? 0)
-                            });
-                        }
+                            SecurityCode = row["security_code"]?.ToString() ?? "",
+                            SecurityName = row["security_name"]?.ToString() ?? "",
+                            Volume = Convert.ToInt64(row["volume"] ?? 0),
+                            Turnover = Convert.ToDecimal(row["turnover"] ?? 0),
+                            Freq = Convert.ToInt32(row["freq"] ?? 0),
+                            NetValue = Convert.ToDecimal(row["net_value"] ?? 0),
+                            NetVolume = Convert.ToDecimal(row["net_volume"] ?? 0),
+                            Point = Convert.ToDecimal(row["point"] ?? 0),
+                            Price = Convert.ToDecimal(row["price"] ?? 0),
+                            ChangePercentage = Convert.ToDecimal(row["changeprice"] ?? 0),
+                            MaxPrice = Convert.ToDecimal(row["highvalue"] ?? 0),
+                            MinPrice = Convert.ToDecimal(row["lowvalue"] ?? 0)
+                        });
                     }
                 }
             }
-            catch (SqlException sqlEx)
-            {
-                System.Diagnostics.Debug.WriteLine($"SQL Error in Get{queryType}: {sqlEx.Message}");
-                System.Diagnostics.Debug.WriteLine($"SQL Query: {sqlQuery}");
-                throw new ApplicationException($"Database error while retrieving {queryType.ToLower()} data for {periodType} period", sqlEx);
-            }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"General Error in Get{queryType}: {ex.Message}");
-                throw new ApplicationException($"Error while retrieving {queryType.ToLower()} data for {periodType} period", ex);
+                System.Diagnostics.Debug.WriteLine($"Error in Get{queryType}: {ex.Message}");
+                throw;
             }
 
-            System.Diagnostics.Debug.WriteLine("=== WSQueryPS.GetGainersOrLosers END ===");
             return list;
         }
+
+
 
         public static List<GainerLoserViewModel> GetGainersOrLosersCustomDate(
     DataEntities db, string startDate, string endDate, int topN, bool isGainer)
