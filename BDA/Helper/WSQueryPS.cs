@@ -1635,9 +1635,13 @@ namespace BDA.Helper
             }
         }
 
-        public static List<GainerLoserViewModel> GetGainersOrLosers(
-     DataEntities db, bool isGainer, string selectedDate, int topN, string periodType = "Daily")
-
+     public static List<GainerLoserViewModel> GetGainersOrLosers(
+     DataEntities db,
+     bool isGainer,
+     string selectedDate,
+     int topN,
+     string periodType = "Daily",
+     bool forExport = false) // default = false, kalau untuk Export Excel/PDF set true
         {
             var list = new List<GainerLoserViewModel>();
 
@@ -1651,74 +1655,75 @@ namespace BDA.Helper
             string dateColumn = historyType == "monthly" ? "periode_lvl0" : "periode";
             string orderByClause = isGainer ? "ORDER BY changeprice DESC" : "ORDER BY changeprice ASC";
             string queryType = isGainer ? "Gainers" : "Losers";
-            string tableName = "market_driven_ape_growth";
-           
-
-            // ✅ Cek Hive hanya dengan (db, tableName)
+            string tableName = "market_driven_ape_growth"; // tanpa schema
 
             bool isHive = Helper.WSQueryStore.IsPeriodInHive(db, tableName);
             System.Diagnostics.Debug.WriteLine($"IsPeriodInHive({tableName}) = {isHive}");
 
-            string limitClause = isHive ? $"LIMIT {topN}" : "TOP (@TopN)";
-
-
-
+            // =============================
+            //  Build SQL
+            // =============================
             string sqlQuery;
+
             if (isHive)
             {
-                // Hive tidak support TOP, ganti dengan LIMIT, dan inline value
-                sqlQuery = $@"
-SELECT 
-    security_code,
-    security_name,
-    CAST(volume AS BIGINT) as volume,
-    CAST(turnover AS DECIMAL(18,2)) as turnover,
-    CAST(freq AS INT) as freq,
-    CAST(net_value AS DECIMAL(18,2)) as net_value,
-    CAST(net_volume AS DECIMAL(18,2)) as net_volume,
-    CAST(point AS DECIMAL(18,2)) as point,
-    CAST(price AS DECIMAL(18,2)) as price,
-    CAST(changeprice AS DECIMAL(18,2)) as changeprice,
-    CAST(highvalue AS DECIMAL(18,2)) as highvalue,
-    CAST(lowvalue AS DECIMAL(18,2)) as lowvalue
-FROM pasarmodal.{tableName}
-WHERE history_type = '{historyType}' 
-  AND {dateColumn} = '{selectedDate}'
-{orderByClause}
-LIMIT {topN}";
+                                // Hive tidak pakai parameter binding → inline values
+                                sqlQuery = $@"
+                SELECT 
+                    security_code,
+                    security_name,
+                    CAST(volume AS BIGINT) as volume,
+                    CAST(turnover AS DECIMAL(18,2)) as turnover,
+                    CAST(freq AS INT) as freq,
+                    CAST(net_value AS DECIMAL(18,2)) as net_value,
+                    CAST(net_volume AS DECIMAL(18,2)) as net_volume,
+                    CAST(point AS DECIMAL(18,2)) as point,
+                    CAST(price AS DECIMAL(18,2)) as price,
+                    CAST(changeprice AS DECIMAL(18,2)) as changeprice,
+                    CAST(highvalue AS DECIMAL(18,2)) as highvalue,
+                    CAST(lowvalue AS DECIMAL(18,2)) as lowvalue
+                FROM pasarmodal.{tableName}
+                WHERE history_type = '{historyType}'
+                  AND {dateColumn} = '{selectedDate}'
+                {orderByClause}";
+
+                // Tambahkan LIMIT hanya kalau untuk Export (ambil N teratas)
+                if (forExport)
+                    sqlQuery += $" LIMIT {topN}";
             }
             else
             {
-                // SQL Server pakai TOP + parameter binding
+                // SQL Server mode
+                // SQL Server mode - ALWAYS include TOP to avoid ORDER BY issues
+                string topClause = forExport ? "TOP (@TopN)" : "TOP (1000)"; // Default limit when not exporting
                 sqlQuery = $@"
-SET ARITHABORT ON;
-SELECT TOP (@TopN)
-    security_code,
-    security_name,
-    CAST(ISNULL(volume, 0) AS BIGINT) as volume,
-    CAST(ISNULL(turnover, 0) AS DECIMAL(18,2)) as turnover,
-    CAST(ISNULL(freq, 0) AS INT) as freq,
-    CAST(ISNULL(net_value, 0) AS DECIMAL(18,2)) as net_value,
-    CAST(ISNULL(net_volume, 0) AS DECIMAL(18,2)) as net_volume,
-    CAST(ISNULL(point, 0) AS DECIMAL(18,2)) as point,
-    CAST(ISNULL(price, 0) AS DECIMAL(18,2)) as price,
-    CAST(ISNULL(changeprice, 0) AS DECIMAL(18,2)) as changeprice,
-    CAST(ISNULL(highvalue, 0) AS DECIMAL(18,2)) as highvalue,
-    CAST(ISNULL(lowvalue, 0) AS DECIMAL(18,2)) as lowvalue
-FROM pasarmodal.{tableName}
-WHERE history_type = @HistoryType 
-  AND {dateColumn} = @Periode
-{orderByClause}";
+                SELECT {topClause}
+                    security_code,
+                    security_name,
+                    CAST(ISNULL(volume, 0) AS BIGINT) as volume,
+                    CAST(ISNULL(turnover, 0) AS DECIMAL(18,2)) as turnover,
+                    CAST(ISNULL(freq, 0) AS INT) as freq,
+                    CAST(ISNULL(net_value, 0) AS DECIMAL(18,2)) as net_value,
+                    CAST(ISNULL(net_volume, 0) AS DECIMAL(18,2)) as net_volume,
+                    CAST(ISNULL(point, 0) AS DECIMAL(18,2)) as point,
+                    CAST(ISNULL(price, 0) AS DECIMAL(18,2)) as price,
+                    CAST(ISNULL(changeprice, 0) AS DECIMAL(18,2)) as changeprice,
+                    CAST(ISNULL(highvalue, 0) AS DECIMAL(18,2)) as highvalue,
+                    CAST(ISNULL(lowvalue, 0) AS DECIMAL(18,2)) as lowvalue
+                FROM pasarmodal.{tableName}
+                WHERE history_type = @HistoryType
+                  AND {dateColumn} = @Periode
+                {orderByClause}";
             }
-
-
 
             System.Diagnostics.Debug.WriteLine("Generated SQL:");
             System.Diagnostics.Debug.WriteLine(sqlQuery);
 
             try
             {
-                // Persiapkan props
+                // =============================
+                //  Prepare props
+                // =============================
                 var props = new WSQueryProperties
                 {
                     Query = sqlQuery,
@@ -1727,16 +1732,20 @@ WHERE history_type = @HistoryType
 
                 if (!isHive)
                 {
-                    // Tambahkan parameter hanya untuk SQL Server
-                    props.SqlParameters.Add(new SqlParameter("@TopN", topN));
+                    if (forExport)
+                        props.SqlParameters.Add(new SqlParameter("@TopN", topN));
+                    else
+                        props.SqlParameters.Add(new SqlParameter("@TopN", 1000)); // Default limit
+
                     props.SqlParameters.Add(new SqlParameter("@HistoryType", historyType));
                     props.SqlParameters.Add(new SqlParameter("@Periode", selectedDate));
                 }
 
                 var loadOptions = new DataSourceLoadOptions { RequireTotalCount = false };
 
-             
-
+                // =============================
+                //  Execute
+                // =============================
                 var result = WSQueryHelper.DoQuery(db, props, loadOptions, false, isHive);
 
                 if (result?.data != null)
@@ -1767,6 +1776,7 @@ WHERE history_type = @HistoryType
                 throw;
             }
 
+            System.Diagnostics.Debug.WriteLine("=== WSQueryPS.GetGainersOrLosers END ===");
             return list;
         }
 
