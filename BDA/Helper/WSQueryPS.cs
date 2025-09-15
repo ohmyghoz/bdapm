@@ -1669,20 +1669,20 @@ namespace BDA.Helper
             {
                                 // Hive tidak pakai parameter binding → inline values
                                 sqlQuery = $@"
-                SELECT 
-                    security_code,
-                    security_name,
-                    CAST(volume AS BIGINT) as volume,
-                    CAST(turnover AS DECIMAL(18,2)) as turnover,
-                    CAST(freq AS INT) as freq,
-                    CAST(net_value AS DECIMAL(18,2)) as net_value,
-                    CAST(net_volume AS DECIMAL(18,2)) as net_volume,
-                    CAST(point AS DECIMAL(18,2)) as point,
-                    CAST(price AS DECIMAL(18,2)) as price,
-                    CAST(changeprice AS DECIMAL(18,2)) as changeprice,
-                    CAST(highvalue AS DECIMAL(18,2)) as highvalue,
-                    CAST(lowvalue AS DECIMAL(18,2)) as lowvalue
-                FROM pasarmodal.{tableName}
+               SELECT 
+                security_code,
+                security_name,
+                CAST(COALESCE(volume, 0) AS BIGINT) as volume,
+                CAST(COALESCE(turnover, 0.0) AS DECIMAL(18,2)) as turnover,
+                CAST(COALESCE(freq, 0) AS INT) as freq,
+                CAST(COALESCE(net_value, 0.0) AS DECIMAL(18,2)) as net_value,
+                CAST(COALESCE(net_volume, 0.0) AS DECIMAL(18,2)) as net_volume,
+                CAST(COALESCE(point, 0.0) AS DECIMAL(18,2)) as point,
+                CAST(COALESCE(price, 0.0) AS DECIMAL(18,2)) as price,
+                CAST(COALESCE(changeprice, 0.0) AS DECIMAL(18,2)) as changeprice,
+                CAST(COALESCE(highvalue, 0.0) AS DECIMAL(18,2)) as highvalue,
+                CAST(COALESCE(lowvalue, 0.0) AS DECIMAL(18,2)) as lowvalue
+            FROM pasarmodal.{tableName}
                 WHERE history_type = '{historyType}'
                   AND {dateColumn} = '{selectedDate}'
                 {orderByClause}";
@@ -1756,16 +1756,16 @@ namespace BDA.Helper
                         {
                             SecurityCode = row["security_code"]?.ToString() ?? "",
                             SecurityName = row["security_name"]?.ToString() ?? "",
-                            Volume = Convert.ToInt64(row["volume"] ?? 0),
-                            Turnover = Convert.ToDecimal(row["turnover"] ?? 0),
-                            Freq = Convert.ToInt32(row["freq"] ?? 0),
-                            NetValue = Convert.ToDecimal(row["net_value"] ?? 0),
-                            NetVolume = Convert.ToDecimal(row["net_volume"] ?? 0),
-                            Point = Convert.ToDecimal(row["point"] ?? 0),
-                            Price = Convert.ToDecimal(row["price"] ?? 0),
-                            ChangePercentage = Convert.ToDecimal(row["changeprice"] ?? 0),
-                            MaxPrice = Convert.ToDecimal(row["highvalue"] ?? 0),
-                            MinPrice = Convert.ToDecimal(row["lowvalue"] ?? 0)
+                            Volume = row["volume"] == DBNull.Value ? 0 : Convert.ToInt64(row["volume"] ?? 0),
+                            Turnover = row["turnover"] == DBNull.Value ? 0m : Convert.ToDecimal(row["turnover"] ?? 0),
+                            Freq = row["freq"] == DBNull.Value ? 0 : Convert.ToInt32(row["freq"] ?? 0),
+                            NetValue = row["net_value"] == DBNull.Value ? 0m : Convert.ToDecimal(row["net_value"] ?? 0),
+                            NetVolume = row["net_volume"] == DBNull.Value ? 0m : Convert.ToDecimal(row["net_volume"] ?? 0),
+                            Point = row["point"] == DBNull.Value ? 0m : Convert.ToDecimal(row["point"] ?? 0),
+                            Price = row["price"] == DBNull.Value ? 0m : Convert.ToDecimal(row["price"] ?? 0),
+                            ChangePercentage = row["changeprice"] == DBNull.Value ? 0m : Convert.ToDecimal(row["changeprice"] ?? 0),
+                            MaxPrice = row["highvalue"] == DBNull.Value ? 0m : Convert.ToDecimal(row["highvalue"] ?? 0),
+                            MinPrice = row["lowvalue"] == DBNull.Value ? 0m : Convert.ToDecimal(row["lowvalue"] ?? 0)
                         });
                     }
                 }
