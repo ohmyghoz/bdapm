@@ -5,6 +5,7 @@ using DevExpress.Data.Extensions;
 using DevExpress.Xpo.DB;
 using DevExpress.Xpo.DB.Helpers;
 using DevExpress.XtraRichEdit;
+using DevExpress.XtraRichEdit.Model;
 using DevExtreme.AspNet.Data;
 using DevExtreme.AspNet.Mvc;
 using Org.BouncyCastle.Asn1.Mozilla;
@@ -1697,7 +1698,7 @@ namespace BDA.Helper
                 // SQL Server mode - ALWAYS include TOP to avoid ORDER BY issues
                 string topClause = forExport ? "TOP (@TopN)" : "TOP (1000)"; // Default limit when not exporting
                 sqlQuery = $@"
-                SELECT {topClause}
+                SELECT top (10)
                     security_code,
                     security_name,
                     CAST(ISNULL(volume, 0) AS BIGINT) as volume,
@@ -1735,7 +1736,7 @@ namespace BDA.Helper
                     if (forExport)
                         props.SqlParameters.Add(new SqlParameter("@TopN", topN));
                     else
-                        props.SqlParameters.Add(new SqlParameter("@TopN", 1000)); // Default limit
+                        props.SqlParameters.Add(new SqlParameter("@TopN", 10)); // Default limit
 
                     props.SqlParameters.Add(new SqlParameter("@HistoryType", historyType));
                     props.SqlParameters.Add(new SqlParameter("@Periode", selectedDate));
@@ -1747,11 +1748,21 @@ namespace BDA.Helper
                 //  Execute
                 // =============================
                 var result = WSQueryHelper.DoQuery(db, props, loadOptions, false, isHive);
+                System.Diagnostics.Debug.WriteLine($"=== RAW DATA FROM DATABASE ({result.data.Rows.Count} rows) ===");
+                var rowIndex = 1;
 
                 if (result?.data != null)
                 {
                     foreach (DataRow row in result.data.Rows)
                     {
+
+                        System.Diagnostics.Debug.WriteLine($"--- Row {rowIndex + 1} ---");
+                        System.Diagnostics.Debug.WriteLine($"  security_code: {row["security_code"]}");
+                        System.Diagnostics.Debug.WriteLine($"  security_name: {row["security_name"]}");
+                        System.Diagnostics.Debug.WriteLine($"  changeprice: {row["changeprice"]}");
+                        System.Diagnostics.Debug.WriteLine($"  volume: {row["volume"]}");
+                        System.Diagnostics.Debug.WriteLine($"  price: {row["price"]}");
+
                         list.Add(new GainerLoserViewModel
                         {
                             SecurityCode = row["security_code"]?.ToString() ?? "",
