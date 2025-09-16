@@ -1101,6 +1101,253 @@ namespace BDA.Helper
             }
         }
 
+        public static List<Dictionary<string, object>> GetMarketDrivenTopCompanies(
+            DataEntities db,
+            string periodType,
+            string selectedDate,
+            bool isHive,
+            int topN)
+        {
+            var results = new List<Dictionary<string, object>>();
+
+            try
+            {
+                if (string.IsNullOrWhiteSpace(selectedDate))
+                {
+                    return results;
+                }
+
+                var sanitizedDate = Regex.Replace(selectedDate, "[^0-9]", "");
+                if (string.IsNullOrWhiteSpace(sanitizedDate))
+                {
+                    return results;
+                }
+
+                var isDaily = string.Equals(periodType, "Daily", StringComparison.OrdinalIgnoreCase);
+                var historyType = isDaily ? "DateTime" : "Date";
+
+                string whereClause;
+                if (isDaily)
+                {
+                    whereClause = isHive
+                        ? $"history_type = '{historyType}' AND periode = '{sanitizedDate}'"
+                        : "history_type = @HistoryType AND periode = @Periode";
+                }
+                else
+                {
+                    whereClause = isHive
+                        ? $"periode_lvl1 = '{sanitizedDate}'"
+                        : "periode_lvl1 = @Periode";
+                }
+
+                string query;
+                if (isHive)
+                {
+                    var limitClause = topN > 0 ? $" LIMIT {topN}" : string.Empty;
+                    query = $@"
+                SELECT
+                    security_code,
+                    CAST(COALESCE(SUM(value), 0) AS DECIMAL(38,2)) AS total_value,
+                    CAST(COALESCE(SUM(volume), 0) AS BIGINT) AS total_volume,
+                    CAST(COALESCE(SUM(freq), 0) AS BIGINT) AS total_freq
+                FROM pasarmodal.market_driven_rg_ng
+                WHERE {whereClause}
+                GROUP BY security_code
+                ORDER BY total_value DESC{limitClause};";
+                }
+                else
+                {
+                    var topClause = topN > 0 ? "TOP (@TopN)" : string.Empty;
+                    query = $@"
+                SELECT {topClause}
+                    security_code,
+                    CAST(ISNULL(SUM(value), 0) AS DECIMAL(38,2)) AS total_value,
+                    CAST(ISNULL(SUM(volume), 0) AS BIGINT) AS total_volume,
+                    CAST(ISNULL(SUM(freq), 0) AS BIGINT) AS total_freq
+                FROM pasarmodal.market_driven_rg_ng
+                WHERE {whereClause}
+                GROUP BY security_code
+                ORDER BY total_value DESC;";
+                }
+
+                var props = new WSQueryProperties
+                {
+                    Query = query,
+                    SqlParameters = new List<SqlParameter>()
+                };
+
+                if (!isHive)
+                {
+                    if (topN > 0)
+                    {
+                        props.SqlParameters.Add(new SqlParameter("@TopN", topN));
+                    }
+
+                    props.SqlParameters.Add(new SqlParameter("@Periode", sanitizedDate));
+
+                    if (isDaily)
+                    {
+                        props.SqlParameters.Add(new SqlParameter("@HistoryType", historyType));
+                    }
+                }
+
+                var loadOptions = new DataSourceLoadOptions { RequireTotalCount = false };
+                var queryResult = WSQueryHelper.DoQuery(db, props, loadOptions, false, isHive);
+
+                if (queryResult?.data != null)
+                {
+                    foreach (DataRow row in queryResult.data.Rows)
+                    {
+                        var item = new Dictionary<string, object>
+                        {
+                            ["security_code"] = row["security_code"]?.ToString() ?? string.Empty,
+                            ["total_value"] = row["total_value"] == DBNull.Value ? 0m : Convert.ToDecimal(row["total_value"]),
+                            ["total_volume"] = row["total_volume"] == DBNull.Value ? 0L : Convert.ToInt64(row["total_volume"]),
+                            ["total_freq"] = row["total_freq"] == DBNull.Value ? 0L : Convert.ToInt64(row["total_freq"])
+                        };
+
+                        results.Add(item);
+                    }
+                }
+
+                results = results
+                    .OrderByDescending(r => (decimal)r["total_value"])
+                    .ThenBy(r => r["security_code"]?.ToString())
+                    .ToList();
+
+                if (topN > 0 && results.Count > topN)
+                {
+                    results = results.Take(topN).ToList();
+                }
+
+                return results;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in GetMarketDrivenTopCompanies: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+                throw;
+            }
+        }
+
+        public static List<Dictionary<string, object>> GetMarketDrivenChartData(
+            DataEntities db,
+            string periodType,
+            string selectedDate,
+            string securityCode,
+            bool isHive)
+        {
+            var results = new List<Dictionary<string, object>>();
+
+            try
+            {
+                if (string.IsNullOrWhiteSpace(selectedDate) || string.IsNullOrWhiteSpace(securityCode))
+                {
+                    return results;
+                }
+
+                var sanitizedDate = Regex.Replace(selectedDate, "[^0-9]", "");
+                var sanitizedSecurity = Regex.Replace(securityCode, "[^A-Za-z0-9]", "").ToUpperInvariant();
+
+                if (string.IsNullOrWhiteSpace(sanitizedDate) || string.IsNullOrWhiteSpace(sanitizedSecurity))
+                {
+                    return results;
+                }
+
+                var isDaily = string.Equals(periodType, "Daily", StringComparison.OrdinalIgnoreCase);
+                var historyType = isDaily ? "DateTime" : "Date";
+
+                string periodFilter = isDaily
+                    ? (isHive ? $"history_type = '{historyType}' AND periode = '{sanitizedDate}'" : "history_type = @HistoryType AND periode = @Periode")
+                    : (isHive ? $"history_type = '{historyType}' AND periode_lvl1 = '{sanitizedDate}'" : "history_type = @HistoryType AND periode_lvl1 = @Periode");
+
+                string securityFilter = isHive
+                    ? $"security_code = '{sanitizedSecurity}'"
+                    : "security_code = @SecurityCode";
+
+                string query;
+                if (isHive)
+                {
+                    query = $@"
+                SELECT
+                    periode,
+                    security_code,
+                    CAST(COALESCE(SUM(CASE WHEN market = 'NG' THEN volume ELSE 0 END), 0) AS BIGINT) AS volume_ng,
+                    CAST(COALESCE(MAX(CASE WHEN market = 'NG' THEN high END), 0) AS DECIMAL(38,4)) AS high_ng,
+                    CAST(COALESCE(MIN(CASE WHEN market = 'NG' THEN low END), 0) AS DECIMAL(38,4)) AS low_ng,
+                    CAST(COALESCE(MAX(CASE WHEN market = 'RG' THEN high END), 0) AS DECIMAL(38,4)) AS high_rg,
+                    CAST(COALESCE(MIN(CASE WHEN market = 'RG' THEN low END), 0) AS DECIMAL(38,4)) AS low_rg
+                FROM pasarmodal.market_driven_rg_ng
+                WHERE {periodFilter} AND {securityFilter}
+                GROUP BY periode, security_code
+                ORDER BY periode;";
+                }
+                else
+                {
+                    query = $@"
+                SELECT
+                    periode,
+                    security_code,
+                    CAST(ISNULL(SUM(CASE WHEN market = 'NG' THEN volume ELSE 0 END), 0) AS BIGINT) AS volume_ng,
+                    CAST(ISNULL(MAX(CASE WHEN market = 'NG' THEN high END), 0) AS DECIMAL(38,4)) AS high_ng,
+                    CAST(ISNULL(MIN(CASE WHEN market = 'NG' THEN low END), 0) AS DECIMAL(38,4)) AS low_ng,
+                    CAST(ISNULL(MAX(CASE WHEN market = 'RG' THEN high END), 0) AS DECIMAL(38,4)) AS high_rg,
+                    CAST(ISNULL(MIN(CASE WHEN market = 'RG' THEN low END), 0) AS DECIMAL(38,4)) AS low_rg
+                FROM pasarmodal.market_driven_rg_ng
+                WHERE {periodFilter} AND {securityFilter}
+                GROUP BY periode, security_code
+                ORDER BY periode;";
+                }
+
+                var props = new WSQueryProperties
+                {
+                    Query = query,
+                    SqlParameters = new List<SqlParameter>()
+                };
+
+                if (!isHive)
+                {
+                    props.SqlParameters.Add(new SqlParameter("@Periode", sanitizedDate));
+                    props.SqlParameters.Add(new SqlParameter("@SecurityCode", sanitizedSecurity));
+                    props.SqlParameters.Add(new SqlParameter("@HistoryType", historyType));
+                }
+
+                var loadOptions = new DataSourceLoadOptions { RequireTotalCount = false };
+                var queryResult = WSQueryHelper.DoQuery(db, props, loadOptions, true, isHive);
+
+                if (queryResult?.data != null)
+                {
+                    foreach (DataRow row in queryResult.data.Rows)
+                    {
+                        var item = new Dictionary<string, object>
+                        {
+                            ["periode"] = row["periode"]?.ToString() ?? string.Empty,
+                            ["security_code"] = row["security_code"]?.ToString() ?? string.Empty,
+                            ["volume_ng"] = row["volume_ng"] == DBNull.Value ? 0L : Convert.ToInt64(row["volume_ng"]),
+                            ["high_ng"] = row["high_ng"] == DBNull.Value ? 0m : Convert.ToDecimal(row["high_ng"]),
+                            ["low_ng"] = row["low_ng"] == DBNull.Value ? 0m : Convert.ToDecimal(row["low_ng"]),
+                            ["high_rg"] = row["high_rg"] == DBNull.Value ? 0m : Convert.ToDecimal(row["high_rg"]),
+                            ["low_rg"] = row["low_rg"] == DBNull.Value ? 0m : Convert.ToDecimal(row["low_rg"])
+                        };
+
+                        results.Add(item);
+                    }
+                }
+
+                results = results
+                    .OrderBy(r => r["periode"]?.ToString())
+                    .ToList();
+
+                return results;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in GetMarketDrivenChartData: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+                throw;
+            }
+        }
+
         public static WSQueryReturns GetInvestorGridData(DataEntities db, string filterDate, string periodType = "Daily", string transactionCode = null, object loadOptions = null)
         {
             System.Diagnostics.Debug.WriteLine("=== WSQueryPS INVESTOR GRID DEBUG START ===");
