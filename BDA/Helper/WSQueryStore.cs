@@ -6350,7 +6350,7 @@ namespace BDA.Helper
         {
             bool isC = false;
             var whereQuery = "1=1";
-            isHive = false;
+            isHive = true;
 
             if (periode != null)
             {
