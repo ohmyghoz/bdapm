@@ -23,6 +23,20 @@
                             .Width("100%")
                             .OnValueChanged("onPeriodChanged"))
                     </div>
+                    <div class="col-lg-3 form-group">
+                        <label>Sumber Data</label>
+                        @(Html.DevExtreme().SelectBox()
+                            .ID("DataSourceMode")
+                            .DataSource(new[]
+                            {
+                                new { Value = false, Text = "SQL" },
+                                new { Value = true, Text = "Hive" }
+                            })
+                            .ValueExpr("Value")
+                            .DisplayExpr("Text")
+                            .Value(false)
+                            .Width("100%"))
+                    </div>
 
                 </div>
                 <div class="row">
@@ -135,7 +149,9 @@
                         .LoadAction("_GetTopCompaniesData") // This action calls your query
                         .LoadParams(new
                         {
-                            selectedDate = new JS("getFormattedPeriod")
+                            selectedDate = new JS("getFormattedPeriod"),
+                            periodType = new JS("getSelectedPeriodType"),
+                            isHive = new JS("getIsHiveValue")
                         })
                         .Key("security_code") // Unique key for the rows
                         )
@@ -248,6 +264,16 @@
         return null;
     }
 
+    function getSelectedPeriodType() {
+        const instance = $("#Periodid").dxSelectBox("instance");
+        return instance ? instance.option("value") : null;
+    }
+
+    function getIsHiveValue() {
+        const instance = $("#DataSourceMode").dxSelectBox("instance");
+        return instance ? instance.option("value") === true : false;
+    }
+
     // Main function to refresh grid and create charts
     function refreshTopCompaniesGrid() {
         console.log("refreshTopCompaniesGrid called from button");
@@ -311,20 +337,13 @@
             // Clear existing charts
             $("#dynamicChartsContainer").empty();
 
-            // Create charts in 2x2 layout using Bootstrap rows
-            for (let i = 0; i < topSecurityCodes.length; i += 2) {
-                // Create a new row for every 2 charts
-                const rowDiv = $('<div class="row chart-row" style="margin-bottom: 20px;"></div>');
-                $("#dynamicChartsContainer").append(rowDiv);
+            const periodType = getSelectedPeriodType();
+            const isHive = getIsHiveValue();
 
-                // Add first chart in the row
+            // Create charts in single-column layout
+            for (let i = 0; i < topSecurityCodes.length; i++) {
                 if (topSecurityCodes[i]) {
-                    createChartForSecurity(topSecurityCodes[i], i, formattedDate, rowDiv);
-                }
-
-                // Add second chart in the row (if exists)
-                if (topSecurityCodes[i + 1]) {
-                    createChartForSecurity(topSecurityCodes[i + 1], i + 1, formattedDate, rowDiv);
+                    createChartForSecurity(topSecurityCodes[i], i, formattedDate, periodType, isHive);
                 }
             }
 
@@ -336,23 +355,20 @@
     }
 
     // Function to create individual chart
-    function createChartForSecurity(securityCode, index, selectedDate, rowContainer) {
+    function createChartForSecurity(securityCode, index, selectedDate, periodType, isHive) {
         const chartId = `market-chart-${index + 1}`;
         const containerId = `chartContainer-${index + 1}`;
 
-        // Create chart container HTML for 2x2 layout
+        // Create chart container HTML for single column layout
         const chartHtml = `
-            <div class="col-lg-6 col-md-6 col-sm-12 form-group" id="${containerId}" style="padding: 15px;">
-                <div id="${chartId}" style="height: 400px; border: 1px solid #ddd; border-radius: 5px; padding: 10px;"></div>
+            <div class="row chart-row" style="margin-bottom: 20px;">
+                <div class="col-12 form-group" id="${containerId}" style="padding: 15px;">
+                    <div id="${chartId}" style="height: 400px; border: 1px solid #ddd; border-radius: 5px; padding: 10px;"></div>
+                </div>
             </div>
         `;
 
-        // Append to the specific row container instead of the main container
-        if (rowContainer) {
-            rowContainer.append(chartHtml);
-        } else {
-            $("#dynamicChartsContainer").append(chartHtml);
-        }
+        $("#dynamicChartsContainer").append(chartHtml);
 
         // Create the DevExtreme chart
         $(`#${chartId}`).dxChart({
@@ -364,7 +380,9 @@
                         url: '@Url.Action("_GetChartData", "MarketDriven")',
                         data: {
                             selectedDate: selectedDate,
-                            securityCode: securityCode
+                            securityCode: securityCode,
+                            periodType: periodType,
+                            isHive: isHive
                         },
                         dataType: "json"
                     }).done(function (data) {
@@ -387,7 +405,17 @@
             argumentAxis: {
                 argumentType: "string",
                 label: {
-                    overlappingBehavior: "stagger"
+                    overlappingBehavior: "stagger",
+                    customizeText: function (arg) {
+                        if (!arg || !arg.valueText) {
+                            return "";
+                        }
+                        const text = arg.valueText.toString();
+                        if (/^\d{8}$/.test(text)) {
+                            return text.substring(6, 8);
+                        }
+                        return text;
+                    }
                 }
             },
             commonSeriesSettings: {
@@ -444,19 +472,28 @@
                 {
                     name: "value",
                     position: "right",
-                    label: {
-                        format: "decimal"
+                    title: {
+                        text: "Price"
                     },
-                    allowDecimals: false,
-                    axisDivisionFactor: 60
+                    label: {
+                        format: {
+                            type: "fixedPoint",
+                            precision: 2
+                        }
+                    },
+                    allowDecimals: true
                 },
                 {
                     name: "volume",
                     position: "left",
-                    label: {
-                        format: "decimal"
+                    title: {
+                        text: "Volume NG"
                     },
-                    tickInterval: 10000000
+                    label: {
+                        format: {
+                            type: "largeNumber"
+                        }
+                    }
                 }
             ],
             export: {

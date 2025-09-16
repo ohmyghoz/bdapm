@@ -667,123 +667,50 @@ namespace BDA.Controllers
         // In MarketDrivenController.cs
 
         [HttpGet]
-        public object _GetTopCompaniesData(DataSourceLoadOptions loadOptions, string selectedDate)
+        public object _GetTopCompaniesData(DataSourceLoadOptions loadOptions, string selectedDate, string periodType, bool isHive = false)
         {
-            if (string.IsNullOrEmpty(selectedDate))
-            {
-                return DataSourceLoader.Load(new List<object>(), loadOptions);
-            }
-
-            // This query is from your WSQueryPS file
-            string sqlQuery = @"
-        SET ARITHABORT ON;
-        SELECT TOP 10
-            security_code,
-            SUM(value) as total_value,
-            SUM(volume) as total_volume,
-            SUM(freq) as total_freq
-        FROM BDAPM.pasarmodal.market_driven_rg_ng
-        WHERE periode_lvl1 = @Periode
-        GROUP BY security_code
-        ORDER BY total_value DESC;";
-
-            var dataList = new List<object>();
-            string connString = db.appSettings.DataConnString;
             try
             {
-                using (SqlConnection conn = new SqlConnection(connString))
+                if (string.IsNullOrWhiteSpace(selectedDate))
                 {
-                    using (SqlCommand cmd = new SqlCommand(sqlQuery, conn))
-                    {
-                        cmd.CommandTimeout = 300;
-                        cmd.Parameters.AddWithValue("@Periode", selectedDate);
-
-                        conn.Open();
-                        DataTable dt = new DataTable();
-                        SqlDataAdapter adapter = new SqlDataAdapter(cmd);
-                        adapter.Fill(dt);
-
-                        dataList = dt.AsEnumerable().Select(row => new {
-                            security_code = row.Field<string>("security_code"),
-                            total_value = Convert.ToDecimal(row["total_value"]),
-                            total_volume = Convert.ToInt64(row["total_volume"]),
-                            total_freq = Convert.ToInt64(row["total_freq"])
-                        }).ToList<object>();
-                    }
+                    return DataSourceLoader.Load(new List<Dictionary<string, object>>(), loadOptions);
                 }
+
+                var effectivePeriodType = string.IsNullOrWhiteSpace(periodType) ? "Monthly" : periodType;
+
+                var results = Helper.WSQueryPS.GetMarketDrivenTopCompanies(db, effectivePeriodType, selectedDate, isHive, 10);
+
+                return DataSourceLoader.Load(results, loadOptions);
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine("DATABASE ERROR: " + ex.Message);
+                System.Diagnostics.Debug.WriteLine($"Error in _GetTopCompaniesData: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine(ex.StackTrace);
+                return DataSourceLoader.Load(new List<Dictionary<string, object>>(), loadOptions);
             }
-
-            // This line guarantees the grid gets data in the correct format
-            return DataSourceLoader.Load(dataList, loadOptions);
         }
+
         [HttpGet]
-        public object _GetChartData(string selectedDate, string securityCode)
+        public object _GetChartData(string selectedDate, string securityCode, string periodType, bool isHive = false)
         {
-            if (string.IsNullOrEmpty(selectedDate) || string.IsNullOrEmpty(securityCode))
+            try
             {
+                if (string.IsNullOrWhiteSpace(selectedDate) || string.IsNullOrWhiteSpace(securityCode))
+                {
+                    return new List<object>();
+                }
+
+                var effectivePeriodType = string.IsNullOrWhiteSpace(periodType) ? "Monthly" : periodType;
+                var chartData = Helper.WSQueryPS.GetMarketDrivenChartData(db, effectivePeriodType, selectedDate, securityCode, isHive);
+
+                return chartData;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in _GetChartData: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine(ex.StackTrace);
                 return new List<object>();
             }
-
-            string sqlQuery = @"
-        SELECT 
-            RIGHT(periode, 2) as periode,  -- Extract DD from YYYYMMDD
-            security_code,
-            ISNULL(SUM(CASE WHEN market = 'NG' THEN volume ELSE 0 END), 0) as volume_ng,
-            ISNULL(MAX(CASE WHEN market = 'NG' THEN high END), 0) as high_ng,
-            ISNULL(MIN(CASE WHEN market = 'NG' THEN low END), 0) as low_ng,
-            ISNULL(MAX(CASE WHEN market = 'RG' THEN high END), 0) as high_rg,
-            ISNULL(MIN(CASE WHEN market = 'RG' THEN low END), 0) as low_rg
-        FROM BDAPM.pasarmodal.market_driven_rg_ng m 
-        WHERE periode_lvl1 = @Periode AND m.history_type = 'Date' AND m.security_code = @security_code
-        GROUP BY periode, security_code
-        ORDER BY periode;";
-
-            var dataList = new List<object>();
-            string connString = db.appSettings.DataConnString;
-
-            try
-            {
-                using (SqlConnection conn = new SqlConnection(connString))
-                {
-                    using (SqlCommand cmd = new SqlCommand(sqlQuery, conn))
-                    {
-                        cmd.CommandTimeout = 300;
-                        cmd.Parameters.AddWithValue("@Periode", selectedDate);
-                        cmd.Parameters.AddWithValue("@security_code", securityCode);
-
-                        conn.Open();
-                        DataTable dt = new DataTable();
-                        SqlDataAdapter adapter = new SqlDataAdapter(cmd);
-                        adapter.Fill(dt);
-
-                        System.Diagnostics.Debug.WriteLine($"Chart query returned {dt.Rows.Count} rows for {securityCode}");
-
-                        dataList = dt.AsEnumerable().Select(row => new {
-                            periode = row.Field<string>("periode"),
-                            security_code = row.Field<string>("security_code"),
-                            volume_ng = Convert.ToInt64(row["volume_ng"] ?? 0),
-                            high_ng = Convert.ToDecimal(row["high_ng"] ?? 0),
-                            low_ng = Convert.ToDecimal(row["low_ng"] ?? 0),
-                            high_rg = Convert.ToDecimal(row["high_rg"] ?? 0),
-                            low_rg = Convert.ToDecimal(row["low_rg"] ?? 0)
-                        }).ToList<object>();
-
-                        // Log the data for debugging
-                        System.Diagnostics.Debug.WriteLine($"Data for {securityCode}: {Newtonsoft.Json.JsonConvert.SerializeObject(dataList)}");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Chart DATABASE ERROR for {securityCode}: " + ex.Message);
-                System.Diagnostics.Debug.WriteLine($"Stack Trace: {ex.StackTrace}");
-            }
-
-            return dataList;
         }
 
         [HttpGet]
